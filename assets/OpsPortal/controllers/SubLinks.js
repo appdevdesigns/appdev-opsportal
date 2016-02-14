@@ -1,190 +1,192 @@
+System.import('appdev').then(function () {
+    steal.import(
+        'appdev/ad',
+        'appdev/control/control',
+        'appdev/comm/socket'
+        ).then(function () {
 
-steal(
-        'appdev',
-function(){
+        //
+        // SubLinks 
+        // 
+        // This controller manages the sublinks that appear in the Masthead.
+        //
+        // For each Area defined in the OpsPortal, a new set of SubLinks will appear.
+        //
+        // Each Area of the OpsPortal can contain numerous Tools for the user to 
+        // work with.  The SubLinks will allow the user to switch between tools
+        // in the currently displyed Area.
+        //
+        // When the main OpsPortal controller receives it's configuration 
+        // information from the server, the OpsPortal will fire off a 
+        // 'opsportal.area.new' notification for each Area defined.
+        //
+        // This SubLinks controller listens for each of those notifications and
+        // creates a new set of links for each Area it is told about.
+        //
+        // Clicking on one of the links will cause this SubLinks controller
+        // to emit 'opsportal.tool.show', with the tool definition for that link.
+        //
+        AD.Control.extend('OpsPortal.SubLinks', {
 
-
-    //
-    // SubLinks 
-    // 
-    // This controller manages the sublinks that appear in the Masthead.
-    //
-    // For each Area defined in the OpsPortal, a new set of SubLinks will appear.
-    //
-    // Each Area of the OpsPortal can contain numerous Tools for the user to 
-    // work with.  The SubLinks will allow the user to switch between tools
-    // in the currently displyed Area.
-    //
-    // When the main OpsPortal controller receives it's configuration 
-    // information from the server, the OpsPortal will fire off a 
-    // 'opsportal.area.new' notification for each Area defined.
-    //
-    // This SubLinks controller listens for each of those notifications and
-    // creates a new set of links for each Area it is told about.
-    //
-    // Clicking on one of the links will cause this SubLinks controller
-    // to emit 'opsportal.tool.show', with the tool definition for that link.
-    //
-    AD.Control.extend('OpsPortal.SubLinks', { 
-
-        init: function( element, options ) {
-            var self = this;
-            this.options = AD.defaults({
+            init: function (element, options) {
+                var self = this;
+                this.options = AD.defaults({
                     // templateDOM: '//OpsPortal/views/Sublinks/Sublinks.ejs',
                     // templateItem: '//OpsPortal/views/MenuList/menuItem.ejs'
-            }, options);
+                }, options);
 
 
-            this.areaLinks = {};    // the DOM ul for each of our area links
+                this.areaLinks = {};    // the DOM ul for each of our area links
 
-            this.initDOM();
-
-
-            // listen for new area notifications
-            AD.comm.hub.subscribe('opsportal.area.new', function (key, data) {
-                self.createArea(data);
-            });
+                this.initDOM();
 
 
-            // listen for new tool notifications.
-            AD.comm.hub.subscribe('opsportal.tool.new', function(key, data) {
-
-                // data = { 
-                //     area:'area.key', 
-                //     controller:'RBAC',
-                //     isDefault:true,
-                //     label:"Permissions"
-                // }
-                self.createLink(data);                
-            });
+                // listen for new area notifications
+                AD.comm.hub.subscribe('opsportal.area.new', function (key, data) {
+                    self.createArea(data);
+                });
 
 
-            // listen for area.show notifications.
-            AD.comm.hub.subscribe('opsportal.area.show', function(key, data) {
-                self.showArea(data);                
-            });
+                // listen for new tool notifications.
+                AD.comm.hub.subscribe('opsportal.tool.new', function (key, data) {
+
+                    // data = { 
+                    //     area:'area.key', 
+                    //     controller:'RBAC',
+                    //     isDefault:true,
+                    //     label:"Permissions"
+                    // }
+                    self.createLink(data);
+                });
 
 
-            // listen for tool.show notifications.
-            AD.comm.hub.subscribe('opsportal.tool.show', function(key, data) {
-                // data = {
-                //     area: 'Profile',
-                //     tool: 'GMAMatrix'
-                // }
-                self.updateToolLink(data);                
-            });
-
-            AD.comm.hub.subscribe('opsportal.ready', function(key,data){
-
-                AD.lang.label.translate( self.element );
-            })
-
-        },
+                // listen for area.show notifications.
+                AD.comm.hub.subscribe('opsportal.area.show', function (key, data) {
+                    self.showArea(data);
+                });
 
 
+                // listen for tool.show notifications.
+                AD.comm.hub.subscribe('opsportal.tool.show', function (key, data) {
+                    // data = {
+                    //     area: 'Profile',
+                    //     tool: 'GMAMatrix'
+                    // }
+                    self.updateToolLink(data);
+                });
 
-        createArea: function( area) {
-            // console.log(area);
+                AD.comm.hub.subscribe('opsportal.ready', function (key, data) {
 
-            this.element.append(can.view('OpsPortal_SubLinks_Area', {area:area}));
+                    AD.lang.label.translate(self.element);
+                })
 
-            this.areaLinks[area.key] = this.element.find('[area="'+area.key+'"]');
-
-        },
+            },
 
 
 
-        createLink: function( tool ) {
+            createArea: function (area) {
+                // console.log(area);
 
-            var area = this.areaLinks[tool.area];
-            if (area) {
-                area.append(can.view('OpsPortal_SubLinks_Item', {tool:tool}));
+                this.element.append(can.view('OpsPortal_SubLinks_Area', { area: area }));
 
-            }
+                this.areaLinks[area.key] = this.element.find('[area="' + area.key + '"]');
 
-        },
-
+            },
 
 
-        showArea: function( area ) {
 
-            for (var k in this.areaLinks) {
-                if (k == area.area) {
-                    this.areaLinks[k].show();
-                } else {
-                    this.areaLinks[k].hide();
+            createLink: function (tool) {
+
+                var area = this.areaLinks[tool.area];
+                if (area) {
+                    area.append(can.view('OpsPortal_SubLinks_Item', { tool: tool }));
+
                 }
-            }
-        },
+
+            },
 
 
 
-        /**
-         * @function updateToolLink
-         *
-         * update the currently shown tool's link to show it is the active tool.
-         *
-         * @param {obj} tool  the message packet from the 'opsportal.tool.show' queue.
-         */
-        updateToolLink: function(tool) {
+            showArea: function (area) {
 
-            // get area for this tool
-            var area = this.areaLinks[tool.area];
-            if (area) {
-
-                // within area, find current active entry and remove it.
-                area.find('.'+this.cssActive).removeClass(this.cssActive);
-
-                // within area, find link for current tool and add active class
-                area.find('[op-tool="'+tool.tool+'"]').addClass(this.cssActive);
-            }
-        
-        },
+                for (var k in this.areaLinks) {
+                    if (k == area.area) {
+                        this.areaLinks[k].show();
+                    } else {
+                        this.areaLinks[k].hide();
+                    }
+                }
+            },
 
 
 
-        initDOM: function() {
+            /**
+             * @function updateToolLink
+             *
+             * update the currently shown tool's link to show it is the active tool.
+             *
+             * @param {obj} tool  the message packet from the 'opsportal.tool.show' queue.
+             */
+            updateToolLink: function (tool) {
 
-            // this.element.html(can.view(this.options.templateDOM, {} ));
+                // get area for this tool
+                var area = this.areaLinks[tool.area];
+                if (area) {
 
-            // register template as :  'OpsPortal_SubLinks_Item'
-            //  NOTE:  DON'T USE '.' as seperators here!!!  -> can.ejs thinks they are file names then... doh!
-            var item =  this.domToTemplate(this.element.find('ul'));
+                    // within area, find current active entry and remove it.
+                    area.find('.' + this.cssActive).removeClass(this.cssActive);
 
-            // <li class="active"><a href="#" class="" role="button" obj-embed="tool">[[= tool.label ]]</a></li>
-            // we now need to pull the 1st class reference out and use that for our active links class:
-            this.cssActive = $( item ).first().attr('class') || 'active'; // default currently
+                    // within area, find link for current tool and add active class
+                    area.find('[op-tool="' + tool.tool + '"]').addClass(this.cssActive);
+                }
+
+            },
+
+
+
+            initDOM: function () {
+
+                // this.element.html(can.view(this.options.templateDOM, {} ));
+
+                // register template as :  'OpsPortal_SubLinks_Item'
+                //  NOTE:  DON'T USE '.' as seperators here!!!  -> can.ejs thinks they are file names then... doh!
+                var item = this.domToTemplate(this.element.find('ul'));
+
+                // <li class="active"><a href="#" class="" role="button" obj-embed="tool">[[= tool.label ]]</a></li>
+                // we now need to pull the 1st class reference out and use that for our active links class:
+                this.cssActive = $(item).first().attr('class') || 'active'; // default currently
             
-            // make sure our template item doesn't have the active class:
-            item = item.replace(this.cssActive, '');
-            can.view.ejs('OpsPortal_SubLinks_Item', item);
+                // make sure our template item doesn't have the active class:
+                item = item.replace(this.cssActive, '');
+                can.view.ejs('OpsPortal_SubLinks_Item', item);
 
-            // remove the template from the DOM
-            this.element.find('ul').html(' ');
-
-
-            // create the area template
-            var area = this.domToTemplate(this.element)
-            can.view.ejs('OpsPortal_SubLinks_Area', area);
+                // remove the template from the DOM
+                this.element.find('ul').html(' ');
 
 
-            // empty my contents.
-            this.element.html(' ');
-
-        },
-
+                // create the area template
+                var area = this.domToTemplate(this.element)
+                can.view.ejs('OpsPortal_SubLinks_Area', area);
 
 
-        //  When a menu item is clicked
-        '.op-masthead-nav-link click' : function($el, ev) {
+                // empty my contents.
+                this.element.html(' ');
 
-            var tool = $el.data('tool');
-            AD.comm.hub.publish('opsportal.tool.show', {area:tool.area, tool:tool.controller});
-            ev.preventDefault();
-        }
+            },
 
+
+
+            //  When a menu item is clicked
+            '.op-masthead-nav-link click': function ($el, ev) {
+
+                var tool = $el.data('tool');
+                AD.comm.hub.publish('opsportal.tool.show', { area: tool.area, tool: tool.controller });
+                ev.preventDefault();
+            }
+
+
+        });
 
     });
-
 
 });

@@ -1,12 +1,12 @@
 
 steal(
         // List your Controller's dependencies here:
-        'appdev',
         'styles/genericList.css',
         'js/GenListDOM.ejs',
         'js/GenListItem.ejs',
 function(){
-
+System.import('appdev').then(function() {
+    steal.import('can/control/control', 'appdev/ad').then(function() {
 
 
     AD.controllers.GenericList = can.Control.extend({
@@ -183,4 +183,6 @@ function(){
 ////  the model on '.genlist-item click'
 ////  - add in notifications: notify_on_select
 ////
+});    
+});
 });

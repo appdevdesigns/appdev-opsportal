@@ -2,23 +2,21 @@
 
 if (listTools.length > 0) {
 
-	%>steal( 
+	%> 
 <%
 	// we are given an array of tools to load:  ToolName
 	// we need to convert this list into a series of steal commands to load the 
 	// setup.js file for the tool:
 
 	var listCommands = [];
-	var file = '';
-	if (sails.config.environment === 'production') { file = '/production.js' };
 	listTools.forEach(function(tool){
 
-		listCommands.push( 'opstools/'+tool+file);
+		listCommands.push( 'System.import("opstools/'+tool+'");');
 
 	})
-	var list = '    "' + listCommands.join('",\n    "') + '"';
+	var list = listCommands.join('\n');
 	%><%- list %>
-);<% 
+<% 
 } else { %>
 // No access to Opsportal Tools
 <%

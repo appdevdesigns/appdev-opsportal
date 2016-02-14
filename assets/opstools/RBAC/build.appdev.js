@@ -11,11 +11,11 @@
  */
 
 
-
 var AD = require('ad-utils');
 var path = require('path');
-var fs = require('fs');
 var async = require('async');
+var fs = require('fs');
+var transform = require("steal-tools").transform;
 
 
 module.exports = {
@@ -27,87 +27,106 @@ module.exports = {
      * 
      * This method is required.
      *
-     * @param {obj} builder The appdev.build object that is running this command.
      * @param {fn} cb   The callback fn to run when command is complete.
      *                  The callback follows the usual node: cb(err) format.
      */
-    command:function(builder, cb) {
+    command: function (builder, cb) {
 
         var self = this;
 
+        // this is expected to be running the /assets directory
 
-        //// NOTE:  this is expected to be running the /assets directory
+        // build command:  ./cjs steal/buildjs OpsPortal opstools/RBAC
 
+
+        //// NOTE: the build command will attempt to rebuild OpsPortal/production.[js,css].  We don't
+        //// want to do that here, so we'll have to backup the original files and return them when we are done.
+
+        var backUpName = '';
+        var backUpCSS = '';
 
         async.series([
 
-            // step 1:  check to make sure appdev exists:
-            function(next) {
 
-                 fs.exists(path.join(process.cwd(), 'appdev'), function(exists) {
+            // step 1:  backup the original OpsPortal/production.* files.
+            function (next) {
 
-                    if (exists) {
-                        next();
-                    } else {
-                        AD.log('<red>error:</red> building opstools/RBAC requires appdev module to be installed as well.');
-                        var err = new Error('building opstools/RBAC requires appdev module to be installed as well. ');
-                        next(err);
-                    }
+                AD.log('<green>backing up</green> OpsPortal production files');
 
-                });
+                backUpName = builder.backupProduction({ base: 'OpsPortal', file: 'production.js' });
+                backUpCSS = builder.backupProduction({ base: 'OpsPortal', file: 'production.css' });
 
-            }, 
-
-
-
-            // step 2: run the build command
-            function(next) {
-
-
-                // 1) We are going to run the steal/buildjs against appdev and opstools/RBAC
-                //    so that the opstools/RBAC doesn't package together the appdev library.
-
-
-                // command:  './cjs steal/buildjs  appdev  opstools/RBAC'
-
-
-                AD.log();
-                AD.log('<green>building</green> opstools/RBAC');
-
-                AD.spawn.command({
-                    command:'./cjs',
-                    options:[path.join('steal', 'buildjs'), 'appdev', 'opstools/RBAC'],
-shouldEcho:true,
-                    // exitTrigger:'opstools/RBAC/production.css'
-                })
-                .fail(function(err){
-                    AD.log.error('<red>could not complete opstools/RBAC build!</red>');
-                    next(err);
-                })
-                .then(function(){
-                    next();
-                });
+                next();
             },
 
 
 
-            // step 3: cleanup the production.js file to point to 
-            //         appdev/production.js
-            function(next) {
+            // step 2:  build js files
+            function (next) {
 
-                AD.log('<green>cleaning</green> the opstools/RBAC/production.js file');
+                // build command:  ./cjs steal/buildjs OpsPortal opstools/RBAC
+
+                AD.log('<green>building</green> opstools/RBAC JS files');
+
+                // Minify js/ejs files
+                transform({
+                    main: path.join('opstools', 'RBAC', 'RBAC'),
+                    config: "stealconfig.js"
+                }, {
+                        minify: true,
+                        noGlobalShim: true,
+                        ignore: [
+                            /^.*(.css)+/, // Ignore css files
+                            /^(?!opstools\/RBAC.*)/, // Ignore all are not plugin scripts
+                        ]
+                    }).then(function (transform) {
+
+                        // Get the main module and it's dependencies as a string
+                        var main = transform();
+
+                        fs.writeFile(path.join('opstools', 'RBAC', 'production.js'), main.code, "utf8", function (err) {
+                            if (err) {
+                                AD.log.error('<red>could not write minified JS file !</red>', err);
+                                next(err);
+                            }
+
+                            next();
+                        });
+                    })
+                    .catch(function (err) {
+                        AD.log.error('<red>could not complete opstools/RBAC JS build!</red>', err);
+                        next(err);
+                    });
+            },
+
+            // step :  replace our original OpsPortal/production.* files
+            function(next) {
+                AD.log('<green>replacing</green> OpsPortal production files');
+
+                builder.replaceProduction({ base: 'OpsPortal', file: 'production.js', backup: backUpName });
+                builder.replaceProduction({ base: 'OpsPortal', file: 'production.css', backup: backUpCSS });
+                next();
+            },
+
+
+
+            // step 5:  patch our production.js to reference OpsPortal/production.js 
+            function (next) {
+                AD.log('<green>patching</green> OpsPortal production files');
 
                 var patches = [
-                    { file:path.join('opstools/RBAC', 'production.js'), tag:'id:"packages/appdev-RBAC.js",', replace:'id:"appdev/production.js",'}
+                    { file: path.join('opstools', 'RBAC', 'production.js'), tag: 'packages/OpsPortal-RBAC.js', replace: 'OpsPortal/production.js' }
                 ];
+
                 builder.patchFile(patches, next);
+            },
 
-            }
 
-        ], function(err, results) {
-            if (cb) cb(err);
+
+        ], function (err, results) {
+
+            cb(err);
         });
 
     }
-
 }
