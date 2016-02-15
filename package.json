@@ -22,8 +22,8 @@
   },
   "homepage": "https://github.com/appdevdesigns/appdev-opsportal",
   "dependencies": {
-    "ad-utils": "git://github.com/appdevdesigns/ad-utils",
-    "appdev-core": "appdevdesigns/appdev-core#new_build",
+    "ad-utils": "git://github.com/appdevdesigns/ad-utils#develop", // Use develop branch for test
+    "appdev-core": "appdevdesigns/appdev-core#new_build", // Use new_build branch for test
     "async": "^1.5.2",
     "fs": "0.0.2",
     "path": "^0.12.7",
