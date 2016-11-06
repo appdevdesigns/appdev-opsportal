@@ -49,7 +49,7 @@ module.exports = {
 			function(next) {
 				var basePath = sails.config.appPath;
 				var pathToCheck = path.join(sails.config.opsportal.opimageupload.basePath, 'tmp');
-				var pathParts = pathToCheck.split('/');
+				var pathParts = pathToCheck.split(path.sep);
 
 				function checkPath (parts, base, cb) {
 					if (parts.length == 0) {
