@@ -25,6 +25,11 @@ module.exports = {
     'post /opsportal/image'  				: 'appdev-opsportal/OPImageUploadController.create',
     'post /opsportal/image/:appKey/:permission/:isWebix'  : 'appdev-opsportal/OPImageUploadController.create',
     
+    // OpsPortal File Uploader
+    'get  /opsportal/file/:appKey/:uuid'   : 'appdev-opsportal/OPFileUploadController.read',
+    'post /opsportal/file'                 : 'appdev-opsportal/OPFileUploadController.create',
+    'post /opsportal/file/:appKey/:permission/:isWebix'  : 'appdev-opsportal/OPFileUploadController.create',
+    
     
 
 };

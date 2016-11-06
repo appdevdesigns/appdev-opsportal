@@ -40,6 +40,24 @@ module.exports.opsportal = {
   }, 
 
 
+  //
+  // OPFileUpload Service:
+  // /opsportal/file
+  //
+  opfileload: {
+
+    // specified from the sails.config.appPath: [sails]/data/opfileupload
+    basePath: path.join('data', 'opfileupload'),
+
+    // maximum allowed Bytes:
+    maxBytes: 10000000 
+  },
+
+
+  //
+  // OPImageUpload Service:
+  // /opsportal/image
+  //
   opimageupload: {
 
     // specified from the sails.config.appPath: [sails]/data/opimageupload
