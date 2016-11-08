@@ -152,8 +152,8 @@ module.exports = {
 	  },
 
 
-	  // post /optheme/default
-	  default:function(req, res) {
+	  // post /optheme/set-default
+	  setDefault:function(req, res) {
 	  	// chosen theme file should be registered as the default opstheme
 	  	var name = req.param('name');
 
@@ -204,8 +204,8 @@ module.exports = {
 	  	})
 	  },
 
-	  // get /optheme/variables
-	  edit:function(req, res) {
+	  // get /optheme/get-variables
+	  getVariables:function(req, res) {
 	  	// return all the selected themes variables so you can edit them
 	  	var filename = req.param('name');
         themeVars = getThemeVars(filename);

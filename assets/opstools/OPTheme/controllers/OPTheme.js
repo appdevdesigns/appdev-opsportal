@@ -49,8 +49,7 @@ steal(
             webix.ready(function () {
               _this.dom.layoutGrid = webix.ui({
                 type: "space",
-                width: 1200,
-                height: 600,
+                width: "100%",
                 container: "container-webix-layout",
                 rows: [
                   {
@@ -365,7 +364,7 @@ steal(
           'editTheme': function (filename, name, grid) {
 
             var _this = this;
-            AD.comm.service.post({url: '/optheme/edit', params: {name: filename}})
+            AD.comm.service.get({url: '/optheme/get-variables', params: {name: filename}})
               .fail(function (err) {
                 webix.message({
                   type: "error",
@@ -390,7 +389,7 @@ steal(
           'deleteTheme': function (filename) {
 
             var _this = this;
-            AD.comm.service.post({url: '/optheme/delete', params: {name: filename}})
+            AD.comm.service.delete({url: '/optheme', params: {name: filename}})
               .fail(function (err) {
                 webix.message({
                   type: "error",
@@ -414,7 +413,7 @@ steal(
 
           'setDefaultTheme': function (themeName, defaultButton) {
 
-            AD.comm.service.post({url: '/optheme/default', params: {name: themeName}})
+            AD.comm.service.post({url: '/optheme/set-default', params: {name: themeName}})
               .fail(function (err) {
                 defaultButton.enable();
                 AD.error.log('Error setting OPTheme.default', {error: err, name: themeName});
