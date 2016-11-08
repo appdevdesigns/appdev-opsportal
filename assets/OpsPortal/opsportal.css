@@ -315,7 +315,7 @@ the .op-widget class can contain a .op-widget-masthead class, a .op-widget-body 
 	width: 100%;
     position: absolute;
     height: 69px;
-	background:#f0f0f0;	
+	background:#F2F2F2;	
  }
  
 .op-widget-masthead { 
@@ -353,19 +353,17 @@ the .op-widget class can contain a .op-widget-masthead class, a .op-widget-body 
 	padding: 0.75em 15px; 
 	cursor:pointer; 
 	margin: 0; 
+    border-bottom: 1px solid rgba(0,0,0,0.2);;
+}
+.op-widget .op-list li .icon { 
+    opacity: 0.5;
+    font-size: 16px;
 }
 .op-widget .op-list li { 
-	opacity: 0.5; 
-	-webkit-transition:opacity .3s ease-out;
-	-moz-transition:opacity .3s ease-out;
-	-o-transition:opacity .3s ease-out;
-	transition:opacity .3s ease-out; 
+	opacity: 0.7; 
 }
-.op-widget .op-list li:hover { 
+.op-widget .op-list li:hover .icon { 
 	opacity: 1; 
-}
-.op-widget .op-list li:hover .icons { 
-	display: block; 
 }
 
 .op-toggle, .op-modal { 
