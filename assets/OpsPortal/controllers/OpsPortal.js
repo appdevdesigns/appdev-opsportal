@@ -813,6 +813,7 @@ AD.comm.service.get({url:'/optheme/theme'})
         
         if (theme.name[0] == '/') theme.name[0] = '';
         steal(theme.name);
+        prevThemeName = theme.name;
     }
 })      
                                         }

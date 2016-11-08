@@ -93,7 +93,7 @@ steal(
                             id: "themeName",
                             name: "name",
                             labelWidth: 220,
-                            placeholder: 'Theme name'
+                            placeholder: 'Enter theme name',
                           },
                           {
                             cols: [
@@ -278,6 +278,13 @@ steal(
                             click: function () {
                               if (this.getParentView().validate()) {
                                 var theme = this.getFormView().getValues();
+                                if (/[^a-z-0-9\s]/i.test(theme.name)) {
+                                    webix.message({
+                                      type: "error",
+                                      text: "Theme name should only have letters, numbers, spaces and hyphens."
+                                    });
+                                    return false;
+                                }
                                 // Disable submit button
                                 this.getParentView().elements['optheme-addTheme'].disable();
                                 // Save theme
@@ -420,10 +427,14 @@ steal(
               })
               .done(function (status) {
 
+                if (typeof prevThemeName !== 'undefined') {
+                    $("style:contains('/* "+prevThemeName+" */')").remove();
+                }
                 // now try to load the selected theme:
                 filename = themeName.replace(/ /g,"_").trim().toLowerCase() + ".css";
                 steal('opstools/OPTheme/themes/' + filename);
                 defaultButton.enable();
+                prevThemeName = themeName;
               })
 
           },
