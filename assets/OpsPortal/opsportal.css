@@ -195,6 +195,10 @@ the .op-widget class can contain a .op-widget-masthead class, a .op-widget-body 
 	margin: 0 15px; 
 }
 
+#op-masthead-nav ul li a i.nav-icon {
+	margin-right: 5px;
+}
+
 #op-masthead-nav ul li.active a { 
 	opacity: 1 !important; 
 	font-weight: bold;

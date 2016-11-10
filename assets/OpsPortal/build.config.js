@@ -31,7 +31,7 @@ module.exports = {
 		// "async": "js/async",
         "jquery": "js/jquery.min.js",
 
-        "jquery-ui": "js/jquery-ui.min.js",         // 'http://code.jquery.com/ui/1.11.0/jquery-ui.min.js' 
+        "jquery-ui": "js/jquery-ui.min.js",         // 'http://code.jquery.com/ui/1.11.0/jquery-ui.min.js'
 
         "bootstrap": "js/bootstrap/js/bootstrap.min.js",  // for debugging: 'bootstrap/js/bootstrap.js'
         "bootstrap.css": "js/bootstrap/css/bootstrap.min.css",
@@ -92,7 +92,7 @@ module.exports = {
         "OpsWebixDataCollection.js": "OpsPortal/classes/OpsWebixDataCollection.js",
         "OpsWebixSearch.js": "OpsPortal/classes/OpsWebixSearch.js",
         "OpsWebixForm.js": "OpsPortal/classes/OpsWebixForm.js",
-		
+
 		"webix.js": "js/webix/webix.js",
         "webix.css": "js/webix/webix.css",
         "webix-opsportal.js": "js/webix/opsportal-skin.js"

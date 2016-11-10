@@ -90,6 +90,10 @@
     float:left;
 }
 
+.op-navbar-tool li .nav-icon-edit {
+		margin-right: 5px;
+}
+
 .op-navbar-tool .sort-handle {
     display: block;
     background-color: #fff;

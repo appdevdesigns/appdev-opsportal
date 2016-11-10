@@ -5,23 +5,24 @@
 
 
 
-    <!--Caption--> 
+    <!--Caption-->
     <div class="form-group">
       <label class="col-sm-3 op-css-nopadL control-label op-css-lbl-title"><%== L('opnavedit.Label') %>:</label>
-      <div class="col-sm-9">
+      <div class="col-sm-9 input-group">
         <input type="text" class="form-control" name="label" value="<%== area.attr('label') %>">
       </div>
     </div>
     <!--/Caption-->
 
-    <!--Date-->
-    <div class="form-group">
-        <label class="col-sm-3 control-label op-css-nopadL op-css-lbl-title"><%== L('opnavedit.Icons') %>:</label>
-        <div class="col-sm-9">
-                <input type="text" class="form-control" name="icon" value="<%== area.attr('icon') %>"><br><span><%== L('opnavedit.ex') %>:&nbsp;</span><span class="fa icon-example <%== area.attr('icon') %>"></span>
-        </div>
+    <!--Icon-->
+    <div class="form-group opnavedit-popup-input">
+      <label class="col-sm-3 control-label op-css-nopadL op-css-lbl-title"><%== L('opnavedit.Icons') %>:</label>
+      <div class="col-sm-9 input-group">
+          <input name="icon" data-placement="bottomRight" class="form-control" value="<%== area.attr('icon') %>" type="text" />
+          <span class="input-group-addon"></span>
+      </div>
     </div>
-    <!--/Date-->
+    <!--/Icon-->
 
   </div>
 
@@ -36,5 +37,5 @@
     <button id="save" class="btn btn-primary op-nav-button-save " style="margin-right:10px"><i class="fa"></i><%== L('opnavedit.Save') %></button>
 
   </div>
-  
+
 </div>

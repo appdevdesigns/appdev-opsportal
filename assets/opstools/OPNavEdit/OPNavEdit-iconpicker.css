@@ -1,0 +1,23 @@
+/*
+
+There are some global styles on the a and i tags that do not
+work well with the font-awesome icon picker.
+
+This resets these styles for the popup.
+
+*/
+
+#op-navbar-left .opnavedit-popup-input a,
+#op-masthead-nav .opnavedit-popup-input a {
+		display: block;
+		padding: 12px;
+		width: 14px;
+		color: #333333;
+		opacity: 1;
+		margin: 0 8px 8px 0;
+}
+
+#op-navbar-left .opnavedit-popup-input i,
+#op-masthead-nav .opnavedit-popup-input i {
+		color: #333333;
+}

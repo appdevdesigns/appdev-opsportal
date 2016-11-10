@@ -14,7 +14,10 @@
                 <% if (tool) { %>
                   <li <%= (el) -> can.data(el, 'tool', tool) %> data-weight="<%= tool.attr('weight') %>" >
                       <div class="sort-handle"><i class="fa fa-sort" aria-hidden="true"></i></div>
-                      <a class="toollink" ><%= tool.attr('label') %>(<%= tool.attr('weight') %>)</a>
+                      <a class="toollink">
+                        <i class="fa <%= tool.attr('icon') %> nav-icon-edit"></i>
+                        <%= tool.attr('label') %>(<%= tool.attr('weight') %>)
+                      </a>
                       <i class="op-navbar-item-edit fa fa-pencil-square-o fa-2 showbtmPopover" data-html="true" data-toggle="popover" aria-hidden="true"></i>
                   </li>  
                 <% } else { 
