@@ -141,7 +141,7 @@
   border-color: transparent;
   border-style: solid;
 }
-.op-navbar-tool li i {
+.op-navbar-tool li .sort-handle i, .op-navbar-tool li i.op-navbar-item-edit {
     margin: 8px 8px 0 8px;
     height: 16px;
     padding: 0;
