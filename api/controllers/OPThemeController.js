@@ -24,6 +24,48 @@ var themeTemplate = fs.readFile(pathToImportFolder + '/main.scss', 'utf8', funct
 	themeContent = content;
 });
 
+// Get name of theme from the first line of the generated CSS
+function getThemeName(filename, line_no) {
+    var stream = fs.readFileSync(pathToThemeFolder + '/' + filename).toString();
+
+    // The next lines should be improved
+    var lines = stream.split("\n");
+
+    if(lines.length >= +line_no){
+        label = lines[+line_no].replace("/* ", "").replace(" */", "");
+        return label;
+    }
+}
+
+// Restore variables from CSS so you can edit them
+function getThemeVars(filename) {
+    var stream = fs.readFileSync(pathToThemeFolder + '/' + filename).toString();
+
+    var regExp = /\/\* Begin Variables \*\/([^)]+)\/\* End Variables \*\//;
+    var matches = regExp.exec(stream);
+
+    var themeVars = [];
+    var themeArray = [];
+    var recordVars = false;
+
+    //var lines = stream.split("\n");
+    var match = matches[1];
+    var sliced = match.slice(2,-5);
+    var blob = sliced.replace(/(\r\n|\n|\r|\s)/gm,"");
+    var lines = blob.split(";}#");
+
+    lines.forEach(function(v){
+        themeArray.push(v.split("{color:"));
+    });
+    themeArray.forEach(function(v){
+        key = v[0];
+        value = v[1];
+        themeVars.push({key: key, value: value});
+    });
+
+    return themeVars;
+}
+
 /**
  * Get inputs and turn them into css properties declarations
  * @param  {inputs} variables [css properties which user chose]
@@ -93,7 +135,7 @@ module.exports = {
 						return false;
 					}
 					try {
-						writeTheme(name, result.css);
+						writeTheme(name, "/\* " + name + " */\n" + result.css);
 					} catch (err) {
 						res.AD.err('Error writing theme');
 					}
@@ -110,20 +152,31 @@ module.exports = {
 	  },
 
 
-	  // post /optheme/default
-	  default:function(req, res) {
+	  // post /optheme/set-default
+	  setDefault:function(req, res) {
 	  	// chosen theme file should be registered as the default opstheme
 	  	var name = req.param('name');
 
 // TODO: make this a permanent setting
 //
 // but for now:
-		currentTheme = name;
+        file = name.replace(/ /g,"_").trim().toLowerCase() + ".css";
+		currentTheme = file;
 
 	  	res.AD.success('theme set.');
 
 	  },
 
+	  // post /optheme/delete
+	  delete:function(req, res) {
+	  	// chosen theme file that should be deleted
+	  	var name = req.param('name');
+
+        fs.unlinkSync(pathToThemeFolder + "/" + name);
+
+	  	res.AD.success('theme deleted');
+
+	  },
 
 	  // get /optheme
 	  list:function(req, res) {
@@ -142,12 +195,21 @@ module.exports = {
 	  			var themes = [];
 	  			files.forEach(function(file){
 	  				if (filesToIgnore.indexOf(file) == -1) {
-		  				themes.push({ name: file });
+                        themeName = getThemeName(file, 0);
+                        themes.push({ name: themeName, filename: file });
 		  			}
 	  			});
 	  			res.AD.success(themes);
 	  		}
 	  	})
+	  },
+
+	  // get /optheme/get-variables
+	  getVariables:function(req, res) {
+	  	// return all the selected themes variables so you can edit them
+	  	var filename = req.param('name');
+        themeVars = getThemeVars(filename);
+	    res.AD.success(themeVars);
 	  },
 
 
@@ -164,7 +226,7 @@ module.exports = {
 
 			var result = {};
 
-			if (currentTheme != '') {
+			if (currentTheme != '' && currentTheme != undefined) {
 				var theme = path.join(pathToThemeFolder, currentTheme);
 				theme = theme.split('assets')[1];
 

@@ -806,12 +806,15 @@ AD.comm.service.get({url:'/optheme/theme'})
 .done(function(theme){
     // now try to load the selected theme:
     // remove the first '/' if there
-    var parts = theme.name.split('/');
-    if (parts[0] == '') { parts.shift() };
-    theme.name = parts.join('/');
-    
-    if (theme.name[0] == '/') theme.name[0] = '';
-    steal(theme.name);
+    if (theme.name != undefined) {
+        var parts = theme.name.split('/');
+        if (parts[0] == '') { parts.shift() };
+        theme.name = parts.join('/');
+        
+        if (theme.name[0] == '/') theme.name[0] = '';
+        steal(theme.name);
+        prevThemeName = theme.name;
+    }
 })      
                                         }
 

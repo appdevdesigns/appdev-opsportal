@@ -1,3 +1,30 @@
+/* Begin Variables */
+#bodyBG {color:$bodyBG};
+
+#headerColor {color:$headerColor};
+#headerBG {color:$headerBG};
+
+#navColor {color:$navColor};
+#navBG {color:$navBG};
+
+#paginationBtnColor {color:$paginationBtnColor};
+#paginationBtnBG {color:$paginationBtnBG};
+
+#paginationActiveBtnColor {color:$paginationActiveBtnColor};
+#paginationActiveBtnBG {color:$paginationActiveBtnBG};
+
+#btnColor {color:$btnColor};
+#btnBG {color:$btnBG};
+
+#navBtnColor {color:$navBtnColor};
+#navBtnBG {color:$navBtnBG};
+
+#navActiveBtnColor {color:$navActiveBtnColor};
+#navActiveBtnBG {color:$navActiveBtnBG};
+
+#tableHeaderColor {color:$tableHeaderColor};
+#tableHeaderBG {color:$tableHeaderBG};
+/* End Variables */
 body {
   background: $bodyBG;
 }
@@ -6,7 +33,7 @@ body {
   background: $headerBG;
 }
 
-.op-masthead {
+.op-masthead, #op-menu-widget {
   color: $headerColor;
 }
 
@@ -14,7 +41,7 @@ body {
   background: $navBG;
 }
 
-.rbac-menu a {
+.op-widget-horizontal-nav a {
   color: $navColor;
 }
 
@@ -30,7 +57,7 @@ ul.pagination li.active a, button.webix_pager_item_selected {
 }
 
 /* Buttons */
-.btn , .webix_el_box, .webix-btn {
+.btn, .webix-btn, .webixbutton, .webixtype_base, .webixtype_next, .webixtype_prev {
 	color : $btnColor;
 	background : $btnBG;
 }
@@ -41,13 +68,13 @@ ul.pagination li.active a, button.webix_pager_item_selected {
 	background : $navBtnBG ;
 }
 
-.nav-tabs li.active a,.webix_item_tab webix_selected {
+.nav-tabs li.active a, .webix_item_tab .webix_selected {
 	color : $navActiveBtnColor;
 	background : $navActiveBtnBG;
 }
 
 /* Datatables */
-table thead, .webix_ss_header  {
+table thead, .webix_ss_header, .webix_header, .webix_header>div, .webix_dd_drag_column, .webix_ss_header, .webix_ss_header TD, .webix_ss_vscroll_header  {
 	color : $tableHeaderColor;
 	background: $tableHeaderBG;
 }

@@ -28,10 +28,12 @@ module.exports = {
     
 
     // OPTheme Routes
-    'get  /optheme' 		: 'appdev-opsportal/OPThemeController.list',
-    'post /optheme' 		: 'appdev-opsportal/OPThemeController.create',
-    'post /optheme/default' : 'appdev-opsportal/OPThemeController.default',
-    'get  /optheme/theme'	: 'appdev-opsportal/OPThemeController.theme'
+    'get    /optheme' 		        : 'appdev-opsportal/OPThemeController.list',
+    'post   /optheme' 		        : 'appdev-opsportal/OPThemeController.create',
+    'post   /optheme/set-default'   : 'appdev-opsportal/OPThemeController.setDefault',
+    'delete /optheme'               : 'appdev-opsportal/OPThemeController.delete',
+    'get    /optheme/get-variables' : 'appdev-opsportal/OPThemeController.getVariables',
+    'get    /optheme/theme'	        : 'appdev-opsportal/OPThemeController.theme'
 
 };
 

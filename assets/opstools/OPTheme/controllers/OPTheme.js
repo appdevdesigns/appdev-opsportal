@@ -49,8 +49,7 @@ steal(
             webix.ready(function () {
               _this.dom.layoutGrid = webix.ui({
                 type: "space",
-                width: 1200,
-                height: 600,
+                width: "100%",
                 container: "container-webix-layout",
                 rows: [
                   {
@@ -61,10 +60,27 @@ steal(
                       {
                         view: "list",
                         id: "my-optheme-list",
-                        select: true,
                         scroll: true,
                         width: 300,
-                        template: "#name#",
+                        template: "#name# <span class='f-right'><a class='hris-tooltip edit tt' href='#' title='Edit theme'><span class='icon'><i class='fa fa-edit fa-fw'></i></span></a> <a class='hris-tooltip favorite tt' href='#' title='Set as default theme'><span class='icon'><i class='fa fa-heart-o fa-fw'></i></span></a> <a class='hris-tooltip delete tt' href='#' title='Delete theme'><span class='icon'><i class='fa fa-trash-o fa-fw'></i></span></a></span>",
+                        onClick:{
+                            delete:function(e, id){
+                                _this.deleteTheme(this.getItem(id).filename, this);  
+                                return false;
+                            },
+                            edit:function(e, id){
+                                _this.editTheme(this.getItem(id).filename, this.getItem(id).name, this);  
+                                return false;
+                            },
+                            favorite:function(e, id){
+                                var selectedTheme = this.getItem(id).name;
+                                _this.setDefaultTheme(selectedTheme, this);
+                                
+                                // Lets change the heart icon to show which is the default 
+                                $(".fa-heart").removeClass("fa-heart").addClass("fa-heart-o");
+                                $(e.srcElement).removeClass("fa-heart-o").addClass("fa-heart");
+                            }
+                        }
                       },
                       {
                         view: "form",
@@ -74,23 +90,20 @@ steal(
                           {
                             view: "text",
                             label: "Theme Name *",
+                            id: "themeName",
                             name: "name",
                             labelWidth: 220,
-                            placeholder: 'Theme name'
+                            placeholder: 'Enter theme name',
                           },
                           {
                             cols: [
                               {
                                 view: "colorpicker",
                                 label: "Body BG",
+                                id: "bodyBG",
                                 labelWidth: 220,
-                                name: "vars[bodyBG]"
-                              },
-                              {
-                                view: "colorpicker",
-                                label: "Header BG",
-                                labelWidth: 220,
-                                name: "vars[headerBG]"
+                                name: "vars[bodyBG]",
+                                value: "#fff"
                               }
                             ]
                           },
@@ -99,14 +112,38 @@ steal(
                               {
                                 view: "colorpicker",
                                 label: "Header Color",
+                                id: "headerColor",
                                 labelWidth: 220,
-                                name: "vars[headerColor]"
+                                name: "vars[headerColor]",
+                                value: "#fff"
+                              },
+                              {
+                                view: "colorpicker",
+                                label: "Header BG",
+                                id: "headerBG",
+                                labelWidth: 220,
+                                name: "vars[headerBG]",
+                                value: "#444"
+                              }
+                            ]
+                          },
+                          {
+                            cols: [
+                              {
+                                view: "colorpicker",
+                                label: "Navigation Color",
+                                id: "navColor",
+                                labelWidth: 220,
+                                name: "vars[navColor]",
+                                value: "#333"
                               },
                               {
                                 view: "colorpicker",
                                 label: "Navigation BG",
+                                id: "navBG",
                                 labelWidth: 220,
-                                name: "vars[navBG]"
+                                name: "vars[navBG]",
+                                value: "#f0f0f0"
                               }
                             ]
                           },
@@ -115,14 +152,18 @@ steal(
                               {
                                 view: "colorpicker",
                                 label: "Pagination Button Color",
+                                id: "paginationBtnColor",
                                 labelWidth: 220,
-                                name: "vars[paginationBtnColor]"
+                                name: "vars[paginationBtnColor]",
+                                value: "#fff"
                               },
                               {
                                 view: "colorpicker",
                                 label: "Pagination Button BG",
+                                id: "paginationBtnBG",
                                 labelWidth: 220,
-                                name: "vars[paginationBtnBG]"
+                                name: "vars[paginationBtnBG]",
+                                value: "#3498db"
                               }
                             ]
                           },
@@ -131,14 +172,18 @@ steal(
                               {
                                 view: "colorpicker",
                                 label: "Pagination Button Active Color",
+                                id: "paginationActiveBtnColor",
                                 labelWidth: 220,
-                                name: "vars[paginationActiveBtnColor]"
+                                name: "vars[paginationActiveBtnColor]",
+                                value: "#fff"
                               },
                               {
                                 view: "colorpicker",
                                 label: "Pagination Active Button BG",
+                                id: "paginationActiveBtnBG",
                                 labelWidth: 220,
-                                name: "vars[paginationActiveBtnBG]"
+                                name: "vars[paginationActiveBtnBG]",
+                                value: "#27ae60"
                               }
                             ]
                           },
@@ -147,14 +192,18 @@ steal(
                               {
                                 view: "colorpicker",
                                 label: "Button Color",
+                                id: "btnColor",
                                 labelWidth: 220,
-                                name: "vars[btnColor]"
+                                name: "vars[btnColor]",
+                                value: "#fff"
                               },
                               {
                                 view: "colorpicker",
                                 label: "Button BG",
+                                id: "btnBG",
                                 labelWidth: 220,
-                                name: "vars[btnBG]"
+                                name: "vars[btnBG]",
+                                value: "#3498db"
                               }
                             ]
                           },
@@ -163,14 +212,18 @@ steal(
                               {
                                 view: "colorpicker",
                                 label: "Navigation Button Color",
+                                id: "navBtnColor",
                                 labelWidth: 220,
-                                name: "vars[navBtnColor]"
+                                name: "vars[navBtnColor]",
+                                value: "#fff"
                               },
                               {
                                 view: "colorpicker",
                                 label: "Navigation Button BG",
+                                id: "navBtnBG",
                                 labelWidth: 220,
-                                name: "vars[navBtnBG]"
+                                name: "vars[navBtnBG]",
+                                value: "#a4b4bf"
                               }
                             ]
                           },
@@ -179,14 +232,18 @@ steal(
                               {
                                 view: "colorpicker",
                                 label: "Navigation Button Active Color",
+                                id: "navActiveBtnColor",
                                 labelWidth: 220,
-                                name: "vars[navActiveBtnColor]"
+                                name: "vars[navActiveBtnColor]",
+                                value: "#fff"
                               },
                               {
                                 view: "colorpicker",
                                 label: "Navigation Active Button BG",
+                                id: "navActiveBtnBG",
                                 labelWidth: 220,
-                                name: "vars[navActiveBtnBG]"
+                                name: "vars[navActiveBtnBG]",
+                                value: "#3498db"
                               }
                             ]
                           },
@@ -195,21 +252,25 @@ steal(
                               {
                                 view: "colorpicker",
                                 label: "Table Header Color",
+                                id: "tableHeaderColor",
                                 labelWidth: 220,
-                                name: "vars[tableHeaderColor]"
+                                name: "vars[tableHeaderColor]",
+                                value: "#4a4a4a"
                               },
                               {
                                 view: "colorpicker",
                                 label: "Table Header BG",
+                                id: "tableHeaderBG",
                                 labelWidth: 220,
-                                name: "vars[tableHeaderBG]"
+                                name: "vars[tableHeaderBG]",
+                                value: "#d2e3ef"
                               }
                             ]
                           },
                           {
                             view: "button",
                             name: "optheme-addTheme",
-                            label: "Create new theme",
+                            label: "Save Theme",
                             inputWidth: 200,
                             icon: "plus-circle", //font-awesome icons class
                             type: "iconButton",
@@ -217,6 +278,13 @@ steal(
                             click: function () {
                               if (this.getParentView().validate()) {
                                 var theme = this.getFormView().getValues();
+                                if (/[^a-z-0-9\s]/i.test(theme.name)) {
+                                    webix.message({
+                                      type: "error",
+                                      text: "Theme name should only have letters, numbers, spaces and hyphens."
+                                    });
+                                    return false;
+                                }
                                 // Disable submit button
                                 this.getParentView().elements['optheme-addTheme'].disable();
                                 // Save theme
@@ -233,40 +301,9 @@ steal(
                         ],
                         rules: {
                           name: "isNotEmpty"
-                        },
-                      },
-                    ]
-                  },
-                  {
-                    rows: [
-                      {
-                        cols: [
-                          {
-                            view: "button",
-                            width: 280,
-                            icon: "heart",
-                            type: "iconButton",
-                            label: 'Set as default theme',
-                            id: "optheme-set-default",
-                            align: 'center',
-                            click: function (event) {
-                              var selectedTheme = $$("my-optheme-list").getSelectedItem();
-                              if (typeof selectedTheme !== 'undefined') {
-                                var themeName = selectedTheme.name;
-                                this.disable();
-                                _this.setDefaultTheme(themeName, this);
-                              } else {
-                                webix.message({
-                                  type: "error",
-                                  text: "Please select a theme from list"
-                                });
-                              }
-                            }
-                          }
-                        ]
+                        }
                       }
                     ]
-
                   }
                 ]
               })
@@ -331,18 +368,73 @@ steal(
           },
 
 
+          'editTheme': function (filename, name, grid) {
+
+            var _this = this;
+            AD.comm.service.get({url: '/optheme/get-variables', params: {name: filename}})
+              .fail(function (err) {
+                webix.message({
+                  type: "error",
+                  text: "Error editing theme"
+                });
+                AD.error.log("Error editing theme", {error: err, values: values});
+              })
+              .then(function (data) {
+                data.forEach(function(item){
+                    $$(item.key).setValue(item.value);
+                    $$("themeName").setValue(name);
+                });
+                webix.message({
+                  type: "info",
+                  text: "Theme ready for editing"
+                });
+
+              })
+
+          },
+
+          'deleteTheme': function (filename) {
+
+            var _this = this;
+            AD.comm.service.delete({url: '/optheme', params: {name: filename}})
+              .fail(function (err) {
+                webix.message({
+                  type: "error",
+                  text: "Error deleting theme"
+                });
+                AD.error.log("Error deleting theme", {error: err, values: values});
+              })
+              .then(function () {
+
+                // should now update your list of current themes
+                _this.loadData();
+
+                webix.message({
+                  type: "info",
+                  text: "Theme was deleted"
+                });
+
+              })
+
+          },
+
           'setDefaultTheme': function (themeName, defaultButton) {
 
-            AD.comm.service.post({url: '/optheme/default', params: {name: themeName}})
+            AD.comm.service.post({url: '/optheme/set-default', params: {name: themeName}})
               .fail(function (err) {
                 defaultButton.enable();
                 AD.error.log('Error setting OPTheme.default', {error: err, name: themeName});
               })
               .done(function (status) {
 
+                if (typeof prevThemeName !== 'undefined') {
+                    $("style:contains('/* "+prevThemeName+" */')").remove();
+                }
                 // now try to load the selected theme:
-                steal('opstools/OPTheme/themes/' + themeName);
+                filename = themeName.replace(/ /g,"_").trim().toLowerCase() + ".css";
+                steal('opstools/OPTheme/themes/' + filename);
                 defaultButton.enable();
+                prevThemeName = themeName;
               })
 
           },
