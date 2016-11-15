@@ -309,13 +309,9 @@ steal(
 						            iconData.change(function(ev){
 						            	var $example = $cur_pop.find('.icon-example').removeClass().addClass('icon-example fa '+iconData.val())
 						            })
-<<<<<<< HEAD
-
-=======
 												
-												iconData.iconpicker({ hideOnSelect: true });
-						            
->>>>>>> develop
+									iconData.iconpicker({ hideOnSelect: true });
+
 						            // process [save] click
 						            var buttonSave = $cur_pop.find('.op-nav-button-save');
 						            var busySave = new AD.op.ButtonBusy(buttonSave);
