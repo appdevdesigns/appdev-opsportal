@@ -94,7 +94,13 @@ th, label {
 
 /*TOP MENU BAR*/
 
-.op-widget-horizontal-nav li.selected {background:url(../../images/opsportal/arrow-down-gray.png) center 68px no-repeat;;opacity:1 !important}
+.op-widget-horizontal-nav li.selected {
+    background:url(../../images/opsportal/arrow-down-gray.png) center 68px no-repeat;
+}
+.op-widget-horizontal-nav li.selected a {
+    color: #3498db;
+    opacity:1 !important
+}
 
 .pgnav .active {background:url(../../images/opsportal/arrow-down.png) center 38px no-repeat;}
 		
@@ -119,7 +125,7 @@ th, label {
 #submittedby .op-block-border {padding:0 15px;}
 #objective .checkbox label {margin-bottom:5px;}
 
-.op-widget-horizontal-nav li i {float:left;margin:3px 6px 0;font-size:35px;}
+.op-widget-horizontal-nav li i {margin:3px 6px 0;font-size:30px;}
 
 /*END BODY AREA */
 
@@ -257,7 +263,7 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
 	border-radius: 4px;
 }*/
 
-.wrapper {top:74px}
+.wrapper {top:85px}
 
 #op-masthead-nav ul {margin:0;z-index:99;}
 
@@ -281,10 +287,23 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
 .rbac-topmenu li {
 	float:left;
 	display:block;
-	padding:10px 17px 0 22px;
+	padding:8px 20px 0 20px;
 	text-align:center;
 	height:82px;
-	
+    font-size: 14px;
+}
+.rbac-topmenu li a {
+    color: #777;
+    opacity: 0.7;
+    text-shadow: 0 1px 0 #FFF;
+    display: block;
+}
+.rbac-topmenu li a:hover {
+    opacity: 1;
+    text-decoration: none;
+}
+.rbac-topmenu li a:focus {
+    text-decoration: none;
 }
 
 .rbac-topmenu .badge {
@@ -345,10 +364,6 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
 	bottom:12px;
 	}*/
 
-li.rbac-menu a {
-	opacity:1;
-}	
-
 .img-thumbnail {
 	box-shadow:none;
 	border:0;
@@ -379,7 +394,8 @@ li.sep {
 	height:69px !important;
 	margin:0 auto !important;
 	padding:0 !important;
-	background:#333;
+	background:#000;
+    opacity: 0.4;
 	
 	}
 

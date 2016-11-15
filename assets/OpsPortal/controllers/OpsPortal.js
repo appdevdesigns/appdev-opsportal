@@ -895,6 +895,14 @@ AD.comm.service.get({url:'/optheme/theme'})
                                     })
                                     .then(function(newConfig){
 
+                                        // if _this.data.lastConfig is not set, then default entries to empty []
+                                        if (!_this.data.lastConfig) {
+                                            _this.data.lastConfig = { 
+                                                areas:[], 
+                                                tools:[]
+                                            };
+                                        }
+
                                         function difference(a, b, field) {
                                             // what is in a that is not in b:
                                             var diff = [];

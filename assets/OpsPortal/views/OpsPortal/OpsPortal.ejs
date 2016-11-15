@@ -1,4 +1,4 @@
-<!-- 
+<!--
 #  Appdev Label Info:
 #label_context:opsportal
 #language_code:en
@@ -7,22 +7,27 @@
 
     <!-- Masthead -->
 	<div class="op-container op-masthead">
-        
+
 		<div class="op-container" id="op-masthead-menu">
-			<a href="#sidr-main"><span class="icon"><i class="fa fa-bars"></i></span>&nbsp;<span app-label-key="opp.menu">Menu</span><span class="badge"></span></a>
+			<a href="#sidr-main"><span class="icon"><i class="fa fa-bars"></i></span><span app-label-key="opp.menu">Menu</span><span class="badge"></span></a>
 		</div>
-		
+
 		<div class="op-container" id="op-masthead-nav">
-		    
+
 		    <!-- sublinks -->
 		    <div class="col-lg-11 col-md-11 col-xs-9" id="op-masthead-sublinks">
                 <ul class="list-unstyled list-inline" area="[[= area.key ]]" style="display:none;">
-                    <li class="active" op-tool="[[= tool.controller ]]" data-weight="[[= tool.attr('weight') ]]" op-tool-id="[[= tool.id ]]" ><a href="#" class="op-masthead-nav-link" role="button" obj-embed="tool">[[- tool.attr('label') ]]</a></li>
+									<li class="active" op-tool="[[= tool.controller ]]" data-weight="[[= tool.attr('weight') ]]" op-tool-id="[[= tool.id ]]" >
+										<a href="#" class="op-masthead-nav-link" role="button" obj-embed="tool">
+											<i class="fa [[- tool.attr('icon') ]] nav-icon"></i>
+											[[- tool.attr('label') ]]
+										</a>
+									</li>
                     <li class="mockup"><a href="#" class="" role="button" obj-embed="tool">Sublink 2</a></li>
                     <li class="mockup"><a href="#" class="" role="button" obj-embed="tool">Sublink 3</a></li>
                 </ul>
             </div>
-            
+
             <!-- user options icon -->
             <div id="op-masthead-user" class="dropdown col-lg-1 col-md-1 col-xs-3">
                 <a id="user-options-icon" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -35,17 +40,17 @@
                     <li><a href="<%= baseURL %>/site/logout" app-label-key="site.user.logout">Logout</a></li>
                 </ul>
             </div>
-			
+
 		</div>
-		
+
     </div>
-	
+
 	<!-- Global menu (Widget hidden by default) -->
 	<div class="op-menu-widget"></div>
-	
+
 	<!-- Stage -->
 	<div class="op-container op-stage"></div>
-		
+
 	<!-- <div id="opsportal-loading" class="opsportal-content opsportal-loading-global"><div></div></div> -->
-    
+
 </div>

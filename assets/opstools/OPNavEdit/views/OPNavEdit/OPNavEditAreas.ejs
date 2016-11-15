@@ -1,41 +1,44 @@
-<!-- 
+<!--
 #  Appdev Label Info:
 #label_context:opnavedit
 #language_code:en
 -->
-<div class="op-navbar-lpanel op-widget">
+<div class="op-navbar-lpanel op-widget op-widget-body">
 	<div style="display:none;">
-	  <span app-label-key="opnavedit.Add">Add</span>
+	  <span app-label-key="opnavedit.Add">Add Item</span>
 	  <span app-label-key="opnavedit.Save">Save</span>
-	  <span app-label-key="opnavedit.Edit">Edit</span>
+	  <span app-label-key="opnavedit.Edit">Edit Navigation</span>
 	  <span app-label-key="opnavedit.Delete">Delete</span>
 	  <span app-label-key="opnavedit.Cancel">Cancel</span>
 	  <span app-label-key="opnavedit.MenuItemProperties">Menu Area Properties</span>
 	  <span app-label-key="opnavedit.Label">Label</span>
 	  <span app-label-key="opnavedit.Icons">Icons</span>
 	  <span app-label-key="opnavedit.ex">ex</span>
-      <span app-label-key="opnavedit.NewArea">New Area</span>
-      <span app-label-key="opnavedit.ToolProperties">Tool Properties</span>
-      <span app-label-key="opnavedit.Permission">Permission</span>
-      <span app-label-key="opnavedit.isDefaultTool">is Default Tool for Area</span>
+    <span app-label-key="opnavedit.NewArea">New Area</span>
+    <span app-label-key="opnavedit.ToolProperties">Tool Properties</span>
+    <span app-label-key="opnavedit.Permission">Permission</span>
+    <span app-label-key="opnavedit.isDefaultTool">is Default Tool for Area</span>
 	</div>
     <!---->
-    <ul id="op-navbar-left" class="sortableMenu">
+    <ul class="op-list sortableMenu">
     	<% var L = AD.lang.label.getLabelSpan %>
     	<% can.each(areas, function(area,indx){ %>
-        <li <%= (el) -> can.data(el, 'area', area) %> >
-            <div class="sort-handle"><i class="fa fa-sort" aria-hidden="true"></i></div>
-            <i class="fa <%= area.attr('icon') %>"></i>&nbsp;<a  class="ops-navbar-menuItem" ><%== area.attr('label') %>(<%= area.attr('weight') %>)</a>
-            <i class="op-navbar-item-edit fa fa-pencil-square-o fa-2 showPopover" data-html="true" data-toggle="popover" aria-hidden="true"></i>
+        <li class="op-container" <%= (el) -> can.data(el, 'area', area) %> >
+            <div class="sort-handle actionButton ns-resize"><i class="fa fa-arrows-v" aria-hidden="true"></i></div>
+            <span class="icon op-icon"><i class="fa op-icon-fw <%= area.attr('icon') %>"></i></span><a  class="ops-navbar-menuItem" ><%== area.attr('label') %><!--(<%= area.attr('weight') %>)--></a>
+						<i class="op-navbar-item-edit fa fa-cog fa-2 showPopover" data-html="true" data-toggle="popover" aria-hidden="true"></i>
+						<i class="op-navbar-item-add fa fa-plus fa-2 ops-navbar-menuItem" data-html="true" aria-hidden="true"></i>
         </li>
     	<% }) %>
     </ul>
     <!--/-->
-    <!---->       
-    <ul class="op-list op-navbar-area-menu">
-          <li class="op-css-off-botm50"><a class="op-navbar-add add showPopover" data-html="true" data-toggle="popover"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;<%== L('opnavedit.Add') %></a></li>
-          <li class="op-css-off-top20"><a class="op-navbar-save" href="#"><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;<%== L('opnavedit.Save') %></a></li>
-    </ul>                            
-	  <!--/-->                           
+    <!---->
+    <div class="op-widget-footer">
+        <ul class="op-list op-navbar-area-menu">
+          		<li class="op-container op-navbar-add add showPopover" data-html="true" data-toggle="popover"><i class="fa op-icon-fw fa-plus" aria-hidden="true"></i><%== L('opnavedit.Add') %></li>
+              <li class="op-container actionButton op-navbar-save"><%== L('opnavedit.Save') %></li>
+        </ul>
+    </div>
+	  <!--/-->
 
 </div>
