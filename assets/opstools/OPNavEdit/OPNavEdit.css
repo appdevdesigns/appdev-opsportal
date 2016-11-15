@@ -1,24 +1,39 @@
-
-.op-navbar-editbutton{
-	color: #fff;
+.op-widget-footer .op-list {
+    margin-top: -11px;
+    background: rgba(0,0,0,0.15);
+    border-top: 1px solid rgba(0,0,0,0.2);
     text-align: center;
-    display: block;
-    margin: 0px 0 10px; 
-    padding-top: 10px;
-	}
-	
-	
+}
+
+.op-widget-footer .op-list li:hover {
+    background: rgba(0,0,0,0.15);
+}
+
+.sortableMenu, .sortableMenu a {
+    color: #FFF;
+}
+
+.sortableMenu a {
+    -webkit-transition: none;
+    -moz-transition: none;
+    -o-transition: none;
+    transition: none;
+}
+
+.sortableMenu a:hover, .sortableMenu a:active, .sortableMenu a:focus {
+    text-decoration: none;
+}
+
 .op-navbar-lpanel {
 	background:#444;
-	width:230px;
-	min-height:315px;
+	width:270px;
+	min-height:100%;
 	display:none;
-	padding-bottom:5px;
 	overflow:hidden;
 	}
 
-.op-navbar-lpanel .container .col-sm-6:first-child {border-right:2px solid #736d6d;}	
-		
+.op-navbar-lpanel .container .col-sm-6:first-child {border-right:2px solid #736d6d;}
+
 
 .op-navbar-area-menu {padding:0; text-align:center;}
 .op-navbar-area-menu li {opacity:1 !important; }
@@ -33,7 +48,7 @@
 .popover-content h4, .popover-title .close{ color:#fff !important; opacity:1; }
 
 .popover-title .close {margin:0 !important;}
-	
+
 
 
 
@@ -64,15 +79,25 @@
 
 #op-navbar-left .popover-title { line-height: 25px; }
 
-.op-navbar-item-edit {
+.op-navbar-item-edit, .op-navbar-item-add {
 	float: right;
-    display: block;
-    width: 18px;
-    height: 30px;
-    padding-top: 8px;
-	color:#c5c5c5;	
-
-	}
+  display: block;
+  width: 15px;
+  margin-left: 10px;
+  height: 30px;
+  padding-top: 4px;
+  color:#FFF;
+  opacity: 0.5;
+}
+.ui-sortable-helper {
+  background: #333;
+}
+.ui-sortable-placeholder {
+  height: 30px;
+  visibility: visible !important;
+  background: none !important;
+  border: 1px dashed rgba(255,255,255,0.6) !important;
+}
 
 #op-navbar-left { padding:0; list-style: none;}
 
@@ -96,9 +121,10 @@
 
 .op-navbar-tool .sort-handle {
     display: block;
-    background-color: #fff;
-    width: 20px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+    margin: 0;
     float: left;
     margin-right: 0px;
 }
@@ -110,21 +136,20 @@
 .op-navbar-tool li{
 	display:inline-block;
 	float: none;
-	min-width: 92px;
-    border: 1px solid #fff;
-    padding: 0;
-    margin: 0px 8px;	
+  background: rgba(0,0,0,0.6);
+  border-radius: 15px;
+  padding: 0;
+  margin: 0px 8px;
 	cursor:pointer;
+  border-width: 1px;
+  border-color: transparent;
+  border-style: solid;
 }
-.op-navbar-tool .sort-handle{
-	display:block;
-    background-color: #fff;
-    width: 20px;
-	height: 32px;
-    float: left;
-    margin-right: 0px;	
+.op-navbar-tool li .sort-handle i, .op-navbar-tool li i.op-navbar-item-edit {
+    margin: 8px 8px 0 8px;
+    height: 16px;
+    padding: 0;
 }
-
 
 ul.op-navbar-tool {
 	margin-top:16px;
@@ -136,15 +161,8 @@ ul.op-navbar-tool {
 
 }
 
-
-
 .ops-navbar-tooldeflist {
-	min-width: 150px;
-	/*width: */
-    display: inline-block;
-    border: none;
-    padding: 0;
-    margin-left: 15px;
+    width: 150px;
 }
 
 .ops-navbar-toolspinner {
@@ -157,28 +175,30 @@ ul.op-navbar-tool {
 
 .sort-handle {
 	display:block;
-    background-color: #d0d0d0;
-    width: 25px;
-    height: 30px;
-    float: left;
+  line-height: 20px;
+  width: 30px;
+  height: 50px;
+  float: left;
 	text-align:center;
-	margin-right:5px;
-	
-	}
-
-.sort-handle:hover, .op-navbar-item-edit:hover, #op-navbar-left li a:hover {
-    color: #fff;
-	}
-
-.sort-handle i { vertical-align: -webkit-baseline-middle; }
-
-.op-navbar-tool .sort-handle i {
-    -ms-transform: rotate(90deg);
-    -webkit-transform: rotate(90deg);
-    transform: rotate(90deg);
+	margin: -15px 10px 0 -15px;
 }
 
+.actionButton {
+  background: #3498db;
+  color: #FFF;
+  opacity: 1;
+}
+.actionButton:hover {
+  background: #2c83be !important;
+}
+.ew-resize:hover {
+  cursor: ew-resize;
+}
+.ns-resize:hover {
+  cursor: ns-resize;
+}
+.sort-handle:hover, .op-navbar-item-add:hover, .op-navbar-item-edit:hover, #op-navbar-left li a:hover {
+  opacity: 1;
+}
 
-
-
-
+.sort-handle i { vertical-align: -webkit-baseline-middle; margin-top: 18px; }
