@@ -17,7 +17,12 @@
 		    <!-- sublinks -->
 		    <div class="col-lg-11 col-md-11 col-xs-9" id="op-masthead-sublinks">
                 <ul class="list-unstyled list-inline" area="[[= area.key ]]" style="display:none;">
-                    <li class="active" op-tool="[[= tool.controller ]]" data-weight="[[= tool.attr('weight') ]]" op-tool-id="[[= tool.id ]]" ><a href="#" class="op-masthead-nav-link" role="button" obj-embed="tool">[[- tool.attr('label') ]]</a></li>
+									<li class="active" op-tool="[[= tool.controller ]]" data-weight="[[= tool.attr('weight') ]]" op-tool-id="[[= tool.id ]]" >
+										<a href="#" class="op-masthead-nav-link" role="button" obj-embed="tool">
+											<i class="fa [[- tool.attr('icon') ]] nav-icon"></i>
+											[[- tool.attr('label') ]]
+										</a>
+									</li>
                     <li class="mockup"><a href="#" class="" role="button" obj-embed="tool">Sublink 2</a></li>
                     <li class="mockup"><a href="#" class="" role="button" obj-embed="tool">Sublink 3</a></li>
                 </ul>
