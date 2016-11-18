@@ -24,11 +24,19 @@ module.exports = function (cb) {
     // });
     function flushNavBar () {
         OPSPortal.NavBar.cache.flush();
-        sails.sockets.blast(OPSPortal.Events.NAV_STALE, {update:true});
+
+        // FIX: sometimes sails is lifted for testing without socket support  
+        if (sails.sockets) {
+            sails.sockets.blast(OPSPortal.Events.NAV_STALE, {update:true});
+        }
     }
 
     function updateNavEditor () {
-        sails.sockets.blast(OPSPortal.Events.NAV_EDIT_STALE, {update:true});
+        
+        // FIX: sometimes sails is lifted for testing without socket support
+        if (sails.sockets) {
+            sails.sockets.blast(OPSPortal.Events.NAV_EDIT_STALE, {update:true});
+        }
     }
 
     ADCore.queue.subscribe(OPSPortal.Events.NAV_STALE,      flushNavBar);
