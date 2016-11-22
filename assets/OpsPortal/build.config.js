@@ -154,11 +154,6 @@ module.exports = {
 			"format": "global",
 			"sideBundle": true
 		},
-		"js/bootstrap/js/bootstrap.min": {
-			"deps": ['js/bootstrap/css/bootstrap.min.css'],
-			"format": "global",
-			"sideBundle": true
-		},
 		"js/bootstrap/ext/bootstrap-datetimepicker.min": {
 			"deps": ['styles/bootstrap-datetimepicker.min.css'],
 			"format": "global",
