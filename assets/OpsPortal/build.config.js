@@ -198,7 +198,7 @@ module.exports = {
 			"sideBundle": true
 		},
 		"js/bootstrapValidator.min": {
-			"deps": ['js/bootstrap/js/bootstrap.min', 'styles/bootstrapValidator.min.css'],
+			"deps": ['js/bootstrap/js/bootstrap.min'],
 			"format": "global",
 			"sideBundle": true
 		},
@@ -231,6 +231,7 @@ module.exports = {
 				"moment",
 				"bootstrap-table",
 				"bootstrapValidator",
+				"bootstrapValidator.css",
 				"bootbox",
 				"dropzone",
 
