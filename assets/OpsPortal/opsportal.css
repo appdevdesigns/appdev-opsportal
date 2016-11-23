@@ -28,7 +28,7 @@
 	margin-left: 0;
 }
 .tooltip, .popover {
-	position: fixed;
+	position: fixed !important;
 }
 .tooltip-inner {
 	font-weight: bold;

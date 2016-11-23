@@ -1,6 +1,6 @@
 module.exports = {
     "map": {
-		"FilteredBootstrapTable": "OpsPortal/controllers/FilteredBootstrapTable",
+        "FilteredBootstrapTable": "OpsPortal/controllers/FilteredBootstrapTable",
         "OpsButtonBusy": "OpsPortal/classes/OpsButtonBusy",
         "bootbox": "js/bootbox.min",
         "jquery": "js/jquery.min",
@@ -25,10 +25,10 @@ module.exports = {
         "dropzone.css": "js/dropzone/dropzone.min.css",
         // "async": "js/async",
         "webix": "js/webix/webix",
-		"webix-opsportal": "js/webix/opsportal-skin"
+    "webix-opsportal": "js/webix/opsportal-skin"
     },
     "paths": {
-		// "async": "js/async",
+    // "async": "js/async",
         "jquery": "js/jquery.min.js",
 
         "jquery-ui": "js/jquery-ui.min.js",         // 'http://code.jquery.com/ui/1.11.0/jquery-ui.min.js'
@@ -76,9 +76,9 @@ module.exports = {
         "OpsWebixSearch": "OpsPortal/classes/OpsWebixSearch.js",
         "OpsWebixForm": "OpsPortal/classes/OpsWebixForm.js",
 
-		"jquery-ui.js": "js/jquery-ui.min.js",
+        "jquery-ui.js": "js/jquery-ui.min.js",
         "opstools/HrisUserProfile": "opstools/HrisUserProfile/HrisUserProfile.js",
-		"bootstrap.js": "js/bootstrap/js/bootstrap.min.js",
+        "bootstrap.js": "js/bootstrap/js/bootstrap.min.js",
         "bootstrap-datetimepicker.js": "js/bootstrap/ext/bootstrap-datetimepicker.min.js",
         "GenericList.js": "js/GenericList.js",
         "dropzone.js": "js/dropzone/dropzone.min.js",
@@ -93,13 +93,13 @@ module.exports = {
         "OpsWebixSearch.js": "OpsPortal/classes/OpsWebixSearch.js",
         "OpsWebixForm.js": "OpsPortal/classes/OpsWebixForm.js",
 
-		"webix.js": "js/webix/webix.js",
+    "webix.js": "js/webix/webix.js",
         "webix.css": "js/webix/webix.css",
         "webix-opsportal.js": "js/webix/opsportal-skin.js"
     },
     "bundle": [],
     "meta": {
-		// "can": {
+    // "can": {
   //           "deps": [
   //               "can/util/can",
   //               "can/util/attr/attr",
@@ -133,37 +133,37 @@ module.exports = {
   //               "can/map/define/define"
   //           ]
   //       },
-		"js/jquery.min": {
+    "js/jquery.min": {
             "exports": "jQuery",
             "format": "global",
             "sideBundle": true
         },
-		// "js/dependencies/sails.io": {
+    // "js/dependencies/sails.io": {
   //           "format": "global",
   //           "sideBundle": true
   //       },
-		'feedback/feedback.min': {
-			"deps": ['js/jquery.min',
-				'feedback/feedback.min.css'
-			],
-			"format": "global",
-			"sideBundle": true
-		},
-		"js/jquery-ui.min": {
-			"deps": ['js/jquery.min'],
-			"format": "global",
-			"sideBundle": true
-		},
-		"js/bootstrap/ext/bootstrap-datetimepicker.min": {
-			"deps": ['styles/bootstrap-datetimepicker.min.css'],
-			"format": "global",
-			"sideBundle": true
-		},
-		"js/jquery.sidr.min": {
-			"deps": ['js/jquery.min'],
-			"format": "global",
-			"sideBundle": true
-		},
+    'feedback/feedback.min': {
+      "deps": ['js/jquery.min',
+        'feedback/feedback.min.css'
+      ],
+      "format": "global",
+      "sideBundle": true
+    },
+    "js/jquery-ui.min": {
+      "deps": ['js/jquery.min'],
+      "format": "global",
+      "sideBundle": true
+    },
+    "js/bootstrap/ext/bootstrap-datetimepicker.min": {
+      "deps": ['styles/bootstrap-datetimepicker.min.css'],
+      "format": "global",
+      "sideBundle": true
+    },
+    "js/jquery.sidr.min": {
+      "deps": ['js/jquery.min'],
+      "format": "global",
+      "sideBundle": true
+    },
     "js/load-image.all.min": {
       "format": "global",
       "sideBundle": true
@@ -173,84 +173,89 @@ module.exports = {
       "format": "global",
       "sideBundle": true
     },
-		"js/dropzone/dropzone.min": {
+    "js/dropzone/dropzone.min": {
       "exports": "Dropzone",
-			"deps": ['js/dropzone/dropzone.min.css', 'js/exif' ],
-			"format": "global",
-			"sideBundle": true
-		},
-		"js/typeahead.jquery.min": {
-			"format": "global",
-			"sideBundle": true
-		},
-		"js/moment.min": {
-			"format": "global",
-			"sideBundle": true
-		},
-		"js/bootstraptable/bootstrap-table": {
-			"deps": ['js/bootstrap/js/bootstrap.min', 'js/bootstraptable/bootstrap-table.css'],
-			"format": "global",
-			"sideBundle": true
-		},
-		"js/bootstrapValidator.min": {
-			"deps": ['js/bootstrap/js/bootstrap.min'],
-			"format": "global",
-			"sideBundle": true
-		},
-		"js/webix/webix.css": {
-			"sideBundle": true
-		},
-		"js/webix/webix": {
-			"deps": ['js/webix/webix.css'],
-			"format": "global",
-			"sideBundle": true
-		},
-		"js/webix/opsportal-skin": {
-			"deps": ['js/webix/webix'],
-			"format": "global",
-			"sideBundle": true
-		},
-		"js/bootbox.min": {
-			"exports": "bootbox",
-			"format": "global",
-			"sideBundle": true
-		},
-		"styles/font-awesome.css": {
-			"sideBundle": true
-		},
-		"OpsPortal/OpsPortal": {
-			"deps": [
-				'jquery',
-				'can',
-				"typeahead",
-				"moment",
-				"bootstrap-table",
-				"bootstrapValidator",
-				"bootstrapValidator.css",
-				"bootbox",
-				"dropzone",
+      "deps": ['js/dropzone/dropzone.min.css', 'js/exif' ],
+      "format": "global",
+      "sideBundle": true
+    },
+    "js/typeahead.jquery.min": {
+      "format": "global",
+      "sideBundle": true
+    },
+    "js/moment.min": {
+      "format": "global",
+      "sideBundle": true
+    },
+    "js/bootstraptable/bootstrap-table": {
+      "deps": ['js/bootstrap/js/bootstrap.min', 'js/bootstraptable/bootstrap-table.css'],
+      "format": "global",
+      "sideBundle": true
+    },
+    "js/bootstrapValidator.min": {
+      "deps": ['js/bootstrap/js/bootstrap.min'],
+      "format": "global",
+      "sideBundle": true
+    },
+    "js/webix/webix.css": {
+      "sideBundle": true
+    },
+    "js/webix/webix": {
+      "deps": ['js/webix/webix.css'],
+      "format": "global",
+      "sideBundle": true
+    },
+    "js/webix/opsportal-skin": {
+      "deps": ['js/webix/webix'],
+      "format": "global",
+      "sideBundle": true
+    },
+    "js/bootbox.min": {
+      "exports": "bootbox",
+      "format": "global",
+      "sideBundle": true
+    },
+    "styles/font-awesome.css": {
+      "sideBundle": true
+    },
+    "OpsPortal/OpsPortal": {
+      "deps": [
+        'jquery',
+        'can',
+        "typeahead",
+        "moment",
+        "bootstrap-table",
+        "bootstrapValidator",
+        "bootstrapValidator.css",
+        "bootbox",
+        "dropzone",
 
-				'js/GenericList',
+        'js/GenericList',
 
-				"OpsPortal/classes/OpsButtonBusy",
-				"OpsPortal/classes/OpsDialog",
-				"OpsPortal/classes/OpsForm",
-				"OpsPortal/classes/OpsTool",
-				"OpsPortal/classes/OpsWidget",
-				"OpsPortal/classes/ValidationDateGreaterThanField",
-				"OpsPortal/classes/ValidationServer",
+        "OpsPortal/classes/OpsButtonBusy",
+        "OpsPortal/classes/OpsDialog",
+        "OpsPortal/classes/OpsForm",
+        "OpsPortal/classes/OpsTool",
+        "OpsPortal/classes/OpsWidget",
+        "OpsPortal/classes/ValidationDateGreaterThanField",
+        "OpsPortal/classes/ValidationServer",
 
-				"OpsPortal/controllers/FilteredBootstrapTable",
-				"OpsPortal/controllers/MenuList",
-				"OpsPortal/controllers/OpsPortal",
-				"OpsPortal/controllers/SubLinks",
-				"OpsPortal/controllers/Tool",
-				"OpsPortal/controllers/ToolArea",
-				"OpsPortal/controllers/WorkArea",
+        "OpsPortal/controllers/FilteredBootstrapTable",
+        "OpsPortal/controllers/MenuList",
+        "OpsPortal/controllers/OpsPortal",
+        "OpsPortal/controllers/SubLinks",
+        "OpsPortal/controllers/Tool",
+        "OpsPortal/controllers/ToolArea",
+        "OpsPortal/controllers/WorkArea",
 
-				"OpsPortal/models/base/OpsPortalConfig",
-				"OpsPortal/models/OpsPortalConfig",
-			]
-		}
-	}
+        "OpsPortal/models/base/OpsPortalConfig",
+        "OpsPortal/models/OpsPortalConfig",
+      ]
+    },
+    "opstools/OPNavEdit": {
+      "deps": [
+        "OpsPortal/OpsPortal"
+      ]
+    }
+  }
 };
