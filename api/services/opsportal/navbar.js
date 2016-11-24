@@ -567,8 +567,14 @@ prevNavTool = navTool.toJSON();
 
 
             ],function(err){
-                ADCore.queue.publish(OPSPortal.Events.NAV_STALE, {tool:navTool, verb:'created'});
-                OPConfigTool.publishUpdate(navTool.id, navTool.toJSON(), null, { previous:prevNavTool });
+
+                // 24 NOV 2016: fix #161
+                // if a new navTool has been created, publish these updates:
+                if (navTool) {
+                    ADCore.queue.publish(OPSPortal.Events.NAV_STALE, {tool:navTool, verb:'created'});
+                    OPConfigTool.publishUpdate(navTool.id, navTool.toJSON(), null, { previous:prevNavTool });
+                }
+
                 if (err) {
                     if (cb) cb(err);
                     dfd.reject(err);
