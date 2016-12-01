@@ -386,7 +386,7 @@ steal(
                 });
                 webix.message({
                   type: "info",
-                  text: "Theme ready for editing"
+                  text: "Theme is ready for editing"
                 });
 
               })
@@ -432,6 +432,7 @@ steal(
                 }
                 // now try to load the selected theme:
                 filename = themeName.replace(/ /g,"_").trim().toLowerCase() + ".css";
+                //todo cache busting
                 steal('opstools/OPTheme/themes/' + filename);
                 defaultButton.enable();
                 prevThemeName = themeName;
