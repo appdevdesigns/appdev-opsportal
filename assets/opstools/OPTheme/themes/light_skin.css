@@ -1,5 +1,5 @@
 /* Light Skin */
-/* Only Imports */
+/* All Imports goes here */
 /* All variables goes here */
 /* Begin Variables */
 #bodyBG {
@@ -53,6 +53,12 @@
 #tableHeaderBG {
   color: #CBE5E7; }
 
+#tableRowSelectColor {
+  color: #000000; }
+
+#tableRowSelectBG {
+  color: #e18429; }
+
 /* End Variables */
 body {
   background: #FFFFFF !important; }
@@ -104,3 +110,7 @@ ul.pagination li.active a, button.webix_pager_item_selected {
 table thead, .webix_ss_header, .webix_header, .webix_header > div, .webix_dd_drag_column, .webix_ss_header, .webix_ss_header TD, .webix_ss_vscroll_header, .panel-default > .panel-heading {
   color: #000 !important;
   background: #CBE5E7 !important; }
+
+.webix_column > div.webix_row_select {
+  background: #e18429 !important;
+  color: #000000 !important; }

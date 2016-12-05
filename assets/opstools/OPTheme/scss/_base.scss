@@ -24,6 +24,9 @@
 
 #tableHeaderColor {color:$tableHeaderColor};
 #tableHeaderBG {color:$tableHeaderBG};
+
+#tableRowSelectColor {color:$tableRowSelectColor};
+#tableRowSelectBG {color:$tableRowSelectBG};
 /* End Variables */
 
 body {
@@ -87,4 +90,9 @@ ul.pagination li.active a, button.webix_pager_item_selected {
 table thead, .webix_ss_header, .webix_header, .webix_header>div, .webix_dd_drag_column, .webix_ss_header, .webix_ss_header TD, .webix_ss_vscroll_header ,.panel-default>.panel-heading {
 	color : $tableHeaderColor !important;
 	background: $tableHeaderBG !important;
+}
+
+.webix_column>div.webix_row_select {
+	background: $tableRowSelectBG !important;
+	color:	$tableRowSelectColor !important;
 }

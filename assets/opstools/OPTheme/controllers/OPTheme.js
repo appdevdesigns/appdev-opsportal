@@ -277,6 +277,26 @@ steal(
                             ]
                           },
                           {
+                            cols: [
+                              {
+                                view: "colorpicker",
+                                label: "Table Row selected Color",
+                                id: "tableRowSelectColor",
+                                labelWidth: 220,
+                                name: "vars[tableRowSelectColor]",
+                                value: "#fff"
+                              },
+                              {
+                                view: "colorpicker",
+                                label: "Table Row Selected BG",
+                                id: "tableRowSelectBG",
+                                labelWidth: 220,
+                                name: "vars[tableRowSelectBG]",
+                                value: "#27ae60"
+                              }
+                            ]
+                          },
+                          {
                             view: "button",
                             name: "optheme-addTheme",
                             label: "Save Theme",
