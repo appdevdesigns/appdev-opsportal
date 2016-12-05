@@ -234,6 +234,30 @@ module.exports = {
 			}
 
 			res.AD.success(result);
+		},
+
+		// get /optheme/preview?name=light_skin.css
+		preview: function (req,res) {
+          	var cssContent ='/* No css file was requested */';
+			var fs = require('fs');
+			var path = require('path');
+
+            var cssFile = req.query.name;
+
+			if(cssFile && typeof cssFile !== 'undefined'){
+              //get css file content
+              var cssContent = fs.readFileSync(path.join(__dirname, '..', '..', 'assets/opstools/OPTheme/themes/'+cssFile),'utf8');
+
+            }
+			//get html file content
+			var htmlContent = fs.readFileSync(path.join(__dirname, '..', '..', 'assets/opstools/OPTheme/views/OPTheme/iframe.html'), 'utf8');
+			
+			//inject stylesheet into html content
+			htmlContent = htmlContent.toString().replace('STYLESHEET_HERE',cssContent);
+			res.setHeader('Content-Type', 'text/html');				
+			res.send(htmlContent);
+			res.end();
+		
 		}
 
 };
