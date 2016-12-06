@@ -1,0 +1,106 @@
+/* Light Skin */
+/* Only Imports */
+/* All variables goes here */
+/* Begin Variables */
+#bodyBG {
+  color: #FFFFFF; }
+
+#headerColor {
+  color: #fff; }
+
+#headerBG {
+  color: #00ABBB; }
+
+#navColor {
+  color: #000; }
+
+#navBG {
+  color: #CBE5E7; }
+
+#paginationBtnColor {
+  color: #fff; }
+
+#paginationBtnBG {
+  color: #e18429; }
+
+#paginationActiveBtnColor {
+  color: #000; }
+
+#paginationActiveBtnBG {
+  color: #6eb6ff; }
+
+#btnColor {
+  color: #fff; }
+
+#btnBG {
+  color: #6eb6ff; }
+
+#navBtnColor {
+  color: #fff; }
+
+#navBtnBG {
+  color: #a4bed4; }
+
+#navActiveBtnColor {
+  color: #000; }
+
+#navActiveBtnBG {
+  color: #ffd47b; }
+
+#tableHeaderColor {
+  color: #000; }
+
+#tableHeaderBG {
+  color: #CBE5E7; }
+
+/* End Variables */
+body {
+  background: #FFFFFF !important; }
+
+.op-masthead, #op-menu-widget, .op-navbar-lpanel {
+  background: #00ABBB !important; }
+
+.op-masthead, #op-masthead-sublinks a, #op-menu-widget {
+  color: #fff !important;
+  opacity: 1 !important; }
+
+.op-widget-horizontal-nav {
+  background: #CBE5E7 !important; }
+
+.op-widget-horizontal-nav a {
+  color: #000 !important;
+  opacity: 0.5 !important; }
+
+.op-widget-horizontal-nav li.selected a {
+  color: #e18429 !important;
+  opacity: 1 !important; }
+
+/* Pagination */
+ul.pagination li a, button.webix_pager_item {
+  color: #fff !important;
+  background: #e18429 !important;
+  border-color: #e18429 !important; }
+
+ul.pagination li.active a, button.webix_pager_item_selected {
+  color: #000 !important;
+  background: #6eb6ff !important;
+  border-color: #6eb6ff !important; }
+
+/* Buttons */
+.btn, .webix-btn, .webixbutton, .webixtype_base, .webixtype_next, .webixtype_prev, .webix_img_btn_abs_top {
+  color: #fff !important;
+  background: #6eb6ff !important; }
+
+/* Tabs */
+.nav-tabs li a, .webix_item_tab {
+  color: #fff !important;
+  background: #a4bed4 !important; }
+
+.nav-tabs li.active a, .webix_item_tab .webix_selected {
+  color: #000 !important;
+  background: #ffd47b !important; }
+
+/* Datatables */
+table thead, .webix_ss_header, .webix_header, .webix_header > div, .webix_dd_drag_column, .webix_ss_header, .webix_ss_header TD, .webix_ss_vscroll_header, .panel-default > .panel-heading {
+  color: #000 !important;
+  background: #CBE5E7 !important; }

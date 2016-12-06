@@ -25,57 +25,66 @@
 #tableHeaderColor {color:$tableHeaderColor};
 #tableHeaderBG {color:$tableHeaderBG};
 /* End Variables */
+
 body {
-  background: $bodyBG;
+  background: $bodyBG !important;
 }
 
-.op-masthead, #op-menu-widget {
-  background: $headerBG;
+.op-masthead, #op-menu-widget, .op-navbar-lpanel {
+  background: $headerBG !important;
 }
 
-.op-masthead, #op-menu-widget {
-  color: $headerColor;
+.op-masthead,#op-masthead-sublinks a, #op-menu-widget {
+  color: $headerColor !important;
+  opacity: 1!important;
 }
 
 .op-widget-horizontal-nav {
-  background: $navBG;
+  background: $navBG !important;
 }
 
 .op-widget-horizontal-nav a {
-  color: $navColor;
+  color: $navColor !important;
+  opacity: 0.5!important
+}
+
+.op-widget-horizontal-nav li.selected a{
+  color : $paginationBtnBG !important;
+  opacity: 1!important;
 }
 
 /* Pagination */
 ul.pagination li a , button.webix_pager_item {
-	color : $paginationBtnColor;
-	background : $paginationBtnBG ;
+	color : $paginationBtnColor !important;
+	background : $paginationBtnBG !important;
+	border-color: $paginationBtnBG !important;
 }
 
 ul.pagination li.active a, button.webix_pager_item_selected {
-	color : $paginationActiveBtnColor;
-	background : $paginationActiveBtnBG;
+	color : $paginationActiveBtnColor !important;
+	background : $paginationActiveBtnBG !important;
+	border-color: $paginationActiveBtnBG !important;
 }
 
 /* Buttons */
-.btn, .webix-btn, .webixbutton, .webixtype_base, .webixtype_next, .webixtype_prev {
-	color : $btnColor;
-	background : $btnBG;
+.btn, .webix-btn, .webixbutton, .webixtype_base, .webixtype_next, .webixtype_prev, .webix_img_btn_abs_top {
+	color : $btnColor !important;
+	background : $btnBG !important;
 }
 
 /* Tabs */
 .nav-tabs li a, .webix_item_tab{
-	color : $navBtnColor;
-	background : $navBtnBG ;
+	color : $navBtnColor !important;
+	background : $navBtnBG !important;
 }
 
 .nav-tabs li.active a, .webix_item_tab .webix_selected {
-	color : $navActiveBtnColor;
-	background : $navActiveBtnBG;
+	color : $navActiveBtnColor !important;
+	background : $navActiveBtnBG !important;
 }
 
 /* Datatables */
-table thead, .webix_ss_header, .webix_header, .webix_header>div, .webix_dd_drag_column, .webix_ss_header, .webix_ss_header TD, .webix_ss_vscroll_header  {
-	color : $tableHeaderColor;
-	background: $tableHeaderBG;
+table thead, .webix_ss_header, .webix_header, .webix_header>div, .webix_dd_drag_column, .webix_ss_header, .webix_ss_header TD, .webix_ss_vscroll_header ,.panel-default>.panel-heading {
+	color : $tableHeaderColor !important;
+	background: $tableHeaderBG !important;
 }
-
