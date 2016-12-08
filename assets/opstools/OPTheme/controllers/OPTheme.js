@@ -483,7 +483,7 @@ steal(
 
           'previewTheme': function (filename, event) {                      
             
-            var src = '/optheme/preview?name='+filename;
+            var src = '/optheme/preview?name='+filename + '&_' + +new Date();
             $$("preview-iframe").load(src)
 
           },

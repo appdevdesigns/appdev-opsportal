@@ -26,6 +26,7 @@
 <body>
 <main id="op-demo">
   <!--content will injected by webix -->
+  <div class="paging_here"></div>
 </main>
 
 
@@ -41,14 +42,14 @@
       {
         view: "tabbar", multiview: true,
         options: [
-          {id: "form", value: "Form"},
-          {id: "datatable", value: "Data table"},
+          {id: "form1", value: "Form"},
+          {id: "datatable1", value: "Data table"},
         ]
       },
       {
         cells: [
           {
-            id: "form", view: "form",
+            id: "form1", view: "form",
             elements: [
               {view: "text", id: "mytext1", name: "fname", label: "First Name", value: 'John'},
               {view: "text", id: "mytext2", name: "lname", label: "Last Name", value: 'Legend'},
@@ -58,7 +59,7 @@
             ],
           },
           {
-            id: "datatable",
+            id: "datatable1",
             view: "datatable",
             columns: [
               {id: "id", header: "#", width: 80, sort: "int"},
@@ -73,11 +74,19 @@
             autowidth: true,
             yCount: 10,
             scrollY: false,
+            navigation:"true",
             data: [
               {id: 1, title: "Debug the last line", year: 1994, votes: 678790, rating: 9.2, cast: 'Name, name name'},
               {id: 2, title: "Tab vs space", year: 1972, votes: 511495, rating: 8.2, cast: 'Name 2, name, name'},
               {id: 3, title: "Event life cycle", year: 1999, votes: 516, rating: 5.2, cast: 'Name 3, name, name'},
               {id: 4, title: "Foo vs Bar", year: 2016, votes: 9561, rating: 10, cast: 'Name 4, name, name'},
+              {id: 5, title: "Foo vs Bar 2", year: 2016, votes: 9561, rating: 10, cast: 'Name 4, name, name'},
+              {id: 6, title: "Foo vs Bar 3", year: 2016, votes: 9561, rating: 10, cast: 'Name 4, name, name'},
+              {id: 7, title: "Foo vs Bar 4", year: 2016, votes: 9561, rating: 10, cast: 'Name 4, name, name'},
+              {id: 8, title: "Foo vs Bar 5", year: 2016, votes: 9561, rating: 10, cast: 'Name 4, name, name'},
+              {id: 9, title: "Foo vs Bar 6", year: 2016, votes: 9561, rating: 10, cast: 'Name 4, name, name'},
+              {id: 10, title: "Foo vs Bar 7", year: 2016, votes: 9561, rating: 10, cast: 'Name 4, name, name'},
+              {id: 11, title: "Foo vs Bar OST", year: 2016, votes: 9561, rating: 10, cast: 'Name 4, name, name'},
             ]
           },
         ]

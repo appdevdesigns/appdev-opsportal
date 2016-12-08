@@ -70,20 +70,23 @@ ul.pagination li.active a, button.webix_pager_item_selected {
 }
 
 /* Buttons */
-.btn, .webix-btn, .webixbutton, .webixtype_base, .webixtype_next, .webixtype_prev, .webix_img_btn_abs_top {
+.btn, .webix-btn, .webixbutton, .webixtype_base, .webixtype_next, .webixtype_prev, .webix_img_btn_abs_top, .webix_el_box .webixtype_form, .webix_input_icon {
 	color : $btnColor !important;
 	background : $btnBG !important;
+	border-color: $btnBG !important;
 }
 
 /* Tabs */
-.nav-tabs li a, .webix_item_tab{
+.nav-tabs li a, .webix_item_tab,.webix_after_all_tabs{
 	color : $navBtnColor !important;
 	background : $navBtnBG !important;
+	border-color: $navBtnBG !important;
 }
 
-.nav-tabs li.active a, .webix_item_tab .webix_selected {
+.nav-tabs li.active a, .webix_item_tab.webix_selected {
 	color : $navActiveBtnColor !important;
 	background : $navActiveBtnBG !important;
+	border-color: $navActiveBtnBG !important;
 }
 
 /* Datatables */
