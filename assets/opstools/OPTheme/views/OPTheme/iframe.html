@@ -1,0 +1,99 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <title>Webix Theme Preview</title>
+  <meta charset="UTF-8">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="https://cdn.webix.com/4.0/webix.css" type="text/css">
+  <script src="https://cdn.webix.com/4.0/webix.js" type="text/javascript"></script>
+  <style type="text/css">
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+    }
+
+    main {
+      width: 98%;
+      margin: 0 auto;
+    }
+  </style>
+  <style type="text/css">
+    /*Requested css will be loaded here*/
+    STYLESHEET_HERE
+  </style>
+</head>
+<body>
+<main id="op-demo">
+  <!--content will injected by webix -->
+  <div class="paging_here"></div>
+</main>
+
+
+<script type="text/javascript" charset="utf-8">
+  'use strict';
+  // http://webix.com/quick-start/
+  webix.ui({
+    type: "clean",
+    container: "op-demo",
+    width: 800,
+    rows: [
+      {height: 10},
+      {
+        view: "tabbar", multiview: true,
+        options: [
+          {id: "form1", value: "Form"},
+          {id: "datatable1", value: "Data table"},
+        ]
+      },
+      {
+        cells: [
+          {
+            id: "form1", view: "form",
+            elements: [
+              {view: "text", id: "mytext1", name: "fname", label: "First Name", value: 'John'},
+              {view: "text", id: "mytext2", name: "lname", label: "Last Name", value: 'Legend'},
+              {view: "combo", id: "mycombo", name: "lang", options: ['English', 'Thai'], label: "Language"},
+              {view: "textarea", id: "textarea", label: "Address", height: 100},
+              {view: "button", type: "form", value: "Save Values", width: 250, align: 'center'},
+            ],
+          },
+          {
+            id: "datatable1",
+            view: "datatable",
+            columns: [
+              {id: "id", header: "#", width: 80, sort: "int"},
+              {id: "title", header: "Film title", width: 200, sort: "string"},
+              {id: "year", header: "Released", width: 100, sort: "int"},
+              {id: "votes", header: "Votes", width: 100, sort: "int"},
+              {id: "rating", header: "Rating", width: 100, sort: "int"},
+              {id: "cast", header: "Cast", width: 200, sort: false},
+            ],
+            select: "row",
+            autoheight: true,
+            autowidth: true,
+            yCount: 10,
+            scrollY: false,
+            navigation:"true",
+            data: [
+              {id: 1, title: "Debug the last line", year: 1994, votes: 678790, rating: 9.2, cast: 'Name, name name'},
+              {id: 2, title: "Tab vs space", year: 1972, votes: 511495, rating: 8.2, cast: 'Name 2, name, name'},
+              {id: 3, title: "Event life cycle", year: 1999, votes: 516, rating: 5.2, cast: 'Name 3, name, name'},
+              {id: 4, title: "Foo vs Bar", year: 2016, votes: 9561, rating: 10, cast: 'Name 4, name, name'},
+              {id: 5, title: "Foo vs Bar 2", year: 2016, votes: 9561, rating: 10, cast: 'Name 4, name, name'},
+              {id: 6, title: "Foo vs Bar 3", year: 2016, votes: 9561, rating: 10, cast: 'Name 4, name, name'},
+              {id: 7, title: "Foo vs Bar 4", year: 2016, votes: 9561, rating: 10, cast: 'Name 4, name, name'},
+              {id: 8, title: "Foo vs Bar 5", year: 2016, votes: 9561, rating: 10, cast: 'Name 4, name, name'},
+              {id: 9, title: "Foo vs Bar 6", year: 2016, votes: 9561, rating: 10, cast: 'Name 4, name, name'},
+              {id: 10, title: "Foo vs Bar 7", year: 2016, votes: 9561, rating: 10, cast: 'Name 4, name, name'},
+              {id: 11, title: "Foo vs Bar OST", year: 2016, votes: 9561, rating: 10, cast: 'Name 4, name, name'},
+            ]
+          },
+        ]
+      }
+    ]
+  });
+
+</script>
+</body>
+</html>

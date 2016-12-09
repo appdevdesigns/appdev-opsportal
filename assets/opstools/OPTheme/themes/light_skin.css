@@ -1,5 +1,5 @@
 /* Light Skin */
-/* Only Imports */
+/* All Imports goes here */
 /* All variables goes here */
 /* Begin Variables */
 #bodyBG {
@@ -53,6 +53,12 @@
 #tableHeaderBG {
   color: #CBE5E7; }
 
+#tableRowSelectColor {
+  color: #000000; }
+
+#tableRowSelectBG {
+  color: #e18429; }
+
 /* End Variables */
 body {
   background: #FFFFFF !important; }
@@ -87,20 +93,27 @@ ul.pagination li.active a, button.webix_pager_item_selected {
   border-color: #6eb6ff !important; }
 
 /* Buttons */
-.btn, .webix-btn, .webixbutton, .webixtype_base, .webixtype_next, .webixtype_prev, .webix_img_btn_abs_top {
+.btn, .webix-btn, .webixbutton, .webixtype_base, .webixtype_next, .webixtype_prev, .webix_img_btn_abs_top, .webix_el_box .webixtype_form, .webix_input_icon {
   color: #fff !important;
-  background: #6eb6ff !important; }
+  background: #6eb6ff !important;
+  border-color: #6eb6ff !important; }
 
 /* Tabs */
-.nav-tabs li a, .webix_item_tab {
+.nav-tabs li a, .webix_item_tab, .webix_after_all_tabs {
   color: #fff !important;
-  background: #a4bed4 !important; }
+  background: #a4bed4 !important;
+  border-color: #a4bed4 !important; }
 
-.nav-tabs li.active a, .webix_item_tab .webix_selected {
+.nav-tabs li.active a, .webix_item_tab.webix_selected {
   color: #000 !important;
-  background: #ffd47b !important; }
+  background: #ffd47b !important;
+  border-color: #ffd47b !important; }
 
 /* Datatables */
 table thead, .webix_ss_header, .webix_header, .webix_header > div, .webix_dd_drag_column, .webix_ss_header, .webix_ss_header TD, .webix_ss_vscroll_header, .panel-default > .panel-heading {
   color: #000 !important;
   background: #CBE5E7 !important; }
+
+.webix_column > div.webix_row_select {
+  background: #e18429 !important;
+  color: #000000 !important; }

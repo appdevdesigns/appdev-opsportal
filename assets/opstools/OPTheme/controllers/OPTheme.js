@@ -62,7 +62,12 @@ steal(
                         id: "my-optheme-list",
                         scroll: true,
                         width: 300,
-                        template: "#name# <span class='f-right'><a class='hris-tooltip edit tt' href='#' title='Edit theme'><span class='icon'><i class='fa fa-edit fa-fw'></i></span></a> <a class='hris-tooltip favorite tt' href='#' title='Set as default theme'><span class='icon'><i class='fa fa-heart-o fa-fw'></i></span></a> <a class='hris-tooltip delete tt' href='#' title='Delete theme'><span class='icon'><i class='fa fa-trash-o fa-fw'></i></span></a></span>",
+                        template: "#name# <span class='f-right'>"
+                        +"<a class='hris-tooltip preview tt' href='#' title='Preview theme'><span class='icon'><i class='fa fa-eye fa-fw'></i></span></a>"
+                        +"<a class='hris-tooltip edit tt' href='#' title='Edit theme'><span class='icon'><i class='fa fa-edit fa-fw'></i></span></a>"
+                        +"<a class='hris-tooltip favorite tt' href='#' title='Set as default theme'><span class='icon'><i class='fa fa-heart-o fa-fw'></i></span></a>"
+                        +"<a class='hris-tooltip delete tt' href='#' title='Delete theme'><span class='icon'><i class='fa fa-trash-o fa-fw'></i></span></a>"
+                        +"</span>",
                         onClick:{
                             delete:function(e, id){
                                 _this.deleteTheme(this.getItem(id).filename, this);  
@@ -79,6 +84,10 @@ steal(
                                 // Lets change the heart icon to show which is the default 
                                 $(".fa-heart").removeClass("fa-heart").addClass("fa-heart-o");
                                 $(e.srcElement).removeClass("fa-heart-o").addClass("fa-heart");
+                            },
+                            preview:function(e,id){
+                              _this.previewTheme(this.getItem(id).filename, this);  
+                                return false;
                             }
                         }
                       },
@@ -268,6 +277,26 @@ steal(
                             ]
                           },
                           {
+                            cols: [
+                              {
+                                view: "colorpicker",
+                                label: "Table Row selected Color",
+                                id: "tableRowSelectColor",
+                                labelWidth: 220,
+                                name: "vars[tableRowSelectColor]",
+                                value: "#fff"
+                              },
+                              {
+                                view: "colorpicker",
+                                label: "Table Row Selected BG",
+                                id: "tableRowSelectBG",
+                                labelWidth: 220,
+                                name: "vars[tableRowSelectBG]",
+                                value: "#27ae60"
+                              }
+                            ]
+                          },
+                          {
                             view: "button",
                             name: "optheme-addTheme",
                             label: "Save Theme",
@@ -304,7 +333,19 @@ steal(
                         }
                       }
                     ]
-                  }
+                  },
+                  {
+                    type:"section", template: 'Theme Preview'
+                  },
+                  {
+                    cols:[{
+                      id:"preview-iframe",
+                      view:"iframe",
+                      width: 870,
+                      height: 500,
+                      src:"/optheme/preview"
+                    }]
+                  },
                 ]
               })
             });
@@ -437,6 +478,13 @@ steal(
                 defaultButton.enable();
                 prevThemeName = themeName;
               })
+
+          },
+
+          'previewTheme': function (filename, event) {                      
+            
+            var src = '/optheme/preview?name='+filename + '&_' + +new Date();
+            $$("preview-iframe").load(src)
 
           },
 
