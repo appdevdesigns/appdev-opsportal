@@ -11,6 +11,7 @@ steal(
 			steal.import('appdev/ad',
 				'appdev/control/control',
 				'OpsPortal/classes/OpsTool',
+				'OpsPortal/controllers/OpsPortal',
 				'site/labels/opstool-OPNavEdit').then(function() {
 
 					// Namespacing conventions:
@@ -1024,8 +1025,32 @@ AD.lang.label.getLabelSpan('opnavedit.Edit'),
 					});
 
 
+					//
+					// NOTE:
+					// 
+					// there is a timing issue once these files are compiled and minified.
+					// the OPNavEdit.js file is processed before the OpsPortal controller
+					// has a chance to .init() and listen for this event.
+					//
+					// So here we are attempting to wait until we know the 'opsportal.ready'
+					// has fired.
+					//
+					// but if this file loads after that event is emitted, then we 
+					// have a fallback delay to fire.
+
 					// alert the OPSPortal we are loaded.
-					AD.comm.hub.publish('opsportal.admin.opnavedit', {});
+					var __OPNavEditHasPublished = false;
+					function __OPNavEditAlert() {
+						if (!__OPNavEditHasPublished) {
+							__OPNavEditHasPublished = true;
+							AD.comm.hub.publish('opsportal.admin.opnavedit', {});
+						}
+					}
+					// trigger our alert once the opsportal.ready event fires
+					AD.comm.hub.subscribe('opsportal.ready', __OPNavEditAlert);
+
+					// or wait in case we missed the event:
+					setTimeout(__OPNavEditAlert, 7500);
 
 				});
 		});

@@ -127,7 +127,9 @@ steal(
 													//        just remap '.' to '_'
 													var id = "#"+AD.util.string.replaceAll(controller.key, '.', '_');
 													var $el = _this.element.find(id);
-													AD.Control.new(controller.key, $el, { id: id });
+													var init = $.extend({ id: id}, controller.init );
+
+													AD.Control.new(controller.key, $el, init);
 												}
 
 											});

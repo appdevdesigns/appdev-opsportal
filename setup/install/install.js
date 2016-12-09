@@ -56,19 +56,28 @@ var Main = function() {
 
 	], function(err, results) {
 
-		if (sailsOBJ)  sailsOBJ.lower();
+		function finishUp() {
 
-		if (err) {
+			if (err) {
 //// TODO: clean up any newly created Entries: User, Role, Scope, Permissions!
-			process.exit(1);
-		} else {
-			AD.log();
-			AD.log();
-			process.exit(0);
+				process.exit(1);
+			} else {
+				AD.log();
+				AD.log();
+				process.exit(0);
+			}
 		}
 
-		
-		
+		if (sailsOBJ) {
+
+			sailsOBJ.lower(function(e2){
+				finishUp();
+			});
+		} else {
+
+			finishUp();
+		}
+
 	});
 }
 
@@ -152,7 +161,11 @@ var noRepeats = function(done) {
 var properStartDir = function(done) {
 
 	var currDir = process.cwd();
-	var gotThere = AD.util.fs.moveToDirUP({ assets: 1, api:1, setup:1 });
+
+	// move us up to Sails/  so the sails-disk adapter can properly save
+	// the data to the correct .tmp/appdev_default.js file
+
+	var gotThere = AD.util.fs.moveToDirUP({ assets: 1, api:1, setup:0 });
 	if (gotThere) {
 // AD.log('... proper start dir:'+ process.cwd() );
 		done();
