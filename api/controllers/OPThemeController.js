@@ -8,6 +8,8 @@ var fs = require('fs');
 var path = require('path');
 var sass = require('node-sass');
 var pathToThemeFolder = path.join(__dirname, '..', '..', 'assets', 'opstools', 'OPTheme','themes');
+var async = require('async');
+
 
 // Path to directory where all sass declarations are in place
 var pathToImportFolder = path.join(pathToThemeFolder, '..', 'scss');
@@ -238,25 +240,75 @@ module.exports = {
 
 		// get /optheme/preview?name=light_skin.css
 		preview: function (req,res) {
-          	var cssContent ='/* No css file was requested */';
+          	
 			var fs = require('fs');
 			var path = require('path');
 
             var cssFile = req.query.name;
+            var cssContent ='/* No css file was requested */';
+            var htmlContent = "";
 
-			if(cssFile && typeof cssFile !== 'undefined'){
-              //get css file content
-              var cssContent = fs.readFileSync(path.join(__dirname, '..', '..', 'assets/opstools/OPTheme/themes/'+cssFile),'utf8');
+            async.series([
 
-            }
-			//get html file content
-			var htmlContent = fs.readFileSync(path.join(__dirname, '..', '..', 'assets/opstools/OPTheme/views/OPTheme/iframe.html'), 'utf8');
-			
-			//inject stylesheet into html content
-			htmlContent = htmlContent.toString().replace('STYLESHEET_HERE',cssContent);
-			res.setHeader('Content-Type', 'text/html');				
-			res.send(htmlContent);
-			res.end();
+            	function getCss(next){
+
+            		if(cssFile && typeof cssFile !== 'undefined'){
+
+                        //get css file content
+                        var pathToCss = path.join(__dirname, '..', '..', 'assets', 'opstools', 'OPTheme', 'themes', cssFile);
+                        fs.readFile(pathToCss, 'utf8', function(err, contents){
+                            if (err) {
+                                if (err.code == 'ENOENT') {
+                                    // file didn't exist! 
+                                    // What should we do?
+                                    next();   // <-- continue on without 
+                                } else {
+
+                                    next(err);
+                                }
+                                
+                                return;
+                            }
+                            cssContent = contents;
+                            next();
+                        });
+
+		            } else {
+		            	next();
+		            }
+            	},
+
+
+                function getHTML(next){
+
+                    var pathToHTML = path.join(__dirname, '..', '..', 'assets', 'opstools', 'OPTheme', 'views', 'OPTheme', 'iframe.html');
+                    fs.readFile(pathToHTML, 'utf8', function(err, contents){
+                        if (err) {
+                            next(err);
+                            return;
+                        }
+                        htmlContent = contents;
+                        next();
+                    })
+                }
+
+            ], function (err, results){
+
+                if (err) {
+
+// TODO: be smarter about error handling here:
+res.badRequest(); // assuming their fault, of course
+return;
+
+                }
+
+                //inject stylesheet into html content
+                htmlContent = htmlContent.toString().replace('STYLESHEET_HERE',cssContent);
+                res.setHeader('Content-Type', 'text/html');             
+                res.send(htmlContent);
+                res.end();
+
+            })
 		
 		}
 
