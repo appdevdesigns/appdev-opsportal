@@ -157,52 +157,55 @@ steal(
 
 					// console.error('... isValidationError(): ', error);
 
-					// dig down to sails provided error object:
-					if ((error.error)
-						&& (error.error == 'E_UNKNOWN')
-						&& (error.raw)
-						&& (error.raw.length > 0)) {
+					if (error) { 
 
-						error = error.raw[0]
-					}
+						// dig down to sails provided error object:
+						if ((error.error)
+							&& (error.error == 'E_UNKNOWN')
+							&& (error.raw)
+							&& (error.raw.length > 0)) {
 
-					// drill down to the embedded .err object if it exists
-					if (error.err) {
-						error = error.err;
-					}
-
-
-					if ((error.error)
-						&& (error.error == 'E_VALIDATION')) {
-
-						var attrs = error.invalidAttributes;
-						if (attrs) {
-
-							var wasForm = false;
-							for (var attr in attrs) {
-
-								// if this is a field in the form:
-								if (form.elements[attr]) {
-
-									var errors = attrs[attr];
-									var msg = [];
-									errors.forEach(function(err) {
-										msg.push(err.message);
-									})
-
-									form.markInvalid(attr, msg.join(', '));
-									wasForm = true;
-								}
-
-							}
-
-							if (wasForm) {
-								return true;
-							}
+							error = error.raw[0]
 						}
 
-					}
+						// drill down to the embedded .err object if it exists
+						if (error.err) {
+							error = error.err;
+						}
 
+
+						if (((error.error)
+								&& (error.error == 'E_VALIDATION'))
+							|| ((error.code) && (error.code == 'E_VALIDATION'))) {
+
+							var attrs = error.invalidAttributes;
+							if (attrs) {
+
+								var wasForm = false;
+								for (var attr in attrs) {
+
+									// if this is a field in the form:
+									if (form.elements[attr]) {
+
+										var errors = attrs[attr];
+										var msg = [];
+										errors.forEach(function(err) {
+											msg.push(err.message);
+										})
+
+										form.markInvalid(attr, msg.join(', '));
+										wasForm = true;
+									}
+
+								}
+
+								if (wasForm) {
+									return true;
+								}
+							}
+
+						}
+					}
 
 					// if we missed updating our form with an error
 					// this was not a validation error so return false
