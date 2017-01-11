@@ -455,3 +455,33 @@ msgstr "[th]Tool Properties"
 msgid "is default tool?"
 msgstr "[th]is default tool?"
 
+#. path: opsportal
+#. code: th
+#. key: webix.common.list
+msgid "List View"
+msgstr "[th] List View"
+
+#. path: opsportal
+#. code: th
+#. key: webix.common.new
+msgid "New"
+msgstr "[th] New"
+
+#. path: opsportal
+#. code: th
+#. key: webix.common.filter
+msgid "Filter"
+msgstr "[th] Filter"
+
+#. path: opsportal
+#. code: th
+#. key: webix.common.cancel
+msgid "Cancel"
+msgstr "[th] Cancel"
+
+#. path: opsportal
+#. code: th
+#. key: webix.common.save
+msgid "Save"
+msgstr "[th] Save"
+
