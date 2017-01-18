@@ -485,3 +485,27 @@ msgstr "[th] Cancel"
 msgid "Save"
 msgstr "[th] Save"
 
+#. path: opsportal
+#. code: th
+#. key: opp.dialog.confirm.deleteTitle
+msgid "Confirm Delete"
+msgstr "[th] Confirm Delete"
+
+#. path: opsportal
+#. code: th
+#. key: opp.common.delete
+msgid "Delete"
+msgstr "[th] Delete"
+
+#. path: opsportal
+#. code: th
+#. key: opp.common.cancel
+msgid "Cancel"
+msgstr "[th] Cancel"
+
+#. path: opsportal
+#. code: th
+#. key: opp.dialog.confirm.deleteMsg
+msgid "Are you sure you want to delete <b>%s</b>?"
+msgstr "[th] Are you sure you want to delete <b>%s</b>?"
+
