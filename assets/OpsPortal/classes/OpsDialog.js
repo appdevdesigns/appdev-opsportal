@@ -16,7 +16,13 @@ System.import('can').then(function () {
              */
             AD.op.Dialog = {
                 // Instance properties
+
+                // Alert
+                // A dialogue that popup with a message, and requires an [ok] button press
+
             
+                // Confirm
+                // A [Yes] [No] dialogue that pops up with a message
                 Confirm: function (opts) {
 
                     var title = opts.title || 'Confirm';
@@ -50,6 +56,8 @@ System.import('can').then(function () {
                 },
 
 
+                // ConfirmDelete
+                // A Confirm dialogue geared towards deleting items.
                 ConfirmDelete: function(opts) {
 
 //// TODO: once we decide to standardize on webix dialogs,
@@ -73,6 +81,9 @@ System.import('can').then(function () {
                     });
 
                 }
+
+                // Message
+                // A simple message displayed to the user.  Can time out
 
             }
 

@@ -509,3 +509,9 @@ msgstr "[th] Cancel"
 msgid "Are you sure you want to delete <b>%s</b>?"
 msgstr "[th] Are you sure you want to delete <b>%s</b>?"
 
+#. path: opsportal
+#. code: th
+#. key: opp.perm.notPermitted
+msgid "Not Permitted"
+msgstr "[th] Not Permitted"
+
