@@ -975,7 +975,37 @@ prevNavTool = navTool.toJSON();
 
 			return dfd;
 
-    	}
+    	},
+
+        remove: function (key, cb) {
+            var dfd = AD.sal.Deferred();
+
+            // make sure there is a key
+            if (_.isUndefined(key)) {
+
+                // this is a problem!
+                var error = new Error('Missing required property: key');
+                error.code = 'E_MISSINGKEY';
+                if (cb) cb(error);
+                dfd.reject(error);
+                return dfd;
+            }
+
+            OPConfigToolDefinition.destroy({ key: key })
+                .exec(function (err) {
+                    if (err) {
+
+                        if (cb) cb(err);
+                        dfd.reject(err);
+
+                    } else {
+                        if (cb) cb(null);
+                        dfd.resolve();
+                    }
+                });
+
+            return dfd;
+        }
     }
 
 };

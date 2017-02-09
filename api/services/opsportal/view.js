@@ -126,6 +126,10 @@ module.exports = {
             res.AD.error('Not Permitted', 403);
         }
 
+    },
+
+    remove: function(key) {
+        return OPView.destroy({ key: key });
     }
 
 
