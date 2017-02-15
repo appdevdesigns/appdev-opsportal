@@ -767,7 +767,14 @@ steal(
 
 
                                     // once everything is created, tell the menu slider to attach itself
-                                    _this.portalPopup.find('#op-masthead-menu a:first-of-type').sidr({ name: 'op-menu-widget', side: 'left' });
+                                    var link = _this.portalPopup.find('#op-masthead-menu a:first-of-type');
+                                    link.sidr({
+                                         name: 'op-menu-widget',
+                                          side: 'left'
+                                        });
+                                    link.on('click', function (){
+                                        AD.ui.jQuery.sidr('toggle', 'op-menu-widget');
+                                    });
 
 
                                     // now show the Link to open the OpsPortal
