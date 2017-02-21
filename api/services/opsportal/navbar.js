@@ -585,6 +585,32 @@ prevNavTool = navTool.toJSON();
             })
 
             return dfd;
+        },
+
+        remove: function (areaKeys, cb) {
+            var dfd = AD.sal.Deferred();
+
+            if (_.isUndefined(areaKeys)) {
+                var error = new Error('areaKey parameter is required');
+                error.code = "E_MISSINGPARAM";
+                if (cb) cb(error);
+                dfd.reject(error);
+                return dfd;
+            }
+
+            OPConfigArea.destroy({ key: areaKeys })
+                .fail(function (err) {
+                    if (cb) cb(err);
+                    dfd.reject(err);
+                })
+                .done(function () {
+                    ADCore.queue.publish(OPSPortal.Events.NAV_STALE, { verb:'removed'});
+
+                    if (cb) cb();
+                    dfd.resolve();
+                });
+
+            return dfd;
         }
     },
 
