@@ -155,6 +155,73 @@ var NavBar = module.exports = {
         },
 
 
+        update: function (areaDef, cb) {
+            var dfd = AD.sal.Deferred();
+
+            if ((_.isFunction(areaDef)) && (_.isUndefined(cb))) {
+                cb = areaDef;
+                areaDef = undefined;
+            }
+
+            if (_.isUndefined(areaDef)) {
+                var error = new Error('areaDef parameter is required');
+                error.code = "E_MISSINGPARAM";
+                if (cb) cb(error);
+                dfd.reject(error);
+                return dfd;
+            }
+
+            OPSPortal.NavBar.Area.exists(areaDef.key, function (err, isThere) {
+
+                if (err) {
+                    if (cb) cb(err);
+                    dfd.reject(err);
+                } else {
+                    if (!isThere) {
+                        var notFoundErr = new Error('System could not found this navigation area');
+                        if (cb) cb(notFoundErr, null);
+                        dfd.reject(notFoundErr);
+
+                    } else {
+                        var area;
+
+                        async.series([
+                            function (next) {
+                                OPConfigArea.find({ key: areaDef.key })
+                                    .fail(next)
+                                    .done(function (areas) {
+                                        area = areas[0];
+
+                                        next();
+                                    });
+                            },
+                            function (next) {
+                                // Rename NavBar area label
+                                console.log('... Multilingual.model: ', areaDef.label);
+                                Multilingual.model.sync({
+                                    model: area,
+                                    data: {
+                                        language_code: areaDef.language_code || Multilingual.languages.default(),
+                                        label: areaDef.label
+                                    }
+                                })
+                                    .fail(next)
+                                    .done(function () {
+                                        next();
+                                    });
+                            }
+                        ], function (err) {
+                            if (err) dfd.reject(err);
+                            else dfd.resolve();
+                        });
+
+                    }
+                }
+            })
+
+            return dfd;
+        },
+
 
         /**
          * OPSPortal.NavBar.Area.link()
