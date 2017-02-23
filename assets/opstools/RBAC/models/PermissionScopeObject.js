@@ -1,21 +1,21 @@
 steal(
-'opstools/RBAC/models/base/PermissionScope.js',
+'opstools/RBAC/models/base/PermissionScopeObject.js',
 function() {
     System.import('appdev').then(function() {
 		steal.import('appdev/model/model').then(function() {
 
 			// Namespacing conventions:
 			// AD.Model.extend('[application].[Model]', {static}, {instance} );  --> Object
-			AD.Model.extend('opstools.RBAC.PermissionScope', {
+			AD.Model.extend('opstools.RBAC.PermissionScopeObject', {
 				/*
-					findAll: 'GET /appdev-core/permissionscope',
-					findOne: 'GET /appdev-core/permissionscope/{id}',
-					create:  'POST /appdev-core/permissionscope',
-					update:  'PUT /appdev-core/permissionscope/{id}',
-					destroy: 'DELETE /appdev-core/permissionscope/{id}',
+					findAll: 'GET /appdev-opsportal/permissionscopeobject',
+					findOne: 'GET /appdev-opsportal/permissionscopeobject/{id}',
+					create:  'POST /appdev-opsportal/permissionscopeobject',
+					update:  'PUT /appdev-opsportal/permissionscopeobject/{id}',
+					destroy: 'DELETE /appdev-opsportal/permissionscopeobject/{id}',
 					describe: function() {},   // returns an object describing the Model definition
 					fieldId: 'id',             // which field is the ID
-					fieldLabel:'label'      // which field is considered the Label
+					fieldLabel:'name'      // which field is considered the Label
 				*/
 			}, {
 				/*

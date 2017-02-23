@@ -26,6 +26,8 @@ function loadRBACfiles() {
     steal(
     // [appdev-cli] : leave this next comment! 
     // load our tests here
+        "opstools/RBAC/tests/controller_Scopes.js",
+        "opstools/RBAC/tests/model_PermissionScopeObject.js",
         "opstools/RBAC/tests/controller_UserPermissionList.js",
         "opstools/RBAC/tests/controller_RoleEdit.js",
         "opstools/RBAC/tests/model_PermissionAction.js",

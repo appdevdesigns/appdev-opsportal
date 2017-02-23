@@ -21,6 +21,16 @@
   <span app-label-key="rbac.roles.searchActions">search for actions</span>
   <span app-label-key="rbac.roles.newRole">Spiffy New Role</span>
   <span app-label-key="rbac.roles.newRoleDescription">Describe this role</span>
+
+  <span app-label-key="rbac.scopes.search">search for scopes</span>
+  <span app-label-key="rbac.scopes.object">Object</span>
+  <span app-label-key="rbac.scopes.confirmClone">Clone scope %s</span>
+  <span app-label-key="rbac.scopes.labelPlaceholder">Enter a Name</span>
+  <span app-label-key="rbac.scopes.descriptionPlaceholder">Describe this scope</span>
+  <span app-label-key="rbac.scopes.newScope">Spiffy New Scope</span>
+  <span app-label-key="rbac.scopes.newScopeDescription">Describe this scope ...</span>
+  <span app-label-key="rbac.scopes.object">Object</span>
+  <span app-label-key="rbac.scopes.objectChange">Are you sure? Changing this value will clear your current query value.</span>
 </div>
 
 
@@ -259,10 +269,32 @@ console.log('... role:', role); -->
           </div>
           <!--/Roles Area-->
           <!--Scopes Area-->
-          <div  class="op-container mockup-display scopes rbac-scopes" style="display:none">
-             <div class="row op-container">
+          <div  id="scopes-area<%= uuid %>" class="op-container mockup-display scopes rbac-scopes<%= uuid %>" style="display:none">
+             <div class="row op-container nomargin">
 
-             There is actually something here.
+
+
+
+                <div class="col-lg-4 ">
+                  <div class=" form-inline" >
+                    <div class="input-group pull-left" id="searchScopes<%= uuid %>"></div>
+                    <button  class="btn op-btn btn-primary pull-right off-top10 rbac-scope-addScope" app-label-key="rbac.user.add" >add</button>
+                  </div>
+                  <div id="list-tbl-scope<%= uuid %>" style="clear:both"></div>
+                  <div id="pgb-scope<%= uuid %>"></div>
+                </div>
+              
+
+                
+                <div class="col-lg-8 rbac-scopes-form">
+                  <div  id="rbac-scopes-form<%= uuid %>">
+                  
+                  </div>
+                         
+                </div>
+
+
+
              
              </div>
           </div>

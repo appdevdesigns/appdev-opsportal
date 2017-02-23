@@ -783,6 +783,18 @@ steal(
                                                 perm.attr('role', r);
                                             }
                                         })
+
+                                        var scopes = [];
+                                        perm.scope.forEach(function(ps){
+                                            _this.data.scopes.forEach(function(s){
+                                                if (ps.id == s.id){
+                                                    scopes.push(s);
+                                                }
+                                            })
+                                        })
+
+                                        perm.removeAttr('scope');
+                                        perm.attr('scope', scopes);
                                     })
 
                                     // convert to DataCollection

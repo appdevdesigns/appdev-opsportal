@@ -237,7 +237,7 @@ steal(
                                                     AD.error.log('Error saving current model.', {error:err, field:field, value:newv });
                                                 })
                                                 .then(function(){
-                                                    console.log(field+": Value changed from: "+oldv+" to: "+newv);
+                                                    // console.log(field+": Value changed from: "+oldv+" to: "+newv);
                                                 })
                                             }
                                         }
@@ -338,7 +338,7 @@ steal(
                     // console.log('... onAfterEditStop(): ignoreUpdate:', ignoreUpdate);
 
                                             if(state.value != state.old){
-                                                webix.message("Cell value was changed");
+                                                // webix.message("Cell value was changed");
                                                 var action = _this.data.actionsCollection.AD.getModel(editor.row);
                                                 action.attr(editor.column, state.value);
                                                 action.save()
@@ -346,7 +346,7 @@ steal(
                                                     AD.error.log('RBAC:Roles:onAfterEditStop(): error updating action', { error:err, action:action.attr(), editor:editor });
                                                 })
                                                 .then(function(){
-                                                    webix.message("Model value was changed");
+                                                    // webix.message("Model value was changed");
                                                 })
 
                                             }  

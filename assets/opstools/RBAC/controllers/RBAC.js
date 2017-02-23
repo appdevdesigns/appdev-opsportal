@@ -11,6 +11,7 @@ steal(
 
     'opstools/RBAC/controllers/Users.js',
     'opstools/RBAC/controllers/Roles.js',
+    'opstools/RBAC/controllers/Scopes.js',
 
     'opstools/RBAC/views/RBAC/RBAC.ejs',
     function () {
@@ -112,7 +113,7 @@ steal(
                             var controllers = {
                                 'opstools.RBAC.Users'               : { el: '.'+_this.uuid('rbac-users'),           opt:{ uuid: this.data.uuid } },
                                 'opstools.RBAC.Roles'               : { el: '.'+_this.uuid('rbac-roles'),           opt:{ uuid: this.data.uuid } },
-                                // 'opstools.RBAC.Scopes'               : { el: '.rbac-scopes',           opt:{}
+                                'opstools.RBAC.Scopes'              : { el: '.'+_this.uuid('rbac-scopes'),          opt:{ uuid: this.data.uuid } }
                             }
 
                             var initPortal = function(key, ref, el, options) {
@@ -179,10 +180,16 @@ steal(
                             })
                             .then(function(list){
                                 // // make sure they are all translated.
-                                // list.forEach(function(l){
-                                //     l.translate();
-                                // })
+                                list.forEach(function(l){
+                                    if(l.translate) l.translate();
+
+                                    // convert embedded .object into an object.id
+                                    if (l.object) {
+                                        l.object = l.object.id || l.object;
+                                    }
+                                })
                                 _this.portals.Users.loadScopes(list);
+                                _this.portals.Scopes.loadScopes(list);
 
                                 _this.data.scopes = list;    // all the 
                             });
@@ -202,18 +209,25 @@ steal(
 
                                 for (var p in this.portals) {
 // TODO: open this up when we implement scopes.
-if (portalKey!='Scopes'){
+// if (portalKey!='Scopes'){
                                     if (p.toLowerCase() == portalKey.toLowerCase()) {
 
                                         this.portals[p].show();
                                         this.data.lastPortalShown = p;
+
+                                        // be sure to resize it when it is shown.
+                                        if (this.data.resize && this.data.resize.available) {
+                                            if (this.portals[p].resize) {
+                                                this.portals[p].resize( { height: this.data.resize.available } );
+                                            }
+                                        }
 
                                         this.element.find('[rbac-menu="'+p+'"]').addClass('selected');
 
                                     } else {
                                         this.portals[p].hide();
                                     }
-}
+// }
                                 }
                             }
 

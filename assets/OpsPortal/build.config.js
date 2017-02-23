@@ -19,6 +19,7 @@ module.exports = {
         "bootstrapValidator": "js/bootstrapValidator.min",
         "bootstrapValidator.css": "styles/bootstrapValidator.min.css",
         "typeahead": "js/typeahead.jquery.min",
+        "jsquerybuilder": "js/query-builder.standalone.min",
         "moment": "js/moment.min",
         "jsreports-all": "js/jsreports-all.min",
         "dropzone": "js/dropzone/dropzone.min",
@@ -61,7 +62,11 @@ module.exports = {
 
         "bootbox": "js/bootbox.min.js",
 
-        "typeahead": "js/typeahead.jquery.min.js",
+        "typeahead":    "js/typeahead.jquery.min.js",
+        "typeahead.js": "js/typeahead.jquery.min.js",
+
+        "jsquerybuilder":     "js/query-builder.standalone.min.js",
+        "jsquerybuilder.js":  "js/query-builder.standalone.min.js",
 
         "moment": "js/moment.min.js",
 
@@ -85,7 +90,7 @@ module.exports = {
         "bootstrap-table.js": "js/bootstraptable/bootstrap-table.js",
         "bootstrapValidator.js": "js/bootstrapValidator.min.js",
         "bootbox.js": "js/bootbox.min.js",
-        "typeahead.js": "js/typeahead.jquery.min.js",
+        
         "moment.js": "js/moment.min.js",
         "FilteredBootstrapTable.js": "OpsPortal/controllers/FilteredBootstrapTable.js",
         "OpsButtonBusy.js": "OpsPortal/classes/OpsButtonBusy.js",
@@ -93,7 +98,7 @@ module.exports = {
         "OpsWebixSearch.js": "OpsPortal/classes/OpsWebixSearch.js",
         "OpsWebixForm.js": "OpsPortal/classes/OpsWebixForm.js",
 
-    "webix.js": "js/webix/webix.js",
+        "webix.js": "js/webix/webix.js",
         "webix.css": "js/webix/webix.css",
         "webix-opsportal.js": "js/webix/opsportal-skin.js"
     },
@@ -183,6 +188,14 @@ module.exports = {
       "format": "global",
       "sideBundle": true
     },
+    "js/query-builder.standalone.min": {
+        "deps": [
+            "styles/query-builder.default.min.css",
+            "jquery"
+        ],
+        "format": "global",
+        "sideBundle": true
+    },
     "js/moment.min": {
       "format": "global",
       "sideBundle": true
@@ -223,6 +236,7 @@ module.exports = {
         'jquery',
         'can',
         "typeahead",
+        "jsquerybuilder",
         "moment",
         "bootstrap-table",
         "bootstrapValidator",

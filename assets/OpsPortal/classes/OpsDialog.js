@@ -25,32 +25,51 @@ System.import('can').then(function () {
                 // A [Yes] [No] dialogue that pops up with a message
                 Confirm: function (opts) {
 
-                    var title = opts.title || 'Confirm';
-                    var message = opts.message || 'Are you sure you want to do this?';
+                    var title =     opts.title || AD.lang.label.getLabel('opp.dialog.confirm.confirmTitle') || "* Confirm";
+                    var message =   opts.text  || opts.message || AD.lang.label.getLabel('opp.dialog.confirm.confirmMsg') || "* Are you sure you want to do this?";
 
-                    var labelYes = opts.labelYes || 'yes';
-                    var labelNo = opts.labelNo || 'no';
+                    var labelYes =  opts.labelYes || opts.ok || AD.lang.label.getLabel('opp.common.yes') ||  '* yes';
+                    var labelNo =   opts.labelNo  || opts.cancel || AD.lang.label.getLabel('opp.common.no') || "* no";
 
-                    var fnYes = opts.fnYes || function () { };
-                    var fnNo = opts.fnNo || function () { };
+                    // var fnYes = opts.fnYes || function () { };
+                    // var fnNo = opts.fnNo || function () { };
 
 
-                    bootbox.dialog({
+                    webix.confirm({
                         title: title,
-                        message: message,
-                        buttons: {
-                            yes: {
-                                label: labelYes,
-                                className: 'btn-primary',
-                                callback: fnYes
-                            },
-                            no: {
-                                label: labelNo,
-                                className: 'btn-default',
-                                callback: fnNo
+                        text: message,
+
+                        ok: labelYes, 
+                        cancel: labelNo,
+                    
+                        callback: function (result) {
+                            if (result) {
+                                if (opts.fnYes) opts.fnYes();
+                            } else {
+                                if (opts.fnNo) opts.fnNo();
                             }
+
+                            if (opts.callback) opts.callback(result);
                         }
                     });
+
+
+                    // bootbox.dialog({
+                    //     title: title,
+                    //     message: message,
+                    //     buttons: {
+                    //         yes: {
+                    //             label: labelYes,
+                    //             className: 'btn-primary',
+                    //             callback: fnYes
+                    //         },
+                    //         no: {
+                    //             label: labelNo,
+                    //             className: 'btn-default',
+                    //             callback: fnNo
+                    //         }
+                    //     }
+                    // });
 
 
                 },
@@ -58,13 +77,11 @@ System.import('can').then(function () {
 
                 // ConfirmDelete
                 // A Confirm dialogue geared towards deleting items.
+                // [delete] [cancel]
                 ConfirmDelete: function(opts) {
 
-//// TODO: once we decide to standardize on webix dialogs,
-////       remove bootbox, and make this recall
-////       AD.op.Dialog.Confirm() with default delete title
 
-                    webix.confirm({
+                    AD.op.Dialog.Confirm({
                         title: opts.title || AD.lang.label.getLabel('opp.dialog.confirm.deleteTitle') || "* Confirm Delete",
                         ok: opts.ok || AD.lang.label.getLabel('opp.common.delete') || "* Delete", 
                         cancel: opts.cancel || AD.lang.label.getLabel('opp.common.cancel') || "* Cancel",
