@@ -1092,6 +1092,9 @@ prevNavTool = navTool.toJSON();
                         dfd.reject(err);
 
                     } else {
+			if (__cacheToolDefs[key])
+				delete __cacheToolDefs[key];
+
                         if (cb) cb(null);
                         dfd.resolve();
                     }
