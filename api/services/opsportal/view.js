@@ -123,7 +123,7 @@ module.exports = {
 
             AD.log.error('<green>... user[</green><yellow>'+user.GUID()+'</yellow><green>] did not have permission [</green><yellow>'+actionKey+'</yellow><green>]</green>')
             // nope!  so return a forbidden:
-            res.AD.error('Not Permitted', 403);
+            res.AD.error(ADCore.error.fromKey('E_NOTPERMITTED'), 403);
         }
 
     },

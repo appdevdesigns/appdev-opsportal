@@ -507,12 +507,22 @@ steal(
 
 
                     			function updateQB(currentFilters) {
+
+                    				//// limit allowed conditions to only SailsJS compatible Conditions:
+									//// need to remove: not_begins_with, not_contains, not_ends_with
+                    				var operators = [ "equal", "not_equal", "in", "not_in",
+													  "less", "less_or_equal","greater","greater_or_equal",
+													  "between", "not_between", "begins_with", "contains",
+													  "ends_with", "is_empty", "is_not_empty", "is_null",
+													  "is_not_null" ];
+
                     				// update component
 									var el = _this.getQueryBuilderEL();
 									el.queryBuilder('destroy');
 	                				el.queryBuilder({
 	                					filters:currentFilters,
-	                					rules:scope.filterUI
+	                					rules:scope.filterUI,
+	                					operators: operators
 	                				})
                     			}
 
@@ -550,7 +560,6 @@ steal(
 	                    					}
 	                    				}
 
-	                    				
 		                				_this.data.hashScopeObjectFilters[objID] = filters;
 		                				updateQB(filters);
 
