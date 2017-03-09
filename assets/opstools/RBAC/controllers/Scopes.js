@@ -322,13 +322,13 @@ steal(
 //                                 })
 
 								_this.dom.formScope.elements.object.attachEvent("onChange", function(newv, oldv){
-
+if (newv) {
                                     var model = _this.data.scopesCollection.AD.currModel();
                                     if (model) {
                                         var modelValue = model.attr('object');
 
                                         modelValue = modelValue? modelValue.id || modelValue: '';
-                                        newv = newv.id || newv;
+                                        newv = (newv && newv.id ) || newv;
 
                                         if (modelValue != newv){
 
@@ -350,6 +350,9 @@ steal(
                                         }
                                         
                                     }
+} else {
+	console.error('HOW DID onChange fire with no newv ?');
+}
                                 });
 
 
