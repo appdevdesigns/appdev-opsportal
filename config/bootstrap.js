@@ -44,19 +44,3 @@ module.exports = function (cb) {
     ADCore.queue.subscribe(OPSPortal.Events.NAV_EDIT_STALE, updateNavEditor);
 
 };
-
-// Add CSRF route exclusion
-if (sails.config.csrf) {
-    
-    var csrf = sails.config.csrf;
-    csrf.routesDisabled = csrf.routesDisabled || '';
-    
-    if (csrf.routesDisabled == '-') {
-        csrf.routesDisabled = '';
-    }
-    else if (csrf.routesDisabled) {
-        csrf.routesDisabled += ',';
-    }
-    csrf.routesDisabled += '/opsportal/feedback';
-    
-}
