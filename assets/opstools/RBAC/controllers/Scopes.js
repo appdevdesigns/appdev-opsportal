@@ -574,7 +574,9 @@ if (newv) {
 
                     			// display message that no Object is selected
                     			var el = _this.getQueryBuilderEL();
-                    			el.queryBuilder('destroy');
+                    			if (el.queryBuilder) {
+                    				el.queryBuilder('destroy');
+                    			}
                     			el.html('No object selected.');
                     		}
 

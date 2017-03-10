@@ -238,6 +238,7 @@ module.exports = {
         "typeahead",
         "jsquerybuilder",
         "moment",
+        "webix",
         "bootstrap-table",
         "bootstrapValidator",
         "bootstrapValidator.css",
