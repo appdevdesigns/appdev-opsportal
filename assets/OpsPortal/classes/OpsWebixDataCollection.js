@@ -31,7 +31,7 @@ steal(
 
 
 					List.forEach(function(item) {
-						newData.push(item.attr());
+						newData.push(item.attr ? item.attr() : item);
 					})
 
 					var dc = new webix.DataCollection({
