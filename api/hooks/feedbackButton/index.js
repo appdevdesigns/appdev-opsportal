@@ -7,18 +7,21 @@ module.exports = function(sails) {
                 if (typeof sails.config.csrf != 'object') {
                     sails.config.csrf = {
                         grantTokenViaAjax: true,
-                        routesDisabled: [],
+                        routesDisabled: '',
                     };
                 }
                 var csrf = sails.config.csrf;
-                csrf.routesDisabled = csrf.routesDisabled || [];
-                if (!Array.isArray(csrf.routesDisabled)) {
-                    csrf.routesDisabled = [csrf.routesDisabled];
+                csrf.routesDisabled = csrf.routesDisabled || '';
+                if (Array.isArray(csrf.routesDisabled)) {
+                    csrf.routesDisabled = csrf.routesDisabled.join(',');
                 }
                 
                 var feedbackRoute = '/opsportal/feedback';
-                if (csrf.routesDisabled.indexOf(feedbackRoute) < 0) {
-                    csrf.routesDisabled.push(feedbackRoute);
+                if (!csrf.routesDisabled.match(feedbackRoute)) {
+                    if (csrf.routesDisabled.length > 0) {
+                        csrf.routesDisabled += ',';
+                    }
+                    csrf.routesDisabled += feedbackRoute;
                 }
             }
             
