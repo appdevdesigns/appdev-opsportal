@@ -4,6 +4,12 @@ module.exports = function(sails) {
 
             // Add CSRF route exclusion
             if (sails.config.csrf) {
+                if (typeof sails.config.csrf != 'object') {
+                    sails.config.csrf = {
+                        grantTokenViaAjax: true,
+                        routesDisabled: [],
+                    };
+                }
                 var csrf = sails.config.csrf;
                 csrf.routesDisabled = csrf.routesDisabled || [];
                 if (!Array.isArray(csrf.routesDisabled)) {
