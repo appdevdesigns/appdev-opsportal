@@ -43,7 +43,7 @@ var Main = function() {
 		noRepeats,
 	    loadSails,
 	    questions,
-	    verifyLanguages, 
+	    verifyLanguages,
 	    createUser,
 	    createRole,
 	    createScope,
@@ -85,10 +85,10 @@ var Main = function() {
 
 /**
  * @function reusePostProcess
- * 
+ *
  * a common fn() for our reuse question post processing.
  */
-var reusePostProcess = function(data) { 
+var reusePostProcess = function(data) {
 	var r = data.reuse.toLowerCase();
     if ((r == 'yes') || (r == 'y')) {
         data.reuse = true;
@@ -101,7 +101,7 @@ var reusePostProcess = function(data) {
 
 /**
  * @function loadSails
- * 
+ *
  * an async fn to load the sails environment so our sails models are available.
  */
 var loadSails = function(done) {
@@ -125,7 +125,7 @@ var loadSails = function(done) {
 
 /**
  * @function noRepeats
- * 
+ *
  * an async fn to make sure we have not run this before.
  */
 var noRepeats = function(done) {
@@ -138,7 +138,7 @@ var noRepeats = function(done) {
 			// this is good, that means no file is here:
 			done();
 		} else {
-			// not good.  We only want to do this 1x 
+			// not good.  We only want to do this 1x
 			AD.log();
 			AD.log('<yellow>WARN:</yellow> This install routine is only intended to be run once.');
 			AD.log('      If you need to make change to the roles and permissions, do that within ');
@@ -155,7 +155,7 @@ var noRepeats = function(done) {
 
 /**
  * @function properStartDir
- * 
+ *
  * an async fn to move us to the expected start directory.
  */
 var properStartDir = function(done) {
@@ -180,7 +180,7 @@ var properStartDir = function(done) {
 
 /**
  * @function questions
- * 
+ *
  * an async fn ask the user for our setup information.
  */
 var questions = function(done) {
@@ -261,7 +261,7 @@ var questions = function(done) {
 
 /**
  * @function verifyLanguages
- * 
+ *
  * an async fn to make sure our expected site languages are installed.
  */
 var verifyLanguages = function(done) {
@@ -356,7 +356,7 @@ var recursiveLanguageInstall = function(done) {
         						// give them a chance to re-enter a language
         						recursiveLanguageInstall(done);
         					}
-        					
+
         				}
 
         				return null;
@@ -392,7 +392,7 @@ var recursiveLanguageInstall = function(done) {
 
 /**
  * @function createUser
- * 
+ *
  * an async fn to create or get the desired user account.
  */
 var createUser = function(done) {
@@ -463,7 +463,7 @@ var createUser = function(done) {
 
 /**
  * @function createRole
- * 
+ *
  * an async fn to create or get the desired role entry.
  */
 var createRole = function(done) {
@@ -532,7 +532,7 @@ var createRole = function(done) {
 			    			done(err);
 			    			return null;
 			    		})
-			    		
+
 			    	} else {
 
 			    		Data.role  = data.roleSystemAdmin;
@@ -551,31 +551,78 @@ var createRole = function(done) {
 
 /**
  * @function createScope
- * 
+ *
  * an async fn to create or get the desired scope entry.
  */
 var createScope = function(done) {
 
 	// AD.log();
 
-	PermissionScope.find({ label:Data.scope })
+	PermissionScopeTrans.find({ label:Data.scope })
 	.then(function(scope){
 
 // AD.log('... roleTrans:', roleTrans);
 
 		if (scope.length == 0) {
 
-			AD.log('<green>create :</green> creating new scope: '+Data.scope);
-			PermissionScope.create({ label: Data.scope })
-			.then(function(newScope){
-				AdminScope = newScope;
-				done();
-				return null;
+			var newScopeObject = null;
+			async.series([
+
+				// create the scope object
+				function(next) {
+					PermissionScopeObject.find({keyModel: 'siteuser'})
+					.then(function(user){
+						if (user.length == 0) {
+							PermissionScopeObject.createMultilingual({keyModel:'siteuser', name:'Site User'})
+							.done(function(scopeObject){
+									newScopeObject= scopeObject;
+									next();
+							})
+							.fail(function(err){
+									next(err);
+							})
+						} else {
+							newScopeObject= user[0];
+							next();
+						}
+					})
+					.fail(function(err){
+							next(err);
+					})
+				},
+
+				// now create the scope
+				function(next) {
+
+					AD.log('<green>create :</green> creating new scope: '+Data.scope);
+					var filterUI = {
+						    "condition": "AND",
+						    "rules": [{
+						        "id": "guid",
+						        "field": "guid",
+						        "type": "string",
+						        "input": "text",
+						        "operator": "is_not_empty",
+						        "value": ""
+						    }],
+						    "valid": "true"
+						};
+					PermissionScope.createMultilingual({ label: Data.scope, object: newScopeObject.id, filterUI: filterUI })
+					.then(function(newScope){
+						AdminScope = newScope;
+						next();
+						return null;
+					})
+					.fail(function(err){
+						next(err);
+						return null;
+					});
+				}
+			], function(err, results){
+
+					done(err);
 			})
-			.catch(function(err){
-				done(err);
-				return null;
-			});
+
 
 //// TODO: once we convert Scope to Multilingual:
 			// var lang = Multilingual.languages.default();
@@ -639,12 +686,12 @@ var createScope = function(done) {
 
 /**
  * @function verifyActions
- * 
+ *
  * an async fn to make sure our expected permission actions are installed.
  */
 var verifyActions = function(done) {
 
-	// these are the default 
+	// these are the default
 	var actionKeys = [ 'adcore.admin' ];
 
 	// make sure all our default OpsPortal action permissions are assigned to our Admin user:
@@ -696,7 +743,7 @@ var verifyActions = function(done) {
 
 /**
  * @function associateRoleToActions
- * 
+ *
  * an async fn to associate each permission actions to our admin role.
  */
 var associateRoleToActions = function(done) {
@@ -724,14 +771,14 @@ var associateRoleToActions = function(done) {
 		})
 
 	}
-	
+
 }
 
 
 
 /**
  * @function createPermission
- * 
+ *
  * an async fn to create the permission entry for our Admin User
  */
 var createPermission = function(done) {
@@ -763,11 +810,11 @@ var createPermission = function(done) {
 		done(err);
 		return null;
 	})
-	
+
 }
 
 
-	//// 
+	////
 	//// Extra Utility Fn() for the createDefaultAdminArea() step.
 	////
 
@@ -910,7 +957,7 @@ var createPermission = function(done) {
 					.then(function(tool){
 						verifyInstanceActions(def, tool, done);
 					})
-// 					.exec(function(err, tool){ 
+// 					.exec(function(err, tool){
 // 						if (err) {
 // // console.log('... '+def.key+': ERROR: creating toolInstance :', err);
 // 							done(err);
@@ -957,7 +1004,7 @@ var createDefaultAdminArea = function(done) {
 	var hashPermissions = {};		// hash of action.key : {action obj}
 	var hashDefinitions = {};		// hash of toolDefinition.key : {Tool Definition obj}
 	var defaultArea 	= null;		// the Admin OpsPortal Area
-	var tooldefs 		= null;		// all tools defined by the OpsPortal 
+	var tooldefs 		= null;		// all tools defined by the OpsPortal
 
 	async.series([
 
@@ -978,7 +1025,7 @@ var createDefaultAdminArea = function(done) {
 				next(err);
 				return null;
 			})
-		}, 
+		},
 
 
 		// load all the current ToolDefinitions:
@@ -996,7 +1043,7 @@ var createDefaultAdminArea = function(done) {
 			.catch(function(err){
 				next(err);
 			})
-		}, 
+		},
 
 
 		// create the Admin Space:
@@ -1012,7 +1059,7 @@ var createDefaultAdminArea = function(done) {
 			.populateAll()
 			.exec(function(err, area){
 
-				if (err){ 
+				if (err){
 					next(err);
 				} else {
 
@@ -1084,9 +1131,9 @@ var createDefaultAdminArea = function(done) {
 			// 		createToolDef -> createToolInstance -> verifyInstanceActions -> linkToAdminSpace -> onDone
 			toolDefs.forEach(function(def){
 
-				//// NOTE:  because I created these external fn() to handle each step, 
+				//// NOTE:  because I created these external fn() to handle each step,
 				////        I now have to send in the defaultArea
-				////        
+				////
 				def.__defaultArea = defaultArea;
 
 				// if already created
@@ -1113,7 +1160,7 @@ var createDefaultAdminArea = function(done) {
 
 /**
  * @function markComplete
- * 
+ *
  * an async fn to mark that we have run this routine before.
  */
 var markComplete = function(done) {
