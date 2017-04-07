@@ -14,10 +14,10 @@ steal(
 				'site/labels/opstools-UserProfile'
                 ).then(function () {
                     AD.ui.loading.completed(12);
-    
+
                     //
-                    // UserProfile 
-                    // 
+                    // UserProfile
+                    //
                     // This is the OpsPortal interface for users to change their
                     // own account profile.
                     //
@@ -26,12 +26,12 @@ steal(
 
                     // Namespacing conventions:
                     // AD.Control.extend('[application].[controller]', [{ static },] {instance} );
-                    AD.Control.OpsTool.extend('UserProfile', { 
+                    AD.Control.OpsTool.extend('UserProfile', {
 
 
                         CONST: {
 
-                        }, 
+                        },
 
 
                         init: function (element, options) {
@@ -43,7 +43,7 @@ steal(
 
                             // Call parent init
                             this._super(element, options);
-                            
+
                             // Text form fields that are being changed
                             this.changedFields = {
                             /*
@@ -55,6 +55,7 @@ steal(
                             this.initDOM();
                             this.loadData();
                             this.translate(); // translate the labels on the tool
+                            this.initOneSignal();
                         },
 
 
@@ -66,14 +67,46 @@ steal(
                             }
                         },
 
+                        initOneSignal: function() {
+                            var OneSignal = OneSignal || [];
+                            OneSignal.push(function() {
+                                // If we're on an unsupported browser tell them the err of their ways
+                                if (!OneSignal.isPushNotificationsSupported()) {
+                                    this.element.find("#unsupported").show();
+                                    return;
+                                }
+                                OneSignal.isPushNotificationsEnabled(function(isEnabled) {
+                                    if (isEnabled) {
+                                        // The user is subscribed to notifications maybe they should be able to turn them off
+                                        this.element.find("#unsubscribe-link").show();
+                                        this.element.find("#unsubscribe-link").addEventListener('click', UserProfile.unsubscribe());
+                                    } else {
+                                        // The user is not subscribed to notifications allow them to change their mind
+                                        this.element.find("#subscribe-link").style.display = '';
+                                        this.element.find("#subscribe-link").addEventListener('click', UserProfile.subscribe());
+                                    }
+                                });
 
+                                OneSignal.on('subscriptionChange', function (isSubscribed) {
+                                    //Let's make sure the button matches even if the state is change in a way not described above
+                                    console.log("The user's subscription state is now:", isSubscribed);
+                                    if (isSubscribed) {
+                                        this.element.find("#unsubscribe-link").show();
+                                        this.element.find("#subscribe-link").hide();
+                                    } else {
+                                        this.element.find("#unsubscribe-link").show();
+                                        this.element.find("#subscribe-link").hide();
+                                    }
+                                });
+                            });
+                        },
 
                         loadData: function() {
                             var self = this;
                             var $info = self.element.find('.user-info');
                             var $select = self.element.find('#slang select');
                             var $email = self.element.find("input[name='email']");
-                            
+
                             AD.comm.service.get({
                                 url: '/site/user/data'
                             })
@@ -95,10 +128,10 @@ steal(
                                         ]
                                     }
                                 */
-                                
+
                                 $info.find("[name='username']").text(data.user.username);
                                 $email.val(data.user.email);
-                                
+
                                 // Language selection
                                 $select.empty();
                                 for (var i=0; i<data.languages.length; i++) {
@@ -106,10 +139,10 @@ steal(
                                     $select.append('<option value="'+lang.language_code+'">'+lang.language_label+'</option>');
                                 }
                                 $select.val(data.user.languageCode);
-                                
+
                                 self.changedFields = {};
                             });
-                            
+
                         },
 
 
@@ -125,17 +158,17 @@ steal(
                             } else {
                                 console.warn('UserProfile.resize(): called without a valid data.height provided.');
                             }
-                            
+
                         },
 
 
-                        
+
                         // Change password
                         'form.user-password button click': function ($el, ev) {
                             var self = this;
                             var $form = this.element.find('form.user-password');
                             var $alert = $form.find('.alert');
-                            
+
                             ev.preventDefault();
                             $el.prop('disabled', true);
                             AD.comm.service.post({
@@ -156,8 +189,8 @@ steal(
                                 $el.prop('disabled', false);
                             });
                         },
-                        
-                        
+
+
                         // Change language
                         '#slang select change': function($el, ev) {
                             var self = this;
@@ -171,18 +204,18 @@ steal(
                                 webix.message(err.message);
                             })
                             .done(function() {
-                            
+
                             });
                         },
-                        
-                        
+
+
                         // Changing email
                         "input[name='email'] change": function($el, ev) {
                             this.changedFields.email = true;
                         },
-                        
-                        
-                        
+
+
+
                         // Save changed email
                         "input[name='email'] blur": function($el, ev) {
                             var self = this;
@@ -201,6 +234,21 @@ steal(
                                 });
                             }
                         },
+
+                        subscribe: function() {
+                            OneSignal.push(function() {
+                                OneSignal.registerForPushNotifications({
+                                    modalPrompt: true
+                                });
+                            });
+                            event.preventDefault();
+                        },
+
+                        unsubscribe: function() {
+                            OneSignal.push(["setSubscription", false]);
+                            event.preventDefault();
+                        },
+
 
 
                     });

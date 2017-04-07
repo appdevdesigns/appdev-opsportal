@@ -1,4 +1,4 @@
-<!-- 
+<!--
 #  Appdev Label Info:
 #label_context:opstool-RBAC
 #language_code:en
@@ -23,7 +23,7 @@
 <!--Content-->
 <div class="op-container wrapper">
     <div class="op-container padtop40 mid-screen-mrgn-lr-15">
-        
+
         <!-- Misc Info -->
         <div class="panel panel-default col-lg-6 boxcenter off-botm10">
             <div class="panel-heading">
@@ -36,7 +36,7 @@
                 </dl>
             </div>
         </div>
-        
+
         <!--Change Password-->
         <div class="panel panel-default col-lg-6 boxcenter off-botm10 password-panel">
             <div class="panel-heading">
@@ -57,12 +57,12 @@
                       <!--<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>-->
                     </div>
                     </form>
-                    
+
                 </div>
-            </div>							
+            </div>
         </div>
         <!--/Change Password-->
-        
+
         <!-- Email -->
         <div class="panel panel-default col-lg-6 boxcenter off-botm10">
             <div class="panel-heading">
@@ -70,14 +70,14 @@
             </div>
             <div class="panel-body user-email">
                 <input type="text" placeholder="Email address" app-label-key="site.user.emailAddress" name="email" class="form-control">
-                
+
             </div>
         </div>
 
 
 
         <!--Select Language-->
-        <div id="slang" class="panel panel-default col-lg-6 boxcenter ">
+        <div id="slang" class="panel panel-default col-lg-6 boxcenter off-botm10">
             <div class="panel-heading">
                 <h3 class="panel-title" app-label-key="site.user.language">Language</h3>
             </div>
@@ -88,13 +88,31 @@
                         <select class="form-control" name="language">
                             <option>English</option>
                             <option>Chinese</option>
-                        </select>											
+                        </select>
                     </div>
-                        
+
                 </div>
-            </div>							
-        </div>							
+            </div>
+        </div>
         <!--/Select Language-->
-        
+
+
+        <!--Desktop Notifications-->
+        <div id="notifications" class="panel panel-default col-lg-6 boxcenter off-botm10">
+            <div class="panel-heading">
+                <h3 class="panel-title" app-label-key="site.user.notifications">Desktop Notifications</h3>
+            </div>
+            <div class="panel-body">
+                <div class="form-inline">
+                    <div class="col-lg-6">
+                        <a href="#" id="subscribe-link" style="display: none;">Turn on notifications</a>
+                        <a href="#" id="unsubscribe-link" style="display: none;">Turn off notifications</a>
+                        <div id="unsupported" style="display: none;">Your browser does not support desktop notifications, please use Chrome, Firefox or Safari for Mac.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--/Desktop Notifications-->
+
     </div>
 </div>
