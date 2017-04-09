@@ -25,7 +25,7 @@ console.log('--- making opimageupload path:'+base);
 
 				fs.mkdir(base, function(err){
 
-					if (err) cb(err) 
+					if (err) cb(err)
 					else createPath(parts, base, cb);
 				})
 
@@ -46,7 +46,7 @@ module.exports = {
 	/*
 	 * @function create
 	 *
-	 * A system wide service to receive a file, store it locally, and send 
+	 * A system wide service to receive a file, store it locally, and send
 	 * back a uuid to reference this file.
 	 *
 	 * url:  	POST  /opsportal/file
@@ -67,7 +67,7 @@ module.exports = {
 
 
     	var tempPath = destinationPath('tmp');
-		var destPath = null; 
+		var destPath = null;
 		var fileEntry = null;
 		var fileRef  = null;
 		var fileName = null;
@@ -80,7 +80,7 @@ module.exports = {
 				var basePath = sails.config.appPath;
 				var pathToCheck = path.join(sails.config.opsportal.opfileupload.basePath, 'tmp');
 				var pathParts = pathToCheck.split(path.sep);
-				
+
 				createPath(pathParts, basePath, function(err) {
 					next(err);
 				});
@@ -141,7 +141,7 @@ console.log('... missingParams:', missingParams);
 		    		error.code = 422;
 		    		next(error)
 		    		return;
-		    	} 
+		    	}
 
 		    	next();
 			},
@@ -190,9 +190,9 @@ console.log('---making opimageupload path:'+destPath);
 				uuid = fileName.split('.')[0];
 
 				OPFileUpload.create({
-					uuid:uuid, 
-					appKey:options.appKey, 
-					permission:options.permission, 
+					uuid:uuid,
+					appKey:options.appKey,
+					permission:options.permission,
 					file:fileName,
 					pathFile:destPath,
 					size: fileEntry.size,
@@ -217,16 +217,16 @@ console.log('---making opimageupload path:'+destPath);
 
 				// prepare our return data
 				// { uuid: 'as;dlkfaslkdfjasdl;kfj' }
-				var data = { 
+				var data = {
 					uuid : uuid
 				}
 
 				// if this was a Webix uploader:
-				if ((options.isWebix != "??") 
+				if ((options.isWebix != "??")
 					&& (options.isWebix != 'false')
 					&& (options.isWebix != false)) {
 
-					data.status = 'server';					
+					data.status = 'server';
 				}
 
 				res.AD.success(data);
@@ -330,24 +330,27 @@ console.error(' cannot access file: '+destFile);
     			res.AD.error(err, err.code);
     		} else {
 
-    			// stream file to response on success
+					// Adding header so the client knows the file content type and the file name
+					res.setHeader('Content-disposition', 'attachment; filename=' + file.file);
+					
+					// stream file to response on success
 				fs.createReadStream(destFile)
 			    .on('error', function (err) {
 			      return res.AD.error(err, 500);
 			    })
 			    .pipe(res);
     		}
-    		
+
     	})
 
     }
-	
+
 };
 
 
 //
 // Helper Fn()
-// 
+//
 function destinationPath(appKey) {
 
 	// in case settings are not set ...
@@ -357,4 +360,3 @@ function destinationPath(appKey) {
 	var pathBase = sails.config.opsportal.opfileupload.basePath;
 	return path.join(sails.config.appPath, pathBase, appKey);
 }
-
