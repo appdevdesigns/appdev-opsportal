@@ -68,34 +68,34 @@ steal(
                         },
 
                         initOneSignal: function() {
-                            var OneSignal = OneSignal || [];
+                            var OneSignal = window.OneSignal || [];
                             OneSignal.push(function() {
                                 // If we're on an unsupported browser tell them the err of their ways
                                 if (!OneSignal.isPushNotificationsSupported()) {
-                                    this.element.find("#unsupported").show();
+                                    $(".unsupported").show();
                                     return;
                                 }
                                 OneSignal.isPushNotificationsEnabled(function(isEnabled) {
+                                    $(".unsubscribe-link").click(function() {
+                                        OneSignal.push(["setSubscription", false]);
+                                        $(".subscribe-link").show();
+                                        $(".unsubscribe-link").hide();
+                                    });
+                                    $(".subscribe-link").click(function() {
+                                        OneSignal.push(function() {
+                                            OneSignal.registerForPushNotifications({
+                                                modalPrompt: true
+                                            });
+                                        });
+                                        $(".unsubscribe-link").show();
+                                        $(".subscribe-link").hide();
+                                    });
                                     if (isEnabled) {
                                         // The user is subscribed to notifications maybe they should be able to turn them off
-                                        this.element.find("#unsubscribe-link").show();
-                                        this.element.find("#unsubscribe-link").addEventListener('click', UserProfile.unsubscribe());
+                                        $(".unsubscribe-link").show();
                                     } else {
                                         // The user is not subscribed to notifications allow them to change their mind
-                                        this.element.find("#subscribe-link").show();
-                                        this.element.find("#subscribe-link").addEventListener('click', UserProfile.subscribe());
-                                    }
-                                });
-
-                                OneSignal.on('subscriptionChange', function (isSubscribed) {
-                                    //Let's make sure the button matches even if the state is change in a way not described above
-                                    console.log("The user's subscription state is now:", isSubscribed);
-                                    if (isSubscribed) {
-                                        this.element.find("#unsubscribe-link").show();
-                                        this.element.find("#subscribe-link").hide();
-                                    } else {
-                                        this.element.find("#unsubscribe-link").show();
-                                        this.element.find("#subscribe-link").hide();
+                                        $(".subscribe-link").show();
                                     }
                                 });
                             });
@@ -234,22 +234,6 @@ steal(
                                 });
                             }
                         },
-
-                        subscribe: function() {
-                            OneSignal.push(function() {
-                                OneSignal.registerForPushNotifications({
-                                    modalPrompt: true
-                                });
-                            });
-                            event.preventDefault();
-                        },
-
-                        unsubscribe: function() {
-                            OneSignal.push(["setSubscription", false]);
-                            event.preventDefault();
-                        },
-
-
 
                     });
 
