@@ -82,7 +82,7 @@ steal(
                                         this.element.find("#unsubscribe-link").addEventListener('click', UserProfile.unsubscribe());
                                     } else {
                                         // The user is not subscribed to notifications allow them to change their mind
-                                        this.element.find("#subscribe-link").style.display = '';
+                                        this.element.find("#subscribe-link").show();
                                         this.element.find("#subscribe-link").addEventListener('click', UserProfile.subscribe());
                                     }
                                 });
