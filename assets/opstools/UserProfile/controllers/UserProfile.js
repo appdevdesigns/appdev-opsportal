@@ -69,24 +69,25 @@ steal(
 
                         initOneSignal: function() {
                             var OneSignal = window.OneSignal || [];
-                            //Set up links to subscribe/unsubscribe
-                            $(".unsubscribe-link").click(function() {
-                                OneSignal.push(["setSubscription", false]);
-                            });
-                            $(".subscribe-link").click(function() {
-                                OneSignal.push(function() {
-                                    OneSignal.registerForPushNotifications({
-                                        modalPrompt: true
-                                    });
-                                });
-                            });
                             OneSignal.push(function() {
-                                // If we're on an unsupported browser tell them the err of their ways
-                                if (!OneSignal.isPushNotificationsSupported()) {
+                                if (OneSignal.isPushNotificationsSupported()) {
+                                    //Set up links to subscribe/unsubscribe
+                                    $(".unsubscribe-link").click(function() {
+                                        OneSignal.push(["setSubscription", false]);
+                                    });
+                                    $(".subscribe-link").click(function() {
+                                        OneSignal.push(function() {
+                                            OneSignal.registerForPushNotifications({
+                                                modalPrompt: true
+                                            });
+                                        });
+                                    });
+                                } else {
+                                    // If we're on an unsupported browser tell them the err of their ways
                                     $(".unsupported").show();
                                     return;
                                 }
-                                //Show and hide links
+                                // Show and hide links based on current user status
                                 OneSignal.isPushNotificationsEnabled(function(isEnabled) {
                                     if (isEnabled) {
                                         // The user is subscribed to notifications maybe they should be able to turn them off
@@ -96,6 +97,7 @@ steal(
                                         $(".subscribe-link").show();
                                     }
                                 });
+                                // Listen to subscription status change to control what link is available
                                 OneSignal.on('subscriptionChange', function (isSubscribed) {
                                     if (isSubscribed) {
                                         $(".unsubscribe-link").show();
