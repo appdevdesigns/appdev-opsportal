@@ -69,27 +69,25 @@ steal(
 
                         initOneSignal: function() {
                             var OneSignal = window.OneSignal || [];
+                            //Set up links to subscribe/unsubscribe
+                            $(".unsubscribe-link").click(function() {
+                                OneSignal.push(["setSubscription", false]);
+                            });
+                            $(".subscribe-link").click(function() {
+                                OneSignal.push(function() {
+                                    OneSignal.registerForPushNotifications({
+                                        modalPrompt: true
+                                    });
+                                });
+                            });
                             OneSignal.push(function() {
                                 // If we're on an unsupported browser tell them the err of their ways
                                 if (!OneSignal.isPushNotificationsSupported()) {
                                     $(".unsupported").show();
                                     return;
                                 }
+                                //Show and hide links
                                 OneSignal.isPushNotificationsEnabled(function(isEnabled) {
-                                    $(".unsubscribe-link").click(function() {
-                                        OneSignal.push(["setSubscription", false]);
-                                        $(".subscribe-link").show();
-                                        $(".unsubscribe-link").hide();
-                                    });
-                                    $(".subscribe-link").click(function() {
-                                        OneSignal.push(function() {
-                                            OneSignal.registerForPushNotifications({
-                                                modalPrompt: true
-                                            });
-                                        });
-                                        $(".unsubscribe-link").show();
-                                        $(".subscribe-link").hide();
-                                    });
                                     if (isEnabled) {
                                         // The user is subscribed to notifications maybe they should be able to turn them off
                                         $(".unsubscribe-link").show();
@@ -98,8 +96,18 @@ steal(
                                         $(".subscribe-link").show();
                                     }
                                 });
+                                OneSignal.on('subscriptionChange', function (isSubscribed) {
+                                    if (isSubscribed) {
+                                        $(".unsubscribe-link").show();
+                                        $(".subscribe-link").hide();
+                                    } else {
+                                        $(".subscribe-link").show();
+                                        $(".unsubscribe-link").hide();
+                                    }
+                                });
                             });
                         },
+
 
                         loadData: function() {
                             var self = this;
