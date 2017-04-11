@@ -199,8 +199,8 @@ the .op-widget class can contain a .op-widget-masthead class, a .op-widget-body 
 	margin-right: 5px;
 }
 
-#op-masthead-nav ul li.active a { 
-	opacity: 1 !important; 
+#op-masthead-nav ul li.active a {
+	opacity: 1 !important;
 	font-weight: bold;
 }
 
@@ -588,3 +588,20 @@ the .op-widget class can contain a .op-widget-masthead class, a .op-widget-body 
 }
 
 .op-dropzone .opsportal-dropzone-icon i { display: block !important; margin: 0 auto !important; text-align: center; }
+
+/*** Sidr Menu Overrides **/
+.sidr ul li span {
+	display: inline !important;
+}
+.sidr ul li, .sidr ul li:hover, .sidr ul li.active, .sidr ul li.sidr-class-active {
+	line-height: inherit !important;
+}
+.sidr ul li:hover > a, .sidr ul li:hover > span, .sidr ul li.active > a, .sidr ul li.active > span, .sidr ul li.sidr-class-active > a, .sidr ul li.sidr-class-active > span {
+	box-shadow: none !important;
+}
+.sidr ul li:hover, .sidr ul li.active, .sidr ul li.sidr-class-active {
+	border-top: 1px solid #4d4d4d !important;
+}
+.sidr ul li a, .sidr ul li span {
+	padding: 0px !important;
+}
