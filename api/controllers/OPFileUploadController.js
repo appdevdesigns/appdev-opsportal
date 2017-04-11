@@ -21,7 +21,7 @@ function createPath (parts, base, cb) {
 			if (err && err.code === 'ENOENT') {
 
 		// create the directory!
-console.log('--- making opimageupload path:'+base);
+console.log('--- making opfileupload path:'+base);
 
 				fs.mkdir(base, function(err){
 
