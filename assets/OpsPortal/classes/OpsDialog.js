@@ -19,7 +19,15 @@ System.import('can').then(function () {
 
                 // Alert
                 // A dialogue that popup with a message, and requires an [ok] button press
+                Alert: function (opts) {
 
+                    webix.alert({
+                        title: opts.title || AD.lang.label.getLabel('opp.dialog.alert.title') || "*Alert",
+                        text: opts.text || opts.message || AD.lang.label.getLabel('opp.dialog.alert.text') || "*Something is wrong.", 
+                        ok: opts.ok || AD.lang.label.getLabel('opp.dialog.alert.ok') || "*OK"
+                    });
+                },
+            
             
                 // Confirm
                 // A [Yes] [No] dialogue that pops up with a message
