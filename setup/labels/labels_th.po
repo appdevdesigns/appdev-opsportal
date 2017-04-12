@@ -515,3 +515,51 @@ msgstr "[th] Are you sure you want to delete <b>%s</b>?"
 msgid "Not Permitted"
 msgstr "[th] Not Permitted"
 
+#. path: opsportal
+#. code: th
+#. key: opp.common.yes
+msgid "Yes"
+msgstr "[th] Yes"
+
+#. path: opsportal
+#. code: th
+#. key: opp.dialog.confirm.confirmTitle
+msgid "Confirm"
+msgstr "[th] Confirm"
+
+#. path: opsportal
+#. code: th
+#. key: opp.dialog.confirm.confirmMsg
+msgid "Are you sure you want to do this?"
+msgstr "[th] Are you sure you want to do this?"
+
+#. path: opsportal
+#. code: th
+#. key: opp.common.no
+msgid "No"
+msgstr "[th] No"
+
+#. path: opsportal
+#. code: th
+#. key: site.user.notifications
+msgid "Desktop Notifications"
+msgstr "[th]Desktop Notifications"
+
+#. path: opsportal
+#. code: th
+#. key: site.user.notifications.turnOn
+msgid "Turn on notifications"
+msgstr "[th]Turn on notifications"
+
+#. path: opsportal
+#. code: th
+#. key: site.user.notifications.turnOff
+msgid "Turn off notifications"
+msgstr "[th]Turn off notifications"
+
+#. path: opsportal
+#. code: th
+#. key: site.user.notifications.notSupported
+msgid "Your browser does not support desktop notifications, please use Chrome, Firefox or Safari for Mac."
+msgstr "[th]Your browser does not support desktop notifications, please use Chrome, Firefox or Safari for Mac."
+
