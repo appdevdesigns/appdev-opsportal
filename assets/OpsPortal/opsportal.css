@@ -605,3 +605,19 @@ the .op-widget class can contain a .op-widget-masthead class, a .op-widget-body 
 .sidr ul li a, .sidr ul li span {
 	padding: 0px !important;
 }
+.sidr {
+	box-shadow: none !important;
+	padding-bottom: 145px;
+	margin: 0;
+}
+.op-masthead a:focus, .op-masthead a:hover {
+	color: white !important;
+	text-decoration: none !important;
+}
+.op-toggle {
+	position: fixed !important;
+    bottom: 0 !important;
+    width: 260px;
+    height: 160px;
+    background: rgba(68,68,68,0.9);
+}
