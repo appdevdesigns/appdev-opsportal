@@ -13,40 +13,41 @@
 		</div>
 
 		<div class="op-container" id="op-masthead-nav">
+			<div class="row">
+			    <!-- sublinks -->
+			    <div class="col-sm-12 hidden-xs" id="op-masthead-sublinks">
+	                <ul class="list-unstyled list-inline" area="[[= area.key ]]" style="display:none;">
+										<li class="active" op-tool="[[= tool.controller ]]" data-weight="[[= tool.attr('weight') ]]" op-tool-id="[[= tool.id ]]" >
+											<a href="#" class="op-masthead-nav-link" role="button" obj-embed="tool">
+												<i class="fa [[- tool.attr('icon') ]] nav-icon"></i>
+												[[- tool.attr('label') ]]
+											</a>
+										</li>
+	                    <li class="mockup"><a href="#" class="" role="button" obj-embed="tool">Sublink 2</a></li>
+	                    <li class="mockup"><a href="#" class="" role="button" obj-embed="tool">Sublink 3</a></li>
+	                </ul>
+	            </div>
+			</div>
+		</div>
 
-		    <!-- sublinks -->
-		    <div class="col-lg-11 col-md-11 col-xs-9" id="op-masthead-sublinks">
-                <ul class="list-unstyled list-inline" area="[[= area.key ]]" style="display:none;">
-									<li class="active" op-tool="[[= tool.controller ]]" data-weight="[[= tool.attr('weight') ]]" op-tool-id="[[= tool.id ]]" >
-										<a href="#" class="op-masthead-nav-link" role="button" obj-embed="tool">
-											<i class="fa [[- tool.attr('icon') ]] nav-icon"></i>
-											[[- tool.attr('label') ]]
-										</a>
-									</li>
-                    <li class="mockup"><a href="#" class="" role="button" obj-embed="tool">Sublink 2</a></li>
-                    <li class="mockup"><a href="#" class="" role="button" obj-embed="tool">Sublink 3</a></li>
-                </ul>
-            </div>
-
-            <!-- user options icon -->
-            <div id="op-masthead-user" class="dropdown col-lg-1 col-md-1 col-xs-3">
-                <a id="user-options-icon" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fa fa-user fa-2x" id=""></i>
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="user-options-icon" style="position:absolute; left: auto; right: 0;">
-                    <li><a id="userprofile-menuitem" href="#user-profile" app-label-key="site.user.profile">User Profile</a></li>
-                    <li><a href="#switcheroo" app-label-key="site.user.switcheroo">Switcheroo</a></li>
-                    <li role="separator" class="divider"></li>
-                    <li><a href="<%= baseURL %>/site/logout" app-label-key="site.user.logout">Logout</a></li>
-                </ul>
-            </div>
-
+		<!-- user options icon -->
+		<div id="op-masthead-user" class="dropdown">
+			<a id="user-options-icon" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<i class="fa fa-user fa-2x" id=""></i>
+			</a>
+			<ul class="dropdown-menu" aria-labelledby="user-options-icon" style="position:absolute; left: auto; right: 0;">
+				<li><a id="userprofile-menuitem" href="#user-profile" app-label-key="site.user.profile">User Profile</a></li>
+				<li><a href="#switcheroo" app-label-key="site.user.switcheroo">Switcheroo</a></li>
+				<li role="separator" class="divider"></li>
+				<li><a href="<%= baseURL %>/site/logout" app-label-key="site.user.logout">Logout</a></li>
+			</ul>
 		</div>
 
     </div>
 
 	<!-- Global menu (Widget hidden by default) -->
 	<div id="sidr-main" class="op-menu-widget"></div>
+
 
 	<!-- Stage -->
 	<div class="op-container op-stage"></div>
