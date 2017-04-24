@@ -116,7 +116,7 @@ steal(
 								}
 
 								$icon.popover({
-						            placement: 'right',
+						            placement: 'auto',
 						            title: myTitle(),
 						            trigger: 'click',
 						            html: true,
@@ -186,14 +186,9 @@ steal(
 											.then(function(updatedArea){
 
 												_this.data.hasPendingAreaAdd = false;
-												// if (isAdd) {
-												// 	// _this.data.listAreas.push(area);
-												// 	area = new Model({label:'', icon:''});
-												// 	// pushing to the list automatically updated the DOM
-												// 	// but we have to recreate the popups on the new elements:
-												// 	_this.initAreaPopups();
-												// 	_this.initSortArea();
-												// }
+												if (isAdd) {
+													area = new Model({label:'', icon:''});
+												}
 												_this.loadAreas();
 												busySave.ready();
 												$icon.click();
@@ -469,7 +464,6 @@ AD.lang.label.getLabelSpan('opnavedit.Edit'),
 
 								// Load the Tool Editing Section
 								can.view(_this.options.templateDOMTools, {areas:_this.data.listAreas, hashTools:_this.data.hashTools, toolDefs:ToolDefs }, function(frag){
-
 									_this.element.find('#op-masthead-sublinks').after(frag);
 									_this.dom.tools = _this.element.find('#op-navbar-edittools');
 									_this.dom.tools.hide();
@@ -484,7 +478,7 @@ AD.lang.label.getLabelSpan('opnavedit.Edit'),
 									select.append(defaultOption);
 									ToolDefs.forEach(function(definition){
 										if (definition.key) {
-											var option = new Option(definition.label, definition.key);
+											var option = new Option(definition.key, definition.key);
 											select.append($(option));
 										}
 									})
