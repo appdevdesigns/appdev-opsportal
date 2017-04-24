@@ -17,7 +17,7 @@ migrate:'alter',
 
     tools : {  collection: 'OPConfigTool', via: 'areas' },
 
-    key : { type: 'string' },
+    key : { type: 'string', unique: true },
 
     icon : { type: 'string' },
 
@@ -83,4 +83,3 @@ migrate:'alter',
     return Multilingual.model.create({ model: OPConfigArea, data: data });
   }
 };
-
