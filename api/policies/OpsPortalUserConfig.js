@@ -47,17 +47,21 @@ module.exports = function(req, res, next) {
                     }
 
                     var data = {
-                            areas:areas,
-                            tools:tools,
-                            feedback: (config.feedback && config.feedback.enabled) || false
+                            areas: areas,
+                            tools: tools,
+                            feedback: (config.feedback && config.feedback.enabled) || false,
+                            countly: false
                     };
+                    
+                    if (config.countly && config.countly.enabled) {
+                        data.countly = config.countly;
+                    }
 
 
                     // store this in the response object:
                     // res.appdev.opsportalconfig
                     if (!res.appdev) res.appdev = {};
                     res.appdev.opsportalconfig = data;
-// console.log('... final opsportalconfig:', data);
                     OPSPortal.NavBar.cache(user.GUID(), data);
                     next();
 
@@ -91,8 +95,6 @@ function processPermission(user, permission) {
     for (var p=0; p<permission.length; p++) {
         if (!user.hasPermission(permission[p])) {
 
-// console.log('... user did not have permission:', permission[p]);
-
             // if we missed one, then this set of permissions fails
             ok = false;
             break;
@@ -115,9 +117,6 @@ function processToolsRecursively( areaHash, tools, user, area, listTools, cb ) {
         OPConfigTool.findOne(tool.id)
         .populateAll()
         .exec(function(err, currTool){
-
-// console.log('... processing tool:', tool.key);
-// console.log('... tool.permissions.length:'+ currTool.permissions.length);
 
             // for this tool, check each possible permission settings
             for (var p=0; p<currTool.permissions.length; p++) {
@@ -160,9 +159,6 @@ function processToolsRecursively( areaHash, tools, user, area, listTools, cb ) {
                     tools.push(currTool);
                     break;
                 }
-// else{
-//     console.log('   - processPermission() returned false:', currTool.permissions[p].action_key);
-// }
             }
 
             processToolsRecursively(areaHash, tools, user, area, listTools, cb);
@@ -179,7 +175,6 @@ function processAreasRecursively( areaHash, tools, user, listAreas, cb ) {
         cb();
     } else {
         var area = listAreas.shift();
-// console.log('... processing Area:', area.key);
         processToolsRecursively(areaHash, tools, user, area, area.tools, function(err){
             if (err) {
                 cb(err);
