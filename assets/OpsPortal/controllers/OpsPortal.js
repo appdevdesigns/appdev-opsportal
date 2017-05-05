@@ -20,7 +20,7 @@ steal(
 'feedback/tpl.overview.ejs',
 'feedback/tpl.submitSuccess.ejs',
 'feedback/tpl.submitError.ejs',
-    'js/countly.min',
+    'countly-sdk-web/lib/countly.min',
     function () {
         System.import('appdev').then(function () {
             steal.import(
