@@ -517,16 +517,18 @@ steal(
                                 url: this.countly.url,
                             });
                             
-                            var user = AD.config.getValue('user');
-                            if (user) {
-                                Countly.user_details({
-                                    username: user.username,
-                                    email: user.email,
-                                    custom: {
-                                        guid: user.guid
-                                    }
-                                });
-                            }
+                            AD.config.whenReady().then(function() {
+                                var user = AD.config.getValue('user');
+                                if (user) {
+                                    Countly.user_details({
+                                        username: user.username,
+                                        email: user.email,
+                                        custom: {
+                                            guid: user.guid
+                                        }
+                                    });
+                                }
+                            });
                             
                             Countly.track_sessions();
                             Countly.track_pageview();
