@@ -20,7 +20,7 @@ steal(
 'feedback/tpl.overview.ejs',
 'feedback/tpl.submitSuccess.ejs',
 'feedback/tpl.submitError.ejs',
-    'js/countly.min',
+    'countly-sdk-web/lib/countly.min',
     function () {
         System.import('appdev').then(function () {
             steal.import(
@@ -517,16 +517,18 @@ steal(
                                 url: this.countly.url,
                             });
                             
-                            var user = AD.config.getValue('user');
-                            if (user) {
-                                Countly.user_details({
-                                    username: user.username,
-                                    email: user.email,
-                                    custom: {
-                                        guid: user.guid
-                                    }
-                                });
-                            }
+                            AD.config.whenReady().then(function() {
+                                var user = AD.config.getValue('user');
+                                if (user) {
+                                    Countly.user_details({
+                                        username: user.username,
+                                        email: user.email,
+                                        custom: {
+                                            guid: user.guid
+                                        }
+                                    });
+                                }
+                            });
                             
                             Countly.track_sessions();
                             Countly.track_pageview();
