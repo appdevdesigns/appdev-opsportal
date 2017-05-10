@@ -252,7 +252,7 @@ steal(
                                         if (toolShowTimeout) clearTimeout(toolShowTimeout);
                                         toolShowTimeout = setTimeout(function() {
                                             Countly.add_event({
-                                                key: 'tool',
+                                                key: 'toolShow',
                                                 count: 1,
                                                 segmentation: {
                                                     'area': data.area,
