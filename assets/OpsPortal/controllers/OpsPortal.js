@@ -521,6 +521,7 @@ steal(
                                 var user = AD.config.getValue('user');
                                 if (user) {
                                     Countly.user_details({
+                                        name: user.username,
                                         username: user.username,
                                         email: user.email,
                                         custom: {
