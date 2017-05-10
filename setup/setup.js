@@ -28,7 +28,10 @@ var deepCountlyPath = path.join(modulePath, 'node_modules', 'countly-sdk-web');
 var flatCountlyPath = path.join(modulePath, '..', 'countly-sdk-web');
 var symlinkPath = path.join(modulePath, '..', '..', 'assets', 'countly-sdk-web');
 
-if (fs.existsSync(deepCountlyPath)) {
+if (fs.existsSync(symlinkPath)) {
+    // symlink already exists
+}
+else if (fs.existsSync(deepCountlyPath)) {
     fs.symlinkSync(deepCountlyPath, symlinkPath, 'dir');
 }
 else if (fs.existsSync(flatCountlyPath)) {
