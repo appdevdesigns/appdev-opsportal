@@ -28,7 +28,7 @@
 	width:270px;
 	min-height:100%;
 	display:none;
-	overflow:hidden;
+	overflow-y:auto;
 	}
 
 .op-navbar-lpanel .container .col-sm-6:first-child {border-right:2px solid #736d6d;}
