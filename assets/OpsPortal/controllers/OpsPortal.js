@@ -20,6 +20,7 @@ steal(
 'feedback/tpl.overview.ejs',
 'feedback/tpl.submitSuccess.ejs',
 'feedback/tpl.submitError.ejs',
+    'countly-sdk-web/lib/countly.min',
     function () {
         System.import('appdev').then(function () {
             steal.import(
@@ -508,7 +509,33 @@ steal(
                             });
                             
                         },
-
+                        
+                        
+                        initCountly: function() {
+                            Countly.init({
+                                app_key: this.countly.app_key,
+                                url: this.countly.url,
+                            });
+                            
+                            AD.config.whenReady().then(function() {
+                                var user = AD.config.getValue('user');
+                                if (user) {
+                                    Countly.user_details({
+                                        name: user.username,
+                                        username: user.username,
+                                        email: user.email,
+                                        custom: {
+                                            guid: user.guid
+                                        }
+                                    });
+                                }
+                            });
+                            
+                            Countly.track_sessions();
+                            Countly.track_pageview();
+                            Countly.track_links();
+                            Countly.track_errors();
+                        },
 
 
                         // Special Case 2: OPNavEdit
@@ -574,6 +601,9 @@ steal(
                             // Add the Feedback widget
                             if (this.isFeedbackEnabled) {
                                 this.initFeedback();
+                            }
+                            if (this.countly) {
+                                this.initCountly();
                             }
                             
                             this.resize();
@@ -657,6 +687,7 @@ steal(
                                 _this.data.lastConfig = data;
 
                                 _this.isFeedbackEnabled = data.feedback || false;
+                                _this.countly = data.countly || false;
                                 
                                 AD.ui.loading.completed(1);  // just to show we have loaded the config.
                                 if (err) {

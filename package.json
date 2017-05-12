@@ -24,6 +24,7 @@
   "dependencies": {
     "ad-utils": "appdevdesigns/ad-utils",
     "async": "^1.5.2",
+    "countly-sdk-web": "^16.12.1",
     "github": "0.2.4",
     "jimp": "^0.2.27",
     "lodash": "^4.13.1",

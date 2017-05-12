@@ -1,6 +1,7 @@
 steal(
 // List your Controller's dependencies here:
     'OpsPortal/views/Tool/Tool.ejs',
+    'countly-sdk-web/lib/countly.min',
     function () {
         System.import('appdev').then(function () {
             steal.import(
@@ -9,7 +10,9 @@ steal(
                 'appdev/control/control',
                 'appdev/comm/socket')
                 .then(function () {
-
+                    
+                    // used to handle consecutive calls to toolShow()                    
+                    var toolShowTimeout = null;
 
 
                     //
@@ -243,9 +246,25 @@ steal(
                                         //// this is a switch TO our tool
 
                                         this.isActive = true;
+                                        
+                                        // If many calls to toolShow() are made together, only respond
+                                        // to the most recent one.
+                                        if (toolShowTimeout) clearTimeout(toolShowTimeout);
+                                        toolShowTimeout = setTimeout(function() {
+                                            Countly.add_event({
+                                                key: 'toolShow',
+                                                count: 1,
+                                                segmentation: {
+                                                    'area': data.area,
+                                                    'tool': data.tool,
+                                                }
+                                            });
+                                        }, 50);
 
                                         // remember: show() first then resize()
-                                        if (this.element) this.element.show();
+                                        if (this.element) {
+                                            this.element.show();
+                                        }
 
                                         if (this.sizeData) {
                                             this.controller.resize(this.sizeData);

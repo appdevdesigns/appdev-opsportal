@@ -18,6 +18,15 @@ module.exports = {
      copyFiles: {
         'config/opsportal.js' : 'config/opsportal.js'
      },
+     
+     /*
+     // list the directories to create symbolic links to:
+     //     format:  [desiredSailsDir] : [current/plugin/dir]
+     links: {
+         'assets/countly-sdk-web' : 'node_modules/countly-sdk-web',
+     },
+     */
+     
 
 /*
 

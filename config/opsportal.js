@@ -37,7 +37,14 @@ module.exports.opsportal = {
     githubRepo: 'appdev-opsportal',
     // The GitHub repository owner.
     githubOwner: 'appdevdesigns'
-  }, 
+  },
+  
+  // Settings for Countly integration
+  countly: {
+    enabled: false,
+    app_key: '',
+    url: 'https://example.com',
+  },
 
 
   //

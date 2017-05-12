@@ -1,6 +1,7 @@
 steal(
     'OpsPortal/views/MenuList/MenuList.ejs',
     'OpsPortal/views/MenuList/menuItem.ejs',
+    'countly-sdk-web/lib/countly.min',
     function () {
         System.import('appdev').then(function() {
             steal.import(
@@ -136,6 +137,8 @@ steal(
                             AD.comm.hub.publish('opsportal.area.show', { area: area });
                             AD.ui.jQuery.sidr('close', 'op-menu-widget');
                             ev.preventDefault();
+                            
+                            Countly.track_pageview(area);
                         }
 
 
