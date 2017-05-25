@@ -1,4 +1,7 @@
 <li class="op-container" area="<%= area.key %>" data-weight="<%= area.attr('weight') %>">
-	<% if (area.key != 'profile'){ %><span class="badge pull-right"></span><% } %>
-	<span class="icon op-icon"><i class="fa fa-fw op-icon-fw <%= area.attr('icon') %>"></i></span><%== area.attr('label') %>
+	<% if (typeof area != 'undefined' && area.key != 'profile') { %>
+	   <span class="badge pull-right"></span>
+    <% } %>
+	<span class="icon op-icon"><i class="fa fa-fw op-icon-fw <%= area.attr('icon') %>"></i></span>
+	<%== area.attr('label') %>
 </li>
