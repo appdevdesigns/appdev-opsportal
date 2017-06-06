@@ -24,8 +24,8 @@
 	white-space: normal !important;
 }
 .form-horizontal .form-group {
-	margin-right: 0;
-	margin-left: 0;
+	margin-right: 0 !important;
+	margin-left: 0 !important;
 }
 .tooltip, .popover {
 	position: fixed !important;
@@ -174,13 +174,16 @@ the .op-widget class can contain a .op-widget-masthead class, a .op-widget-body 
 }
 
 #op-masthead-menu {
-	float: left;
+/*	float: left; */
+	position: absolute;
+	z-index: 1000;
 /*	width: 50%; */
 }
 
 #op-masthead-nav {
-	float: right;
-	width: 94%;
+/* these fight with bootstrap	float: right; */
+/* these fight with bootstrap	width: 94%; */
+	margin: 0 30px 0 55px;
 }
 #op-masthead-nav ul {
 	position: relative;
@@ -376,7 +379,7 @@ the .op-widget class can contain a .op-widget-masthead class, a .op-widget-body 
 	display: block;
 	padding: 15px 0;
 	margin: 0;
-	border-top: 1px solid rgba(0,0,0,0.1);
+	/*border-top: 1px solid rgba(0,0,0,0.1);*/
 	text-align: center;
 	width: 100%;
 }
@@ -604,4 +607,25 @@ the .op-widget class can contain a .op-widget-masthead class, a .op-widget-body 
 }
 .sidr ul li a, .sidr ul li span {
 	padding: 0px !important;
+}
+.sidr {
+	box-shadow: none !important;
+	padding-bottom: 110px;
+	margin: 0;
+}
+.op-masthead a:focus, .op-masthead a:hover {
+	color: white !important;
+	text-decoration: none !important;
+}
+.op-toggle {
+	position: fixed !important;
+    bottom: 0 !important;
+    width: 260px;
+    height: 110px;
+	background: #444;
+}
+#op-masthead-user.dropdown {
+	position: absolute;
+	right: 20px;
+	top: 15px;
 }

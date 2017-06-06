@@ -116,7 +116,7 @@ steal(
 								}
 
 								$icon.popover({
-						            placement: 'right',
+						            placement: 'auto',
 						            title: myTitle(),
 						            trigger: 'click',
 						            html: true,
@@ -153,9 +153,9 @@ steal(
 						            	var $example = $cur_pop.find('.icon-example').removeClass().addClass('icon-example fa '+iconData.val())
 						            })
 
-												
+
 									iconData.iconpicker({ hideOnSelect: true });
-						            
+
 
 						            // process [save] click
 						            var buttonSave = $cur_pop.find('.op-nav-button-save');
@@ -186,14 +186,9 @@ steal(
 											.then(function(updatedArea){
 
 												_this.data.hasPendingAreaAdd = false;
-												// if (isAdd) {
-												// 	// _this.data.listAreas.push(area);
-												// 	area = new Model({label:'', icon:''});
-												// 	// pushing to the list automatically updated the DOM
-												// 	// but we have to recreate the popups on the new elements:
-												// 	_this.initAreaPopups();
-												// 	_this.initSortArea();
-												// }
+												if (isAdd) {
+													area = new Model({label:'', icon:''});
+												}
 												_this.loadAreas();
 												busySave.ready();
 												$icon.click();
@@ -310,7 +305,7 @@ steal(
 						            iconData.change(function(ev){
 						            	var $example = $cur_pop.find('.icon-example').removeClass().addClass('icon-example fa '+iconData.val())
 						            })
-												
+
 									iconData.iconpicker({ hideOnSelect: true });
 
 						            // process [save] click
@@ -415,7 +410,7 @@ steal(
 
 							var menuFooter = $(this.element.find('#op-menu-widget .op-widget-footer'));
 							menuFooter.prepend([
-'<ul class="op-list">',
+'<ul class="op-list hidden-xs">',
 '<li class="op-container op-navbar-editbutton">',
 AD.lang.label.getLabelSpan('opnavedit.Edit'),
 '</li>',
@@ -469,7 +464,6 @@ AD.lang.label.getLabelSpan('opnavedit.Edit'),
 
 								// Load the Tool Editing Section
 								can.view(_this.options.templateDOMTools, {areas:_this.data.listAreas, hashTools:_this.data.hashTools, toolDefs:ToolDefs }, function(frag){
-
 									_this.element.find('#op-masthead-sublinks').after(frag);
 									_this.dom.tools = _this.element.find('#op-navbar-edittools');
 									_this.dom.tools.hide();
@@ -484,7 +478,7 @@ AD.lang.label.getLabelSpan('opnavedit.Edit'),
 									select.append(defaultOption);
 									ToolDefs.forEach(function(definition){
 										if (definition.key) {
-											var option = new Option(definition.label, definition.key);
+											var option = new Option(definition.key, definition.key);
 											select.append($(option));
 										}
 									})
@@ -1027,7 +1021,7 @@ AD.lang.label.getLabelSpan('opnavedit.Edit'),
 
 					//
 					// NOTE:
-					// 
+					//
 					// there is a timing issue once these files are compiled and minified.
 					// the OPNavEdit.js file is processed before the OpsPortal controller
 					// has a chance to .init() and listen for this event.
@@ -1035,7 +1029,7 @@ AD.lang.label.getLabelSpan('opnavedit.Edit'),
 					// So here we are attempting to wait until we know the 'opsportal.ready'
 					// has fired.
 					//
-					// but if this file loads after that event is emitted, then we 
+					// but if this file loads after that event is emitted, then we
 					// have a fallback delay to fire.
 
 					// alert the OPSPortal we are loaded.

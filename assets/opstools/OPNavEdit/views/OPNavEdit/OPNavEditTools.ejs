@@ -5,7 +5,7 @@
 -->
 <!--Edit Tools-->
 <% var L = AD.lang.label.getLabelSpan %>
-<div id="op-navbar-edittools" class="col-lg-11 col-xs-9" style="display:none">
+<div id="op-navbar-edittools" class="col-sm-12" style="display:none">
 
     <% can.each(areas, function(area, indx){ %>
         <ul class="list-unstyled list-inline sortableMenu op-navbar-tool" area-tools="<%= area.attr('key') %>" <%= (el) -> can.data(el, 'area', area) %> style="display:none;">

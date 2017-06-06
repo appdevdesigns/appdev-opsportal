@@ -27,7 +27,7 @@ p {font-size:14px;}
 
 th, label {
 	font-size:14px;
-	font-weight:normal;	
+	font-weight:normal;
 }
 
 */
@@ -37,13 +37,13 @@ th, label {
 
 .align-right { text-align:right;}
 
-.align-center {text-align: center;}	
+.align-center {text-align: center;}
 
 .float-right {float:right;}
 
 
-.clear {clear:both}	
-	
+.clear {clear:both}
+
 .mrgntop20 {marging-top:20px;}
 
 .lbl-title {font-size:15px;line-height:15px;}
@@ -103,13 +103,13 @@ th, label {
 }
 
 .pgnav .active {background:url(../../images/opsportal/arrow-down.png) center 38px no-repeat;}
-		
+
 .working-area {
 	margin-left:210px;
-	margin-top:20px;	
+	margin-top:20px;
 }
-	
-/* TOP MENU BAR*/	
+
+/* TOP MENU BAR*/
 
 /*BODY AREA */
 
@@ -131,7 +131,7 @@ th, label {
 
 .nopadLR {
 	padding-left:0 !important;
-	padding-right:0 !important; 
+	padding-right:0 !important;
 }
 
 .nopadR {padding-right:0}
@@ -163,7 +163,7 @@ th, label {
 
 .offset-5 {
 	margin-right:5px;
-	
+
 }
 
 .off-top10 {
@@ -226,7 +226,7 @@ th, label {
 .padbot15 { padding-bottom:15px !important;}
 
 .padbot10 { padding-bottom:10px !important;}
-	
+
 .padbot55 { padding-bottom:55px !important;}
 
 .center {text-align:center}
@@ -253,7 +253,7 @@ a:focus {
 select, textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"], .uneditable-input {
 	display: inline-block;
 	padding: 4px 6px;
-	margin-bottom: 10px; 
+	margin-bottom: 10px;
 	font-size: 14px;
 	line-height: 20px;
 	color: #555555;
@@ -276,7 +276,7 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
 	padding:10px 17px 0 22px;
 	text-align:center;
 	height:82px;
-	
+
 }
 
 #topmenu .badge {
@@ -316,13 +316,13 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
 	background-color: #93cd60 !important;
 	width: 20px;
 	height: 20px !important;
-	
+
 }
-	
+
 .stats-red {
 	background-color: #e27c79 !important;
 	width: 20px;
-	height: 20px !important;	
+	height: 20px !important;
 }
 
 #users-area .panel-body {
@@ -335,7 +335,7 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
 	color:#eaeaea !important
 
 	}
-	
+
 #users-area select {
 	padding: 0;
 	width:100%;
@@ -367,7 +367,7 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
 .img-thumbnail {
 	box-shadow:none;
 	border:0;
-}	
+}
 
 .webix_view.webix_form {
 	background-color: transparent;
@@ -396,32 +396,32 @@ li.sep {
 	padding:0 !important;
 	background:#000;
     opacity: 0.4;
-	
+
 	}
 
 .lowscreen-drop {
     top: 50px;
     left: 0;
-    border-radius: 0;	
+    border-radius: 0;
 }
 
 	.lowscreen-drop .badge {
 		   bottom: 25px;
 	}
-	
+
 	.lowscreen-drop i {
 		margin-left:7px;
 	}
-	
+
 
 
 @media (max-width: 331px) {
 	.op-list {
 		/* position: relative; */
 		list-style: none;
-	left: -29px;
+		/* left: -29px; */
 	}
-	
+
 	#topmenu li {
 		float: left;
 		display: block;
@@ -432,10 +432,10 @@ li.sep {
 	#lowscreen-menu {
 		display:block !important;
 	}
-	
+
 	#lowscreen-menu i{
 		line-height:69px;
-	}	
+	}
 	#topmenu {
 		display:none !important;
 	}
@@ -443,12 +443,12 @@ li.sep {
 	#op-masthead-nav .col-lg-11, #op-masthead-nav .col-lg-1{
 		padding-right:0 !important;
 		padding-left:0 !important;
-		
+
 	}
 }
 
 @media (max-width: 1200px) {
-	
+
 	.mid-screen-mrgn-l-15 {
 		margin-left:20px;
 	}
@@ -457,19 +457,19 @@ li.sep {
 		margin-left:20px;
 		margin-right:20px;
 	}
-	
+
 	.navbar-form  {
 		margin-left:0
 	}
 }
 
 @media (max-width: 767px) {
-	
+
 
  }
- 
+
 @media (max-width: 979px) {
-  
+
 }
 
  @media (min-width: 768px) and (max-width: 979px) {
@@ -533,7 +533,7 @@ li.sep {
 .log_record{
 	font-family:Tahoma;
 	font-size:12px;
-	margin:10px;	
+	margin:10px;
 }
 
 #testA, #testB, #testC, #testD, .paging{
@@ -543,4 +543,3 @@ li.sep {
 .paging {
 	width:900px;
 }
- 
