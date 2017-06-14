@@ -24,9 +24,10 @@ module.exports = {
         "jsreports-all": "js/jsreports-all.min",
         "dropzone": "js/dropzone/dropzone.min",
         "dropzone.css": "js/dropzone/dropzone.min.css",
+        "lodash": "js/lodash.min",
         // "async": "js/async",
         "webix": "js/webix/webix",
-    "webix-opsportal": "js/webix/opsportal-skin"
+        "webix-opsportal": "js/webix/opsportal-skin"
     },
     "paths": {
     // "async": "js/async",
@@ -91,6 +92,7 @@ module.exports = {
         "bootstrapValidator.js": "js/bootstrapValidator.min.js",
         "bootbox.js": "js/bootbox.min.js",
         
+        "lodash": "js/lodash.min.js",
         "moment.js": "js/moment.min.js",
         "FilteredBootstrapTable.js": "OpsPortal/controllers/FilteredBootstrapTable.js",
         "OpsButtonBusy.js": "OpsPortal/classes/OpsButtonBusy.js",
@@ -200,6 +202,10 @@ module.exports = {
       "format": "global",
       "sideBundle": true
     },
+    "js/lodash.min": {
+      "format": "global",
+      "sideBundle": true
+    },
     "js/bootstraptable/bootstrap-table": {
       "deps": ['js/bootstrap/js/bootstrap.min', 'js/bootstraptable/bootstrap-table.css'],
       "format": "global",
@@ -237,6 +243,7 @@ module.exports = {
         'can',
         "typeahead",
         "jsquerybuilder",
+        "lodash",
         "moment",
         "webix",
         "bootstrap-table",
