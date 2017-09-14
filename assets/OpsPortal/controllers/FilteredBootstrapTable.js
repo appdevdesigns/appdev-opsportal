@@ -237,7 +237,7 @@ System.import('appdev').then(function () {
 
                         self.textFilter
                             .typeahead({
-                                hint: true,
+                                hint: false,
                                 highlight: true,
                                 minLength: 0
                             },
