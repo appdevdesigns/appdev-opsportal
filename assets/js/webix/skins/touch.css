@@ -1,7 +1,7 @@
 /*
 @license
 webix UI v.5.0.0
-This software is covered by Webix Trial License.
+This software is covered by Webix Commercial License.
 Usage without proper license is prohibited.
 (c) XB Software Ltd.
 */
@@ -1400,6 +1400,8 @@ label.webix_required:after{padding-left:4px;content:"*";color:red}
 .portlet_markerbottom{height:50%;top:50%}
 .portlet_markerleft{width:50%}
 .portlet_markerright{width:50%;left:50%}
+.widget_drag{position:absolute;z-index:1;top:5px;right:5px;width:18px;opacity:.5;cursor:pointer}
+.widget_target{position:absolute;background:rgba(120,250,250,.5);z-index:3}
 .webix_popup.webix_sidemenu.webix_sidemenu_left{border-width:0 1px 0 0;box-shadow:2px 0 2px rgba(0,0,0,.05)}
 .webix_sidemenu_left.webix_animate{transition:left .6s}
 .webix_popup.webix_sidemenu.webix_sidemenu_right{left:auto;border-width:0 0 0 1px;box-shadow:-2px 0 2px rgba(0,0,0,.05)}
