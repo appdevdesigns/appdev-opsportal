@@ -47,11 +47,15 @@ module.exports = {
 		async.series([
 
 			function(next) {
+				sails.log.silly('--- OPImageUploadController.js: checkPath()')
 				var basePath = sails.config.appPath;
 				var pathToCheck = path.join(sails.config.opsportal.opimageupload.basePath, 'tmp');
 				var pathParts = pathToCheck.split(path.sep);
 
+				sails.log.silly('--- OPImageUploadController.js: pathToCheck:'+pathToCheck);
+
 				function checkPath (parts, base, cb) {
+
 					if (parts.length == 0) {
 						cb();
 					} else {
@@ -61,8 +65,8 @@ module.exports = {
 
 							if (err && err.code === 'ENOENT') {
 
-						// create the directory!
-console.log('--- making opimageupload path:'+base);
+								// create the directory!
+								sails.log.silly('--- making opimageupload path:'+base);
 
 								fs.mkdir(base, function(err){
 
@@ -86,6 +90,7 @@ console.log('--- making opimageupload path:'+base);
 
 			// 1) finish downloading the file
 			function(next) {
+				sails.log.silly('--- OPImageUploadController.js: finish downloading the File()')
 				req.file('image').upload({
 
 					// store the files in our TEMP path
@@ -93,8 +98,14 @@ console.log('--- making opimageupload path:'+base);
 					maxBytes: sails.config.opsportal.opimageupload.maxBytes || 10000000
 
 				}, function(err, list){
+					sails.log.silly('--- OPImageUploadController.js:    -> finished.');
 
 					if (err) {
+						sails.log.error('--- OPImageUploadController.js:    -> had err:', err);
+
+						if (err.toString().indexOf('EACCES') != -1) {
+							sails.log.error('!!!! Apparently we dun have access permissions.');
+						}
 						err.code = 500;
 						next(err);
 					} else {
@@ -103,9 +114,6 @@ console.log('--- making opimageupload path:'+base);
 						fileRef = fileEntry.fd; // full path to file
 
 						next();
-// console.log('... list:', list);
-// console.log('... allParams(): ', req.allParams());
-
 					}
 				})
 			},
@@ -113,6 +121,7 @@ console.log('--- making opimageupload path:'+base);
 
 			// ) read in the parameters
 			function(next) {
+				sails.log.silly('--- OPImageUploadController.js: read in the parameters()');
 
 		    	params.forEach(function(p){
 		    		options[p] = req.param(p) || '??';
@@ -127,7 +136,7 @@ console.log('--- making opimageupload path:'+base);
 		    	})
 
 		    	if (missingParams.length > 0) {
-console.log('... missingParams:', missingParams);
+					sails.log.error('OPImageUploadController: Missing Parameter(s):', missingParams);
 		    		var error = ADCore.error.fromKey('E_MISSINGPARAM');
 		    		error.missingParams = missingParams;
 		    		error.code = 422;
@@ -151,11 +160,12 @@ console.log('... missingParams:', missingParams);
 
 			// 1) make sure destination directory exists:
 			function(next) {
+				sails.log.silly('--- OPImageUploadController.js: make sure destination directory exists')
 				fs.stat(destPath, function(err, stat){
 					if (err && err.code === 'ENOENT') {
 
 						// create the directory!
-console.log('---making opimageupload path:'+destPath);
+						sails.log.silly('---making opimageupload path:'+destPath);
 
 						fs.mkdir(destPath, function(err){
 							if (err) err.code = 500;
@@ -163,6 +173,7 @@ console.log('---making opimageupload path:'+destPath);
 						})
 
 					} else {
+						sails.log.silly('--- OPImageUploadController.js: directory EXISTS!');
 
 						next();
 					}
@@ -174,6 +185,7 @@ console.log('---making opimageupload path:'+destPath);
 			// 3) get jimp to auto rotate file based upon EXIF info:
 			//    and also save it in our destination folder:
 			function(next) {
+				sails.log.silly('--- OPImageUploadController.js: jimp rotate');
 
 				// fileRef:  the current file location
 				// destRef:  where we want it to be:
@@ -209,7 +221,7 @@ console.log('---making opimageupload path:'+destPath);
 
 			// 4) Save our OPImageUpload values:
 			function(next) {
-
+				sails.log.silly('--- OPImageUploadController.js: save OPImageUpload values');
 				// uuid : the fileName without '.ext'
 				uuid = fileName.split('.')[0];
 
@@ -235,7 +247,7 @@ console.log('---making opimageupload path:'+destPath);
 			if (err) {
 				res.AD.error(err, err.code);
 			} else {
-
+				sails.log.silly('--- OPImageUploadController.js: return response');
 				// prepare our return data
 				// { uuid: 'as;dlkfaslkdfjasdl;kfj' }
 				var data = { 
