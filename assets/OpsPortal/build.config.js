@@ -216,11 +216,21 @@ module.exports = {
       "format": "global",
       "sideBundle": true
     },
+    "js/webix/codebase/querybuilder": {
+      "deps": [
+        "js/webix/codebase/querybuilder.css"
+      ],
+      "format": "global",
+      "sideBundle": true
+    },
     "js/webix/webix.css": {
       "sideBundle": true
     },
     "js/webix/webix": {
-      "deps": ['js/webix/webix.css'],
+      "deps": [
+        'js/webix/webix.css',
+        "js/webix/codebase/querybuilder"
+      ],
       "format": "global",
       "sideBundle": true
     },
