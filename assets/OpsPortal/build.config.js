@@ -218,6 +218,7 @@ module.exports = {
     },
     "js/webix/codebase/querybuilder": {
       "deps": [
+        "js/webix/webix",
         "js/webix/codebase/querybuilder.css"
       ],
       "format": "global",
@@ -229,7 +230,6 @@ module.exports = {
     "js/webix/webix": {
       "deps": [
         'js/webix/webix.css',
-        "js/webix/codebase/querybuilder"
       ],
       "format": "global",
       "sideBundle": true
@@ -256,6 +256,7 @@ module.exports = {
         "lodash",
         "moment",
         "webix",
+        "js/webix/codebase/querybuilder",
         "bootstrap-table",
         "bootstrapValidator",
         "bootstrapValidator.css",
