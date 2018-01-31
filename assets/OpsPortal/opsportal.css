@@ -176,7 +176,7 @@ the .op-widget class can contain a .op-widget-masthead class, a .op-widget-body 
 #op-masthead-menu {
 /*	float: left; */
 	position: absolute;
-	z-index: 1000;
+	z-index: 99;
 /*	width: 50%; */
 }
 
