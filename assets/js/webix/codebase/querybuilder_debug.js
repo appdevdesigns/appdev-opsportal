@@ -1,6 +1,6 @@
 /*
 @license
-Webix Query Builder v.5.1.3
+Webix Query Builder v.5.2.0
 This software is covered by Webix Commercial License.
 Usage without proper license is prohibited.
 (c) XB Software Ltd.
@@ -209,6 +209,7 @@ var querybuilder = {
             fields: this.config.fields,
             columnMode: this.config.columnMode
         });
+        webix.$$(newView).setFilters(this._filters);
         webix.$$(newView)._masterQuery = this;
         if (withRow) {
             webix.$$(newView)._addRule();
@@ -396,7 +397,6 @@ var querybuilder = {
         if (value[1]) {
             newValue = firstValue;
             this.config.fields = value[1];
-            this.reconstruct();
         }
         else if (!value[0]) {
             newValue = value;
@@ -406,8 +406,8 @@ var querybuilder = {
         }
         else {
             this.config.fields = firstValue;
-            this.reconstruct();
         }
+        this.reconstruct();
         if (newValue) {
             this.config.glue = newValue.glue;
             this._checkItemRules(newValue);
