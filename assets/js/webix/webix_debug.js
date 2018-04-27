@@ -1,6 +1,6 @@
 /*
 @license
-webix UI v.5.2.0
+webix UI v.5.3.0
 This software is covered by Webix Commercial License.
 Usage without proper license is prohibited.
 (c) XB Software Ltd.
@@ -52,7 +52,7 @@ webix.assert_level_out = function(){
 /*
 	Common helpers
 */
-webix.version="5.2.0";
+webix.version="5.3.0";
 webix.codebase="./";
 webix.name = "core";
 webix.cdn = "//cdn.webix.com";
@@ -2175,6 +2175,7 @@ webix.skin.contrast = {
 	optionHeight: 32
 };
 
+webix.skin.icon = window.webix_skin_icon || "fa-";
 webix.skin.set = function(name){
 	webix.assert(webix.skin[name], "Incorrect skin name: "+name);
 
@@ -4608,10 +4609,20 @@ webix.IdSpace = {
 
 var resize = [];
 var ui = webix.ui;
+webix._ui_creation = 0;
 
 if (!webix.ui){
 	ui = webix.ui = function(config, parent, id){
-		webix._ui_creation = true;
+		var res;
+		webix._ui_creation++;
+		try {
+			res = _ui_creator(config, parent, id);
+		} finally {
+			webix._ui_creation--;
+		}
+		return res;
+	};
+	var _ui_creator = function(config, parent, id){
 		var multiset = webix.isArray(config);
 		var node = webix.toNode((config.container||parent)||document.body);
 
@@ -4620,14 +4631,20 @@ if (!webix.ui){
 			id = _correctId(node, multiset, id);
 
 		var top_node;
+		var moving = false;
 		var body_child = (node == document.body);
 		if (config._settings || (node && multiset)){
 			top_node = config;
+			moving = true;
 		} else {
 			if (node && body_child)
 				config.$topView = true;
 			if (!config._inner)
 				config._inner = {};
+
+			if (parent && parent.getParentView){
+				webix._parent_cell = (!id && id!==0) ? parent.getParentView() : parent;
+			}
 
 			top_node = ui._view(config);
 		}
@@ -4651,9 +4668,16 @@ if (!webix.ui){
 
 				//if target supports view adding
 				if (node && node._replace){
-					//if source supports view removing
-					if (top_node.getParentView && top_node.getParentView())
-						top_node.getParentView()._remove(top_node);
+					if (moving && top_node.getParentView){
+						//if source supports view removing
+						var parent = top_node.getParentView();
+						if (parent  && parent._remove){
+							parent._remove(top_node);
+						}
+						//adjust parent link and scope
+						top_node._parent_cell = node;
+						top_node.$scope = node.$scope;
+					}
 
 					node._replace(top_node, id);
 				} else {
@@ -4664,13 +4688,14 @@ if (!webix.ui){
 			} else
 				webix.assert_error("Not existing parent:"+config.container);
 		}
-		
-		webix._ui_creation = false;
+
 		return top_node;
 	};
 
 	var _appendDom = function(node, top_node, config){
 		node.appendChild(top_node._viewobj);
+		if (top_node.getParentView()) return;
+
 		//resize window with position center or top
 		//do not resize other windows and elements
 		// which are attached to custom html containers
@@ -4843,7 +4868,7 @@ webix.ui.freeze = function(handler, trigger){
 	webix.ui._freeze_resize = true;
 	var res = handler();
 	if (res && res.then){
-		res.then(function(any){
+		res = res.then(function(any){
 			webix.ui._freeze_resize = false;
 			if (trigger !== false)
 				webix.ui.resize();
@@ -4854,6 +4879,7 @@ webix.ui.freeze = function(handler, trigger){
 		if (trigger !== false)
 			webix.ui.resize();
 	}
+	return res;
 };
 webix.ui.resize = function(){
 	webix.UIManager.applyChanges();
@@ -5475,8 +5501,6 @@ webix.protoUI({
 
 			if (!this._vertical_orientation)
 				this._fix_vertical_layout(new_view);
-			
-			this._cells[target_id]._parent_cell = this;
 		}
 		this.resizeChildren(true);
 
@@ -5494,6 +5518,8 @@ webix.protoUI({
 			index = this._cells.length;
 		var top = this.$$ ? this : this.getTopParentView();
 		top = (top && top.ui) ? top : webix;
+
+		webix._parent_cell = this;
 		return top.ui(view, this, index)._settings.id;
 	},
 	removeView:function(id){
@@ -6266,6 +6292,41 @@ webix.protoUI({
 }, webix.ui.layout);
 
 
+
+webix.protoUI({
+	name:"proxy",
+	body_setter:function(value){
+		webix._parent_cell = this;
+		this._body_cell = webix.ui._view(value);
+		this._viewobj.appendChild(this._body_cell._viewobj);
+		return value;
+	},
+	getChildViews:function(){
+		return [this._body_cell];
+	},
+	$setSize:function(x,y){
+		webix.ui.view.prototype.$setSize.call(this, x,y);
+		this._body_cell.$setSize(this.$width, this.$height);
+	},
+	$getSize:function(dx,dy){
+		var selfSize = webix.ui.view.prototype.$getSize.call(this, dx, dy);
+		var size = this._body_cell.$getSize(dx, dy);
+
+		size[0] = Math.max(selfSize[0], size[0]);
+		size[1] = Math.min(selfSize[1], size[1]);
+		size[2] = Math.max(selfSize[2], size[2]);
+		size[3] = Math.min(selfSize[3], size[3]);
+		size[4] = Math.max(selfSize[4], size[4]);
+
+		return size;
+	},
+	_replace:function(n){
+		this._body_cell.destructor();
+		this._body_cell = n;
+		this._viewobj.appendChild(n._viewobj);
+	}
+}, webix.ui.view);
+
 webix.protoUI({
 	name:"align",
 	defaults:{
@@ -6280,8 +6341,8 @@ webix.protoUI({
 	},
 	body_setter:function(value){
 		value._inner = { top:false, left:false, right:false, bottom:false};
+		webix._parent_cell = this;
 		this._body_cell = webix.ui._view(value);
-		this._body_cell._parent_cell = this;
 
 		this._viewobj.appendChild(this._body_cell._viewobj);
 		return value;
@@ -6796,7 +6857,6 @@ webix.protoUI({
 	_replace:function(new_view){
 		this._body_cell.destructor();
 		this._body_cell = new_view;
-		this._body_cell._parent_cell = this;
 		
 		this._bodyobj.appendChild(this._body_cell._viewobj);
 		this.resize();
@@ -7043,13 +7103,11 @@ webix.protoUI({
 		this._viewobj.setAttribute("role", "tablist");
 		this._viewobj.setAttribute("aria-multiselectable", "true");
 	},
-	addView:function(view){
-		//adding view to the accordion
-		var id = webix.ui.layout.prototype.addView.apply(this, arguments);
-		var child = webix.$$(id);
-		//repainting sub-panels in the accordion
-		if (child.collapsed_setter && child.refresh) child.refresh();
-		return id;
+	_replace:function(newview, targetid){
+		var res = webix.ui.layout.prototype._replace.apply(this, arguments);
+		if (newview.collapsed_setter && newview.refresh){
+			newview.refresh();
+		}
 	},
 	_parse_cells:function(){
 		var panel = this._settings.panelClass;
@@ -7708,7 +7766,6 @@ webix.protoUI({
 	_replace:function(new_view){
 		this._body_cell.destructor();
 		this._body_cell = new_view;
-		this._body_cell._parent_cell = this;
 		
 		this._bodyobj.appendChild(this._body_cell._viewobj);
 
@@ -7858,8 +7915,8 @@ webix.protoUI({
 				else
 					this._hide_point();
 			}
-		} else if (this._settings.position)
-			this._setPosition();
+		} else
+			this._setPosition(this._settings.left, this._settings.top);
 
 		this._viewobj.style.display = "block";
 		this._hide_timer = 1;
@@ -7979,7 +8036,6 @@ webix.protoUI({
 
 		webix._parent_cell = this;
 		this._body_cell = webix.ui._view(value);
-		this._body_cell._parent_cell = this;
 
 		this._bodyobj.appendChild(this._body_cell._viewobj);
 		return value;
@@ -7995,7 +8051,6 @@ webix.protoUI({
 
 		webix._parent_cell = this;
 		this._head_cell = webix.ui._view(value);
-		this._head_cell._parent_cell = this;
 
 		this._headobj.appendChild(this._head_cell._viewobj);
 		return value;
@@ -8444,7 +8499,7 @@ webix.protoUI({
 
 		return (this._old_text[id] = text);
 	},
-	getSuggestion:function(){
+	getSuggestion:function(text){
 		var id,
 			list = this.getList(),
 			order = list.data.order;
@@ -8452,8 +8507,11 @@ webix.protoUI({
 		if (list.getSelectedId)
 			id = list.getSelectedId();
 
-		if (order.length && (!id || order.find(id) <0) )
+		if (text && order.length && (!id || order.find(id) <0) ){
 			id = order[0];
+			//ensure that option really does match the filtering rules
+			if (!this.config.filter.call(this, list.data.pull[id], text)) return null;
+		}
 
 		//complex id in datatable
 		if (id && typeof id == "object") id = id+"";
@@ -8910,9 +8968,11 @@ webix.protoUI({
 	hotkey_setter: function(key){
 		var control = this;
 		this._addElementHotKey(key, function(view,ev){
-			var elem = control.$view.firstChild;
-			webix.html.triggerEvent(elem, "MouseEvents", "click");
-			webix.html.preventEvent(ev);
+			if(control.isVisible()){
+				var elem = control.$view.firstChild;
+				webix.html.triggerEvent(elem, "MouseEvents", "click");
+				webix.html.preventEvent(ev);
+			}
 		});
 	},
 
@@ -8949,10 +9009,10 @@ webix.protoUI({
 		image:"<button type='button' class='webix_img_btn' style='line-height:#cheight#px;'><div class='webix_image' style='width:#cheight#px;height:#cheight#px;background-image:url(#image#);'> </div> #label#</button>",
 		imageTop:"<button type='button' class='webix_img_btn_top'><div class='webix_image' style='width:100%;height:100%;background-image:url(#image#);'></div> <div class='webix_img_btn_text'>#label#</div></button>",
 
-		icon:"<button type='button' class='webix_img_btn' style='line-height:#cheight#px;'><span class='webix_icon_btn fa-#icon#' style='max-width:#cheight#px;'></span>#label#</button>",
-		iconButton:"<button type='button' class='webix_img_btn_abs webixtype_base' style='width:100%;'><span class='webix_icon fa-#icon#'></span> #label#</button>",
-		iconTop:"<button type='button' class='webix_img_btn_top' style='width:100%;top:4px;text-align:center;'><span class='webix_icon fa-#icon#'></span><div class='webix_img_btn_text'>#label#</div></button>",
-		iconButtonTop:"<button type='button' class='webix_img_btn_abs webix_img_btn_abs_top webixtype_base' style='width:100%;top:0px;text-align:center;'><span class='webix_icon fa-#icon#'></span><div class='webix_img_btn_text'>#label#</div></button>"
+		icon:"<button type='button' class='webix_img_btn' style='line-height:#cheight#px;'><span class='webix_icon_btn "+webix.skin.icon+"#icon#' style='max-width:#cheight#px;'></span>#label#</button>",
+		iconButton:"<button type='button' class='webix_img_btn_abs webixtype_base' style='width:100%;'><span class='webix_icon "+webix.skin.icon+"#icon#'></span> #label#</button>",
+		iconTop:"<button type='button' class='webix_img_btn_top' style='width:100%;top:4px;text-align:center;'><span class='webix_icon "+webix.skin.icon+"#icon#'></span><div class='webix_img_btn_text'>#label#</div></button>",
+		iconButtonTop:"<button type='button' class='webix_img_btn_abs webix_img_btn_abs_top webixtype_base' style='width:100%;top:0px;text-align:center;'><span class='webix_icon "+webix.skin.icon+"#icon#'></span><div class='webix_img_btn_text'>#label#</div></button>"
 
 	},
 	_findAllInputs: function(){
@@ -9292,7 +9352,7 @@ webix.protoUI({
 	},
 	defaults:{
 		template:function(obj){
-			return "<button type='button' "+" style='height:100%;width:100%;' class='webix_icon_button'><span class='webix_icon fa-"+obj.icon+" '></span>"+
+			return "<button type='button' "+" style='height:100%;width:100%;' class='webix_icon_button'><span class='webix_icon "+webix.skin.icon+obj.icon+" '></span>"+
 				(obj.badge ? "<span class='webix_badge'>"+obj.badge+"</span>":"")+
 				"</button>";
 		},
@@ -9351,7 +9411,7 @@ webix.protoUI({
 			var height = config.aheight - 2*config.inputPadding,
 				padding = (height - 18)/2 -1,
 				aria = this.addSection ? "role='button' tabindex='0' aria-label='"+(webix.i18n.aria["multitext"+(config.mode || "")+"Section"])+"'": "";
-				return "<span style='height:"+(height-padding)+"px;padding-top:"+padding+"px;' class='webix_input_icon fa-"+config.icon+"' "+aria+"></span>";
+				return "<span style='height:"+(height-padding)+"px;padding-top:"+padding+"px;' class='webix_input_icon "+webix.skin.icon+config.icon+"' "+aria+"></span>";
 			}
 			return "";
 	},
@@ -10151,13 +10211,16 @@ webix.protoUI({
 		if (this._settings.text == this.getText() || (webix.isUndefined(this._settings.text) && !this.getText()))
 			return;
 
-		var suggest =  this.getPopup(),
-			value = suggest.getSuggestion(),
-			oldvalue = this.getValue();
+		var suggest = this.getPopup(),
+			nodeValue = this.getInputNode().value,
+			value = suggest.getSuggestion(nodeValue),
+			oldvalue = this.getValue(),
+			item = suggest.getList().getItem(value);
 
-		if (value && value !=oldvalue && !(this.getInputNode().value==="" && suggest.getItemText(value)!==""))
+		//non-empty value that differs from old value and matches filtering rule
+		if (value && value !=oldvalue && !(nodeValue==="" && suggest.getItemText(value)!==""))
 			this.setValue(value);
-		else if(this.getInputNode().value==="")
+		else if(nodeValue==="")
 			this.setValue("");
 		else if(this._revertValue)
 			this._revertValue();
@@ -10444,12 +10507,16 @@ webix.protoUI({
 	},
 	getValue:function(){
 		if (this._settings.multiselect){
+			var value = this._settings.value;
+			if (!value) return [];
+
 			var result = []
-				.concat(this._settings.value)
+				.concat(value)
 				.map((function(a){ return this._get_value_single(a); }).bind(this));
 
 			if (this._settings.stringResult)
 				return result.join(this._settings.separator);
+
 			return result;
 		}
 
@@ -12105,11 +12172,10 @@ webix.DataStore.prototype={
 	},
 	//converts index to id
 	getIndexById:function(id){
-		var res = this.order.find(id);	//slower than getIdByIndex
 		if (!this.pull[id])
 			return -1;
-			
-		return res;
+		else
+			return this.order.find(id);	//slower than getIdByIndex
 	},
 	//returns ID of next element
 	getNextId:function(id,step){
@@ -13591,8 +13657,9 @@ webix.protoUI({
 	},
 	body_setter:function(config){
 		config.borderless = true;
+		webix._parent_cell = this;
 		this._body_cell = webix.ui._view(config);
-		this._body_cell._parent_cell = this;
+		
 		this._dataobj.appendChild(this._body_cell._viewobj);
 	},
 	getChildViews:function(){
@@ -13602,6 +13669,8 @@ webix.protoUI({
 		return this._body_cell;
 	},
 	resizeChildren:function(){
+		if (!this._body_cell) return;
+
 		this._desired_size = this._body_cell.$getSize(0, 0);
 		this._resizeChildren();
 		webix.callEvent("onResize",[]);
@@ -13664,7 +13733,6 @@ webix.protoUI({
 	_replace:function(new_view){
 		this._body_cell.destructor();
 		this._body_cell = new_view;
-		this._body_cell._parent_cell = this;
 		
 		this._bodyobj.appendChild(this._body_cell._viewobj);
 		this.resize();
@@ -16980,7 +17048,7 @@ webix.protoUI({
 			return 'role="option"'+(marks && marks.webix_selected?' aria-selected="true" tabindex="0"':' tabindex="-1"')+(obj.$count && obj.$template?'aria-expanded="true"':'');
 		},
 		template:function(obj){
-			return (obj.icon?("<span class='webix_icon fa-"+obj.icon+"'></span> "):"") + obj.value + (obj.badge?("<div class='webix_badge'>"+obj.badge+"</div>"):"");
+			return (obj.icon?("<span class='webix_icon "+webix.skin.icon+obj.icon+"'></span> "):"") + obj.value + (obj.badge?("<div class='webix_badge'>"+obj.badge+"</div>"):"");
 		},
 		width:"auto",
 		templateStart:webix.template('<div webix_l_id="#id#" class="{common.classname()}" style="width:{common.widthSize()}; height:{common.heightSize()}; overflow:hidden;" {common.aria()}>'),
@@ -17481,7 +17549,7 @@ webix.EditAbility={
 			first.focus();
 	},
 	edit:function(id, preserve, show){
-		if (!this.callEvent("onBeforeEditStart", [id])) return;
+		if (!this._settings.editable || !this.callEvent("onBeforeEditStart", [id])) return;
 		if (this._settings.form)
 			return this._show_editor_form(id);
 
@@ -17957,10 +18025,10 @@ webix.editors = {
 			return this.getPopup().getChildViews()[0];
 		},
 		getPopup:function(){
-			if (!this.config._popup)
-				this.config._popup = this.config.popup = this.createPopup();
+			if (!this.config.$popup)
+				this.config.$popup = this.createPopup();
 
-			return webix.$$(this.config.popup);
+			return webix.$$(this.config.$popup);
 		},
 		createPopup:function(){
 			var popup = this.config.popup || this.config.suggest;
@@ -17997,6 +18065,9 @@ webix.editors = {
 		},
 		linkInput:function(node){
 			webix._event(webix.toNode(node), "keydown", webix.bind(function(e){
+				//abort, when editor was not initialized yet
+				if (!this.config.$popup) return;
+
 				var code = e.which || e.keyCode, list = this.getInputNode();
 				if(!list.isVisible()) return;
 
@@ -18826,8 +18897,25 @@ webix.Number={
 	getConfig: function(value){
 		var config = {
 			decimalSize:0,
-			groupSize:999
+			groupSize:999,
+			prefix:"",
+			sufix:""
 		};
+		var parts = value.split(/[0-9].*[0-9]/g);
+		if (parts[0].length)
+			config.prefix = parts[0];
+		if (parts[1].length)
+			config.sufix = parts[1];
+		if (config.prefix || config.sufix){
+			value = value.substr(config.prefix.length, value.length - config.prefix.length - config.sufix.length);
+		}
+
+		var num = value.indexOf("1");
+		if (num > 0){
+			config.prefix = value.substr(0, num);
+			value = value.substr(num);
+		}
+
 		var dot = value.indexOf("0");
 		if (dot > 0){
 			config.decimalSize = value.length - dot;
@@ -18844,6 +18932,11 @@ webix.Number={
 	parse:function(value, config){
 		if (!value || typeof value !== "string")
 			return value;
+
+		if (config.prefix)
+			value = value.toLowerCase().replace(config.prefix.toLowerCase() || "", "");
+		if (config.sufix)
+			value = value.toLowerCase().replace(config.sufix.toLowerCase() || "", "");
 
 		var decimal = "";
 		if (config.decimalDelimiter){
@@ -18892,10 +18985,16 @@ webix.Number={
 		} else
 			int_value = str[0];
 
+		var str;
 		if (config.decimalSize)
-			return sign + int_value + (str[1] ? (config.decimalDelimiter + str[1]) : "");
+			str = sign + int_value + (str[1] ? (config.decimalDelimiter + str[1]) : "");
 		else
-			return sign + int_value;
+			str = sign + int_value;
+
+		if (config.prefix || config.sufix){
+			return config.prefix + str + config.sufix;
+		} else 
+			return str;
 	},
 	numToStr:function(config){
 		return function(value){
@@ -19283,6 +19382,7 @@ webix.i18n = {
 		if (typeof locale == "string")
 			locale = this.locales[locale];
 		if (locale){
+			locale.priceSettings  = webix.copy(locale.priceSettings || locale);
 			extend(this, locale);
 		}
 		var helpers = webix.i18n._dateMethods;
@@ -20094,7 +20194,6 @@ webix.protoUI({
 		}
 	},
 	refreshFilter:function(id){
-		if (id && !this._active_headers[id]) return;
 		this.refreshHeaderContent(false, true, id);
 	},
 	_refreshHeaderContent:function(sec, cellTrackOnly, getOnly, byId){
@@ -20473,7 +20572,7 @@ webix.protoUI({
 			xind++;
 		}
 		var xend = xind;
-		if (t) xind--;
+		if (t && xind>0) xind--;
 
 		t+=this._center_width;
 		while (t>0 && xend<this._rightSplit){
@@ -20577,6 +20676,7 @@ webix.protoUI({
 
 			if (column.attached && column.node){
 				var node =  column.node.childNodes[rowindex];
+				if (!node) continue;
 				var value = this._getValue(item, this._columns[i], 0);
 
 				node.innerHTML = value;
@@ -20866,10 +20966,10 @@ webix.protoUI({
 			return "<input class='webix_table_radio' type='radio' "+checked+">";
 		},
 		editIcon:function(){
-			return "<span class='webix_icon fa-pencil'></span>";
+			return "<span class='webix_icon "+webix.skin.icon+"pencil'></span>";
 		},
 		trashIcon:function(){
-			return "<span class='webix_icon fa-trash'></span>";
+			return "<span class='webix_icon "+webix.skin.icon+"trash'></span>";
 		}
 	},
 	type_setter:function(value){
@@ -20921,7 +21021,9 @@ webix.protoUI({
 
 		for (var i=0; i<this._settings.topSplit; i++)
 			html += this._render_single_cell(i, config, yr, state, -this._render_scroll_shift);
-
+		// ignore not available rows in top-split area
+		this._data_request_flag = null;
+		
 		for (var i = Math.max(yr[0], this._settings.topSplit); i < yr[1]; i++)
 			html += this._render_single_cell(i, config, yr, state, -1);
 
@@ -24178,7 +24280,6 @@ webix.extend(webix.ui.datatable,{
 			if (this._columns[i].math) {
 				var col = this.columnId(i);
 				var math = '=' + this._columns[i].math;
-				math = math.replace(/\$r/g, '#$r#');
 				math = math.replace(/\$c/g, '#$c#');
 				if (row){
 					row[col] = this._parse_relative_expr(math, row.id, col);
@@ -24238,7 +24339,7 @@ webix.extend(webix.ui.datatable,{
 
 		// get operations list
 		var operations = this._get_operations(value);
-		var triggers = this._get_refs(value);
+		var triggers = this._get_refs(value, row);
 
 		if (operations) {
 			value = this._replace_refs(value, triggers);
@@ -24267,7 +24368,7 @@ webix.extend(webix.ui.datatable,{
 		if (!value) return value;
 
 		// process mathematical expression and getting final result
-		value = this._compute(value);
+		value = this._compute(value.replace(/\$r/g, item.id));
 		var exc = this._math_exception(value);
 		if (exc !== false)
 			return exc;
@@ -24283,7 +24384,7 @@ webix.extend(webix.ui.datatable,{
 
 	/*! gets list of referencies in formula
 	 **/
-	_get_refs: function(value) {
+	_get_refs: function(value, id) {
 		var reg = /\[([^\]]+),([^\]]+)\]/g;
 		var cells = value.match(reg);
 		if (cells === null) cells = [];
@@ -24297,6 +24398,8 @@ webix.extend(webix.ui.datatable,{
 			cell[1] = this._trim(cell[1]);
 			if (cell[0].substr(0, 1) === ':')
 				cell[0] = this.getIdByIndex(cell[0].substr(1));
+			if (cell[0] === '$r')
+				cell[0] = id;
 			if (cell[1].substr(0, 1) === ':')
 				cell[1] = this.columnId(cell[1].substr(1));
 			cell[2] = tmp;
@@ -27102,9 +27205,16 @@ webix.extend(webix.ui.datatable, {
 				view._render_hidden_views();
 			}
 		} else {
-			var config = webix.copy(this._settings.subview);
-			config.$scope = this.$scope;
-			view = webix.ui(config, row.firstChild);
+			var subview = this._settings.subview;
+			var config; 
+
+			if (typeof subview === "function"){
+				view = subview.call(this, obj, row.firstChild);
+			} else {
+				config = webix.copy(subview);
+				view = webix.ui(config, row.firstChild);
+			}
+
 			view.getMasterView = webix.bind(function(){ return this; }, this);
 			obj.$subContent = view.config.id;
 			this._subViewStorage[obj.$subContent] = view.$view;
@@ -27173,9 +27283,9 @@ webix.extend(webix.ui.datatable, {
 			type:{
 				hidden:function(obj){
 					if (obj.hidden)
-						return "fa-empty";
+						return webix.skin.icon+"empty";
 					else
-						return "fa-eye";
+						return webix.skin.icon+"eye";
 				}
 			},
 			on:{
@@ -27225,8 +27335,13 @@ webix.extend(webix.ui.datatable, {
 		}
  
 		var data = [];
-		for(var  i = 0; i<this._hidden_column_order.length; i++){
-			var column = this.getColumnConfig(this._hidden_column_order[i]);
+		var order = this._hidden_column_order;
+		//if we have not hidden columns, hidden order is empty
+		//fallback to the default column order
+		if (!order.length)
+			order = this._columns;
+		for(var  i = 0; i<order.length; i++){
+			var column = this.getColumnConfig(order[i].id || order[i]);
 			var content = column.header[0];
 			var hidden = !!hhash[column.id];
 			if (column.headermenu !== false && content)
@@ -27256,7 +27371,7 @@ webix.ui.datafilter.headerMenu = {
 		};
 	},
 	render:function(master, config){
-		return "<span class='webix_icon fa-columns' role='button' tabindex='0' aria-label='"+webix.i18n.aria.headermenu+"'>";
+		return "<span class='webix_icon "+webix.skin.icon+"columns' role='button' tabindex='0' aria-label='"+webix.i18n.aria.headermenu+"'>";
 	}
 };
 
@@ -31865,7 +31980,10 @@ webix.protoUI({
 			},
 			on_click:{
 				"webix_cal_icon_today": function(){
-					this.setValue(new Date());
+					var date = new Date();
+					if(!this._settings.timepicker)
+						date = webix.Date.datePart(date);
+					this.setValue(date);
 					this.callEvent("onTodaySet",[this.getSelectedDate()]);
 				}
 			}
@@ -31968,7 +32086,7 @@ webix.protoUI({
 		var tpl = "";
 
 		if(!this._settings.master)
-			tpl = "<div role='button' tabindex='0' class='webix_cal_time"+(this._icons?" webix_cal_time_icons":"")+"'><span class='webix_icon fa-clock-o'></span> "+timeFormat(date)+"</div>";
+			tpl = "<div role='button' tabindex='0' class='webix_cal_time"+(this._icons?" webix_cal_time_icons":"")+"'><span class='webix_icon "+webix.skin.icon+"clock-o'></span> "+timeFormat(date)+"</div>";
 		else{
 			//daterange needs two clocks
 			var range_date = webix.copy(webix.$$(this._settings.master)._settings.value);
@@ -31976,7 +32094,7 @@ webix.protoUI({
 				range_date.start = range_date.end;
 				
 			for(var i in range_date){
-				tpl += "<div role='button' tabindex='0' class='webix_range_time_"+i+" webix_cal_time'><span class='webix_icon fa-clock-o'></span> "+timeFormat(range_date[i])+"</div>";
+				tpl += "<div role='button' tabindex='0' class='webix_range_time_"+i+" webix_cal_time'><span class='webix_icon "+webix.skin.icon+"clock-o'></span> "+timeFormat(range_date[i])+"</div>";
 			}
 		}
 		return tpl;
@@ -32688,11 +32806,12 @@ webix.protoUI({
 
             	if (!this.config.multiselect)
             		break;
-            }
+			}
+			
+			if (date.length && show)
+				this.showCalendar(date[0]);
         }
 
-		if (date && show)
-			this.showCalendar(date[0]);
 		if(show !== false)
 			this.render();
 
@@ -32824,6 +32943,16 @@ webix.protoUI({
 			parent:this._contentobj
 		};
 	},
+	_clear:function(){
+		var lines = this._settings.elements;
+		for (var i=0; i<lines.length; i++)
+			lines[i].value = "";
+	},
+	clear:function(){
+		this._clear();
+		this._props_dataset = {};
+		this.refresh();
+	},
 	setValues:function(data, update){
 		if (this._settings.complexData)
 			data = webix.CodeParser.collapseNames(data);
@@ -32837,11 +32966,6 @@ webix.protoUI({
 		
 		this._props_dataset = data;
 		this.refresh();
-	},
-	_clear:function(){
-		var lines = this._settings.elements;
-		for (var i=0; i<lines.length; i++)
-			lines[i].value = "";
 	},
 	getValues:function(){
 		var data = webix.clone(this._props_dataset||{});
@@ -33307,7 +33431,10 @@ webix.protoUI({
 			},
 			on_click:{
 				"webix_cal_icon_today":function(){
-					this.addToRange(new Date());
+					var date = new Date();
+					if(!this._settings.timepicker)
+						date = webix.Date.datePart(date);
+					this.addToRange(date);
 					this.callEvent("onTodaySet",[this.getValue()]);
 				}
 			}
@@ -34273,11 +34400,15 @@ webix.protoUI({
 				};
 
 				if (config.format){
-					var format = webix.Number.getConfig(config.format);
-					this._custom_format = [
-						function(value){ return webix.Number.parse(value, format); },
-						function(value){ return webix.Number.format(value, format); },
-					];
+					if (typeof config.format === "object"){
+						this._custom_format = config.format;
+					} else {
+						var format = webix.Number.getConfig(config.format);
+						this._custom_format = {
+							parse : function(value){ return webix.Number.parse(value, format); },
+							edit : function(value){ return webix.Number.format(value, format); },
+						};
+					}
 				}
 			}
 			
@@ -34383,7 +34514,7 @@ webix.protoUI({
 		},
 		_getRawValue:function(value){
 			if (this._custom_format)
-				return this._custom_format[0](value);
+				return this._custom_format.parse(value);
 
 			value = value || "";
 			var matches = value.toString().match(this._pattern_allows) || [];
@@ -34391,7 +34522,7 @@ webix.protoUI({
 		},
 		_matchPattern:function(value){
 			if (this._custom_format)
-				return this._custom_format[1](this._custom_format[0](value));
+				return this._custom_format.edit(this._custom_format.parse(value));
 
 			var raw = this._getRawValue(value),
 				pattern = this._settings.pattern.mask,
@@ -34549,7 +34680,7 @@ webix.type(webix.ui.list, {
 	name:"checklist",
 	templateStart:webix.template('<div webix_l_id="#!id#" {common.aria()} class="{common.classname()}" style="width:{common.widthSize()}; height:{common.heightSize()}; overflow:hidden; white-space:nowrap;">{common.checkbox()}'),
 	checkbox: function(obj, common){
-		var icon = obj.$checked?"fa-check-square":"fa-square-o";
+		var icon = webix.skin.icon + obj.$checked?"check-square":"square-o";
 		return "<span role='checkbox' tabindex='-1' aria-checked='"+(obj.$checked?"true":"false")+"' class='webix_icon "+icon+"'></span>";
 	},
 	aria:function(obj){
@@ -35927,7 +36058,7 @@ webix.protoUI({
 		popupWidth: 200,
 		popupTemplate: "#value#",
 		yCount: 7,
-		moreTemplate: '<span class="webix_icon fa-ellipsis-h"></span>',
+		moreTemplate: '<span class="webix_icon '+webix.skin.icon+'ellipsis-h"></span>',
 		template:function(obj,common) {
 			var contentWidth, html, i, leafWidth, resultHTML, style, sum, tabs, verticalOffset, width;
 
@@ -36060,20 +36191,20 @@ webix.protoUI({
 			html+= this._tabTemplate(temp);
 		}
 		else {
-			var icon = tab.icon?("<span class='webix_icon fa-"+tab.icon+"'></span> "):"";
+			var icon = tab.icon?("<span class='webix_icon "+webix.skin.icon+tab.icon+"'></span> "):"";
 			html+=icon + tab.value;
 		}
 
 		if (tab.close || config.close)
-			html+="<span role='button' tabindex='0' aria-label='"+webix.i18n.aria.closeTab+"' class='webix_tab_close webix_icon fa-times'></span>";
+			html+="<span role='button' tabindex='0' aria-label='"+webix.i18n.aria.closeTab+"' class='webix_tab_close webix_icon "+webix.skin.icon+"times'></span>";
 
 		html+="</div>";
 		return html;
 	},
 	_types:{
 		image:"<div class='webix_img_btn_top' style='height:#cheight#px;background-image:url(#image#);'><div class='webix_img_btn_text'>#value#</div></div>",
-		icon:"<div class='webix_img_btn' style='line-height:#cheight#px;height:#cheight#px;'><span class='webix_icon_btn fa-#icon#' style='max-width:#cheight#px;max-height:#cheight#px;'></span>#value#</div>",
-		iconTop:"<div class='webix_img_btn_top' style='height:#cheight#px;width:100%;top:0px;text-align:center;'><span class='webix_icon fa-#icon#'></span><div class='webix_img_btn_text'>#value#</div></div>"
+		icon:"<div class='webix_img_btn' style='line-height:#cheight#px;height:#cheight#px;'><span class='webix_icon_btn "+webix.skin.icon+"#icon#' style='max-width:#cheight#px;max-height:#cheight#px;'></span>#value#</div>",
+		iconTop:"<div class='webix_img_btn_top' style='height:#cheight#px;width:100%;top:0px;text-align:center;'><span class='webix_icon "+webix.skin.icon+"#icon#'></span><div class='webix_img_btn_text'>#value#</div></div>"
 	},
 	type_setter:function(value){
 		this._settings.tabOffset = 0;
@@ -36101,11 +36232,9 @@ webix.protoUI({
 		return this._cells[1];
 	},
 	addView:function(obj){
-		var id = obj.body.id = obj.body.id || webix.uid();
+		var nid = this.getMultiview().addView(obj.body);
 
-		this.getMultiview().addView(obj.body);
-
-		obj.id = obj.body.id;
+		obj.id = nid;
 		obj.value = obj.header;
 		delete obj.body;
 		delete obj.header;
@@ -36113,7 +36242,7 @@ webix.protoUI({
 		var t = this.getTabbar();
 		t.addOption(obj);
 
-		return id;
+		return nid;
 	},
 	removeView:function(id){
 		var t = this.getTabbar();
@@ -36189,14 +36318,15 @@ webix.protoUI({
 		return [this._body_view];
 	},
 	body_setter:function(config){
+		webix._parent_cell = this;
 		this._body_view = webix.ui(config, this._viewobj.firstChild.childNodes[1]);
-		this._body_view._parent_cell = this;
 		return config;
 	},
 	getBody:function(){
 		return this._body_view;
 	},
 	resizeChildren:function(){
+		if (!this._body_view) return;
 		var x = this.$width - this._settings.paddingX;
 		var y = this.$height - this._settings.paddingY;
 		var sizes=this._body_view.$getSize(0,0);
@@ -36317,6 +36447,7 @@ webix.protoUI({
 		});
 
 		this._refresh();
+		return true;
 	},
 	_getButtons:function(){
 		if (this._settings.buttons === false)
@@ -36471,10 +36602,10 @@ webix.protoUI({
 }, webix.AtomDataLoader, webix.IdSpace, webix.ui.layout);
 
 webix.i18n.dbllist = {
-	selectAll : "<span class='webix_icon fa-angle-double-right'></span>",
-	selectOne : "<span class='webix_icon fa-angle-right'></span>",
-	deselectAll : "<span class='webix_icon fa-angle-double-left'></span>",
-	deselectOne : "<span class='webix_icon fa-angle-left'></span>",
+	selectAll : "<span class='webix_icon "+webix.skin.icon+"angle-double-right'></span>",
+	selectOne : "<span class='webix_icon "+webix.skin.icon+"angle-right'></span>",
+	deselectAll : "<span class='webix_icon "+webix.skin.icon+"angle-double-left'></span>",
+	deselectOne : "<span class='webix_icon "+webix.skin.icon+"angle-left'></span>",
 };
 
 
@@ -36739,7 +36870,6 @@ webix.protoUI({
 							item.$marker = this._getItemConfig(item);
 							break;
 						case "update":
-							item.$marker.setMap(null);
 							item.$marker = this._getItemConfig(item);
 							break;
 						case "delete":
@@ -36768,8 +36898,15 @@ webix.protoUI({
 					obj.position = new google.maps.LatLng(item.lat, item.lng);
 					obj.map = item.hidden? null: this._map;
 
-					var marker = new google.maps.Marker(obj);
-					this._events(marker);
+					var marker = item.$marker;
+					if(!marker){
+						marker = new google.maps.Marker(obj);
+						this._events(marker);
+					}
+					else{
+						item.$marker.setMap(obj.map);
+					}
+					
 					this.callEvent("onItemRender", [item]);
 					
 					return marker;
@@ -37346,8 +37483,12 @@ webix.DataProcessor = webix.proto({
 		if (error){
 			if (this.callEvent("onBeforeSaveError", [id, status, obj, details])){
 				update._invalid = true;
-				if(this._settings.undoOnError && master._settings.undo)
-					master.undo(id);
+				if(this._settings.undoOnError && master._settings.undo){
+					this.ignore(function(){
+						master.undo(id);
+					});
+					this.setItemState(id, false);
+				}
 				this.callEvent("onAfterSaveError", [id, status, obj, details]);
 				return;
 			}
@@ -37394,7 +37535,7 @@ webix.DataProcessor = webix.proto({
 				if (text){
 					hash = data.json();
 					//invalid response
-					if (text && typeof hash == "undefined")
+					if (text && (hash === null || typeof hash == "undefined"))
 						hash = { status:"error" };
 				}
 				this.processResult(state, hash,  {text:text, data:data, loader:loader});
@@ -38403,8 +38544,8 @@ webix.protoUI({
 		}
 		webix.extend(config,layoutConfig,true);
 
+		webix._parent_cell = this;
 		this._layout = webix.ui._view(config);
-		this._layout._parent_cell = this;
 
 		this._viewobj.appendChild(this._layout._viewobj);
 		this._cells = this._layout._cells;
@@ -38585,7 +38726,7 @@ webix.type(webix.ui.list, {
 	percent:function(obj){
 		if (obj.status == 'transfer')
 			return "<div style='width:60px; text-align:center; float:right'>"+obj.percent+"%</div>";
-		return "<div class='webix_upload_"+obj.status+"'><span class='"+(obj.status =="error"?"error_icon":"fa-check webix_icon")+"'></span></div>";
+		return "<div class='webix_upload_"+obj.status+"'><span class='"+(obj.status =="error"?"error_icon":webix.skin.icon+"check webix_icon")+"'></span></div>";
 	},
 	removeIcon:function(obj){
 		return "<div class='webix_remove_upload'><span class='cancel_icon'></span></div>";
@@ -40091,7 +40232,7 @@ webix.ProgressBar = {
 				hide:false
 			}, (config||{}), true);
 
-			var incss = (config.type == "icon") ? ("fa-"+config.icon+" fa-spin") : "";
+			var incss = (config.type == "icon") ? (webix.skin.icon+config.icon+" fa-spin") : "";
 
 
 
@@ -40231,6 +40372,8 @@ webix.protoUI({
 			this.setValueHere(parts[0]);
 			for (var i = 0; i < this._subs.length; i++)
 				webix.$$(this._subs[i]).setValueHere(parts[i+1]);
+
+			this._full_value = "";
 			return;
 		}
 
@@ -41301,7 +41444,6 @@ webix.protoUI({
 	_replace:function(new_view,target_id){
 		this._check_default_pos(new_view.config);
 		this._cells.push(new_view);
-		new_view._parent_cell = this;
 
 		this.$view.appendChild(new_view._viewobj);
 
@@ -41477,6 +41619,7 @@ webix.protoUI({
 		for (var i=0; i < this._cells.length; i++)
 			this._cells[i].destructor();
 		this._cells = [];
+		this.callEvent("onChange", []);
 	},
 	restore:function(state, factory){
 		factory = factory || this._settings.factory;
@@ -41727,7 +41870,7 @@ webix.protoUI({
 		var parent = childs.length === 1 ? this : childs[1];
 
 		if (this._settings.icon){
-			var drag = webix.html.create("div", { "class":"panel_icon" }, "<span class='webix_icon fa-"+this._settings.icon+" panel_icon_span'></span>");
+			var drag = webix.html.create("div", { "class":"panel_icon" }, "<span class='webix_icon "+webix.skin.icon+this._settings.icon+" panel_icon_span'></span>");
 			if (parent != this)
 				parent.$view.style.position = "relative";
 			parent.$view.appendChild(drag);
@@ -42158,7 +42301,7 @@ webix.protoUI({
 			var dirClassName = (config.position=="left"?"webix_sidebar_popup_left":"webix_sidebar_popup_right");
 			var subMenuPos = (config.position == "left"?"right":"left");
 			var menuTemplate = function(obj) {
-				var arrow = obj.submenu||obj.data ? '<div class="webix_icon fa-angle-'+(config.position == "left"?"right":"left")+'"></div>' : '';
+				var arrow = obj.submenu||obj.data ? '<div class="webix_icon '+webix.skin.icon+'angle-'+(config.position == "left"?"right":"left")+'"></div>' : '';
 				return arrow+obj.value;
 			};
 
@@ -42351,7 +42494,7 @@ webix.type(webix.ui.tree, {
 		var open = "";
 		for (var i=1; i<=obj.$level; i++) {
 			if (i==obj.$level && obj.$count) {
-				var className = "webix_sidebar_dir_icon webix_icon fa-angle-"+(obj.open?"down":"left");
+				var className = "webix_sidebar_dir_icon webix_icon "+webix.skin.icon+"angle-"+(obj.open?"down":"left");
 				html+="<span class='"+className+"'></span>";
 			}
 		}
@@ -42364,7 +42507,7 @@ webix.type(webix.ui.tree, {
 			style = 'style="padding-left:'+ (40 * (obj.$level - 2))+'px"';
 		}
 		if (obj.icon)
-			return "<span class='webix_icon webix_sidebar_icon fa-"+obj.icon+"' " + style + "></span>";
+			return "<span class='webix_icon webix_sidebar_icon "+webix.skin.icon+obj.icon+"' " + style + "></span>";
 		return "<span "+style+"></span>";
 	}   
 });
@@ -42717,7 +42860,7 @@ webix.protoUI({
 		if (childs.length > 1)
 			webix.DragControl.addDrag(childs[0].$view, this);
 		else if (this._settings.icon){
-			var drag = webix.html.create("div", { "class":"portlet_drag" }, "<span class='webix_icon fa-"+this._settings.icon+"'></span>");
+			var drag = webix.html.create("div", { "class":"portlet_drag" }, "<span class='webix_icon "+webix.skin.icon+this._settings.icon+"'></span>");
 			this._viewobj.appendChild(drag);
 			webix.DragControl.addDrag(drag, this);
 		} else {
@@ -43403,28 +43546,31 @@ function getExcelData(data, scheme, spans, styles) {
             if(cell.v === null) continue;
             var cell_ref = XLSX.utils.encode_cell({c:C,r:R});
 
-            if(cell.v instanceof Date) {
-                cell.t = "n"; cell.z = XLSX.SSF[table][14];
+           //apply user params
+            if(R>=scheme[0].header.length && cell.v.toString().charAt(0) != "="){
+                var column = scheme[C];
+                if(column.type) cell.t = (types[column.type] || "");
+                if(column.format) cell.z = column.format;
+            }
+
+            if(cell.v instanceof Date){
+                cell.t = cell.t || "n";
+                cell.z = cell.z || XLSX.SSF[table][14];
                 cell.v = excelDate(cell.v);
             }
-            else if(typeof cell.v === "boolean")
-                cell.t = "b";
-            else if(typeof cell.v === "number" || (cell.v && !isNaN(cell.v*1))){
-                cell.v = cell.v*1;
-                cell.t = "n";
-            }
-            else if(cell.v.charAt(0) == "="){
-                cell.t = "n";
-                cell.f = cell.v;
-                delete cell.v;
-            }
-            else cell.t = "s";
-
-            //apply user params
-            if(R>=scheme[0].header.length && !cell.f){
-                var column = scheme[C];
-                if(column.type) cell.t = (types[column.type] || cell.t);
-                if(column.format) cell.z = column.format;
+            else if(!cell.t){
+                if(typeof cell.v === "boolean")
+                    cell.t = "b";
+                else if(typeof cell.v === "number" || (cell.v && !isNaN(cell.v*1))){
+                    cell.v = cell.v*1;
+                    cell.t = "n";
+                }
+                else if(cell.v.charAt(0) == "="){
+                    cell.t = "n";
+                    cell.f = cell.v;
+                    delete cell.v;
+                }
+                else cell.t = "s";
             }
 
             if(styles)
@@ -44633,7 +44779,7 @@ webix.protoUI({
 				id = this.getParentId(id);
 			}
 			arr.reverse();
-			return resetIcon + arr.join("<span class='webix_icon fa-angle-right webix_treemap_path_icon'></span>");
+			return resetIcon + arr.join("<span class='webix_icon "+webix.skin.icon+"angle-right webix_treemap_path_icon'></span>");
 		},
 		headerItem: function(obj){
 			var template = this.config.headerTemplate(obj);
@@ -45712,11 +45858,11 @@ webix.protoUI({
     },
     $setSize: function(x, y) {
         if (webix.ui.view.prototype.$setSize.call(this, x, y)){
-            this._refresh(this.config.value);
-            this._animate(this.config.value);
+            this._refresh();
         }
     },
     _refresh: function() {
+        this._value = this.config.value;
         var curves = this.$view.querySelector('.webix_gage_curves'),
             gageInfo = this.$view.querySelector('.webix_gage_info'),
             kx = this.config.scale,
@@ -45732,6 +45878,7 @@ webix.protoUI({
         this._circleGradient.setAttribute("r", (x / kx));
         this._circleGradient.setAttribute('style', "stroke-dasharray: " + Math.round(this.gradientLength * Math.PI * x / kx) + ", 1900;");
         this._draw_line(curves.style.r);
+        this._animate();
     },
     _safeValue: function(value){
         return Math.min(Math.max(value, this._settings.minRange), this._settings.maxRange);
@@ -45756,7 +45903,8 @@ webix.protoUI({
         this._gageGradientPoint.setAttribute('y2', 0);
         this._gageGradientPoint.setAttribute('x2', Math.round(svgCoord * (0.5 + arrowSpace / 2) + parseInt(radius)));
     },
-    _animate: function(value) {
+    _animate: function() {
+        var value = this.config.value;
         var webixGageValue = this.$view.querySelector('.webix_gage-value');
         var currentChartValue = this._safeValue(value) - this.config.minRange;
         var degrees = Math.round(currentChartValue * 180 / (this.config.maxRange - this.config.minRange));
@@ -45765,7 +45913,6 @@ webix.protoUI({
         viewSize = Math.floor(viewSize/10);
         this.$view.style.fontSize = viewSize+'px';
         webixGageValue.innerHTML = value;
-        
         this._circleGradient.style.stroke = this.color;
         this._circleGradient.setAttribute("stroke", this.color);
         this._gageGradientPoint.setAttribute("transform", "rotate(" + degrees + " "+ this.$width/2 +" 0)");
@@ -45802,11 +45949,25 @@ webix.protoUI({
             this._gageGradientPoint.setAttribute('class', 'webix_gage_gradient_point webix_gage_gradient_point_animated');
         }
     },
+    refresh: function() {
+        //for animated gages, if value changes - repaint with old value first, then set new value for nice animation
+        var value = this.config.value;
+        if(this.config.smoothFlow && value != this._value)
+            this.config.value = this._value;
+
+        this._setDefaultView();
+        this._refresh();
+       
+        if(this._value != value){
+            //refresh dom, needed for animation
+            if(this._viewobj.parentNode.clientHeight)
+                this.setValue(value);
+        }
+    },
     setValue: function(value) {
         this.config.value = value;
         this._setDash();
         this._refresh();
-        this._animate(value);
     },
     getValue: function() {
         return this.config.value;
@@ -46063,14 +46224,15 @@ webix.protoUI({
 					config.label = config.label || "&nbsp;";
 			}
 			var checked = (config.checkValue == config.value);
+			var aria = 'aria-label="'+(config.label||config.labelRight||"")+'" role="checkbox" tabindex="0" aria-checked="'+(checked?"true":"false")+'" '+(config.readonly?"aria-readonly='true'":"")+'"';
 			var html = 
-				'<label class="webix_switch_box '+(checked?" webix_switch_on":"")+'" style="width:'+common._switchWidth+'px" for="'+id+'">'+
+				'<div class="webix_switch_box '+(checked?" webix_switch_on":"")+'" style="width:'+common._switchWidth+'px">'+
 					'<span class="webix_switch_text">'+((checked?config.onLabel:config.offLabel)||"")+'</span>'+
-					'<span class="webix_switch_handle" style="left:'+(checked?common._switchWidth-common._switchHeight:0)+'px;">'+
-						'<input  id="'+id+'" class="webix_switch_toggle" type="checkbox" '+(checked?"checked":"")+'></span>'+
-				'</label>'+rightlabel;
+					'<button class="webix_switch_handle" '+aria+' style="left:'+(checked?common._switchWidth-common._switchHeight:0)+'px;">'+
+					'<input  id="'+id+'" class="webix_switch_toggle" type="checkbox" '+(checked?"checked":"")+'></button>'+
+				'</div>'+rightlabel;
 
-			return common.$renderInput(config, html);
+			return common.$renderInput(config, html, id);
 		}
 	},
 	$skin:function(){
@@ -46092,6 +46254,8 @@ webix.protoUI({
 
 			handle.style.left = (checked?this._switchWidth-this._switchHeight:0)+"px";
 			handle.firstChild.checked = checked;
+			handle.setAttribute("aria-checked", checked?"true":"false");
+
 			if(text){
 				box.childNodes[0].innerHTML = text;
 			}
@@ -46106,8 +46270,13 @@ webix.protoUI({
 		}
 	},
 	on_click:{
-		"webix_switch_toggle":function(e, obj, node){
-			this.toggle();
+		"webix_switch_box":function(){
+			if(!this._settings.readonly)
+				this.toggle();
+		},
+		"webix_label_right":function(){
+			if(!this._settings.readonly)
+				this.toggle();
 		}
 	}
 }, webix.ui.checkbox);

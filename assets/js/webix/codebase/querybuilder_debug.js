@@ -1,6 +1,6 @@
 /*
 @license
-Webix Query Builder v.5.2.0
+Webix Query Builder v.5.3.0
 This software is covered by Webix Commercial License.
 Usage without proper license is prohibited.
 (c) XB Software Ltd.
@@ -234,17 +234,20 @@ var querybuilder = {
         var levelIndicator = this.config.maxLevel > 1 ? true : false;
         var cols = [
             {
-                template: "<div class=\"webix_querybuilder_ifbuttons\">\n\t\t\t\t<button class=\"webix_querybuilder_and webix_active\">" + locales_1.locale.and + "</button>\n\t\t\t\t<button class=\"webix_querybuilder_or\">" + locales_1.locale.or + "</button>\n\t\t\t</div>",
-                onClick: {
-                    webix_querybuilder_or: function (e) {
-                        _this.config.glue = "or";
-                        _this._setActiveButtons(_this.$view);
-                    },
-                    webix_querybuilder_and: function (e) {
-                        _this.config.glue = "and";
-                        _this._setActiveButtons(_this.$view, "and");
-                    }
-                },
+                rows: [
+                    { css: "webix_querybuilder_ifbuttons", cols: [
+                            { view: "button", css: "webix_querybuilder_and webix_active", name: "webix_querybuilder_button_and",
+                                label: locales_1.locale.and, width: 38, height: 26, paddingY: 2, paddingX: 4, click: function (e) {
+                                    _this.config.glue = "and";
+                                    _this._setActiveButtons("and");
+                                } },
+                            { view: "button", css: "webix_querybuilder_or", name: "webix_querybuilder_button_or",
+                                label: locales_1.locale.or, width: 38, height: 26, paddingY: 2, paddingX: 4, click: function (e) {
+                                    _this.config.glue = "or";
+                                    _this._setActiveButtons();
+                                } },
+                        ] }
+                ],
                 height: 34,
                 width: 87
             },
@@ -319,12 +322,6 @@ var querybuilder = {
     _checkItemRules: function (item) {
         var _this = this;
         var layout = this.queryView({ css: "webix_qb_section" });
-        if (item.glue && item.glue === "and") {
-            this._setActiveButtons(this.$view, "and");
-        }
-        else if (item.glue && item.glue === "or") {
-            this._setActiveButtons(this.$view);
-        }
         if (item.rules) {
             item.rules.forEach(function (el) {
                 var rule;
@@ -337,19 +334,25 @@ var querybuilder = {
                 webix.$$(rule).setValue(el);
             });
         }
+        if (item.glue && item.glue === "and") {
+            this._setActiveButtons("and");
+        }
+        else if (item.glue && item.glue === "or") {
+            this._setActiveButtons();
+        }
     },
-    _setActiveButtons: function (container, and, item) {
-        var btnAnd = container.querySelector(".webix_querybuilder_and");
-        var btnOr = container.querySelector(".webix_querybuilder_or");
+    _setActiveButtons: function (and, item) {
+        var btnAnd = this.queryView({ name: "webix_querybuilder_button_and" }).$view;
+        var btnOr = this.queryView({ name: "webix_querybuilder_button_or" }).$view;
         if (btnAnd) {
-            btnAnd.classList.remove("webix_active");
+            webix.html.removeCss(btnAnd, "webix_active");
             if (and) {
-                btnOr.classList.remove("webix_active");
-                btnAnd.className += " webix_active";
+                webix.html.removeCss(btnOr, "webix_active");
+                webix.html.addCss(btnAnd, "webix_active");
             }
             else {
-                btnAnd.classList.remove("webix_active");
-                btnOr.className += " webix_active";
+                webix.html.removeCss(btnAnd, "webix_active");
+                webix.html.addCss(btnOr, "webix_active");
             }
         }
         this._callChangeMethod();
@@ -468,20 +471,24 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __webpack_require__(1);
 var locales_1 = __webpack_require__(0);
 webix.ui.datafilter.queryBuilder = webix.extend({
-    getValue: function () {
+    getValue: function (master) {
         var value = [];
-        value.push.apply(value, this._qb.getValue());
-        if (this._qb._getSortingValues) {
-            value.push(this._qb._getSortingValues());
+        master = master._comp_id ? webix.$$(master._comp_id) : master;
+        if (master._qb) {
+            value.push.apply(value, master._qb.getValue());
+            if (master._qb._getSortingValues) {
+                value.push(master._qb._getSortingValues());
+            }
         }
         return value;
     },
     setValue: function (node, value) {
+        var master = webix.$$(node._comp_id);
         if (value) {
-            this._qb.setValue(value);
-            if (this._qb.config.sorting) {
-                this._qb._setSortingValues(value[2]);
-                this._master.sort(this._qb.getSortingHelper());
+            master._qb.setValue(value);
+            if (master._qb.config.sorting) {
+                master._qb._setSortingValues(value[2]);
+                master.sort(master._qb.getSortingHelper());
             }
         }
     },
@@ -490,21 +497,21 @@ webix.ui.datafilter.queryBuilder = webix.extend({
         node.component = master.config.id;
         master.registerFilter(node, value, this);
         node._comp_id = master.config.id;
-        if (value.value && (JSON.stringify(this.getValue(value)[0]) !== JSON.stringify(value.value[0]))) {
+        if (value.value && (JSON.stringify(this.getValue(master)[0]) !== JSON.stringify(value.value[0]))) {
             this.setValue(node, value.value);
-            if (!this._qb.config.sorting) {
-                this._master.filterByAll();
+            if (!master._qb.config.sorting) {
+                master.filterByAll();
             }
         }
-        webix.event(node, "click", function () { return _this._filterShow(node); });
+        webix.event(node, "click", function () { return _this._filterShow(node, master); });
     },
-    compare: function (el, rules, obj) {
-        return this._qb.getFilterHelper()(obj);
+    compare: function (el, rules, obj, master) {
+        return master._qb.getFilterHelper()(obj);
     },
     render: function (master, config) {
         var _this = this;
         config.css = "webix_ss_filter";
-        config.compare = function (el, rules, obj) { return _this.compare(el, rules, obj); };
+        config.compare = function (el, rules, obj) { return _this.compare(el, rules, obj, master); };
         var buttonSort = {};
         var qb = {
             view: "querybuilder", fields: config.fields || [], sorting: config.sorting || false, filtering: config.filtering === false ? false : true,
@@ -512,22 +519,22 @@ webix.ui.datafilter.queryBuilder = webix.extend({
             borderless: config.borderless === false ? false : true
         };
         var buttonSave = this._buttonCreate(locales_1.locale.filter, function () {
-            if (_this._qb) {
-                var helper = _this._qb.getFilterHelper();
+            if (master._qb) {
+                var helper = master._qb.getFilterHelper();
                 master.filter(helper, undefined, undefined);
-                _this._popup.hide();
+                master._qb._popup.hide();
             }
         });
         if (config.sorting) {
             buttonSort = this._buttonCreate(locales_1.locale.sort, function () {
-                if (_this._qb) {
-                    master.sort(_this._qb.getSortingHelper());
-                    _this._popup.hide();
+                if (master._qb) {
+                    master.sort(master._qb.getSortingHelper());
+                    master._qb._popup.hide();
                 }
             });
         }
         var buttonCancel = this._buttonCreate(locales_1.locale.cancel, function () {
-            _this._popup.hide();
+            master._qb._popup.hide();
         });
         var body = { margin: 5, rows: [qb, { cols: [buttonSave, buttonCancel, {}, buttonSort] }] };
         var popup = {
@@ -538,16 +545,16 @@ webix.ui.datafilter.queryBuilder = webix.extend({
         if (config.popupConfig) {
             webix.extend(popup, config.popupConfig, true);
         }
-        this._popup = webix.ui(popup);
-        this._qb = this._popup.getBody().getChildViews()[0];
+        var popupView = webix.ui(popup);
+        master._qb = popupView.getBody().getChildViews()[0];
+        master._qb._popup = popupView;
         master.attachEvent("onDestruct", function () {
-            _this._popup.destructor();
+            master._qb._popup.destructor();
         });
-        this._master = master;
         return '<div class="webix_qb_filter"><i class="fa fa-filter" aria-hidden="true"></i></div>' + (config.label || "");
     },
-    _filterShow: function (node) {
-        this._popup.show(node.querySelector(".webix_qb_filter .fa"));
+    _filterShow: function (node, master) {
+        master._qb._popup.show(node.querySelector(".webix_qb_filter .fa"));
     },
     _buttonCreate: function (label, click) {
         return {
@@ -997,7 +1004,7 @@ webix.protoUI({
     _setRuleEl: function (rule) {
         var _this = this;
         var value = this.config.value.value;
-        var customEl = [this._datepicker, this._datepickerRange, this._slider, this._inputText];
+        var customEl = [this._datepicker, this._datepickerRange, this._slider, this._inputText, this._customEl];
         customEl.forEach(function (item) {
             if (item) {
                 item.hide();
@@ -1097,7 +1104,7 @@ webix.protoUI({
                     else if (typeof value[1][0] === "undefined") {
                         value = [value, [0, 100]];
                     }
-                    this._slider = webix.$$(this.addView(__assign({}, el, { view: "rangeslider", value: value[0], min: value[1][0], max: value[1][1], title: function (obj) {
+                    this._slider = webix.$$(this.addView(__assign({}, el, { view: "rangeslider", value: value[0], min: value[1][0], max: value[1][1], moveTitle: false, title: function (obj) {
                             var v = obj.value[0].length ? obj.value[0] : obj.value;
                             return (v[0] === v[1] ? v[0] : v[0] + " - " + v[1]);
                         } }), this.queryView({}, 'all').length - 2));
@@ -1110,6 +1117,11 @@ webix.protoUI({
                 }
                 this._ruleInput = this._slider;
             }
+            else if (typeof this._ruleType === "object" && rule.rule !== "is_null" && rule.rule !== "is_not_null") {
+                this._customEl = webix.$$(this.addView(__assign({}, el, this._ruleType), this.queryView({}, 'all').length - 2));
+                this._ruleInput = this._customEl;
+                value = this._customEl.getValue();
+            }
             else {
                 if (!this._inputText) {
                     this._inputText = webix.$$(this.addView(__assign({}, el, { view: "text", css: "webix_querybuilder_rule_input", type: "string" }), this.queryView({}, 'all').length - 2));
@@ -1120,7 +1132,7 @@ webix.protoUI({
             }
             rule.value = value;
             this._updateRules(rule);
-            if (Array.isArray(value)) {
+            if (Array.isArray(value) && typeof this._ruleType !== "object") {
                 this._ruleInput.setValue(value[0]);
                 return rule;
             }
@@ -1163,7 +1175,7 @@ webix.protoUI({
                 if (_this.config.value.value === newValue) {
                     return;
                 }
-                if (Array.isArray(newValue)) {
+                if (Array.isArray(newValue) && typeof _this._ruleType !== "object") {
                     newValue = [newValue, [_this._slider.config.min, _this._slider.config.max]];
                 }
                 rule.value = newValue;
@@ -1230,7 +1242,7 @@ webix.protoUI({
                         if (typeof confValue.value === 'string' && typeof obj[confValue.key] === 'string') {
                             result = confFilters[filter].fn(obj[confValue.key].toLowerCase(), confValue.value.toLowerCase());
                         }
-                        else if (_this._ruleType === 'number' && typeof obj[confValue.key] === 'number' && !Array.isArray(confValue.value)) {
+                        else if ((_this._ruleType === 'number' || typeof _this._ruleType === 'object') && typeof obj[confValue.key] === 'number' && !Array.isArray(confValue.value)) {
                             result = confFilters[filter].fn(obj[confValue.key], Number(confValue.value));
                         }
                         else {

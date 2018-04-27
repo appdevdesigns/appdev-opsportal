@@ -1,4 +1,4 @@
-// Type definitions for Webix UI 5.2
+// Type definitions for Webix UI 5.3
 // Project: http://webix.com
 // Definitions by: Maksim Kozhukh <http://github.com/mkozhukh>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
@@ -247,6 +247,10 @@ var markup:webix.markup;
 var promise:webix.promise;
 var rules:webix.rules;
 var storage:webix.storage;
+
+namespace message {
+	function hide(content: any): void;
+}
 
 interface ActiveContent{
 }
@@ -635,9 +639,9 @@ var DragOrder:DragOrder;
 interface EditAbility{
 	edit(id:any):void;
 	editCancel():void;
-	editNext():boolean;
+	editNext():void;
 	editStop():void;
-	focusEditor():void;
+	focusEditor(id:any):void;
 	getEditState():any;
 	getEditor(id?:string):any;
 	getEditorValue():string;
@@ -696,13 +700,13 @@ interface IdSpace{
 var IdSpace:IdSpace;
 interface KanbanView{
 	eachOtherList():void;
-	getKanban():void;
-	move():void;
-	$dragCreate: any;
-	$dragPos: any;
-	$kanban: any;
-	$skin: any;
-	on_context: any;
+	getKanban():any;
+	move(sid:string, tindex:number, tobj?:any, details?:any):string;
+	$dragCreate(source:HTMLElement, event:Event):HTMLElement;
+	$dragPos: WebixCallback;
+	$kanban: boolean;
+	$skin: WebixCallback;
+	on_context: { [key: string]: any; };
 }
 var KanbanView:KanbanView;
 interface KeysNavigation{
@@ -2791,14 +2795,11 @@ interface contextmenuConfig{
 	container?: string|HTMLElement;
 	css?: string;
 	data?: string|any[];
-	dataFeed?: string|WebixCallback;
-	datafetch?: number;
 	datathrottle?: number;
 	datatype?: string;
 	disabled?: boolean;
 	drag?: boolean|string;
 	dragscroll?: boolean|string;
-	dynamic?: boolean;
 	externalData?: WebixCallback;
 	gravity?: number;
 	head?: any;
@@ -3374,7 +3375,6 @@ class datasuggest implements webix.ui.baseview{
 }
 interface datatableConfig{
 	view?: string;
-	adjustBatch?: number;
 	animate?: any;
 	areaselect?: boolean;
 	autoConfig?: boolean;
@@ -3497,7 +3497,7 @@ class datatable implements webix.ui.baseview{
 	editCancel():void;
 	editCell(row:string|number, col:string|number, preserve?:boolean, show?:boolean):void;
 	editColumn(id:string):void;
-	editNext():boolean;
+	editNext():void;
 	editRow(id:string):void;
 	editStop():void;
 	enable():void;
@@ -3505,7 +3505,7 @@ class datatable implements webix.ui.baseview{
 	filter(text:string|WebixTemplate|WebixCallback, value:string, preserve:boolean):void;
 	filterByAll():void;
 	find(criterion:WebixCallback, first?:boolean):any;
-	focusEditor():void;
+	focusEditor(id:any):void;
 	freezeRow(id:number|string, state:boolean):void;
 	getAllSelectAreas():any;
 	getChildViews():any[];
@@ -4278,7 +4278,6 @@ class dbllist implements webix.ui.baseview{
 }
 interface excelviewerConfig{
 	view?: string;
-	adjustBatch?: number;
 	animate?: any;
 	areaselect?: boolean;
 	autoConfig?: boolean;
@@ -4400,7 +4399,7 @@ class excelviewer implements webix.ui.baseview{
 	editCancel():void;
 	editCell(row:string|number, col:string|number, preserve?:boolean, show?:boolean):void;
 	editColumn(id:string):void;
-	editNext():boolean;
+	editNext():void;
 	editRow(id:string):void;
 	editStop():void;
 	enable():void;
@@ -4408,7 +4407,7 @@ class excelviewer implements webix.ui.baseview{
 	filter(text:string|WebixTemplate|WebixCallback, value:string, preserve?:boolean):void;
 	filterByAll():void;
 	find(criterion:WebixCallback, first?:boolean):any;
-	focusEditor():void;
+	focusEditor(id:any):void;
 	freezeRow(id:number|string, state:boolean):void;
 	getChildViews():any[];
 	getColumnConfig(id:string):any;
@@ -5345,14 +5344,11 @@ interface grouplistConfig{
 	container?: string|HTMLElement;
 	css?: string;
 	data?: string|any[];
-	dataFeed?: string|WebixCallback;
-	datafetch?: number;
 	datathrottle?: number;
 	datatype?: string;
 	disabled?: boolean;
 	drag?: boolean|string;
 	dragscroll?: boolean|string;
-	dynamic?: boolean;
 	externalData?: WebixCallback;
 	gravity?: number;
 	height?: number;
@@ -5590,6 +5586,7 @@ interface hintConfig{
 	height?: number;
 	hidden?: boolean;
 	id?: string|number;
+	left?: number;
 	maxHeight?: number;
 	maxWidth?: number;
 	minHeight?: number;
@@ -5598,6 +5595,7 @@ interface hintConfig{
 	on?: EventHash;
 	prevButton?: boolean|string;
 	steps?: any[];
+	top?: number;
 	width?: number;
 }
 type hintEventName ='onAfterScroll'|'onAfterStart'|'onBeforeStart'|'onBindRequest'|'onBlur'|'onDestruct'|'onEnd'|'onEnter'|'onFocus'|'onKeyPress'|'onLongTouch'|'onNext'|'onPrevious'|'onSkip'|'onSwipeX'|'onSwipeY'|'onTimedKeyPress'|'onTouchEnd'|'onTouchMove'|'onTouchStart'|'onViewResize';
@@ -5881,7 +5879,6 @@ interface kanbanConfig{
 	container?: string|HTMLElement;
 	css?: string;
 	data?: string|any[];
-	dataFeed?: string|WebixCallback;
 	datathrottle?: number;
 	datatype?: string;
 	disabled?: boolean;
@@ -5967,7 +5964,6 @@ class kanban implements webix.ui.baseview{
 	select(id:string|number):void;
 	serialize():any[];
 	setIndex(id:string|number, index:number):void;
-	setListStatus():void;
 	show(force?:boolean, animation?:boolean):void;
 	showBatch(name:string):void;
 	sort(by:string, dir?:string, as?:string):void;
@@ -6318,14 +6314,11 @@ interface menuConfig{
 	container?: string|HTMLElement;
 	css?: string;
 	data?: string|any[];
-	dataFeed?: string|WebixCallback;
-	datafetch?: number;
 	datathrottle?: number;
 	datatype?: string;
 	disabled?: boolean;
 	drag?: boolean|string;
 	dragscroll?: boolean|string;
-	dynamic?: boolean;
 	externalData?: WebixCallback;
 	gravity?: number;
 	height?: number;
@@ -7414,7 +7407,7 @@ interface pivotConfig{
 	ready?: WebixCallback;
 	removeMissed?: boolean;
 	scheme?: any;
-	separateLabel?: any;
+	separateLabel?: boolean;
 	stableRowId?: boolean;
 	structure?: any;
 	totalColumn?: string;
@@ -7708,10 +7701,10 @@ class property implements webix.ui.baseview{
 	disable():void;
 	edit(id:any):void;
 	editCancel():void;
-	editNext():boolean;
+	editNext():void;
 	editStop():void;
 	enable():void;
-	focusEditor():void;
+	focusEditor(id:any):void;
 	getChildViews():any[];
 	getEditState():any;
 	getEditor(id?:string):any;
@@ -8133,6 +8126,7 @@ interface rangesliderConfig{
 	min?: number;
 	minHeight?: number;
 	minWidth?: number;
+	moveTitle?: boolean;
 	name?: string;
 	on?: EventHash;
 	popup?: string;
@@ -8145,9 +8139,11 @@ interface rangesliderConfig{
 	suggest?: any;
 	title?: string|WebixCallback;
 	tooltip?: string;
+	type?: string;
 	validate?: WebixCallback;
 	validateEvent?: string;
 	value?: string|any[];
+	vertical?: boolean;
 	width?: number;
 }
 type rangesliderEventName ='onAfterRender'|'onAfterScroll'|'onBeforeRender'|'onBindRequest'|'onBlur'|'onChange'|'onDestruct'|'onEnter'|'onFocus'|'onItemClick'|'onKeyPress'|'onLongTouch'|'onSliderDrag'|'onSwipeX'|'onSwipeY'|'onTimedKeyPress'|'onTouchEnd'|'onTouchMove'|'onTouchStart'|'onViewResize';
@@ -9147,6 +9143,7 @@ interface sliderConfig{
 	suggest?: any;
 	title?: string|WebixCallback;
 	tooltip?: string;
+	type?: string;
 	validate?: WebixCallback;
 	validateEvent?: string;
 	value?: string|number;
@@ -9312,7 +9309,7 @@ class spreadsheet implements webix.ui.baseview{
 	callEvent(name:string, params:any[]):boolean;
 	clearRange(rangeStr:string, type:any):void;
 	clearSheet():void;
-	combineCells(range:any):void;
+	combineCells(range?:any):void;
 	compactStyles():void;
 	confirm(config:any):void;
 	define(property:string, value:any):void;
@@ -9413,14 +9410,11 @@ interface submenuConfig{
 	container?: string|HTMLElement;
 	css?: string;
 	data?: string|any[];
-	dataFeed?: string|WebixCallback;
-	datafetch?: number;
 	datathrottle?: number;
 	datatype?: string;
 	disabled?: boolean;
 	drag?: boolean|string;
 	dragscroll?: boolean|string;
-	dynamic?: boolean;
 	externalData?: WebixCallback;
 	gravity?: number;
 	head?: any;
@@ -10882,7 +10876,6 @@ class treemap implements webix.ui.baseview{
 }
 interface treetableConfig{
 	view?: string;
-	adjustBatch?: number;
 	animate?: any;
 	areaselect?: boolean;
 	autoConfig?: boolean;
@@ -11006,7 +10999,7 @@ class treetable implements webix.ui.baseview{
 	editCancel():void;
 	editCell(row:string|number, col:string|number, preserve?:boolean, show?:boolean):void;
 	editColumn(id:string):void;
-	editNext():boolean;
+	editNext():void;
 	editRow(id:string):void;
 	editStop():void;
 	enable():void;
@@ -11014,7 +11007,7 @@ class treetable implements webix.ui.baseview{
 	filter(text:string|WebixTemplate|WebixCallback, value:string, preserve?:boolean):void;
 	filterByAll():void;
 	find(criterion:WebixCallback, first?:boolean):any;
-	focusEditor():void;
+	focusEditor(id:any):void;
 	freezeRow(id:number|string, state:boolean):void;
 	getBranchIndex(id:string|number, parent?:string|number):number;
 	getChecked():any[];
@@ -11162,13 +11155,11 @@ interface unitlistConfig{
 	container?: string|HTMLElement;
 	css?: string;
 	data?: string|any[];
-	datafetch?: number;
 	datathrottle?: number;
 	datatype?: string;
 	disabled?: boolean;
 	drag?: boolean|string;
 	dragscroll?: boolean|string;
-	dynamic?: boolean;
 	externalData?: WebixCallback;
 	gravity?: number;
 	height?: number;
