@@ -657,9 +657,7 @@ if (newv) {
                             // role names need to be unique
                             attrs.label = AD.lang.label.getLabel('rbac.scopes.newScope') || 'New Scope*';
                             attrs.description = AD.lang.label.getLabel('rbac.scopes.newScopeDescription') || '*Describe this scope ...';
-                            while (listNames.indexOf(attrs.label) != -1) {
-                                attrs.label += '.';
-                            }
+                            attrs.label += ' ('+ AD.util.uuid().substring(0,4)+')';
 
                             return this.scopeCreate(attrs)
                             .done(function(newModel){

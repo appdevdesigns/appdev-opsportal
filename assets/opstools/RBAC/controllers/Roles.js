@@ -548,9 +548,7 @@ steal(
                             // role names need to be unique
                             attrs.role_label = AD.lang.label.getLabel('rbac.roles.newRole') || 'New Role';
                             attrs.role_description = AD.lang.label.getLabel('rbac.roles.newRoleDescription') || 'Describe this role ...';
-                            while (listNames.indexOf(attrs.role_label) != -1) {
-                                attrs.role_label += '.';
-                            }
+                            attrs.role_label += ' ('+ AD.util.uuid().substring(0,4)+')';
 
                             return this.roleCreate(attrs)
                             .done(function(newRole){
