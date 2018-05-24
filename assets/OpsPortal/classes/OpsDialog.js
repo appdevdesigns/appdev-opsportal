@@ -105,10 +105,21 @@ System.import('can').then(function () {
                         }
                     });
 
-                }
+                },
+
 
                 // Message
                 // A simple message displayed to the user.  Can time out
+                Message: function(opts) {
+
+                    var message =   opts.text  || opts.message ;
+                    var timeout =   opts.timeout || 2000;
+
+                    webix.message({
+                        text: message,
+                        expire: timeout
+                    });
+                }
 
             }
 
