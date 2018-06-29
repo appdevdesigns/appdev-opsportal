@@ -66,7 +66,7 @@ steal(
                                             var isLoadingDom = document.body.querySelectorAll("."+data.area.replace(/[^a-z0-9]/gi, '')+"_appLoading");
                                             if (isLoadingDom.length == 0) {
                                                 clearInterval(delayLoad);
-                                                self.element.show();
+                                                AD.comm.hub.publish('opsportal.area.show', { area: data.area });
                                             }
                                         }, 3000);
                                     } else {
