@@ -60,7 +60,18 @@ steal(
 
                                 // if this area is for my area, then show it.
                                 if (self.options.key == data.area) {
-                                    self.element.show();
+                                    var isLoadingDom = document.body.querySelectorAll("."+data.area.replace(/[^a-z0-9]/gi, '')+"_appLoading");
+                                    if (isLoadingDom.length) {
+                                        var delayLoad = setInterval(function () {
+                                            var isLoadingDom = document.body.querySelectorAll("."+data.area.replace(/[^a-z0-9]/gi, '')+"_appLoading");
+                                            if (isLoadingDom.length == 0) {
+                                                clearInterval(delayLoad);
+                                                self.element.show();
+                                            }
+                                        }, 3000);
+                                    } else {
+                                        self.element.show();
+                                    }
                                 } else {
 
                                     // else hide
