@@ -224,6 +224,14 @@ module.exports = {
       "format": "global",
       "sideBundle": true
     },
+    "js/webix/codebase/pivot": {
+      "deps": [
+        "js/webix/webix",
+        "js/webix/codebase/pivot.css"
+      ],
+      "format": "global",
+      "sideBundle": true
+    },
     "js/webix/webix.css": {
       "sideBundle": true
     },
@@ -256,6 +264,7 @@ module.exports = {
         "lodash",
         "moment",
         "webix",
+	"js/webix/codebase/pivot",
         "js/webix/codebase/querybuilder",
         "bootstrap-table",
         "bootstrapValidator",
