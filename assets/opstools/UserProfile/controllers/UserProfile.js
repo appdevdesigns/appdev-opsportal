@@ -78,7 +78,10 @@ steal(
                                 url: '/site/user/data'
                             })
                             .fail(function(err) {
-                                webix.message(err.message);
+                                if (err && err.message) {
+                                    webix.message(err.message);
+                                }
+                                console.error('::: UserProfile.loadData() : error gathering /site/user/data : ', err);
                             })
                             .done(function(data) {
                                 /*
@@ -108,6 +111,7 @@ steal(
                                 $select.val(data.user.languageCode);
                                 
                                 self.changedFields = {};
+
                             });
                             
                         },

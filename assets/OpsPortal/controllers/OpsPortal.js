@@ -46,6 +46,9 @@ steal(
                         })
                         .fail(function(err){
                             AD.error.log('Error loading requirements.', {error:err});
+                            if (err.code && err.code == 'E_NOTPERMITTED') {
+                                AD.op.Dialog.Alert({ message:'You do not have permission to view the Ops Portal.' });
+                            }
                         })
                         .then(function(data){
                             data.listTools.forEach(function(tool){
@@ -472,6 +475,100 @@ steal(
                             $('#userprofile-menuitem').on('click', function(ev) {
                                 ev.preventDefault();
                                 AD.comm.hub.publish('opsportal.area.show', { area: 'UserProfile' });
+                            });
+
+
+                            ////
+                            //// Switcheroo Features
+                            ////
+                            $('#switcheroo').on('click', function(ev){
+                                ev.preventDefault();
+                                $$("switcheroopopup").show();
+                            })
+
+                            webix.ui({
+                                view:"popup",
+                                id:"switcheroopopup",
+                                position:'center',
+                                body:{
+                                    rows:[
+                                        {
+                                            id:'switcherooCurrent',
+                                            rows:[
+                                                {
+                                                    cols:[
+                                                        {
+                                                            id:'switcherooCurrentLabel',
+                                                            view:'label',
+                                                            label:''
+                                                        },
+                                                        {
+                                                            view:'button',
+                                                            type:'icon',
+                                                            icon:'trash',
+                                                            width:30,
+                                                            click:function() {
+
+                                                                AD.comm.service.delete({ url:'/site/switcheroo' })
+                                                                .then(function(){
+                                                                    var uri = window.location.href;
+                                                                    var parts = uri.split('?');
+                                                                    window.location.replace(parts[0]);
+                                                                })
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            view:'label',
+                                            label:'Enter an account'
+                                        },
+                                        { 
+                                            id:'switcherooAccount',
+                                            view:"text", 
+                                            value:"", 
+                                            placeholder:"UserID here"   
+                                        },
+                                        {
+                                            view:'button',
+                                            value:'switch',
+                                            click:function() {
+                                                var account = $$("switcherooAccount").getValue();
+                                                console.error('::: Switcheroo to account :'+account);
+                                                var uri = window.location.href;
+                                                var parts = uri.split('?');
+
+                                                AD.comm.service.post({ url:'/site/switcheroo', params:{ account: account }})
+                                                .then(function(){
+                                                    window.location.replace(parts[0]);
+                                                })
+                                                
+                                            }
+                                        }
+                                    ]
+                                }
+                            }).hide();
+
+                            // find out if we have a current Switcheroo in place
+                            // get /site/switcheroo  will return a { from:'username', to:'username' }
+                            AD.comm.service.get({
+                                url: '/site/switcheroo'
+                            })
+                            .fail(function(err) {
+                                if (err && err.message) {
+                                    webix.message(err.message);
+                                }
+                                console.error('::: error loading /site/switcheroo ', err);
+                            })
+                            .done(function(data) {
+                                if (data.from) {
+                                    $$('switcherooCurrent').show();
+                                    $$('switcherooCurrentLabel').setValue(''+data.from+' -> '+ data.to );
+                                } else {
+                                    $$('switcherooCurrent').hide();
+                                }
                             });
 
                             this.dfdPortalReady.resolve();
