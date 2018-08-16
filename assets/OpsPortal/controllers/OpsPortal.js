@@ -486,6 +486,11 @@ steal(
                                 $$("switcheroopopup").show();
                             })
 
+                            function reloadSwitcheroo() {
+                                var uri = window.location.href;
+                                var parts = uri.split('?');
+                                window.location.replace(parts[0]+'?switcheroo='+AD.util.uuid());
+                            }
                             webix.ui({
                                 view:"popup",
                                 id:"switcheroopopup",
@@ -511,9 +516,7 @@ steal(
 
                                                                 AD.comm.service.delete({ url:'/site/switcheroo' })
                                                                 .then(function(){
-                                                                    var uri = window.location.href;
-                                                                    var parts = uri.split('?');
-                                                                    window.location.replace(parts[0]);
+                                                                    reloadSwitcheroo();
                                                                 })
                                                             }
                                                         }
@@ -536,13 +539,15 @@ steal(
                                             value:'switch',
                                             click:function() {
                                                 var account = $$("switcherooAccount").getValue();
-                                                console.error('::: Switcheroo to account :'+account);
-                                                var uri = window.location.href;
-                                                var parts = uri.split('?');
 
                                                 AD.comm.service.post({ url:'/site/switcheroo', params:{ account: account }})
                                                 .then(function(){
-                                                    window.location.replace(parts[0]);
+                                                    reloadSwitcheroo();
+                                                })
+                                                .fail(function(err){
+                                                    AD.op.Dialog.Alert({
+                                                        text:'Error trying to switcheroo. Verify you have permissions to access switcheroo.'
+                                                    })
                                                 })
                                                 
                                             }
