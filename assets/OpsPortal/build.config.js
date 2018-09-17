@@ -21,6 +21,7 @@ module.exports = {
         "typeahead": "js/typeahead.jquery.min",
         "jsquerybuilder": "js/query-builder.standalone.min",
         "moment": "js/moment.min",
+        "moment-locales": "js/moment-locales.min",
         "jsreports-all": "js/jsreports-all.min",
         "dropzone": "js/dropzone/dropzone.min",
         "dropzone.css": "js/dropzone/dropzone.min.css",
@@ -70,6 +71,7 @@ module.exports = {
         "jsquerybuilder.js":  "js/query-builder.standalone.min.js",
 
         "moment": "js/moment.min.js",
+        "moment-locales": "js/moment-locales.min.js",
 
         "feedback": "feedback/feedback.min.js",
 
@@ -94,6 +96,7 @@ module.exports = {
         
         "lodash": "js/lodash.min.js",
         "moment.js": "js/moment.min.js",
+        "moment-locales.js": "js/moment-locales.min.js",
         "FilteredBootstrapTable.js": "OpsPortal/controllers/FilteredBootstrapTable.js",
         "OpsButtonBusy.js": "OpsPortal/classes/OpsButtonBusy.js",
         "OpsWebixDataCollection.js": "OpsPortal/classes/OpsWebixDataCollection.js",
@@ -199,6 +202,11 @@ module.exports = {
         "sideBundle": true
     },
     "js/moment.min": {
+      "format": "global",
+      "sideBundle": true
+    },
+    "js/moment-locales.min": {
+      "deps": ['js/moment.min'],
       "format": "global",
       "sideBundle": true
     },
