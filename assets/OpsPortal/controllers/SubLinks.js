@@ -173,7 +173,8 @@ System.import('appdev').then(function () {
                     area.find('.' + this.cssActive).removeClass(this.cssActive);
 
                     // within area, find link for current tool and add active class
-                    area.find('[op-tool="' + tool.tool + '"]').addClass(this.cssActive);
+                    // area.find('[op-tool="' + tool.tool + '"]').addClass(this.cssActive);
+                    area.find('[op-tool-id="' + tool.tool + '"]').addClass(this.cssActive);
                 }
 
             },
