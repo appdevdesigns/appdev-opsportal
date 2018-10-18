@@ -1102,6 +1102,72 @@ prevNavTool = navTool.toJSON();
 
             return dfd;
         }
+    },
+
+
+    Tool: {
+
+        updateLabel: function (options, cb) {
+
+            var dfd = AD.sal.Deferred();
+
+            var tool;
+
+            async.series([
+
+                // get tool id
+                function (next) {
+                    OPConfigTool.find({ key: options.toolkey })
+                        .populate('translations')
+                        .fail(next)
+                        .done(function (tools) {
+                            tool = tools[0];
+
+                            next();
+                        });
+                },
+
+                // update label 
+                function (next) {
+
+                    if (!tool) return next();
+
+                    tool.translations.forEach(function(trans, i) {
+
+                        // change
+                        if (trans.language_code == options.language_code)
+                            tool.translations[i].label = options.label;
+
+                    });
+
+                    OPConfigTool.update({ key: options.toolkey }, {
+                        translations: tool.translations
+                    })
+                    .exec(function (err) {
+
+                        // final
+                        if (err) {
+
+                            if (cb) cb(err);
+                            dfd.reject(err);
+
+                            next(err);
+                        } else {
+
+                            if (cb) cb(null);
+                            dfd.resolve();
+
+                            next();
+                        }
+                    });
+                }
+
+            ]);
+
+            return dfd;
+
+        }
+
     }
 
 };
