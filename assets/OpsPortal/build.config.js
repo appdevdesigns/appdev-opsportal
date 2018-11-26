@@ -252,7 +252,10 @@ module.exports = {
       "sideBundle": true
     },
     "js/webix/skins/compact.min.css": {
-      "sideBundle": true
+        "deps": [
+            "js/webix/materialdesignicons.css"
+        ],
+        "sideBundle": true
     },
     "js/webix/webix": {
       "deps": [
