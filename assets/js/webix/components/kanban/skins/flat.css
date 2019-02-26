@@ -66,6 +66,7 @@
   border-left-color: #DDDDDD;
   border-right-color: #DDDDDD;
   border-bottom-color: #DDDDDD;
+  background: #DDDDDD;
 }
 .webix_kanban .webix_accordionitem_body {
   background-color: #DDDDDD;
@@ -92,6 +93,8 @@
   border-left-color: #27AE60;
 }
 .webix_kanban_list_content {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
   box-sizing: border-box;
   background-color: #ffffff;
   color: #666666;
@@ -211,14 +214,25 @@
 .webix_kanban_user_avatar:hover {
   box-shadow: #3498d8 0 0 2px 1px;
 }
-.webix_kanban_drag_zone,
 .webix_kanban_drag_zone .webix_kanban_list_item {
-  background: transparent !important;
-  box-shadow: none;
-  border: none;
+  padding: 0 !important;
 }
-.webix_kanban_drag_zone .webix_kanban_list_content {
-  box-shadow: 1px 3px 4px #c8c8c8;
+.webix_kanban_drop_inner {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  border: 1px dashed #3498d8;
+  border-radius: 6px;
+  height: 100%;
+}
+.webix_kanban_list .webix_drop_area {
+  border: none;
+  height: 88px;
+  padding: 8px 0 0;
+  background-color: transparent;
+}
+.webix_dataview.webix_kanban_list .webix_drop_area {
+  padding: 8px 4px 0;
 }
 .webix_kanban_avatar {
   width: 100%;
@@ -366,19 +380,37 @@
 .webix_kanban_header {
   background: #DDDDDD;
   color: #4A4A4A;
-  padding: 0;
 }
 .webix_kanban_header .webix_strong {
   font-size: 17px;
 }
+.webix_kanban_header .webix_template {
+  padding: 0;
+}
+.webix_kanban_sub_header {
+  background: #888888;
+  color: #ffffff;
+}
+.webix_kanban_sub_header .webix_template {
+  padding: 0 12px;
+}
+.webix_kanban_sub_header .webix_strong {
+  font-weight: bold;
+}
 .webix_kanban_add_icon {
+  cursor: pointer;
+}
+.webix_kanban_add_icon.webix_icon:hover {
+  color: #3498d8;
+}
+.webix_kanban_header .webix_icon,
+.webix_kanban_sub_header .webix_icon {
   color: #888;
   font-size: 20px;
   width: 20px;
   vertical-align: middle;
   margin-right: 8px;
-  cursor: pointer;
 }
-.webix_kanban_add_icon:hover {
-  color: #3498d8;
+.webix_kanban_sub_header .webix_icon {
+  color: #ffffff;
 }

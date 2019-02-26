@@ -1,6 +1,6 @@
 /**
  * @license
- * Webix UI v.6.1.0
+ * Webix UI v.6.2.0
  * This software is covered by Webix Commercial License.
  * Usage without proper license is prohibited.
  * (c) XB Software Ltd.
@@ -107,7 +107,7 @@
 
 	try {
 	  var opts = Object.defineProperty({}, "passive", {
-	    get: function get() {
+	    get: function () {
 	      // eslint-disable-line
 	      env.passiveEventListeners = true;
 	    }
@@ -229,7 +229,7 @@
 	clone._function = function () {}; //copies methods and properties from source to the target
 
 
-	exports.extend = function extend(base, source, force) {
+	exports.extend = function (base, source, force) {
 	  assert(base, "Invalid mixing target");
 	  assert(source, "Invalid mixing source");
 
@@ -285,7 +285,7 @@
 	function single(source) {
 	  var instance = null;
 
-	  var t = function t() {
+	  var t = function () {
 	    if (!instance) instance = new source({});
 	    if (instance._reinit) instance._reinit.apply(instance, arguments);
 	    return instance;
@@ -373,24 +373,22 @@
 
 	var PowerArray = {
 	  //remove element at specified position
-	  removeAt: function removeAt(pos, len) {
+	  removeAt: function (pos, len) {
 	    if (pos >= 0) this.splice(pos, len || 1);
 	  },
 	  //find element in collection and remove it 
-	  remove: function remove(value) {
+	  remove: function (value) {
 	    this.removeAt(this.find(value));
 	  },
 	  //add element to collection at specific position
-	  insertAt: function insertAt(data, pos) {
+	  insertAt: function (data, pos) {
 	    if (!pos && pos !== 0) //add to the end by default
 	      this.push(data);else {
-	      var b = this.splice(pos, this.length - pos);
-	      this[pos] = data;
-	      this.push.apply(this, b); //reconstruct array without loosing this pointer
+	      this.splice(pos, 0, data);
 	    }
 	  },
 	  //return index of element, -1 if it doesn't exists
-	  find: function find(data) {
+	  find: function (data) {
 	    for (var i = 0; i < this.length; i++) {
 	      if (data == this[i]) return i;
 	    }
@@ -398,20 +396,20 @@
 	    return -1;
 	  },
 	  //execute some method for each element of array
-	  each: function each(functor, master) {
+	  each: function (functor, master) {
 	    for (var i = 0; i < this.length; i++) {
 	      functor.call(master || this, this[i]);
 	    }
 	  },
 	  //create new array from source, by using results of functor 
-	  map: function map(functor, master) {
+	  map: function (functor, master) {
 	    for (var i = 0; i < this.length; i++) {
 	      this[i] = functor.call(master || this, this[i]);
 	    }
 
 	    return this;
 	  },
-	  filter: function filter(functor, master) {
+	  filter: function (functor, master) {
 	    for (var i = 0; i < this.length; i++) {
 	      if (!functor.call(master || this, this[i])) {
 	        this.splice(i, 1);
@@ -432,7 +430,7 @@
 	}
 
 	var EventSystem = {
-	  $init: function $init() {
+	  $init: function () {
 	    if (!this._evs_events) {
 	      this._evs_events = {}; //hash of event handlers, name => handler
 
@@ -442,17 +440,17 @@
 	    }
 	  },
 	  //temporary block event triggering
-	  blockEvent: function blockEvent() {
+	  blockEvent: function () {
 	    this._evs_events._block = true;
 	  },
 	  //re-enable event triggering
-	  unblockEvent: function unblockEvent() {
+	  unblockEvent: function () {
 	    this._evs_events._block = false;
 	  },
-	  mapEvent: function mapEvent(map) {
+	  mapEvent: function (map) {
 	    exports.extend(this._evs_map, map, true);
 	  },
-	  on_setter: function on_setter(config) {
+	  on_setter: function (config) {
 	    if (config) {
 	      for (var i in config) {
 	        var method = toFunctor(config[i], this.$scope);
@@ -465,7 +463,7 @@
 	    }
 	  },
 	  //trigger event
-	  callEvent: function callEvent(type, params) {
+	  callEvent: function (type, params) {
 	    var master = this._event_master || this;
 	    if (this._evs_events._block) return true;
 	    type = type.toLowerCase();
@@ -495,7 +493,7 @@
 	    return return_value;
 	  },
 	  //assign handler for some named event
-	  attachEvent: function attachEvent(type, functor, id) {
+	  attachEvent: function (type, functor, id) {
 	    assert(functor, "Invalid event handler for " + type);
 	    type = type.toLowerCase();
 	    id = id || uid(); //ID can be used for detachEvent
@@ -513,7 +511,7 @@
 	    return id;
 	  },
 	  //remove event handler
-	  detachEvent: function detachEvent(id) {
+	  detachEvent: function (id) {
 	    if (!this._evs_handlers[id]) {
 	      var name = (id + "").toLowerCase();
 
@@ -531,7 +529,7 @@
 	    event_stack.remove(functor);
 	    delete this._evs_handlers[id];
 	  },
-	  hasEvent: function hasEvent(type) {
+	  hasEvent: function (type) {
 	    type = type.toLowerCase();
 	    var stack = this._evs_events[type];
 	    if (stack && stack.length) return true;
@@ -543,25 +541,25 @@
 
 	var evs = {};
 	exports.extend(evs, EventSystem, true);
-	var callEvent = function callEvent(a, b) {
+	var callEvent = function (a, b) {
 	  return evs.callEvent(a, b);
 	};
-	var attachEvent = function attachEvent(a, b, c, d) {
+	var attachEvent = function (a, b, c, d) {
 	  return evs.attachEvent(a, b, c, d);
 	};
-	var detachEvent = function detachEvent(a) {
+	var detachEvent = function (a) {
 	  return evs.detachEvent(a);
 	};
-	var blockEvent = function blockEvent() {
+	var blockEvent = function () {
 	  return evs.blockEvent();
 	};
-	var unblockEvent = function unblockEvent() {
+	var unblockEvent = function () {
 	  return evs.unblockEvent();
 	};
-	var mapEvent = function mapEvent(map) {
+	var mapEvent = function (map) {
 	  return evs.mapEvent(map);
 	};
-	var hasEvent = function hasEvent(type) {
+	var hasEvent = function (type) {
 	  return evs.hasEvent(type);
 	};
 
@@ -869,37 +867,9 @@
 	  }));
 	}
 
-	var html = /*#__PURE__*/Object.freeze({
-		denySelect: denySelect,
-		allowSelect: allowSelect,
-		index: index,
-		createCss: createCss,
-		addStyle: addStyle,
-		removeStyle: removeStyle,
-		create: create,
-		getValue: getValue,
-		remove: remove,
-		insertBefore: insertBefore,
-		locate: locate,
-		offset: offset,
-		posRelative: posRelative,
-		pos: pos,
-		preventEvent: preventEvent,
-		stopEvent: stopEvent,
-		triggerEvent: triggerEvent,
-		addCss: addCss,
-		removeCss: removeCss,
-		getTextSize: getTextSize,
-		download: download,
-		_getClassName: _getClassName,
-		setSelectionRange: setSelectionRange,
-		getSelectionRange: getSelectionRange,
-		addMeta: addMeta
-	});
-
 	var i18n = {
-	  parseFormat: "%Y-%m-%d %H:%i",
-	  parseTimeFormat: "%H:%i"
+	  parseFormat: "%Y-%m-%d %H:%i:%s",
+	  parseTimeFormat: "%H:%i:%s"
 	};
 
 	function stringify(obj) {
@@ -1078,6 +1048,21 @@
 	    return d;
 	  };
 
+	  self["finally"] = function (_handler) {
+	    var _value;
+
+	    var handler = function (value) {
+	      _value = value;
+	      return _handler();
+	    };
+
+	    var value = function () {
+	      return _value;
+	    };
+
+	    return self.then(handler, handler).then(value, value);
+	  };
+
 	  self["catch"] = function (_er) {
 	    return self["then"](null, _er);
 	  }; //compatibility with old version of promiz lib
@@ -1087,7 +1072,7 @@
 	    return self["then"](null, _er);
 	  };
 
-	  var finish = function finish(type) {
+	  var finish = function (type) {
 	    state = type || 4;
 
 	    for (var i = 0; i < next.length; i++) {
@@ -1182,13 +1167,13 @@
 	};
 
 	var xml = {
-	  _isValidXML: function _isValidXML(data) {
+	  _isValidXML: function (data) {
 	    if (!data || !data.documentElement) return null;
 	    if (data.getElementsByTagName("parsererror").length) return null;
 	    return data;
 	  },
 	  //convert xml string to xml object if necessary
-	  toObject: function toObject(text, response) {
+	  toObject: function (text, response) {
 	    var data = response ? response.rawxml ? response.rawxml() : response : null;
 	    if (this._isValidXML(data)) return data;
 	    if (typeof text == "string") data = this.fromString(text.replace(/^[\s]+/, ""));else data = text;
@@ -1196,21 +1181,21 @@
 	    return null;
 	  },
 	  //get array of records
-	  getRecords: function getRecords(data) {
+	  getRecords: function (data) {
 	    return this.xpath(data, this.records);
 	  },
 	  records: "/*/item",
 	  child: "item",
 	  config: "/*/config",
 	  //get hash of properties for single record
-	  getDetails: function getDetails(data) {
+	  getDetails: function (data) {
 	    return this.tagToObject(data, {});
 	  },
-	  getOptions: function getOptions() {
+	  getOptions: function () {
 	    return false;
 	  },
 	  //get count of data and position at which new data_loading need to be inserted
-	  getInfo: function getInfo(data) {
+	  getInfo: function (data) {
 	    var config = this.xpath(data, this.config);
 	    if (config.length) config = this.assignTypes(this.tagToObject(config[0], {}));else config = null;
 	    return {
@@ -1222,7 +1207,7 @@
 	    };
 	  },
 	  //xpath helper
-	  xpath: function xpath(xml, path) {
+	  xpath: function (xml, path) {
 	    if (window.XPathResult) {
 	      //FF, KHTML, Opera
 	      var node = xml;
@@ -1255,7 +1240,7 @@
 	      }
 	    }
 	  },
-	  assignTypes: function assignTypes(obj) {
+	  assignTypes: function (obj) {
 	    for (var k in obj) {
 	      var test = obj[k];
 	      if (_typeof(test) == "object") this.assignTypes(test);else if (typeof test == "string") {
@@ -1267,7 +1252,7 @@
 	    return obj;
 	  },
 	  //convert xml tag to js object, all subtags and attributes are mapped to the properties of result object
-	  tagToObject: function tagToObject(tag, z) {
+	  tagToObject: function (tag, z) {
 	    var isArray = tag.nodeType == 1 && tag.getAttribute("stack");
 	    var hasSubTags = 0;
 
@@ -1312,7 +1297,7 @@
 	    return z;
 	  },
 	  //get value of xml node 
-	  nodeValue: function nodeValue(node) {
+	  nodeValue: function (node) {
 	    if (node.firstChild) {
 	      return node.firstChild.wholeText || node.firstChild.data;
 	    }
@@ -1320,7 +1305,7 @@
 	    return "";
 	  },
 	  //convert XML string to XML object
-	  fromString: function fromString(xmlString) {
+	  fromString: function (xmlString) {
 	    try {
 	      if (window.DOMParser) // FF, KHTML, Opera
 	        return new DOMParser().parseFromString(xmlString, "text/xml");
@@ -1343,7 +1328,7 @@
 
 	var json = {
 	  //convert json string to json object if necessary
-	  toObject: function toObject(data) {
+	  toObject: function (data) {
 	    if (!data) return null;
 
 	    if (typeof data == "string") {
@@ -1371,24 +1356,24 @@
 	    return data;
 	  },
 	  //get array of records
-	  getRecords: function getRecords(data) {
+	  getRecords: function (data) {
 	    if (data && data.data) data = data.data;
 	    if (data && !isArray(data)) return [data];
 	    return data;
 	  },
 	  //get hash of properties for single record
-	  getDetails: function getDetails(data) {
+	  getDetails: function (data) {
 	    if (typeof data == "string") return {
 	      id: data || uid(),
 	      value: data
 	    };
 	    return data;
 	  },
-	  getOptions: function getOptions(data) {
+	  getOptions: function (data) {
 	    return data.collections;
 	  },
 	  //get count of data and position at which new data need to be inserted
-	  getInfo: function getInfo(data) {
+	  getInfo: function (data) {
 	    return {
 	      size: data.total_count || 0,
 	      from: data.pos,
@@ -1416,20 +1401,20 @@
 	ajax.prototype = {
 	  master: null,
 	  //creates xmlHTTP object
-	  getXHR: function getXHR() {
+	  getXHR: function () {
 	    return new XMLHttpRequest();
 	  },
-	  stringify: function stringify$$1(obj) {
+	  stringify: function (obj) {
 	    return stringify(obj);
 	  },
 
 	  /*
 	  	send data to the server
 	  	params - hash of properties which will be added to the url
-	  	call - callback, can be an array of functions
+	  	call - callback, can be an object with success and error functions
 	  */
-	  _send: function _send(url, params, call, mode) {
-	    var master;
+	  _send: function (url, params, call, mode) {
+	    var master; //webix.ajax(url, callback) - can be called only by user
 
 	    if (params && (isArray(params) || typeof (params.success || params.error || params) == "function")) {
 	      master = call;
@@ -1439,15 +1424,6 @@
 
 	    var defer = Deferred.defer();
 	    var x = this.getXHR();
-	    if (!isArray(call)) call = [call];
-	    call.push({
-	      success: function success(_, d) {
-	        defer.resolve(d);
-	      },
-	      error: function error() {
-	        defer.reject(x);
-	      }
-	    });
 	    var headers = this._header || {};
 	    if (!callEvent("onBeforeAjax", [mode, url, params, x, headers, null, defer])) return; //add content-type to POST|PUT|DELETE
 
@@ -1503,10 +1479,9 @@
 	      if (!x.readyState || x.readyState == 4) {
 	        ajax.count++;
 
-	        if (call && self && !x.aborted) {
+	        if (!x.aborted) {
 	          //IE8 and IE9, handling .abort call
 	          if (_xhr_aborted.find(x) != -1) return _xhr_aborted.remove(x);
-	          var owner = self.master || self;
 	          var is_error = x.status >= 400 || x.status === 0;
 	          var text, data;
 
@@ -1518,11 +1493,19 @@
 	            data = self._data(x);
 	          }
 
-	          ajax.$callback(owner, call, text, data, x, is_error);
+	          if (is_error) {
+	            callEvent("onAjaxError", [x]);
+	            defer.reject(x);
+	            if (call) ajax.$callback(self.master || window, call, text, data, x, is_error);
+	          } else {
+	            defer.resolve(data);
+	            if (call) ajax.$callback(self.master || window, call, text, data, x, is_error);
+	          }
+	        } else {
+	          //anti-leak
+	          self.master = null;
+	          call = self = master = null;
 	        }
-
-	        if (self) self.master = null;
-	        call = self = master = null; //anti-leak
 	      }
 	    };
 
@@ -1531,15 +1514,30 @@
 	    if (!this._sync) setTimeout(function () {
 	      if (!x.aborted) {
 	        //abort handling in IE9
-	        if (_xhr_aborted.find(x) != -1) _xhr_aborted.remove(x);else x.send(params || null);
+	        if (_xhr_aborted.find(x) != -1) _xhr_aborted.remove(x);else {
+	          x.send(params || null);
+	        }
 	      }
 	    }, 1);else x.send(params || null);
-	    if (this.master && this.master._ajax_queue) this.master._ajax_queue.push(x);
+
+	    if (this.master && this.master._ajax_queue && !this._sync) {
+	      this.master._ajax_queue.push(x);
+
+	      defer.then(function (data) {
+	        self.master._ajax_queue.remove(x); //anti-leak
+
+
+	        self.master = null;
+	        call = self = master = null;
+	        return data;
+	      });
+	    }
+
 	    return this._sync ? x : defer; //return XHR, which can be used in case of sync. mode
 	  },
-	  _data: function _data(x) {
+	  _data: function (x) {
 	    return {
-	      xml: function xml$$1() {
+	      xml: function () {
 	        try {
 	          return xml.tagToObject(xml.toObject(x.responseText, this));
 	        } catch (e) {
@@ -1548,62 +1546,55 @@
 	          assert(0, "Invalid xml data for parsing");
 	        }
 	      },
-	      rawxml: function rawxml() {
+	      rawxml: function () {
 	        if (!window.XPathResult) return xml.fromString(x.responseText);
 	        return x.responseXML;
 	      },
-	      text: function text() {
+	      text: function () {
 	        return x.responseText;
 	      },
-	      json: function json$$1() {
+	      json: function () {
 	        return json.toObject(x.responseText, false);
 	      }
 	    };
 	  },
 	  //GET request
-	  get: function get(url, params, call) {
+	  get: function (url, params, call) {
 	    return this._send(url, params, call, "GET");
 	  },
 	  //POST request
-	  post: function post(url, params, call) {
+	  post: function (url, params, call) {
 	    return this._send(url, params, call, "POST");
 	  },
 	  //PUT request
-	  put: function put(url, params, call) {
+	  put: function (url, params, call) {
 	    return this._send(url, params, call, "PUT");
 	  },
 	  //DELETE request
-	  del: function del(url, params, call) {
+	  del: function (url, params, call) {
 	    return this._send(url, params, call, "DELETE");
 	  },
 	  //PATCH request
-	  patch: function patch(url, params, call) {
+	  patch: function (url, params, call) {
 	    return this._send(url, params, call, "PATCH");
 	  },
-	  sync: function sync() {
+	  sync: function () {
 	    this._sync = true;
 	    return this;
 	  },
-	  timeout: function timeout(num) {
+	  timeout: function (num) {
 	    this._timeout = num;
 	    return this;
 	  },
-	  response: function response(value) {
+	  response: function (value) {
 	    this._response = value;
 	    return this;
 	  },
-	  //deprecated, remove in 3.0
-	  //[DEPRECATED]
-	  header: function header(_header) {
-	    assert(false, "ajax.header is deprecated in favor of ajax.headers");
-	    this._header = _header;
-	    return this;
-	  },
-	  headers: function headers(header) {
+	  headers: function (header) {
 	    this._header = exports.extend(this._header || {}, header);
 	    return this;
 	  },
-	  bind: function bind$$1(master) {
+	  bind: function (master) {
 	    this.master = master;
 	    return this;
 	  }
@@ -1613,27 +1604,17 @@
 	  if (owner.$destructed) return;
 	  if (x === -1 && data && typeof data.json == "function") data = data.json();
 	  if (is_error) callEvent("onAjaxError", [x]);
-	  if (!isArray(call)) call = [call];
-	  if (!is_error) for (var i = 0; i < call.length; i++) {
-	    if (call[i]) {
-	      var before = call[i].before;
-	      if (before) before.call(owner, text, data, x);
-	    }
-	  }
 
-	  for (var _i = 0; _i < call.length; _i++) {
-	    //there can be multiple callbacks
-	    if (call[_i]) {
-	      var method = call[_i].success || call[_i];
-	      if (is_error) method = call[_i].error;
-	      if (method && method.call) method.call(owner, text, data, x);
-	    }
+	  if (call) {
+	    var method = call.success || call;
+	    if (is_error) method = call.error;
+	    if (method && method.call) method.call(owner, text, data, x);
 	  }
 	};
 
 	var CodeParser = {
 	  //converts a complex object into an object with primitives properties
-	  collapseNames: function collapseNames(base, prefix, data) {
+	  collapseNames: function (base, prefix, data) {
 	    data = data || {};
 	    prefix = prefix || "";
 	    if (!base || _typeof(base) != "object") return null;
@@ -1649,7 +1630,7 @@
 	    return data;
 	  },
 	  //converts an object with primitive properties into an object with complex properties
-	  expandNames: function expandNames(base) {
+	  expandNames: function (base) {
 	    var data = {},
 	        i,
 	        lastIndex,
@@ -1692,7 +1673,7 @@
 	};
 	var badChars = /[&<>"'`]/g;
 
-	var escapeChar = function escapeChar(chr) {
+	var escapeChar = function (chr) {
 	  return escape$1[chr] || "&amp;";
 	};
 
@@ -1736,7 +1717,7 @@
 	        temp_res.push({
 	          pos: pos$$1,
 	          str: search,
-	          fn: function fn(obj) {
+	          fn: function (obj) {
 	            return obj[s1] ? s2 : s3;
 	          }
 	        });
@@ -1745,7 +1726,7 @@
 	        temp_res.push({
 	          pos: pos$$1,
 	          str: search,
-	          fn: function fn(_, common) {
+	          fn: function (_, common) {
 	            return common[s] || "";
 	          }
 	        });
@@ -1754,7 +1735,7 @@
 	        temp_res.push({
 	          pos: pos$$1,
 	          str: search,
-	          fn: function fn(obj, common) {
+	          fn: function (obj, common) {
 	            return common[s] ? common[s].apply(this, arguments) : "";
 	          }
 	        });
@@ -1763,16 +1744,16 @@
 	        temp_res.push({
 	          pos: pos$$1,
 	          str: search,
-	          fn: function fn(obj) {
+	          fn: function (obj) {
 	            return obj[s];
 	          }
 	        });
 	      });
-	      str.replace("{obj}", function (search, s, pos$$1) {
+	      str.replace("{obj}", function (search, pos$$1) {
 	        temp_res.push({
 	          pos: pos$$1,
 	          str: search,
-	          fn: function fn(obj) {
+	          fn: function (obj) {
 	            return obj;
 	          }
 	        });
@@ -1783,7 +1764,7 @@
 	          temp_res.push({
 	            pos: pos$$1,
 	            str: search,
-	            fn: function fn(obj) {
+	            fn: function (obj) {
 	              if (s.indexOf(".") != -1) obj = CodeParser.collapseNames(obj); // apply complex properties
 
 	              return template.escape(obj[s]);
@@ -1793,7 +1774,7 @@
 	          temp_res.push({
 	            pos: pos$$1,
 	            str: search,
-	            fn: function fn(obj) {
+	            fn: function (obj) {
 	              if (s.indexOf(".") != -1) obj = CodeParser.collapseNames(obj); // apply complex properties
 
 	              return obj[s];
@@ -1809,7 +1790,7 @@
 	      if (temp_res.length) {
 	        var lastPos = 0;
 
-	        var addStr = function addStr(str, n0, n1) {
+	        var addStr = function (str, n0, n1) {
 	          _csp_cache[str].push(function () {
 	            return str.slice(n0, n1);
 	          });
@@ -2110,13 +2091,13 @@
 
 	if (typeof window.$$ === "undefined") window.$$ = $$;
 
-	exports.protoUI = function protoUI() {
+	exports.protoUI = function () {
 	  var origins = arguments;
 	  var selfname = origins[0].name;
 
-	  var _t = function t(data) {
-	    if (!_t) return ui[selfname].prototype;
-	    var origins = _t.$protoWait;
+	  var t = function (data) {
+	    if (!t) return ui[selfname].prototype;
+	    var origins = t.$protoWait;
 
 	    if (origins) {
 	      var params = [origins[0]];
@@ -2128,20 +2109,20 @@
 	      }
 
 	      ui[selfname] = exports.proto.apply(-1, params);
-	      if (_t._webix_type_wait) for (var _i2 = 0; _i2 < _t._webix_type_wait.length; _i2++) {
-	        type(ui[selfname], _t._webix_type_wait[_i2]);
+	      if (t._webix_type_wait) for (var _i2 = 0; _i2 < t._webix_type_wait.length; _i2++) {
+	        type(ui[selfname], t._webix_type_wait[_i2]);
 	      }
-	      _t = origins = null;
+	      t = origins = null;
 	    }
 
 	    if (this != -1) return new ui[selfname](data);else return ui[selfname];
 	  };
 
-	  _t.$protoWait = Array.prototype.slice.call(arguments, 0);
-	  return ui[selfname] = _t;
+	  t.$protoWait = Array.prototype.slice.call(arguments, 0);
+	  return ui[selfname] = t;
 	};
 
-	exports.proto = function proto() {
+	exports.proto = function () {
 	  var origins = arguments;
 	  var compilation = origins[0];
 	  var has_constructor = !!compilation.$init;
@@ -2183,7 +2164,7 @@
 
 	  if (compilation.$skin) compilation.$skin();
 
-	  var result = function result(config) {
+	  var result = function (config) {
 	    this.$ready = [];
 	    assert(this.$init, "object without init method");
 	    this.$init(config);
@@ -2312,7 +2293,7 @@
 	}
 
 	var ActiveContent = {
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    if (config.activeContent) {
 	      this.$ready.push(this._init_active_content_list);
 	      this._active_holders = {};
@@ -2332,13 +2313,13 @@
 	      }
 	    }
 	  },
-	  _destructActiveContent: function _destructActiveContent() {
+	  _destructActiveContent: function () {
 	    for (var key in this._active_references) {
 	      var elem = this._active_references[key];
 	      if (elem.destructor) elem.destructor();
 	    }
 	  },
-	  _init_active_content_list: function _init_active_content_list() {
+	  _init_active_content_list: function () {
 	    this.attachEvent("onDestruct", bind(this._destructActiveContent, this));
 
 	    _event(this.$view, "blur", function (ev) {
@@ -2371,7 +2352,7 @@
 	      this.type.masterUI = this;
 	    }
 	  },
-	  _locate_active_content_by_id: function _locate_active_content_by_id(key) {
+	  _locate_active_content_by_id: function (key) {
 	    return function (id) {
 	      var button = this._active_references[key];
 	      var button_id = button._settings.id;
@@ -2387,7 +2368,7 @@
 	      return button;
 	    };
 	  },
-	  _get_active_node: function _get_active_node(el, key, master) {
+	  _get_active_node: function (el, key, master) {
 	    return function (e) {
 	      if (e) {
 	        var trg = e.target || e.srcElement;
@@ -2413,7 +2394,7 @@
 	      return el._viewobj;
 	    };
 	  },
-	  _set_new_active_value: function _set_new_active_value(key, master) {
+	  _set_new_active_value: function (key, master) {
 	    return function (value) {
 	      var data = master.data;
 
@@ -2429,7 +2410,7 @@
 	      if (data) data[key] = value;
 	    };
 	  },
-	  _bind_active_content: function _bind_active_content(key) {
+	  _bind_active_content: function (key) {
 	    return function (obj, common, active) {
 	      var object = common._active_holders ? common : common.masterUI;
 
@@ -2476,14 +2457,14 @@
 	      return object._active_holders_item[key][obj.id] || object._active_holders[key];
 	    };
 	  },
-	  _setActiveContentView: function _setActiveContentView(el, view) {
+	  _setActiveContentView: function (el, view) {
 	    el._dataobj = el._viewobj = el.$view = view;
 	  }
 	};
 
 	var proxy = {
 	  $proxy: true,
-	  load: function load(view, callback) {
+	  load: function () {
 	    var parts = this.source.split("@");
 	    var ext = parts[0].split(".").pop();
 	    return ajax().response("arraybuffer").get(parts[0]).then(function (res) {
@@ -2491,10 +2472,10 @@
 	        ext: ext,
 	        dataurl: parts[1]
 	      };
-	      ajax.$callback(view, callback, "", {
+	      return {
 	        data: res,
 	        options: options
-	      }, -1);
+	      };
 	    });
 	  }
 	};
@@ -2502,10 +2483,10 @@
 	var proxy$1 = {
 	  $proxy: true,
 	  connectorName: "!nativeeditor_status",
-	  load: function load(view, callback) {
-	    ajax(this.source, callback, view);
+	  load: function () {
+	    return ajax(this.source);
 	  },
-	  saveAll: function saveAll(view, updates, dp, callback) {
+	  saveAll: function (view, updates) {
 	    var url = this.source;
 	    var data = {};
 	    var ids = [];
@@ -2525,36 +2506,30 @@
 	    data.webix_security = state.securityKey;
 	    url += url.indexOf("?") == -1 ? "?" : "&";
 	    url += "editing=true";
-	    ajax().post(url, data, callback);
-	  },
-	  result: function result(state$$1, view, dp, text, data, loader) {
-	    data = data.xml();
-	    if (!data) return dp._processError(null, text, data, loader);
-	    var actions = data.data.action;
-	    if (!actions.length) actions = [actions];
-	    var hash = [];
+	    return ajax().post(url, data).then(function (data) {
+	      data = data.xml();
+	      if (!data) throw "Data loading error";
+	      var actions = data.data.action;
+	      if (!actions.length) actions = [actions];
+	      var hash = [];
 
-	    for (var i = 0; i < actions.length; i++) {
-	      var obj = actions[i];
-	      hash.push(obj);
-	      obj.status = obj.type;
-	      obj.id = obj.sid;
-	      obj.newid = obj.tid;
-	      dp.processResult(obj, obj, {
-	        text: text,
-	        data: data,
-	        loader: loader
-	      });
-	    }
+	      for (var i = 0; i < actions.length; i++) {
+	        var obj = actions[i];
+	        obj.status = obj.type;
+	        obj.id = obj.sid;
+	        obj.newid = obj.tid;
+	        hash.push(obj);
+	      }
 
-	    return hash;
+	      return hash;
+	    });
 	  }
 	};
 
 	var proxy$2 = {
 	  $proxy: true,
-	  load: function load() {},
-	  save: function save(v, u, d) {
+	  load: function () {},
+	  save: function (v, u, d) {
 	    delay(function () {
 	      window.console.log("[DP] " + u.id + " -> " + u.operation, u.data);
 	      var data = {
@@ -2569,10 +2544,10 @@
 
 	var proxy$3 = {
 	  $proxy: true,
-	  init: function init() {
+	  init: function () {
 	    this.clientId = this.clientId || uid();
 	  },
-	  load: function load(view) {
+	  load: function (view) {
 	    var selfid = this.clientId;
 	    this.client.subscribe(this.source, function (update) {
 	      if (update.clientId == selfid) return;
@@ -2588,7 +2563,7 @@
 	      });
 	    });
 	  },
-	  save: function save(view, update) {
+	  save: function (view, update) {
 	    update.clientId = this.clientId;
 	    this.client.publish(this.source, update);
 	  }
@@ -2596,7 +2571,7 @@
 
 	var indexdb = {
 	  $proxy: true,
-	  create: function create(db, config, version, callback) {
+	  create: function (db, config, version, callback) {
 	    this.source = db + "/";
 
 	    this._get_db(callback, version, function (e) {
@@ -2615,7 +2590,7 @@
 	      }
 	    });
 	  },
-	  _get_db: function _get_db(callback, version, upgrade) {
+	  _get_db: function (callback, version, upgrade) {
 	    if (this.source.indexOf("/") != -1) {
 	      var parts = this.source.split("/");
 	      this.source = parts[1];
@@ -2637,25 +2612,35 @@
 	      }, this);
 	    } else if (this.db) callback.call(this);else delay(this._get_db, this, [callback], 50);
 	  },
-	  load: function load(view, callback) {
+	  load: function () {
+	    var waitData = Deferred.defer();
+
 	    this._get_db(function () {
 	      var store = this.db.transaction(this.source).objectStore(this.source);
 	      var data = [];
+	      var req = store.openCursor();
 
-	      store.openCursor().onsuccess = function (e) {
+	      req.onsuccess = function (e) {
 	        var result = e.target.result;
 
 	        if (result) {
 	          data.push(result.value);
 	          result["continue"]();
 	        } else {
-	          view.parse(data);
-	          ajax.$callback(view, callback, "[]", data);
+	          waitData.resolve(data);
 	        }
 	      };
+
+	      req.onerror = function (e) {
+	        waitData.reject(e);
+	      };
 	    });
+
+	    return waitData;
 	  },
-	  save: function save(view, update, dp) {
+	  save: function (view, update) {
+	    var waitData = Deferred.defer();
+
 	    this._get_db(function () {
 	      var mode = update.operation;
 	      var data = update.data;
@@ -2673,21 +2658,27 @@
 	          id: update.id
 	        };
 	        if (mode == "insert") result.newid = e.target.result;
-	        dp.processResult(result, result);
+	        waitData.resolve(result);
+	      };
+
+	      req.onerror = function (e) {
+	        waitData.reject(e);
 	      };
 	    });
+
+	    return waitData;
 	  }
 	};
 
 	var proxy$4 = {
 	  $proxy: true,
-	  load: function load(view, callback) {
-	    ajax(this.source, callback, view);
+	  load: function () {
+	    return ajax(this.source);
 	  },
-	  save: function save(view, update, dp, callback) {
-	    return proxy$4._save_logic.call(this, view, update, dp, callback, ajax());
+	  save: function (view, update) {
+	    return proxy$4._save_logic.call(this, update, ajax());
 	  },
-	  _save_logic: function _save_logic(view, update, dp, callback, ajax$$1) {
+	  _save_logic: function (update, ajax$$1) {
 	    var url = this.source;
 	    var query = "";
 	    var mark = url.indexOf("?");
@@ -2703,56 +2694,49 @@
 	    if (mode == "insert") delete data.id; //call rest URI
 
 	    if (mode == "update") {
-	      ajax$$1.put(url + data.id + query, data, callback);
+	      return ajax$$1.put(url + data.id + query, data);
 	    } else if (mode == "delete") {
-	      ajax$$1.del(url + data.id + query, data, callback);
+	      return ajax$$1.del(url + data.id + query, data);
 	    } else {
-	      ajax$$1.post(url + query, data, callback);
+	      return ajax$$1.post(url + query, data);
 	    }
 	  }
 	};
 
 	var proxy$5 = {
 	  $proxy: true,
-	  load: function load(view, callback) {
-	    ajax(this.source, callback, view);
+	  load: function () {
+	    return ajax(this.source);
 	  },
-	  save: function save(view, update, dp, callback) {
+	  save: function (view, update) {
 	    var xhr = ajax().headers({
 	      "Content-Type": "application/json"
 	    });
-	    return proxy$4._save_logic.call(this, view, update, dp, callback, xhr);
+	    return proxy$4._save_logic.call(this, update, xhr);
 	  }
 	};
 
 	var proxy$6 = {
 	  $proxy: true,
-	  load: function load(view, callback, params) {
+	  load: function (view, params) {
 	    params = exports.extend(params || {}, this.params || {}, true);
-	    ajax().bind(view).post(this.source, params, callback);
-	  }
-	};
-
-	var proxy$7 = {
-	  $proxy: true,
-	  load: function load(view, callback) {
-	    ajax().sync().bind(view).get(this.source, null, callback);
+	    return ajax().post(this.source, params);
 	  }
 	};
 
 	var jsarray = {
 	  //parse jsarray string to jsarray object if necessary
-	  toObject: function toObject(data) {
+	  toObject: function (data) {
 	    if (typeof data == "string") return JSON.parse(data);
 	    return data;
 	  },
 	  //get array of records
-	  getRecords: function getRecords(data) {
+	  getRecords: function (data) {
 	    if (data && data.data) data = data.data;
 	    return data;
 	  },
 	  //get hash of properties for single record, in case of array they will have names as "data{index}"
-	  getDetails: function getDetails(data) {
+	  getDetails: function (data) {
 	    var result = {};
 
 	    for (var i = 0; i < data.length; i++) {
@@ -2762,11 +2746,11 @@
 	    if (this.idColumn !== null) result.id = data[this.idColumn];
 	    return result;
 	  },
-	  getOptions: function getOptions() {
+	  getOptions: function () {
 	    return false;
 	  },
 	  //dyn loading is not supported by js-array data source
-	  getInfo: function getInfo() {
+	  getInfo: function () {
 	    return {
 	      size: 0
 	    };
@@ -2776,15 +2760,15 @@
 
 	var csv = {
 	  //incoming data always a string
-	  toObject: function toObject(data) {
+	  toObject: function (data) {
 	    return data;
 	  },
 	  //get array of records
-	  getRecords: function getRecords(data) {
+	  getRecords: function (data) {
 	    return data.split(this.row);
 	  },
 	  //get hash of properties for single record, data named as "data{index}"
-	  getDetails: function getDetails(data) {
+	  getDetails: function (data) {
 	    data = this.stringToArray(data);
 	    var result = {};
 
@@ -2795,17 +2779,17 @@
 	    if (this.idColumn !== null) result.id = data[this.idColumn];
 	    return result;
 	  },
-	  getOptions: function getOptions() {
+	  getOptions: function () {
 	    return false;
 	  },
 	  //dyn loading is not supported by csv data source
-	  getInfo: function getInfo() {
+	  getInfo: function () {
 	    return {
 	      size: 0
 	    };
 	  },
 	  //split string in array, takes string surrounding quotes in account
-	  stringToArray: function stringToArray(data) {
+	  stringToArray: function (data) {
 	    data = data.split(this.cell);
 
 	    for (var i = 0; i < data.length; i++) {
@@ -2821,13 +2805,13 @@
 
 	};
 
-	var html$1 = {
+	var html = {
 	  /*
 	  	incoming data can be
 	  	 - ID of parent container
 	  	 - HTML text
 	  */
-	  toObject: function toObject(data) {
+	  toObject: function (data) {
 	    if (typeof data == "string") {
 	      var t = null;
 	      if (data.indexOf("<") == -1) //if no tags inside - probably its an ID
@@ -2844,18 +2828,18 @@
 	    return data;
 	  },
 	  //get array of records
-	  getRecords: function getRecords(node) {
+	  getRecords: function (node) {
 	    return node.getElementsByTagName(this.tag);
 	  },
 	  //get hash of properties for single record
-	  getDetails: function getDetails(data) {
+	  getDetails: function (data) {
 	    return xml.tagToObject(data);
 	  },
-	  getOptions: function getOptions() {
+	  getOptions: function () {
 	    return false;
 	  },
 	  //dyn loading is not supported by HTML data source
-	  getInfo: function getInfo() {
+	  getInfo: function () {
 	    return {
 	      size: 0
 	    };
@@ -2865,7 +2849,7 @@
 
 	var htmltable = {
 	  //convert json string to json object if necessary
-	  toObject: function toObject(data) {
+	  toObject: function (data) {
 	    data = toNode(data);
 	    assert(data, "table is not found");
 	    assert(data.tagName.toLowerCase() === "table", "Incorrect table object");
@@ -2874,7 +2858,7 @@
 	    return tr;
 	  },
 	  //get array of records
-	  getRecords: function getRecords(data) {
+	  getRecords: function (data) {
 	    var new_data = []; //skip header rows if necessary
 
 	    var i = data[0] && data[0]._webix_skip ? 1 : 0;
@@ -2886,7 +2870,7 @@
 	    return new_data;
 	  },
 	  //get hash of properties for single record
-	  getDetails: function getDetails(data) {
+	  getDetails: function (data) {
 	    var td = data.getElementsByTagName("td");
 	    data = {}; //get hash of properties for single record, data named as "data{index}"
 
@@ -2897,17 +2881,17 @@
 	    return data;
 	  },
 	  //get count of data and position at which new data need to be inserted
-	  getInfo: function getInfo() {
+	  getInfo: function () {
 	    // dyn loading is not supported for htmltable
 	    return {
 	      size: 0
 	    };
 	  },
-	  getOptions: function getOptions() {},
+	  getOptions: function () {},
 
 	  /*! gets header from first table row
 	   **/
-	  getConfig: function getConfig(data) {
+	  getConfig: function (data) {
 	    var columns = [];
 	    var td = data[0].getElementsByTagName("th");
 	    if (td.length) data[0]._webix_skip = true;
@@ -2926,7 +2910,7 @@
 
 	    return columns;
 	  },
-	  _de_json: function _de_json(str) {
+	  _de_json: function (str) {
 	    var pos$$1 = str.indexOf("json://");
 	    if (pos$$1 != -1) str = JSON.parse(str.substr(pos$$1 + 7));
 	    return str;
@@ -2934,7 +2918,7 @@
 
 	  /*! gets hash of html-element attributes
 	   **/
-	  _get_attrs: function _get_attrs(el) {
+	  _get_attrs: function (el) {
 	    var attr = el.attributes;
 	    var hash = {};
 
@@ -2972,7 +2956,7 @@
 	      } // eslint-disable-line
 
 
-	      var callback2 = function callback2() {
+	      var callback2 = function () {
 	        count--;
 	        if (count === 0) promise.resolve();
 	      };
@@ -2982,7 +2966,7 @@
 	      }
 	    } else {
 	      // [ file, other ]
-	      var _callback = function _callback() {
+	      var _callback = function () {
 	        if (count) {
 	          count--;
 
@@ -3001,7 +2985,9 @@
 	  if (_modules[module] !== true) {
 	    var fullpath = module; //css, async, no waiting
 
-	    if (module.substr(module.length - 4) == ".css") {
+	    var parts = module.split("?");
+
+	    if (parts[0].substr(parts[0].length - 4) == ".css") {
 	      var link = create("LINK", {
 	        type: "text/css",
 	        rel: "stylesheet",
@@ -3051,7 +3037,7 @@
 	}
 
 	var excel = exports.extend({
-	  toObject: function toObject(data) {
+	  toObject: function (data) {
 	    if (!data.excel) {
 	      var opts = data.options || {};
 	      if (opts.dataurl) exports.extend(opts, this._urlToOptions(opts.dataurl));
@@ -3075,7 +3061,7 @@
 
 	    return data;
 	  },
-	  parseData: function parseData(data, options) {
+	  parseData: function (data, options) {
 	    data = new Uint8Array(data);
 	    var arr = [];
 
@@ -3105,13 +3091,13 @@
 	      return exports.extend(this.getSheet(res, options), res);
 	    }, this));
 	  },
-	  getSheet: function getSheet(data, options) {
+	  getSheet: function (data, options) {
 	    var name = options.name || data.names[0];
 	    data = this.sheetToArray(data.sheets[name], options);
 	    if (options.rows && options.rows.length) data.data = data.data.splice(options.rows[0], Math.min(options.rows[1], data.data.length) - options.rows[0]);
 	    return data;
 	  },
-	  sheetToArray: function sheetToArray(sheet, options) {
+	  sheetToArray: function (sheet, options) {
 	    var all = [];
 	    var spans = [];
 	    var styles = [];
@@ -3184,7 +3170,7 @@
 	      excel: true
 	    };
 	  },
-	  _urlToOptions: function _urlToOptions(details) {
+	  _urlToOptions: function (details) {
 	    var parts = details.split("[");
 	    var options = {};
 	    options.name = parts[0];
@@ -3205,7 +3191,7 @@
 	  jsarray: jsarray,
 	  xml: xml,
 	  csv: csv,
-	  html: html$1,
+	  html: html,
 	  htmltable: htmltable,
 	  excel: excel
 	};
@@ -3215,69 +3201,69 @@
 	storage.prefix = function (scope, storage) {
 	  scope = scope + ".";
 	  return {
-	    put: function put(name, data) {
+	    put: function (name, data) {
 	      return storage.put(scope + name, data);
 	    },
-	    get: function get(name) {
+	    get: function (name) {
 	      return storage.get(scope + name);
 	    },
-	    remove: function remove(name) {
+	    remove: function (name) {
 	      return storage.remove(scope + name);
 	    }
 	  };
 	};
 
 	storage.local = {
-	  put: function put(name, data) {
+	  put: function (name, data) {
 	    if (name && window.JSON && window.localStorage) {
 	      window.localStorage.setItem(name, stringify(data));
 	    }
 	  },
-	  get: function get(name) {
+	  get: function (name) {
 	    if (name && window.JSON && window.localStorage) {
 	      var json = window.localStorage.getItem(name);
 	      if (!json) return null;
 	      return DataDriver.json.toObject(json);
 	    } else return null;
 	  },
-	  remove: function remove(name) {
+	  remove: function (name) {
 	    if (name && window.JSON && window.localStorage) {
 	      window.localStorage.removeItem(name);
 	    }
 	  },
-	  clear: function clear() {
+	  clear: function () {
 	    window.localStorage.clear();
 	  }
 	};
 	storage.session = {
-	  put: function put(name, data) {
+	  put: function (name, data) {
 	    if (name && window.JSON && window.sessionStorage) {
 	      window.sessionStorage.setItem(name, stringify(data));
 	    }
 	  },
-	  get: function get(name) {
+	  get: function (name) {
 	    if (name && window.JSON && window.sessionStorage) {
 	      var json = window.sessionStorage.getItem(name);
 	      if (!json) return null;
 	      return DataDriver.json.toObject(json);
 	    } else return null;
 	  },
-	  remove: function remove(name) {
+	  remove: function (name) {
 	    if (name && window.JSON && window.sessionStorage) {
 	      window.sessionStorage.removeItem(name);
 	    }
 	  },
-	  clear: function clear() {
+	  clear: function () {
 	    window.sessionStorage.clear();
 	  }
 	};
 	storage.cookie = {
-	  put: function put(name, data, domain, expires) {
+	  put: function (name, data, domain, expires) {
 	    if (name && window.JSON) {
 	      document.cookie = name + "=" + escape(stringify(data)) + (expires && expires instanceof Date ? ";expires=" + expires.toUTCString() : "") + (domain ? ";domain=" + domain : "") + (env.https ? ";secure" : "");
 	    }
 	  },
-	  getRaw: function getRaw(check_name) {
+	  getRaw: function (check_name) {
 	    // first we'll split this cookie up into name/value pairs
 	    // note: document.cookie only returns name=value, not the other components
 	    var a_all_cookies = document.cookie.split(";");
@@ -3313,17 +3299,17 @@
 
 	    return null;
 	  },
-	  get: function get(name) {
+	  get: function (name) {
 	    if (name && window.JSON) {
 	      var json = this.getRaw(name);
 	      if (!json) return null;
 	      return DataDriver.json.toObject(unescape(json));
 	    } else return null;
 	  },
-	  remove: function remove(name, domain) {
+	  remove: function (name, domain) {
 	    if (name && this.getRaw(name)) document.cookie = name + "=" + (domain ? ";domain=" + domain : "") + ";expires=Thu, 01-Jan-1970 00:00:01 GMT";
 	  },
-	  clear: function clear(domain) {
+	  clear: function (domain) {
 	    var cookies = document.cookie.split(";");
 
 	    for (var i = 0; i < cookies.length; i++) {
@@ -3332,100 +3318,104 @@
 	  }
 	};
 
-	var proxy$8 = {
+	var proxy$7 = {
 	  $proxy: true,
 	  storage: storage.local,
 	  cache: false,
 	  local: false,
 	  data: "",
-	  _is_offline: function _is_offline() {
+	  _is_offline: function () {
 	    if (!this.cache && !env.offline) {
 	      callEvent("onOfflineMode", []);
 	      env.offline = true;
 	    }
 	  },
-	  _is_online: function _is_online() {
+	  _is_online: function () {
 	    if (!this.cache && env.offline) {
 	      env.offline = false;
 	      callEvent("onOnlineMode", []);
 	    }
 	  },
-	  load: function load(view, callback) {
-	    var mycallback = {
-	      error: function error() {
-	        //assuming offline mode
-	        var text = this.getCache() || this.data;
-	        var loader = {
-	          responseText: text
-	        };
+	  _on_success: function (text) {
+	    this._is_online();
 
-	        var data = ajax.prototype._data(loader);
-
-	        this._is_offline();
-
-	        ajax.$callback(view, callback, text, data, loader);
-	      },
-	      success: function success(text, data, loader) {
-	        this._is_online();
-
-	        ajax.$callback(view, callback, text, data, loader);
-	        this.setCache(text);
-	      }
-	    }; //in cache mode - always load data from cache
-
-	    if (this.cache && this.getCache()) mycallback.error.call(this);else {
-	      //else try to load actual data first
-	      if (this.source.$proxy) this.source.load(this, mycallback);else ajax(this.source, mycallback, this);
-	    }
+	    this.setCache(text);
 	  },
-	  getCache: function getCache() {
+	  _on_error: function (view) {
+	    //assuming offline mode
+	    this._is_offline();
+
+	    var text = this.getCache() || this.data;
+	    view.parse(text);
+	  },
+	  load: function (view) {
+	    var _this = this;
+
+	    //in cache mode - always load data from cache
+	    if (this.cache && this.getCache()) {
+	      this._on_error(view);
+	    } //else try to load actual data first
+	    else {
+	        var result;
+	        if (this.source.$proxy) result = this.source.load(view);else result = ajax().get(this.source);
+
+	        if (result && result.then) {
+	          result.then(function (data) {
+	            _this._on_success(data.text());
+	          }, function () {
+	            _this._on_error(view);
+	          });
+	        }
+
+	        return result;
+	      }
+	  },
+	  getCache: function () {
 	    return this.storage.get(this._data_name());
 	  },
-	  clearCache: function clearCache() {
+	  clearCache: function () {
 	    this.storage.remove(this._data_name());
 	  },
-	  setCache: function setCache(text) {
+	  setCache: function (text) {
 	    this.storage.put(this._data_name(), text);
 	  },
-	  _data_name: function _data_name() {
+	  _data_name: function () {
 	    if (this.source.$proxy) return this.source.source + "_$proxy$_data";else return this.source + "_$proxy$_data";
 	  },
-	  save: function save(master, data, view, callback) {
+	  save: function (master, data, view) {
 	    if (!env.offline && !this.cache) {
 	      if (this.source.$proxy) {
-	        this.source.save(master, data, view, callback);
+	        return this.source.save(master, data, view);
 	      } else {
-	        ajax().post(this.source, data.data, callback);
+	        return ajax().post(this.source, data.data);
 	      }
 	    }
 	  },
-	  saveAll: function saveAll(view, update, dp, callback) {
+	  saveAll: function (view, update) {
 	    this.setCache(view.serialize());
+	    update = this.cache || env.offline ? update : [];
 
-	    if (this.cache || env.offline) {
-	      ajax.$callback(view, callback, "", update);
+	    for (var i = 0; i < update.length; i++) {
+	      update[i] = {
+	        id: update[i].id,
+	        status: update[i].operation
+	      };
 	    }
-	  },
-	  result: function result(id, master, dp, text, data) {
-	    for (var i = 0; i < data.length; i++) {
-	      dp.processResult({
-	        id: data[i].id,
-	        status: data[i].operation
-	      }, {}, {});
-	    }
+
+	    return Deferred.resolve(update);
 	  }
 	};
 
-	var proxy$9 = {
-	  init: function init() {
-	    exports.extend(this, proxy$8);
+	var proxy$8 = {
+	  init: function () {
+	    exports.extend(this, proxy$7);
 	  },
 	  cache: true
 	};
 
-	var proxy$a = {
-	  init: function init() {
-	    exports.extend(this, proxy$8);
+	var proxy$9 = {
+	  init: function () {
+	    exports.extend(this, proxy$7);
 	  },
 	  cache: true,
 	  local: true,
@@ -3448,88 +3438,86 @@
 
 	var GraphQL = {
 	  $proxy: true,
-	  save: function save(data) {
+	  save: function (data) {
 	    return this.load(data);
 	  },
-	  load: function load(view, callback) {
+	  load: function (view) {
 	    var params = {
 	      query: this.source
 	    };
 
 	    if (arguments.length === 1) {
 	      params.variables = view;
-	      view = this;
 	    }
 
-	    return ajax().bind(view).headers({
+	    return ajax().headers({
 	      "Content-type": "application/json"
 	    }).post(this.url, params).then(function (data) {
-	      var flat = unbox(data.json().data);
-	      if (callback) ajax.$callback(view, callback, "", flat, -1);
-	      return flat;
+	      return unbox(data.json().data);
 	    });
 	  }
 	};
 
-	function proxy$b(name, source, extra) {
-	  assert(proxy$b[name], "Invalid proxy name: " + name);
-	  var copy$$1 = copy(proxy$b[name]);
+	function proxy$a(name, source, extra) {
+	  assert(proxy$a[name], "Invalid proxy name: " + name);
+	  var copy$$1 = copy(proxy$a[name]);
 	  copy$$1.source = source;
 	  if (extra) exports.extend(copy$$1, extra, true);
 	  if (copy$$1.init) copy$$1.init();
 	  return copy$$1;
 	}
 
-	proxy$b.$parse = function (value) {
+	proxy$a.$parse = function (value) {
 	  if (typeof value == "string" && value.indexOf("->") != -1) {
 	    var parts = value.split("->");
-	    return proxy$b(parts[0], parts[1]);
+	    return proxy$a(parts[0], parts[1]);
 	  }
 
 	  return value;
 	};
 
-	proxy$b.binary = proxy;
-	proxy$b.connector = proxy$1;
-	proxy$b.debug = proxy$2;
-	proxy$b.faye = proxy$3;
-	proxy$b.indexdb = indexdb;
-	proxy$b.json = proxy$5;
-	proxy$b.post = proxy$6;
-	proxy$b.rest = proxy$4;
-	proxy$b.sync = proxy$7;
-	proxy$b.offline = proxy$8;
-	proxy$b.cache = proxy$9;
-	proxy$b.local = proxy$a;
-	proxy$b.local = proxy$a;
-	proxy$b.GraphQL = GraphQL;
+	proxy$a.binary = proxy;
+	proxy$a.connector = proxy$1;
+	proxy$a.debug = proxy$2;
+	proxy$a.faye = proxy$3;
+	proxy$a.indexdb = indexdb;
+	proxy$a.json = proxy$5;
+	proxy$a.post = proxy$6;
+	proxy$a.rest = proxy$4;
+	proxy$a.offline = proxy$7;
+	proxy$a.cache = proxy$8;
+	proxy$a.local = proxy$9;
+	proxy$a.local = proxy$9;
+	proxy$a.GraphQL = GraphQL;
 
 	var AtomDataLoader = {
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    //prepare data store
 	    this.data = {};
 	    this.waitData = Deferred.defer();
 	    if (config) this._settings.datatype = config.datatype || "json";
 	    this.$ready.push(this._load_when_ready);
 	  },
-	  _load_when_ready: function _load_when_ready() {
+	  _load_when_ready: function () {
 	    this._ready_for_data = true;
 	    if (this._settings.url) this.url_setter(this._settings.url);
 	    if (this._settings.data) this.data_setter(this._settings.data);
 	  },
-	  url_setter: function url_setter(value) {
-	    value = proxy$b.$parse(value);
+	  url_setter: function (value) {
+	    value = proxy$a.$parse(value);
 	    if (!this._ready_for_data) return value;
 	    this.load(value, this._settings.datatype);
 	    return value;
 	  },
-	  data_setter: function data_setter(value) {
+	  data_setter: function (value) {
 	    if (!this._ready_for_data) return value;
 	    this.parse(value, this._settings.datatype);
 	    return true;
 	  },
 	  //loads data from external URL
-	  load: function load(url, call) {
+	  load: function (url, call) {
+	    var _this = this;
+
 	    var details = arguments[2] || null;
 	    if (!this.callEvent("onBeforeLoad", [])) return Deferred.reject();
 
@@ -3538,39 +3526,45 @@
 	      //we are not using setDriver as data may be a non-datastore here
 	      this.data.driver = DataDriver[call];
 	      call = arguments[2];
-	    } else if (!this.data.driver) this.data.driver = DataDriver.json; //load data by async ajax call
-	    //loading_key - can be set by component, to ignore data from old async requests
+	    } else if (!this.data.driver) this.data.driver = DataDriver.json;
+
+	    var result; //proxy	
+
+	    url = proxy$a.$parse(url);
+
+	    if (url.$proxy && url.load) {
+	      result = url.load(this, details);
+	    } //promize
+	    else if (typeof url === "function") {
+	        result = url.call(this, details);
+	      } //normal url
+	      else {
+	          result = ajax().bind(this).get(url);
+	        } //we wrap plain data in promise to keep the same processing for it
 
 
-	    var callback = [{
-	      success: this._onLoad,
-	      error: this._onLoadError
-	    }];
+	    if (result && !result.then) {
+	      result = Deferred.resolve(result);
+	    }
 
-	    if (call) {
-	      if (isArray(call)) callback.push.apply(callback, call);else callback.push(call);
-	    } //proxy	
+	    if (result && result.then) {
+	      result.then(function (data) {
+	        if (_this.$destructed) return;
 
+	        _this._onLoad(data);
 
-	    url = proxy$b.$parse(url);
-	    if (url.$proxy && url.load) return url.load(this, callback, details); //promize
+	        if (call) ajax.$callback(_this, call, "", data, -1);
+	      }, function (x) {
+	        _this._onLoadError(x);
+	      });
+	    }
 
-	    if (typeof url === "function") {
-	      return url(details).then(bind(function (data) {
-	        ajax.$callback(this, callback, "", data, -1);
-	      }, this), bind(function (x) {
-	        ajax.$callback(this, callback, "", null, x, true);
-	      }, this));
-	    } //normal url
-
-
-	    return ajax(url, callback, this);
+	    return result;
 	  },
 	  //loads data from object
-	  parse: function parse(data, type) {
-	    if (data && data.then && typeof data.then == "function") {
+	  parse: function (data, type) {
+	    if (data && typeof data.then == "function") {
 	      return data.then(bind(function (data) {
-	        if (data && typeof data.json == "function") data = data.json();
 	        this.parse(data, type);
 	      }, this));
 	    } //loading data from other component
@@ -3580,15 +3574,15 @@
 	    if (!this.callEvent("onBeforeLoad", [])) return Deferred.reject();
 	    this.data.driver = DataDriver[type || "json"];
 
-	    this._onLoad(data, null);
+	    this._onLoad(data);
 	  },
-	  _syncData: function _syncData(data) {
+	  _syncData: function (data) {
 	    if (this.data) this.data.attachEvent("onSyncApply", bind(function () {
 	      if (this._call_onready) this._call_onready();
 	    }, this));
 	    this.sync(data);
 	  },
-	  _parse: function _parse(data) {
+	  _parse: function (data) {
 	    var parsed,
 	        record,
 	        driver = this.data.driver;
@@ -3596,13 +3590,13 @@
 	    parsed = record ? driver.getDetails(record) : {};
 	    if (this.setValues) this.setValues(parsed);else this.data = parsed;
 	  },
-	  _onLoadContinue: function _onLoadContinue(data, text, response, loader) {
+	  _onLoadContinue: function (data) {
 	    if (data) {
 	      if (!this.$onLoad || !this.$onLoad(data, this.data.driver)) {
 	        if (this.data && this.data._parse) this.data._parse(data); //datastore
 	        else this._parse(data);
 	      }
-	    } else this._onLoadError(text, response, loader); //data loaded, view rendered, call onready handler
+	    } else this._onLoadError(data); //data loaded, view rendered, call onready handler
 
 
 	    if (this._call_onready) this._call_onready();
@@ -3610,22 +3604,24 @@
 	    this.waitData.resolve();
 	  },
 	  //default after loading callback
-	  _onLoad: function _onLoad(text, response, loader) {
-	    var driver = this.data.driver;
-	    var data;
-	    if (loader === -1) data = driver.toObject(response);else {
-	      //ignore data loading command if data was reloaded 
-	      if (this._ajax_queue) this._ajax_queue.remove(loader);
-	      data = driver.toObject(text, response);
+	  _onLoad: function (data) {
+	    var _this2 = this;
+
+	    if (data && typeof data.text === "function") {
+	      data = data.text();
 	    }
-	    if (!data || !data.then) this._onLoadContinue(data);else if (data.then && typeof data.then == "function") data.then(bind(this._onLoadContinue, this));
+
+	    data = this.data.driver.toObject(data);
+	    if (data && data.then) data.then(function (data) {
+	      _this2._onLoadContinue(data);
+	    });else this._onLoadContinue(data);
 	  },
-	  _onLoadError: function _onLoadError(text, xml, xhttp) {
+	  _onLoadError: function (xhttp) {
 	    this.callEvent("onAfterLoad", []);
 	    this.callEvent("onLoadError", arguments);
-	    callEvent("onLoadError", [text, xml, xhttp, this]);
+	    callEvent("onLoadError", [xhttp, this]);
 	  },
-	  _check_data_feed: function _check_data_feed(data) {
+	  _check_data_feed: function (data) {
 	    if (!this._settings.dataFeed || this._ignore_feed || !data) return true;
 	    var url = this._settings.dataFeed;
 	    if (typeof url == "function") return url.call(this, data.id || data, data);
@@ -3635,7 +3631,7 @@
 	      this._ignore_feed = true;
 	      var driver = DataDriver.json;
 	      var data = driver.toObject(text, xml);
-	      if (data) this.setValues(driver.getDetails(driver.getRecords(data)[0]));else this._onLoadError(text, xml, loader);
+	      if (data) this.setValues(driver.getDetails(driver.getRecords(data)[0]));else this._onLoadError(loader);
 	      this._ignore_feed = false;
 	      this.callEvent("onAfterLoad", []);
 	    }, this);
@@ -3645,12 +3641,12 @@
 
 	var AtomRender = {
 	  //convert item to the HTML text
-	  _toHTML: function _toHTML(obj) {
+	  _toHTML: function (obj) {
 	    if (obj.$empty) return "";
 	    return this._settings.template(obj, this);
 	  },
 	  //render self, by templating data object
-	  render: function render() {
+	  render: function () {
 	    var cfg = this._settings;
 
 	    if (this.isVisible(cfg.id)) {
@@ -3670,7 +3666,7 @@
 
 	    return false;
 	  },
-	  sync: function sync(source) {
+	  sync: function (source) {
 	    this._backbone_sync = false;
 
 	    if (source.name != "DataStore") {
@@ -3697,7 +3693,7 @@
 	};
 
 	var AutoScroll = {
-	  _auto_scroll: function _auto_scroll(pos$$1) {
+	  _auto_scroll: function (pos$$1) {
 	    var yscroll = 1;
 	    var xscroll = 0;
 	    var mode = this._settings.dragscroll;
@@ -3751,601 +3747,141 @@
 
 	    if (reset) this._auto_scroll_delay = delay(this._auto_scroll, this, [pos$$1], 100);
 	  },
-	  _auto_scrollTo: function _auto_scrollTo(x, y, pos$$1) {
+	  _auto_scrollTo: function (x, y, pos$$1) {
 	    if (this.callEvent("onBeforeAutoScroll", [pos$$1])) this.scrollTo(x, y);
 	  }
 	};
 
-	function ready(code) {
-	  if (_ready) code.call();else _ready_code.push(code);
-	}
+	var TooltipControl = {
+	  _tooltip_masters: toArray(["dummy"]),
+	  _tooltip_exist: 0,
+	  delay: 400,
+	  addTooltip: function (target, config) {
+	    var node, ctrl;
+	    target = toNode(target);
+	    assert(target, "Target isn't defined");
 
-	var _ready = false;
-	var _ready_code = []; //autodetect codebase folder
-
-	var temp = document.getElementsByTagName("SCRIPT"); //current script, most probably
-
-	assert(temp.length, "Can't locate codebase");
-
-	if (temp.length) {
-	  //full path to script
-	  temp = (temp[temp.length - 1].getAttribute("src") || "").split("/"); //get folder name
-
-	  temp.splice(temp.length - 1, 1);
-	  env.codebase = temp.slice(0, temp.length).join("/") + "/";
-	}
-
-	var handler = function handler() {
-	  if (env.isIE) document.body.className += " webix_ie";
-	  callEvent("onReady", []);
-	};
-
-	var doit = function doit() {
-	  _ready = true;
-	  /* global webix_ready */
-
-	  if (window.webix_ready && isArray(webix_ready)) _ready_code = webix_ready.concat(_ready_code);
-
-	  for (var i = 0; i < _ready_code.length; i++) {
-	    _ready_code[i].call();
-	  }
-
-	  _ready_code = [];
-	};
-
-	attachEvent("onReady", function (force) {
-	  if (force) doit();else delay(doit);
-	});
-	if (document.readyState == "complete") handler();else event$1(window, "load", handler);
-	ready(function () {
-	  event$1(document.body, "click", function (e) {
-	    callEvent("onClick", [e || event$1]);
-	  });
-	});
-
-	var Touch = {
-	  config: {
-	    longTouchDelay: 1000,
-	    scrollDelay: 150,
-	    gravity: 500,
-	    deltaStep: 30,
-	    speed: "0ms",
-	    finish: 1500,
-	    ellastic: true,
-	    fastClick: true
-	  },
-	  limit: function limit(value) {
-	    Touch._limited = value !== false;
-	  },
-	  disable: function disable() {
-	    Touch._disabled = true;
-	  },
-	  enable: function enable() {
-	    Touch._disabled = false;
-	  },
-	  $init: function $init() {
-	    Touch.$init = function () {};
-
-	    event$1(document.body, mouse.down, Touch._touchstart, {
-	      passive: false
-	    });
-	    event$1(document.body, mouse.move, Touch._touchmove, {
-	      passive: false
-	    });
-	    event$1(document.body, mouse.up, Touch._touchend);
-	    event$1(document.body, "dragstart", function (e) {
-	      if (Touch._disabled || Touch._limited) return;
-	      return preventEvent(e);
-	    });
-	    event$1(document.body, "touchstart", function (e) {
-	      if (Touch._disabled || Touch._limited || !Touch.config.fastClick) return; //fast click mode for iOS
-	      //To have working form elements Android must not block event - so there are no fast clicks for Android
-	      //Selects still don't work with fast clicks
-
-	      if (env.isSafari) {
-	        var tag = e.srcElement.tagName.toLowerCase();
-	        if (tag == "input" || tag == "textarea" || tag == "select" || tag == "label") return true;
-	        Touch._fire_fast_event = true;
-	        return preventEvent(e);
-	      }
-	    }, {
-	      passive: false
-	    });
-
-	    Touch._clear_artefacts();
-
-	    Touch._scroll = [null, null];
-	    Touch.$active = true;
-	  },
-	  _clear_artefacts: function _clear_artefacts() {
-	    Touch._start_context = Touch._current_context = Touch._prev_context = Touch._scroll_context = null;
-	    Touch._scroll_mode = Touch._scroll_node = Touch._scroll_stat = this._long_touched = null; //remove(Touch._scroll);
-	    //Touch._scroll = [null, null];
-
-	    Touch._delta = {
-	      _x_moment: 0,
-	      _y_moment: 0,
-	      _time: 0
-	    };
-
-	    if (Touch._css_button_remove) {
-	      removeCss(Touch._css_button_remove, "webix_touch");
-	      Touch._css_button_remove = null;
-	    }
-
-	    window.clearTimeout(Touch._long_touch_timer);
-	    Touch._was_not_moved = true;
-	    Touch._axis_x = true;
-	    Touch._axis_y = true;
-	    if (!Touch._active_transion) Touch._scroll_end();
-	  },
-	  _touchend: function _touchend(e) {
-	    if (Touch._start_context) {
-	      if (!Touch._scroll_mode) {
-	        if (!this._long_touched) {
-	          if (Touch._axis_y && !Touch._axis_x) {
-	            Touch._translate_event("onSwipeX");
-	          } else if (Touch._axis_x && !Touch._axis_y) {
-	            Touch._translate_event("onSwipeY");
-	          } else {
-	            if (env.isSafari && Touch._fire_fast_event) {
-	              //need to test for mobile ff and blackbery
-	              Touch._fire_fast_event = false;
-	              var target = Touch._start_context.target; //dark iOS magic, without delay it can skip repainting
-
-	              delay(function () {
-	                var click_event = document.createEvent("MouseEvents");
-	                click_event.initEvent("click", true, true);
-	                target.dispatchEvent(click_event);
-	              });
-	            }
-	          }
-	        }
-	      } else {
-	        var temp = Touch._get_matrix(Touch._scroll_node);
-
-	        var x = temp.e;
-	        var y = temp.f;
-	        var finish = Touch.config.finish;
-
-	        var delta = Touch._get_delta(e, true);
-
-	        var view = $$(Touch._scroll_node);
-	        var gravity = view && view.$scroll ? view.$scroll.gravity : Touch.config.gravity;
-
-	        if (delta._time) {
-	          var nx = x + gravity * delta._x_moment / delta._time;
-	          var ny = y + gravity * delta._y_moment / delta._time;
-	          var cnx = Touch._scroll[0] ? Touch._correct_minmax(nx, false, false, Touch._scroll_stat.dx, Touch._scroll_stat.px) : x;
-	          var cny = Touch._scroll[1] ? Touch._correct_minmax(ny, false, false, Touch._scroll_stat.dy, Touch._scroll_stat.py) : y;
-	          var size = Math.max(Math.abs(cnx - x), Math.abs(cny - y));
-	          if (size < 150) finish = finish * size / 150;
-	          if (cnx != x || cny != y) finish = Math.round(finish * Math.max((cnx - x) / (nx - x), (cny - y) / (ny - y)));
-	          var result = {
-	            e: cnx,
-	            f: cny
-	          };
-	          view = $$(Touch._scroll_node);
-	          if (view && view.adjustScroll) view.adjustScroll(result); //finish = Math.max(100,(Touch._fast_correction?100:finish));
-
-	          finish = Math.max(100, finish);
-
-	          if (x != result.e || y != result.f) {
-	            Touch._set_matrix(Touch._scroll_node, result.e, result.f, finish + "ms");
-
-	            if (Touch._scroll_master) Touch._scroll_master._sync_scroll(result.e, result.f, finish + "ms");
-
-	            Touch._set_scroll(result.e, result.f, finish + "ms");
-	          } else {
-	            Touch._scroll_end();
-	          }
-	        } else Touch._scroll_end();
-	      }
-
-	      Touch._translate_event("onTouchEnd");
-
-	      Touch._clear_artefacts();
-	    }
-	  },
-	  _touchmove: function _touchmove(e) {
-	    if (!Touch._scroll_context || !Touch._start_context) return;
-
-	    var delta = Touch._get_delta(e);
-
-	    Touch._translate_event("onTouchMove");
-
-	    if (Touch._scroll_mode) {
-	      Touch._set_scroll_pos(delta);
+	    if (target instanceof Element) {
+	      node = target;
+	      if (typeof config === "string") node.setAttribute("webix_tooltip", config);else ctrl = config;
 	    } else {
-	      Touch._axis_x = Touch._axis_check(delta._x, "x", Touch._axis_x);
-	      Touch._axis_y = Touch._axis_check(delta._y, "y", Touch._axis_y);
-
-	      if (Touch._scroll_mode) {
-	        var view = Touch._get_event_view("onBeforeScroll", true);
-
-	        if (view) {
-	          var data = {};
-	          view.callEvent("onBeforeScroll", [data]);
-
-	          if (data.update) {
-	            Touch.config.speed = data.speed;
-	            Touch.config.scale = data.scale;
-	          }
-	        }
-
-	        Touch._init_scroller(delta); //apply scrolling
-
-	      }
+	      node = target.$view;
+	      ctrl = target;
 	    }
 
-	    return preventEvent(e);
-	  },
-	  _set_scroll_pos: function _set_scroll_pos() {
-	    if (!Touch._scroll_node) return;
+	    ctrl = ctrl || this;
 
-	    var temp = Touch._get_matrix(Touch._scroll_node);
+	    var index$$1 = this._tooltip_masters.find(ctrl);
 
-	    var prev = Touch._prev_context || Touch._start_context;
-	    var view = $$(Touch._scroll_node);
-	    var ellastic = view && view.$scroll ? view.$scroll.ellastic : Touch.config.ellastic;
-	    if (Touch._scroll[0]) temp.e = Touch._correct_minmax(temp.e - prev.x + Touch._current_context.x, ellastic, temp.e, Touch._scroll_stat.dx, Touch._scroll_stat.px);
-	    if (Touch._scroll[1]) temp.f = Touch._correct_minmax(temp.f - prev.y + Touch._current_context.y, ellastic, temp.f, Touch._scroll_stat.dy, Touch._scroll_stat.py);
+	    if (index$$1 === -1) {
+	      index$$1 = this._tooltip_masters.length;
 
-	    Touch._set_matrix(Touch._scroll_node, temp.e, temp.f, "0ms");
+	      this._tooltip_masters.push(ctrl);
+	    }
 
-	    if (Touch._scroll_master) Touch._scroll_master._sync_scroll(temp.e, temp.f, "0ms");
+	    node.webix_tooltip = index$$1;
+	    this._tooltip_exist++;
 
-	    Touch._set_scroll(temp.e, temp.f, "0ms");
-	  },
-	  _set_scroll: function _set_scroll(dx, dy, speed) {
-	    var edx = Touch._scroll_stat.px / Touch._scroll_stat.dx * -dx;
-	    var edy = Touch._scroll_stat.py / Touch._scroll_stat.dy * -dy;
-	    if (Touch._scroll[0]) Touch._set_matrix(Touch._scroll[0], edx, 0, speed);
-	    if (Touch._scroll[1]) Touch._set_matrix(Touch._scroll[1], 0, edy, speed);
-	  },
-	  scrollTo: function scrollTo(node, x, y, speed) {
-	    Touch._set_matrix(node, x, y, speed);
-	  },
-	  _set_matrix: function _set_matrix(node, xv, yv, speed) {
-	    if (!Touch._in_anim_frame && window.setAnimationFrame) {
-	      window.setAnimationFrame(function () {
-	        Touch._in_anim_frame = true;
-	        return Touch._set_matrix(node, xv, yv, speed);
+	    if (!this._tooltip) {
+	      this._tooltip = new ui.tooltip({});
+	      this._webix_tooltip_mm = event$1(document, "mousemove", this._move_tooltip, {
+	        bind: this
+	      });
+	      this._webix_tooltip_ml = event$1(document, "mouseleave", this._hide_tooltip, {
+	        bind: this
+	      });
+	      this._drag_event = attachEvent("onDragMode", function () {
+	        if (TooltipControl._tooltip_exist) TooltipControl._hide_tooltip();
 	      });
 	    }
-
-	    Touch._in_anim_frame = null;
-	    Touch._active_transion = true;
-
-	    if (node) {
-	      var trans = Touch.config.translate || env.translate;
-	      node.style[env.transform] = trans + "(" + Math.round(xv) + "px, " + Math.round(yv) + "px" + (trans == "translate3d" ? ", 0" : "") + ")";
-	      node.style[env.transitionDuration] = speed;
-	    }
 	  },
-	  _get_matrix: function _get_matrix(node) {
-	    var matrix = window.getComputedStyle(node)[env.transform];
-	    var tmatrix;
-	    if (matrix == "none") tmatrix = {
-	      e: 0,
-	      f: 0
-	    };else {
-	      if (window.WebKitCSSMatrix)
-	        /* global WebKitCSSMatrix */
-	        tmatrix = new WebKitCSSMatrix(matrix);else if (window.MSCSSMatrix)
-	        /* global MSCSSMatrix */
-	        tmatrix = new MSCSSMatrix(matrix);else {
-	        // matrix(1, 0, 0, 1, 0, 0) --> 1, 0, 0, 1, 0, 0
-	        var _tmatrix = matrix.replace(/(matrix\()(.*)(\))/gi, "$2"); // 1, 0, 0, 1, 0, 0 --> 1,0,0,1,0,0
+	  getTooltip: function () {
+	    return this._tooltip;
+	  },
+	  _move_tooltip: function (e) {
+	    var node = e.target || e.srcElement;
+	    var text;
 
-
-	        _tmatrix = _tmatrix.replace(/\s/gi, "");
-	        _tmatrix = _tmatrix.split(",");
-	        tmatrix = {};
-	        var tkey = ["a", "b", "c", "d", "e", "f"];
-
-	        for (var i = 0; i < tkey.length; i++) {
-	          tmatrix[tkey[i]] = parseInt(_tmatrix[i], 10);
+	    while (node && node.tagName != "HTML") {
+	      if (node.webix_tooltip) {
+	        if (this._last && this._last != node) {
+	          this.$tooltipOut(this._last, node, e);
+	          this._last = null;
+	          return;
 	        }
-	      }
-	    }
-	    if (Touch._scroll_master) Touch._scroll_master._sync_pos(tmatrix);
-	    return tmatrix;
-	  },
-	  _correct_minmax: function _correct_minmax(value, allow, current, dx, px) {
-	    if (value === current) return value;
-	    var delta = Math.abs(value - current);
-	    var sign = delta / (value - current); //	Touch._fast_correction = true;
 
-	    if (value > 0) return allow ? current + sign * Math.sqrt(delta) : 0;
-	    var max = dx - px;
-	    if (max + value < 0) return allow ? current - Math.sqrt(-(value - current)) : -max; //	Touch._fast_correction = false;
-
-	    return value;
-	  },
-	  _init_scroll_node: function _init_scroll_node(node) {
-	    if (!node.scroll_enabled) {
-	      node.scroll_enabled = true;
-	      node.parentNode.style.position = "relative";
-	      var prefix = env.cssPrefix;
-	      node.style.cssText += prefix + "transition: " + prefix + "transform; " + prefix + "user-select:none; " + prefix + "transform-style:flat;";
-	      node.addEventListener(env.transitionEnd, Touch._scroll_end, false);
-	    }
-	  },
-	  _init_scroller: function _init_scroller() {
-	    if (Touch._scroll_mode.indexOf("x") != -1) Touch._scroll[0] = Touch._create_scroll("x", Touch._scroll_stat.dx, Touch._scroll_stat.px, "width");
-	    if (Touch._scroll_mode.indexOf("y") != -1) Touch._scroll[1] = Touch._create_scroll("y", Touch._scroll_stat.dy, Touch._scroll_stat.py, "height");
-
-	    Touch._init_scroll_node(Touch._scroll_node);
-
-	    window.setTimeout(Touch._set_scroll_pos, 1);
-	  },
-	  _create_scroll: function _create_scroll(mode, dy, py, dim) {
-	    if (dy - py < 2) {
-	      var matrix = Touch._get_matrix(Touch._scroll_node);
-
-	      var e = mode == "y" ? matrix.e : 0;
-	      var f = mode == "y" ? 0 : matrix.f;
-	      if (!Touch._scroll_master) Touch._set_matrix(Touch._scroll_node, e, f, "0ms");
-	      Touch._scroll_mode = Touch._scroll_mode.replace(mode, "");
-	      return "";
-	    }
-
-	    var scroll = create("DIV", {
-	      "class": "webix_scroll_" + mode
-	    }, "");
-	    scroll.style[dim] = Math.max(py * py / dy - 7, 10) + "px";
-	    if (Touch._scroll_stat.left) if (mode === "x") scroll.style.left = Touch._scroll_stat.left + "px";else scroll.style.right = -Touch._scroll_stat.left + "px";
-	    if (Touch._scroll_stat.hidden) scroll.style.visibility = "hidden";
-
-	    Touch._scroll_node.parentNode.appendChild(scroll);
-
-	    return scroll;
-	  },
-	  _axis_check: function _axis_check(value, mode, old) {
-	    if (value > Touch.config.deltaStep) {
-	      if (Touch._was_not_moved) {
-	        Touch._long_move(mode);
-
-	        Touch._locate(mode);
-
-	        if ((Touch._scroll_mode || "").indexOf(mode) == -1) Touch._scroll_mode = "";
+	        if (!this._last) this._last = this.$tooltipIn(node, e);
+	        this.$tooltipMove(node, e, text);
+	        return;
 	      }
 
-	      return false;
-	    }
-
-	    return old;
-	  },
-	  _scroll_end: function _scroll_end() {
-	    //sending event to the owner of the scroll only
-	    var result, state, view;
-	    view = $$(Touch._scroll_node || this);
-
-	    if (view) {
-	      if (Touch._scroll_node) result = Touch._get_matrix(Touch._scroll_node);else if (view.getScrollState) {
-	        state = view.getScrollState();
-	        result = {
-	          e: state.x,
-	          f: state.y
-	        };
-	      }
-	      callEvent("onAfterScroll", [result]);
-	      if (view.callEvent) view.callEvent("onAfterScroll", [result]);
-	    }
-
-	    if (!Touch._scroll_mode) {
-	      remove(Touch._scroll);
-	      Touch._scroll = [null, null];
-	    }
-
-	    Touch._active_transion = false;
-	  },
-	  _long_move: function _long_move() {
-	    window.clearTimeout(Touch._long_touch_timer);
-	    Touch._was_not_moved = false;
-	  },
-	  _stop_old_scroll: function _stop_old_scroll(e) {
-	    if (Touch._scroll[0] || Touch._scroll[1]) {
-	      Touch._stop_scroll(e, Touch._scroll[0] ? "x" : "y");
-	    } else return true;
-	  },
-	  _touchstart: function _touchstart(e) {
-	    var target = e.target || event$1.srcElement;
-	    if (Touch._disabled || target.tagName && target.tagName.toLowerCase() == "textarea" && target.offsetHeight < target.scrollHeight) return;
-	    Touch._long_touched = null;
-	    Touch._scroll_context = Touch._start_context = mouse.context(e); // in "limited" mode we should have possibility to use slider
-
-	    var element = $$(e);
-
-	    if (Touch._limited && !Touch._is_scroll() && !(element && element.$touchCapture)) {
-	      Touch._scroll_context = null;
-	    }
-
-	    Touch._translate_event("onTouchStart");
-
-	    if (Touch._stop_old_scroll(e)) Touch._long_touch_timer = window.setTimeout(Touch._long_touch, Touch.config.longTouchDelay);
-
-	    if (element && element.touchable && (!target.className || target.className.indexOf("webix_view") !== 0)) {
-	      Touch._css_button_remove = element.getNode(e);
-	      addCss(Touch._css_button_remove, "webix_touch");
-	    }
-	  },
-	  _long_touch: function _long_touch() {
-	    if (Touch._start_context) {
-	      Touch._translate_event("onLongTouch");
-
-	      callEvent("onClick", [Touch._start_context]);
-	      Touch._long_touched = true; //Touch._clear_artefacts();
-	    }
-	  },
-	  _stop_scroll: function _stop_scroll(e, stop_mode) {
-	    Touch._locate(stop_mode);
-
-	    var scroll = Touch._scroll[0] || Touch._scroll[1];
-
-	    if (scroll) {
-	      var view = Touch._get_event_view("onBeforeScroll", true);
-
-	      if (view) view.callEvent("onBeforeScroll", [Touch._start_context, Touch._current_context]);
-	    }
-
-	    if (scroll && (!Touch._scroll_node || scroll.parentNode != Touch._scroll_node.parentNode)) {
-	      Touch._clear_artefacts();
-
-	      Touch._scroll_end();
-
-	      Touch._start_context = mouse.context(e);
-	    }
-
-	    Touch._touchmove(e);
-	  },
-	  _get_delta: function _get_delta(e) {
-	    Touch._prev_context = Touch._current_context;
-	    Touch._current_context = mouse.context(e);
-	    Touch._delta._x = Math.abs(Touch._start_context.x - Touch._current_context.x);
-	    Touch._delta._y = Math.abs(Touch._start_context.y - Touch._current_context.y);
-
-	    if (Touch._prev_context) {
-	      if (Touch._current_context.time - Touch._prev_context.time < Touch.config.scrollDelay) {
-	        Touch._delta._x_moment = Touch._delta._x_moment / 1.3 + Touch._current_context.x - Touch._prev_context.x;
-	        Touch._delta._y_moment = Touch._delta._y_moment / 1.3 + Touch._current_context.y - Touch._prev_context.y;
-	      } else {
-	        Touch._delta._y_moment = Touch._delta._x_moment = 0;
-	      }
-
-	      Touch._delta._time = Touch._delta._time / 1.3 + (Touch._current_context.time - Touch._prev_context.time);
-	    }
-
-	    return Touch._delta;
-	  },
-	  _get_sizes: function _get_sizes(node) {
-	    Touch._scroll_stat = {
-	      dx: node.offsetWidth,
-	      dy: node.offsetHeight,
-	      px: node.parentNode.offsetWidth,
-	      py: node.parentNode.offsetHeight
-	    };
-	  },
-	  _is_scroll: function _is_scroll(locate_mode) {
-	    var node = Touch._start_context.target;
-	    if (!env.touch && !env.transition && !env.transform) return null;
-
-	    while (node && node.tagName != "BODY") {
-	      if (node.getAttribute) {
-	        var mode = node.getAttribute("touch_scroll");
-	        if (mode && (!locate_mode || mode.indexOf(locate_mode) != -1)) return [node, mode];
-	      }
-
+	      text = text || node.getAttribute("webix_tooltip");
 	      node = node.parentNode;
 	    }
 
-	    return null;
+	    if (this._last) this._last = this.$tooltipOut(this._last, null, e);
 	  },
-	  _locate: function _locate(locate_mode) {
-	    var state = this._is_scroll(locate_mode);
+	  _hide_tooltip: function () {
+	    clearTimeout(this._before_show_delay);
 
-	    if (state) {
-	      Touch._scroll_mode = state[1];
-	      Touch._scroll_node = state[0];
+	    this._tooltip.hide();
+	  },
+	  getMaster: function (t) {
+	    return this._tooltip_masters[t.webix_tooltip];
+	  },
+	  removeTooltip: function (target) {
+	    var node;
+	    assert(target, "Target isn't defined");
+	    target = toNode(target);
+	    if (target instanceof Element) node = target;else node = target.$view;
 
-	      Touch._get_sizes(state[0]);
+	    if (node.webix_tooltip) {
+	      delete node.webix_tooltip;
+	      this._tooltip_exist--;
 	    }
 
-	    return state;
-	  },
-	  _translate_event: function _translate_event(name) {
-	    callEvent(name, [Touch._start_context, Touch._current_context]);
+	    if (!this._tooltip_exist && this._tooltip) {
+	      this._webix_tooltip_mm = eventRemove(this._webix_tooltip_mm);
+	      this._webix_tooltip_ml = eventRemove(this._webix_tooltip_ml);
+	      this._drag_event = detachEvent(this._drag_event);
 
-	    var view = Touch._get_event_view(name);
+	      this._tooltip.destructor();
 
-	    if (view) view.callEvent(name, [Touch._start_context, Touch._current_context]);
-	  },
-	  _get_event_view: function _get_event_view(name, active) {
-	    var view = $$(active ? Touch._scroll_node : Touch._start_context);
-	    if (!view) return null;
-
-	    while (view) {
-	      if (view.hasEvent && view.hasEvent(name)) return view;
-	      view = view.getParentView();
+	      this._tooltip = this._last = null;
+	      this._tooltip_masters = toArray(["dummy"]);
 	    }
-
-	    return null;
 	  },
-	  _get_context: function _get_context(e) {
-	    if (!e.touches[0]) {
-	      var temp = Touch._current_context;
-	      temp.time = new Date();
-	      return temp;
-	    }
+	  $tooltipIn: function (t, e) {
+	    var m = this._tooltip_masters[t.webix_tooltip];
+	    if (m.$tooltipIn && m != this) return m.$tooltipIn(t, e);
 
-	    return {
-	      target: e.target,
-	      x: e.touches[0].pageX,
-	      y: e.touches[0].pageY,
-	      time: new Date()
-	    };
-	  },
-	  _get_context_m: function _get_context_m(e) {
-	    return {
-	      target: e.target || e.srcElement,
-	      x: e.pageX,
-	      y: e.pageY,
-	      time: new Date()
-	    };
-	  }
-	};
-
-	function touchInit() {
-	  if (env.touch) {
-	    Touch.$init(); //not full screen mode
-
-	    if (document.body.className.indexOf("webix_full_screen") == -1) Touch.limit(true);
-	    if (window.MSCSSMatrix) addStyle(".webix_view{ -ms-touch-action: none; }");
-	  } else {
-	    var id = event$1(document.body, "touchstart", function (ev) {
-	      if (ev.touches.length && ev.touches[0].radiusX > 4) {
-	        env.touch = true;
-	        setMouse(mouse);
-	        touchInit();
-
-	        for (var key in ui.views) {
-	          var view = ui.views[key];
-	          if (view && view.$touch) view.$touch();
-	        }
-	      }
-
-	      eventRemove(id);
-	    }, {
-	      capture: true
+	    this._tooltip.define({
+	      dx: 20,
+	      dy: 0,
+	      template: t.getAttribute("webix_tooltip") || "",
+	      css: ""
 	    });
+
+	    return t;
+	  },
+	  $tooltipOut: function (t, n, e) {
+	    var m = this._tooltip_masters[t.webix_tooltip];
+	    if (m.$tooltipOut && m != this) return m.$tooltipOut(t, n, e);
+
+	    this._hide_tooltip();
+
+	    return null;
+	  },
+	  $tooltipMove: function (t, e, text) {
+	    var m = this._tooltip_masters[t.webix_tooltip];
+	    if (m.$tooltipMove && m != this) return m.$tooltipMove(t, e, text);
+
+	    this._tooltip.hide();
+
+	    clearTimeout(this._before_show_delay);
+	    this._before_show_delay = delay(this._tooltip.show, this._tooltip, [text || {}, pos(e)], this.delay);
 	  }
-	}
-
-	function setMouse(mouse) {
-	  mouse.down = "touchstart";
-	  mouse.move = "touchmove";
-	  mouse.up = "touchend";
-	  mouse.context = Touch._get_context;
-	}
-
-	ready(touchInit);
-	var mouse = env.mouse = {
-	  down: "mousedown",
-	  up: "mouseup",
-	  move: "mousemove",
-	  context: Touch._get_context_m
 	};
-
-	if (window.navigator.pointerEnabled) {
-	  mouse.down = "pointerdown";
-	  mouse.move = "pointermove";
-	  mouse.up = "pointerup";
-	} else if (window.navigator.msPointerEnabled) {
-	  mouse.down = "MSPointerDown";
-	  mouse.move = "MSPointerMove";
-	  mouse.up = "MSPointerUp";
-	} else if (env.touch) setMouse(mouse);
 
 	function _uid(name) {
 	  return "$" + name + (_namecount[name] = (_namecount[name] || 0) + 1);
@@ -4399,359 +3935,51 @@
 	  }
 	});
 
-	/*
-		Behavior:DND - low-level dnd handling
-		@export
-			getContext
-			addDrop
-			addDrag
-			
-		DND master can define next handlers
-			onCreateDrag
-			onDragIng
-			onDragOut
-			onDrag
-			onDrop
-		all are optional
-	*/
+	function ready(code) {
+	  if (_ready) code.call();else _ready_code.push(code);
+	}
 
-	var DragControl = {
-	  //has of known dnd masters
-	  _drag_masters: toArray(["dummy"]),
+	var _ready = false;
+	var _ready_code = []; //autodetect codebase folder
 
-	  /*
-	  	register drop area
-	  	@param node 			html node or ID
-	  	@param ctrl 			options dnd master
-	  	@param master_mode 		true if you have complex drag-area rules
-	  */
-	  addDrop: function addDrop(node, ctrl, master_mode) {
-	    node = toNode(node);
-	    node.webix_drop = this._getCtrl(ctrl);
-	    if (master_mode) node.webix_master = true;
-	  },
-	  //return index of master in collection
-	  //it done in such way to prevent dnd master duplication
-	  //probably useless, used only by addDrop and addDrag methods
-	  _getCtrl: function _getCtrl(ctrl) {
-	    ctrl = ctrl || DragControl;
+	var temp = document.getElementsByTagName("SCRIPT"); //current script, most probably
 
-	    var index$$1 = this._drag_masters.find(ctrl);
+	assert(temp.length, "Can't locate codebase");
 
-	    if (index$$1 < 0) {
-	      index$$1 = this._drag_masters.length;
+	if (temp.length) {
+	  //full path to script
+	  temp = (temp[temp.length - 1].getAttribute("src") || "").split("/"); //get folder name
 
-	      this._drag_masters.push(ctrl);
-	    }
+	  temp.splice(temp.length - 1, 1);
+	  env.codebase = temp.slice(0, temp.length).join("/") + "/";
+	}
 
-	    return index$$1;
-	  },
-	  _createTouchDrag: function _createTouchDrag(e) {
-	    var dragCtrl = DragControl;
+	var handler = function () {
+	  if (env.isIE) document.body.className += " webix_ie";
+	  callEvent("onReady", []);
+	};
 
-	    var master = this._getActiveDragMaster(); // for data items only
+	var doit = function () {
+	  _ready = true;
+	  /* global webix_ready */
 
+	  if (window.webix_ready && isArray(webix_ready)) _ready_code = webix_ready.concat(_ready_code);
 
-	    if (master && master._getDragItemPos) {
-	      if (!dragCtrl._html) dragCtrl.createDrag(e);
-	      var ctx = dragCtrl._drag_context;
-	      dragCtrl._html.style.left = e.x + dragCtrl.left + (ctx.x_offset || 0) + "px";
-	      dragCtrl._html.style.top = e.y + dragCtrl.top + (ctx.y_offset || 0) + "px";
-	    }
-	  },
-
-	  /*
-	  	register drag area
-	  	@param node 	html node or ID
-	  	@param ctrl 	options dnd master
-	  */
-	  addDrag: function addDrag(node, ctrl) {
-	    node = toNode(node);
-	    node.webix_drag = this._getCtrl(ctrl);
-
-	    _event(node, env.mouse.down, this._preStart, {
-	      bind: node
-	    });
-
-	    _event(node, "dragstart", preventEvent);
-	  },
-	  //logic of drag - start, we are not creating drag immediately, instead of that we hears mouse moving
-	  _preStart: function _preStart(e) {
-	    if (DragControl._active) {
-	      //if we have nested drag areas, use the top one and ignore the inner one
-	      if (DragControl._saved_event == e) return;
-
-	      DragControl._preStartFalse();
-
-	      DragControl.destroyDrag(e);
-	    }
-
-	    DragControl._active = this;
-	    var evobj = env.mouse.context(e);
-	    DragControl._start_pos = evobj;
-	    DragControl._saved_event = e;
-	    DragControl._webix_drag_mm = event$1(document.body, env.mouse.move, DragControl._startDrag);
-	    DragControl._webix_drag_mu = event$1(document, env.mouse.up, DragControl._preStartFalse); //need to run here, or will not work in IE
-
-	    addCss(document.body, "webix_noselect", 1);
-	  },
-	  //if mouse was released before moving - this is not a dnd, remove event handlers
-	  _preStartFalse: function _preStartFalse() {
-	    DragControl._clean_dom_after_drag();
-	  },
-	  //mouse was moved without button released - dnd started, update event handlers
-	  _startDrag: function _startDrag(e) {
-	    //prevent unwanted dnd
-	    var pos$$1 = env.mouse.context(e);
-
-	    var master = DragControl._getActiveDragMaster(); // only long-touched elements can be dragged
-
-
-	    var longTouchLimit = master && env.touch && master._getDragItemPos && !Touch._long_touched;
-	    if (longTouchLimit || Math.abs(pos$$1.x - DragControl._start_pos.x) < 5 && Math.abs(pos$$1.y - DragControl._start_pos.y) < 5) return;
-
-	    DragControl._clean_dom_after_drag(true);
-
-	    if (!DragControl._html) if (!DragControl.createDrag(DragControl._saved_event)) return;
-	    DragControl.sendSignal("start"); //useless for now
-
-	    DragControl._webix_drag_mm = event$1(document.body, env.mouse.move, DragControl._moveDrag);
-	    DragControl._webix_drag_mu = event$1(document, env.mouse.up, DragControl._stopDrag);
-
-	    DragControl._moveDrag(e);
-
-	    if (env.touch) return preventEvent(e);
-	  },
-	  //mouse was released while dnd is active - process target
-	  _stopDrag: function _stopDrag(e) {
-	    DragControl._clean_dom_after_drag();
-
-	    DragControl._saved_event = null;
-
-	    if (DragControl._last) {
-	      //if some drop target was confirmed
-	      DragControl.$drop(DragControl._active, DragControl._last, e);
-	      DragControl.$dragOut(DragControl._active, DragControl._last, null, e);
-	    }
-
-	    DragControl.destroyDrag(e);
-	    DragControl.sendSignal("stop"); //useless for now
-	  },
-	  _clean_dom_after_drag: function _clean_dom_after_drag(still_drag) {
-	    this._webix_drag_mm = eventRemove(this._webix_drag_mm);
-	    this._webix_drag_mu = eventRemove(this._webix_drag_mu);
-	    if (!still_drag) removeCss(document.body, "webix_noselect");
-	  },
-	  //dnd is active and mouse position was changed
-	  _moveDrag: function _moveDrag(e) {
-	    var dragCtrl = DragControl;
-	    var pos$$1 = pos(e); //give possibility to customize drag position
-
-	    var customPos = dragCtrl.$dragPos(pos$$1, e); //adjust drag marker position
-
-	    var ctx = dragCtrl._drag_context;
-	    dragCtrl._html.style.top = pos$$1.y + dragCtrl.top + (customPos || !ctx.y_offset ? 0 : ctx.y_offset) + "px";
-	    dragCtrl._html.style.left = pos$$1.x + dragCtrl.left + (customPos || !ctx.x_offset ? 0 : ctx.x_offset) + "px";
-	    var evobj = e;
-	    if (dragCtrl._skip) dragCtrl._skip = false;else {
-	      if (env.touch) {
-	        var context = env.mouse.context(e);
-	        var target = document.elementFromPoint(context.x, context.y);
-	        evobj = new Proxy(e, {
-	          get: function get(obj, prop) {
-	            if (prop === "target") {
-	              return target;
-	            }
-
-	            var res = obj[prop];
-
-	            if (typeof res === "function") {
-	              return res.bind(e);
-	            }
-
-	            return res;
-	          }
-	        });
-	      }
-
-	      dragCtrl._checkLand(evobj.target, evobj);
-	    }
-	    return preventEvent(e);
-	  },
-	  //check if item under mouse can be used as drop landing
-	  _checkLand: function _checkLand(node, e) {
-	    while (node && node.tagName != "BODY") {
-	      if (node.webix_drop) {
-	        //if drop area registered
-	        if (this._last && (this._last != node || node.webix_master)) //if this area with complex dnd master
-	          this.$dragOut(this._active, this._last, node, e); //inform master about possible mouse-out
-
-	        if (!this._last || this._last != node || node.webix_master) {
-	          //if this is new are or area with complex dnd master
-	          this._last = null; //inform master about possible mouse-in
-
-	          this._landing = this.$dragIn(DragControl._active, node, e);
-	          if (this._landing) //landing was rejected
-	            this._last = node;
-	          return;
-	        }
-
-	        return;
-	      }
-
-	      node = node.parentNode;
-	    }
-
-	    if (this._last) //mouse was moved out of previous landing, and without finding new one 
-	      this._last = this._landing = this.$dragOut(this._active, this._last, null, e);
-	  },
-	  //mostly useless for now, can be used to add cross-frame dnd
-	  sendSignal: function sendSignal(signal) {
-	    DragControl.active = signal == "start";
-	  },
-	  //return master for html area
-	  getMaster: function getMaster(t) {
-	    return this._drag_masters[t.webix_drag || t.webix_drop];
-	  },
-	  //return dhd-context object
-	  getContext: function getContext() {
-	    return this._drag_context;
-	  },
-	  getNode: function getNode() {
-	    return this._html;
-	  },
-	  //called when dnd is initiated, must create drag representation
-	  createDrag: function createDrag(e) {
-	    var dragCtl = DragControl;
-	    var a = dragCtl._active;
-	    dragCtl._drag_context = {};
-	    var master = this._drag_masters[a.webix_drag];
-	    var drag_container; //if custom method is defined - use it
-
-	    if (master.$dragCreate) {
-	      drag_container = master.$dragCreate(a, e);
-	      if (!drag_container) return false;
-
-	      this._setDragOffset(e);
-
-	      drag_container.style.position = "absolute";
-	    } else {
-	      //overvise use default one
-	      var text = dragCtl.$drag(a, e);
-
-	      dragCtl._setDragOffset(e);
-
-	      if (!text) return false;
-	      drag_container = document.createElement("DIV");
-	      drag_container.innerHTML = text;
-	      drag_container.className = "webix_drag_zone";
-	      document.body.appendChild(drag_container);
-	      var context = dragCtl._drag_context;
-
-	      if (context.html && env.pointerevents) {
-	        context.x_offset = -Math.round(drag_container.offsetWidth * 0.5);
-	        context.y_offset = -Math.round(drag_container.offsetHeight * 0.75);
-	      }
-	    }
-	    /*
-	    	dragged item must have topmost z-index
-	    	in some cases item already have z-index
-	    	so we will preserve it if possible
-	    */
-
-
-	    drag_container.style.zIndex = Math.max(drag_container.style.zIndex, zIndex());
-	    DragControl._skipDropH = event$1(drag_container, env.mouse.move, DragControl._skip_mark);
-	    if (!DragControl._drag_context.from) DragControl._drag_context = {
-	      source: a,
-	      from: a
-	    };
-	    DragControl._html = drag_container;
-	    return true;
-	  },
-	  //helper, prevents unwanted mouse-out events
-	  _skip_mark: function _skip_mark() {
-	    DragControl._skip = true;
-	  },
-	  //after dnd end, remove all traces and used html elements
-	  destroyDrag: function destroyDrag(e) {
-	    var a = DragControl._active;
-	    var master = this._drag_masters[a.webix_drag];
-
-	    if (master && master.$dragDestroy) {
-	      DragControl._skipDropH = eventRemove(DragControl._skipDropH);
-	      if (DragControl._html) master.$dragDestroy(a, DragControl._html, e);
-	    } else {
-	      remove(DragControl._html);
-	    }
-
-	    DragControl._landing = DragControl._active = DragControl._last = DragControl._html = null; //DragControl._x_offset = DragControl._y_offset = null;
-	  },
-	  _getActiveDragMaster: function _getActiveDragMaster() {
-	    return DragControl._drag_masters[DragControl._active.webix_drag];
-	  },
-	  top: 5,
-	  //relative position of drag marker to mouse cursor
-	  left: 5,
-	  _setDragOffset: function _setDragOffset(e) {
-	    var dragCtl = DragControl;
-	    var pos$$1 = dragCtl._start_pos;
-	    var ctx = dragCtl._drag_context;
-	    if (typeof ctx.x_offset != "undefined" && typeof ctx.y_offset != "undefined") return null;
-	    ctx.x_offset = ctx.y_offset = 0;
-
-	    if (env.pointerevents) {
-	      var m = DragControl._getActiveDragMaster();
-
-	      if (m._getDragItemPos && m !== this) {
-	        var itemPos = m._getDragItemPos(pos$$1, e);
-
-	        if (itemPos) {
-	          ctx.x_offset = itemPos.x - pos$$1.x;
-	          ctx.y_offset = itemPos.y - pos$$1.y;
-	        }
-	      }
-	    }
-	  },
-	  $dragPos: function $dragPos(pos$$1, e) {
-	    var m = this._drag_masters[DragControl._active.webix_drag];
-
-	    if (m.$dragPos && m != this) {
-	      m.$dragPos(pos$$1, e, DragControl._html);
-	      return true;
-	    }
-	  },
-	  //called when mouse was moved in drop area
-	  $dragIn: function $dragIn(s, t, e) {
-	    var m = this._drag_masters[t.webix_drop];
-	    if (m.$dragIn && m != this) return m.$dragIn(s, t, e);
-	    t.className = t.className + " webix_drop_zone";
-	    return t;
-	  },
-	  //called when mouse was moved out drop area
-	  $dragOut: function $dragOut(s, t, n, e) {
-	    var m = this._drag_masters[t.webix_drop];
-	    if (m.$dragOut && m != this) return m.$dragOut(s, t, n, e);
-	    t.className = t.className.replace("webix_drop_zone", "");
-	    return null;
-	  },
-	  //called when mouse was released over drop area
-	  $drop: function $drop(s, t, e) {
-	    var m = this._drag_masters[t.webix_drop];
-	    DragControl._drag_context.from = DragControl.getMaster(s);
-	    if (m.$drop && m != this) return m.$drop(s, t, e);
-	    t.appendChild(s);
-	  },
-	  //called when dnd just started
-	  $drag: function $drag(s, e) {
-	    var m = this._drag_masters[s.webix_drag];
-	    if (m.$drag && m != this) return m.$drag(s, e);
-	    return "<div style='" + s.style.cssText + "'>" + s.innerHTML + "</div>";
+	  for (var i = 0; i < _ready_code.length; i++) {
+	    _ready_code[i].call();
 	  }
-	}; //global touch-drag handler
 
-	attachEvent("onLongTouch", function (ev) {
-	  if (DragControl._active) DragControl._createTouchDrag(ev);
+	  _ready_code = [];
+	};
+
+	attachEvent("onReady", function (force) {
+	  if (force) doit();else delay(doit);
+	});
+	if (document.readyState == "complete") handler();else event$1(window, "load", handler);
+	ready(function () {
+	  event$1(document.body, "click", function (e) {
+	    callEvent("onClick", [e || event$1]);
+	  });
 	});
 
 	var UIManager = {
@@ -4800,7 +4028,7 @@
 	    "textarea": 1,
 	    "select": 1
 	  },
-	  _enable: function _enable() {
+	  _enable: function () {
 	    // attaching events here
 	    event$1(document.body, "click", bind(this._focus_click, this));
 	    event$1(document, "keydown", bind(this._keypress, this));
@@ -4817,16 +4045,16 @@
 	      obj: this
 	    });
 	  },
-	  destructor: function destructor() {
+	  destructor: function () {
 	    UIManager._view = null;
 	  },
-	  getFocus: function getFocus() {
+	  getFocus: function () {
 	    return this._view;
 	  },
-	  _focus_action: function _focus_action(view) {
+	  _focus_action: function (view) {
 	    this._focus_was_there = this._focus_was_there || view._settings.id;
 	  },
-	  setFocus: function setFocus(view, only_api, tab) {
+	  setFocus: function (view, only_api, tab) {
 	    //view can be empty
 	    view = $$(view); //unfocus if view is hidden
 
@@ -4849,14 +4077,14 @@
 	    if (view && view.focus && !only_api) view.focus();
 	    return true;
 	  },
-	  applyChanges: function applyChanges(element) {
+	  applyChanges: function (element) {
 	    var view = this.getFocus();
 	    if (view && view != element && view._applyChanges) view._applyChanges(element);
 	  },
-	  hasFocus: function hasFocus(view) {
+	  hasFocus: function (view) {
 	    return view === this._view ? true : false;
 	  },
-	  _focus: function _focus(e, dont_clear) {
+	  _focus: function (e, dont_clear) {
 	    var view = locate(e, "view_id") || this._focus_was_there; //if html was repainted we can miss the view, so checking last processed one
 
 
@@ -4879,7 +4107,7 @@
 
 	    return true;
 	  },
-	  _focus_click: function _focus_click(e) {
+	  _focus_click: function (e) {
 	    // if it was onfocus/onclick less then 100ms behore then we ignore it
 	    if (new Date() - this._focus_time < 100) {
 	      this._focus_was_there = null;
@@ -4888,21 +4116,23 @@
 
 	    return this._focus(e);
 	  },
-	  _focus_tab: function _focus_tab(e) {
+	  _focus_tab: function (e) {
 	    if (!this._inputs[e.target.nodeName.toLowerCase()]) return false;
 	    return this._focus(e, true);
 	  },
-	  canFocus: function canFocus(view) {
-	    return view.isVisible() && view.isEnabled();
+	  canFocus: function (view) {
+	    return view.isVisible() && view.isEnabled() && !view.queryView({
+	      disabled: true
+	    }, "parent");
 	  },
-	  _moveChildFocus: function _moveChildFocus(check_view) {
+	  _moveChildFocus: function (check_view) {
 	    var focus = this.getFocus(); //we have not focus inside of closing item
 
 	    if (check_view && !this._is_child_of(check_view, focus)) return false;
 	    if (!this._focus_logic("getPrev", check_view)) this._view = null;
 	  },
 	  _translation_table: {},
-	  _is_child_of: function _is_child_of(parent, child) {
+	  _is_child_of: function (parent, child) {
 	    if (!parent) return false;
 	    if (!child) return false;
 
@@ -4913,13 +4143,13 @@
 
 	    return false;
 	  },
-	  _keypress_timed: function _keypress_timed() {
+	  _keypress_timed: function () {
 	    if (this && this.callEvent) this.callEvent("onTimedKeyPress", []);
 	  },
-	  _isNumPad: function _isNumPad(code) {
+	  _isNumPad: function (code) {
 	    return code < 112 && code > 105;
 	  },
-	  _keypress: function _keypress(e) {
+	  _keypress: function (e) {
 	    var code = e.which || e.keyCode;
 	    if (code > 95 && code < 106) code -= 48; //numpad support (numbers)
 
@@ -4952,7 +4182,7 @@
 	    }
 	  },
 	  // dir - getNext or getPrev
-	  _focus_logic: function _focus_logic(dir) {
+	  _focus_logic: function (dir) {
 	    if (!this.getFocus()) return null;
 	    dir = dir || "getNext";
 	    var next = this.getFocus();
@@ -4970,7 +4200,7 @@
 	      next.$fmarker = marker;
 	    }
 	  },
-	  _tab_logic: function _tab_logic(view, e) {
+	  _tab_logic: function (view, e) {
 	    var mode = !e.shiftKey;
 	    UIManager._tab_time = new Date();
 	    if (view && view._custom_tab_handler && !view._custom_tab_handler(mode, e)) return false;
@@ -4984,7 +4214,7 @@
 	      UIManager.setFocus($$(document.activeElement), true, true);
 	    }, 1);
 	  },
-	  getTop: function getTop(id) {
+	  getTop: function (id) {
 	    var next,
 	        view = $$(id);
 
@@ -4994,7 +4224,7 @@
 
 	    return view;
 	  },
-	  getNext: function getNext(view, _inner_call) {
+	  getNext: function (view, _inner_call) {
 	    var cells = view.getChildViews(); //tab to first children
 
 	    if (cells.length && !_inner_call) return cells[0]; //unique case - single view without child and parent
@@ -5016,7 +4246,7 @@
 
 	    return this.getNext(parent, true);
 	  },
-	  getPrev: function getPrev(view, _inner_call) {
+	  getPrev: function (view, _inner_call) {
 	    var cells = view.getChildViews(); //last child of last child
 
 	    if (cells.length && _inner_call) return this.getPrev(cells[cells.length - 1], true);
@@ -5037,7 +4267,7 @@
 
 	    return parent;
 	  },
-	  addHotKey: function addHotKey(keys, handler, view) {
+	  addHotKey: function (keys, handler, view) {
 	    assert(handler, "Hot key handler is not defined");
 
 	    var pack = this._parse_keys(keys);
@@ -5055,7 +4285,7 @@
 
 	    return keys;
 	  },
-	  removeHotKey: function removeHotKey(keys, func, view) {
+	  removeHotKey: function (keys, func, view) {
 	    var pack = this._parse_keys(keys);
 
 	    var code = this._keycode(pack.letter, pack.ctrl, pack.shift, pack.alt, pack.meta);
@@ -5074,15 +4304,15 @@
 	      }
 	    }
 	  },
-	  _keycode: function _keycode(code, ctrl, shift, alt, meta) {
+	  _keycode: function (code, ctrl, shift, alt, meta) {
 	    return code + "_" + ["", ctrl ? "1" : "0", shift ? "1" : "0", alt ? "1" : "0", meta ? "1" : "0"].join("");
 	  },
-	  _check_keycode: function _check_keycode(code, is_any, e) {
+	  _check_keycode: function (code, is_any, e) {
 	    var focus = this.getFocus();
 	    if (this._hotkeys[code]) return this._process_calls(this._hotkeys[code], focus, e);else if (is_any && this._hotkeys["ANY_0000"]) return this._process_calls(this._hotkeys["ANY_0000"], focus, e);
 	    return true;
 	  },
-	  _process_calls: function _process_calls(calls, focus, e) {
+	  _process_calls: function (calls, focus, e) {
 	    for (var i = 0; i < calls.length; i++) {
 	      var key = calls[i];
 	      if (key.view !== null && //common hot-key
@@ -5095,7 +4325,7 @@
 
 	    return true;
 	  },
-	  _parse_keys: function _parse_keys(keys) {
+	  _parse_keys: function (keys) {
 	    var controls = this._controls;
 	    var parts = keys.toLowerCase().split(/[+\-_]/);
 	    var ctrl, shift, alt, meta;
@@ -5122,7 +4352,7 @@
 	      debug: keys
 	    };
 	  },
-	  getState: function getState(node, children) {
+	  getState: function (node, children) {
 	    children = children || false;
 	    node = $$(node);
 	    var state$$1 = {
@@ -5146,7 +4376,7 @@
 
 	    return state$$1;
 	  },
-	  setState: function setState(states) {
+	  setState: function (states) {
 	    if (!isArray(states)) states = [states];
 
 	    for (var i = 0; i < states.length; i++) {
@@ -5195,7 +4425,7 @@
 	define("UIManager", UIManager);
 
 	var Settings = {
-	  $init: function $init() {
+	  $init: function () {
 	    /* 
 	    	property can be accessed as this.config.some
 	    	in same time for inner call it have sense to use _settings
@@ -5203,18 +4433,18 @@
 	    */
 	    this._settings = this.config = {};
 	  },
-	  define: function define(property, value) {
+	  define: function (property, value) {
 	    if (_typeof(property) == "object") return this._parseSeetingColl(property);
 	    return this._define(property, value);
 	  },
-	  _define: function _define(property, value) {
+	  _define: function (property, value) {
 	    //method with name {prop}_setter will be used as property setter
 	    //setter is optional
 	    var setter = this[property + "_setter"];
 	    return this._settings[property] = setter ? setter.call(this, value, property) : value;
 	  },
 	  //process configuration object
-	  _parseSeetingColl: function _parseSeetingColl(coll) {
+	  _parseSeetingColl: function (coll) {
 	    if (coll) {
 	      for (var a in coll) {
 	        //for each setting
@@ -5224,7 +4454,7 @@
 	    }
 	  },
 	  //helper for object initialization
-	  _parseSettings: function _parseSettings(obj, initial) {
+	  _parseSettings: function (obj, initial) {
 	    //initial - set of default values
 	    var settings = {};
 	    if (initial) settings = exports.extend(settings, initial); //code below will copy all properties over default one
@@ -5233,7 +4463,7 @@
 
 	    this._parseSeetingColl(settings);
 	  },
-	  _mergeSettings: function _mergeSettings(config, defaults) {
+	  _mergeSettings: function (config, defaults) {
 	    for (var key in defaults) {
 	      switch (_typeof(config[key])) {
 	        case "object":
@@ -5255,7 +4485,7 @@
 	};
 
 	var Destruction = {
-	  $init: function $init() {
+	  $init: function () {
 	    //wrap in object to simplify removing self-reference
 	    var t = this._destructor_handler = {
 	      obj: this
@@ -5265,7 +4495,7 @@
 	  },
 	  //will be called automatically on unload, can be called manually
 	  //simplifies job of GC
-	  destructor: function destructor() {
+	  destructor: function () {
 	    var config = this._settings;
 	    if (this._last_editor) this.editCancel();
 	    if (this.callEvent) this.callEvent("onDestruct", []); //destructor can be called only once
@@ -5338,7 +4568,7 @@
 	});
 
 	var CollectionBind = {
-	  $init: function $init() {
+	  $init: function () {
 	    this._cursor = null;
 	    this.attachEvent("onSelectChange", function () {
 	      var sel = this.getSelectedId();
@@ -5364,19 +4594,19 @@
 	      }
 	    }, this));
 	  },
-	  refreshCursor: function refreshCursor() {
+	  refreshCursor: function () {
 	    if (this._cursor) this.callEvent("onAfterCursorChange", [this._cursor]);
 	  },
-	  setCursor: function setCursor(id) {
+	  setCursor: function (id) {
 	    if (id == this._cursor || id !== null && !this.getItem(id)) return;
 	    this.callEvent("onBeforeCursorChange", [this._cursor]);
 	    this._cursor = id;
 	    this.callEvent("onAfterCursorChange", [id]);
 	  },
-	  getCursor: function getCursor() {
+	  getCursor: function () {
 	    return this._cursor;
 	  },
-	  _bind_update: function _bind_update(target, rule, format) {
+	  _bind_update: function (target, rule, format) {
 	    if (rule == "$level" && this.data.getBranch) return (target.data || target).importData(this.data.getBranch(this.getCursor()));
 	    var data = this.getItem(this.getCursor()) || this._settings.defaultData || null;
 
@@ -5392,10 +4622,10 @@
 	};
 
 	var ValueBind = {
-	  $init: function $init() {
+	  $init: function () {
 	    this.attachEvent("onChange", this._update_binds);
 	  },
-	  _bind_update: function _bind_update(target, rule, format) {
+	  _bind_update: function (target, rule, format) {
 	    rule = rule || "value";
 	    var data = this.getValue() || "";
 	    if (format) data = format(data);
@@ -5413,10 +4643,10 @@
 	};
 
 	var RecordBind = {
-	  $init: function $init() {
+	  $init: function () {
 	    this.attachEvent("onChange", this._update_binds);
 	  },
-	  _bind_update: function _bind_update(target, rule, format) {
+	  _bind_update: function (target, rule, format) {
 	    var data = this.getValues() || null;
 	    if (format) data = format(data);
 
@@ -5425,7 +4655,7 @@
 	};
 
 	var BindSource = {
-	  $init: function $init() {
+	  $init: function () {
 	    this._bind_hash = {}; //rules per target
 
 	    this._bind_updated = {}; //update flags
@@ -5434,14 +4664,14 @@
 
 	    this._bind_specific_rules(this);
 	  },
-	  saveBatch: function saveBatch(code) {
+	  saveBatch: function (code) {
 	    this._do_not_update_binds = true;
 	    code.call(this);
 	    this._do_not_update_binds = false;
 
 	    this._update_binds();
 	  },
-	  setBindData: function setBindData(data, key) {
+	  setBindData: function (data, key) {
 	    //save called, updating master data
 	    if (key) this._ignore_binds[key] = true;
 	    if (this.setValue) this.setValue(data);else if (this.setValues) this.setValues(data);else {
@@ -5453,7 +4683,7 @@
 	    if (key) this._ignore_binds[key] = false;
 	  },
 	  //fill target with data
-	  getBindData: function getBindData(key, update) {
+	  getBindData: function (key, update) {
 	    //fire only if we have data updates from the last time
 	    if (this._bind_updated[key]) return false;
 	    var target = $$(key); //fill target only when it visible
@@ -5468,20 +4698,20 @@
 	    }
 	  },
 	  //add one more bind target
-	  addBind: function addBind(source, rule, format) {
+	  addBind: function (source, rule, format) {
 	    this._bind_hash[source] = [rule, format];
 	  },
-	  removeBind: function removeBind(source) {
+	  removeBind: function (source) {
 	    delete this._bind_hash[source];
 	    delete this._bind_updated[source];
 	    delete this._ignore_binds[source];
 	  },
 	  //returns true if object belong to "collection" type
-	  _bind_specific_rules: function _bind_specific_rules(obj) {
+	  _bind_specific_rules: function (obj) {
 	    if (obj.filter) exports.extend(this, CollectionBind);else if (obj.setValue) exports.extend(this, ValueBind);else exports.extend(this, RecordBind);
 	  },
 	  //inform all binded objects, that source data was updated
-	  _update_binds: function _update_binds() {
+	  _update_binds: function () {
 	    if (!this._do_not_update_binds) for (var key in this._bind_hash) {
 	      if (this._ignore_binds[key]) continue;
 	      this._bind_updated[key] = false;
@@ -5489,7 +4719,7 @@
 	    }
 	  },
 	  //copy data from source to the target
-	  _bind_update_common: function _bind_update_common(target, rule, data) {
+	  _bind_update_common: function (target, rule, data) {
 	    if (target.setValue) target.setValue(data && rule ? data[rule] : data);else if (!target.filter) {
 	      if (!data && target.clear) target.clear();else {
 	        if (target._check_data_feed(data)) target.setValues(clone(data));
@@ -5504,7 +4734,7 @@
 	};
 
 	var BaseBind = {
-	  bind: function bind$$1(target, rule, format) {
+	  bind: function (target, rule, format) {
 	    if (!this.attachEvent) exports.extend(this, EventSystem);
 	    if (typeof target == "string") target = $$(target);
 	    if (target._initBindSource) target._initBindSource();
@@ -5522,7 +4752,7 @@
 	    });
 	    if (this.refresh && this.isVisible(this._settings.id)) this.refresh();
 	  },
-	  unbind: function unbind() {
+	  unbind: function () {
 	    if (this._bind_source) {
 	      var target = $$(this._bind_source);
 	      if (target) target.removeBind(this._settings.id);
@@ -5530,7 +4760,7 @@
 	      this._bind_source = null;
 	    }
 	  },
-	  _bind_ready: function _bind_ready() {
+	  _bind_ready: function () {
 	    var config = this._settings;
 
 	    if (this.filter) {
@@ -5569,7 +4799,7 @@
 	var api = {
 	  name: "baseview",
 	  //attribute , which will be used for ID storing
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    if (!config.id) config.id = _uid(this.name);
 	    this._parent_cell = state._parent_cell;
 	    state._parent_cell = null; // if scope not provided directly, and there is no parent view
@@ -5590,42 +4820,36 @@
 	    height: 0,
 	    gravity: 1
 	  },
-	  getNode: function getNode() {
+	  getNode: function () {
 	    return this._viewobj;
 	  },
-	  getParentView: function getParentView() {
+	  getParentView: function () {
 	    return this._parent_cell || null;
 	  },
-	  getTopParentView: function getTopParentView() {
+	  getTopParentView: function () {
 	    var parent = this.getParentView();
 	    return parent ? parent.getTopParentView() : this;
 	  },
-	  getFormView: function getFormView() {
+	  getFormView: function () {
 	    var parent = this.getParentView();
 	    return !parent || parent.setValues ? parent : parent.getFormView();
 	  },
-	  getChildViews: function getChildViews() {
+	  getChildViews: function () {
 	    return [];
 	  },
-	  queryView: function queryView(search, all) {
+	  queryView: function (search, all) {
 	    var confirm;
 	    if (typeof search === "string") search = {
 	      view: search
 	    };
 
 	    if (_typeof(search) === "object") {
-	      var keys = Object.keys(search);
-	      var values = [];
-
-	      for (var i = 0; i < keys.length; i++) {
-	        values[i] = search[keys[i]];
-	      }
-
-	      confirm = function confirm(test) {
+	      //IE8 compatibility
+	      confirm = function (test) {
 	        var config = test.config;
 
-	        for (var j = 0; j < keys.length; j++) {
-	          if (config[keys[j]] != values[j]) return false;
+	        for (var key in search) {
+	          if (config[key] != search[key]) return false;
 	        }
 
 	        return true;
@@ -5640,29 +4864,31 @@
 
 	    return all === "all" ? results : found;
 	  },
-	  _queryGoDown: function _queryGoDown(node) {
+	  _queryGoDown: function (node) {
 	    return node.getChildViews();
 	  },
-	  _queryGoUp: function _queryGoUp(node) {
+	  _queryGoUp: function (node) {
 	    var parent = node.getParentView();
 	    return parent ? [parent] : [];
 	  },
-	  _queryView: function _queryView(confirm, next, all) {
+	  _queryView: function (confirm, next, all) {
 	    var kids = next(this);
 
 	    for (var i = 0; i < kids.length; i++) {
 	      if (confirm(kids[i])) {
 	        if (all) all.push(kids[i]);else return kids[i];
-	      } else {
-	        var sub = kids[i]._queryView(confirm, next, all);
+	      }
 
-	        if (sub) return sub;
+	      var sub = kids[i]._queryView(confirm, next, all);
+
+	      if (sub && !all) {
+	        return sub;
 	      }
 	    }
 
 	    return null;
 	  },
-	  isVisible: function isVisible(base_id) {
+	  isVisible: function (base_id) {
 	    if (this._settings.hidden) {
 	      if (base_id) {
 	        if (!this._hidden_render) {
@@ -5684,13 +4910,13 @@
 	    if (parent) return parent.isVisible(base_id, this._settings.id);
 	    return true;
 	  },
-	  isEnabled: function isEnabled() {
+	  isEnabled: function () {
 	    if (this._disable_cover) return false;
 	    var parent = this.getParentView();
 	    if (parent) return parent.isEnabled();
 	    return true;
 	  },
-	  disable: function disable() {
+	  disable: function () {
 	    remove(this._disable_cover);
 	    this._settings.disabled = true;
 	    this._disable_cover = create("div", {
@@ -5705,7 +4931,7 @@
 
 	    UIManager._moveChildFocus(this);
 	  },
-	  enable: function enable() {
+	  enable: function () {
 	    this._settings.disabled = false;
 
 	    if (this._disable_cover) {
@@ -5717,20 +4943,20 @@
 	      this._disable_cover = null;
 	    }
 	  },
-	  disabled_setter: function disabled_setter(value) {
+	  disabled_setter: function (value) {
 	    if (value) this.disable();else this.enable();
 	    return value;
 	  },
-	  container_setter: function container_setter(value) {
+	  container_setter: function (value) {
 	    assert(toNode(value), "Invalid container");
 	    return true;
 	  },
-	  css_setter: function css_setter(value) {
+	  css_setter: function (value) {
 	    if (_typeof(value) == "object") value = createCss(value);
 	    this._viewobj.className += " " + value;
 	    return value;
 	  },
-	  id_setter: function id_setter(value) {
+	  id_setter: function (value) {
 	    if (state._global_collection && (state._global_collection != this || this._prev_global_col)) {
 	      var oldvalue = this.config.$id = value;
 	      (this._prev_global_col || state._global_collection)._elements[value] = this;
@@ -5745,7 +4971,7 @@
 
 	    return value;
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    var last = this._last_size;
 
 	    if (last && last[0] == x && last[1] == y) {
@@ -5766,7 +4992,7 @@
 
 	    return true;
 	  },
-	  $getSize: function $getSize(dx, dy) {
+	  $getSize: function (dx, dy) {
 	    var s = this._settings;
 	    var size = [(s.width || s.minWidth || 0) * 1, (s.width || s.maxWidth || 100000) * 1, (s.height || s.minHeight || 0) * 1, (s.height || s.maxHeight || 100000) * 1, s.gravity];
 
@@ -5786,7 +5012,7 @@
 	    size[3] += dy;
 	    return size;
 	  },
-	  show: function show(force, animate_settings) {
+	  show: function (force, animate_settings) {
 	    var parent = this.getParentView();
 	    var show = !arguments[2];
 
@@ -5819,7 +5045,7 @@
 	      }
 	    }
 	  },
-	  _render_hidden_views: function _render_hidden_views() {
+	  _render_hidden_views: function () {
 	    if (this._hidden_render) {
 	      for (var i = 0; i < this._hidden_render.length; i++) {
 	        var ui_to_render = $$(this._hidden_render[i]);
@@ -5830,7 +5056,7 @@
 	      this._hidden_hash = {};
 	    }
 	  },
-	  _onKeyPress: function _onKeyPress(code, e) {
+	  _onKeyPress: function (code, e) {
 	    var target = e.srcElement || e.target,
 	        role = target.getAttribute("role");
 
@@ -5839,16 +5065,16 @@
 	      preventEvent(e);
 	    }
 	  },
-	  hidden_setter: function hidden_setter(value) {
+	  hidden_setter: function (value) {
 	    if (value) this.hide();
 	    return this._settings.hidden;
 	  },
-	  hide: function hide() {
+	  hide: function () {
 	    this.show(null, null, true);
 
 	    UIManager._moveChildFocus(this);
 	  },
-	  adjust: function adjust() {
+	  adjust: function () {
 	    if (!this._viewobj.parentNode) return false;
 	    var x = this._viewobj.parentNode.clientWidth || 0;
 	    var y = this._viewobj.parentNode.clientHeight || 0;
@@ -5869,7 +5095,7 @@
 	      this.adjust();
 	    }
 	  },
-	  resize: function resize$$1() {
+	  resize: function () {
 	    if (state._child_sizing_active || state._freeze_resize || state._responsive_tinkery) return;
 	    var parent = this.getParentView();
 
@@ -5889,11 +5115,11 @@
 
 	var api$1 = {
 	  name: "view",
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    this._set_inner(config);
 	  },
 	  //deside, will component use borders or not
-	  _set_inner: function _set_inner(config) {
+	  _set_inner: function (config) {
 	    var border_not_set = isUndefined(config.borderless);
 
 	    if (border_not_set && !this.setPosition && config.$topView) {
@@ -5915,7 +5141,7 @@
 	      this._contentobj.style.borderWidth = "1px";
 	    }
 	  },
-	  $getSize: function $getSize(dx, dy) {
+	  $getSize: function (dx, dy) {
 	    var _borders = this._settings._inner;
 
 	    if (_borders) {
@@ -5927,7 +5153,7 @@
 	    debug_size_box(this, size, true);
 	    return size;
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    debug_size_box(this, [x, y]);
 	    var _borders = this._settings._inner;
 
@@ -5957,15 +5183,15 @@
 	*/
 
 	var SingleRender = exports.proto({
-	  template_setter: function template_setter(value) {
+	  template_setter: function (value) {
 	    this.type.template = template(value);
 	  },
 	  //convert item to the HTML text
-	  _toHTML: function _toHTML(obj) {
+	  _toHTML: function (obj) {
 	    var type$$1 = this.type;
 	    return (type$$1.templateStart ? type$$1.templateStart(obj, type$$1) : "") + type$$1.template(obj, type$$1) + (type$$1.templateEnd ? type$$1.templateEnd(obj, type$$1) : "");
 	  },
-	  customize: function customize(obj) {
+	  customize: function (obj) {
 	    type(this, obj);
 	  }
 	}, AtomRender);
@@ -5986,14 +5212,13 @@
 	    dy: 0,
 	    dx: 20
 	  },
-	  $init: function $init(container) {
+	  $init: function (container) {
 	    if (typeof container == "string") {
 	      container = {
 	        template: container
 	      };
-	    }
+	    } //create  container for future tooltip
 
-	    this.type = exports.extend({}, this.type); //create  container for future tooltip
 
 	    this.$view = this._viewobj = this._contentobj = this._dataobj = create("DIV", {
 	      role: "alert",
@@ -6009,18 +5234,32 @@
 	      detachEvent(this._hideHandler);
 	    });
 	  },
-	  adjust: function adjust() {},
+	  adjust: function () {},
 	  //show tooptip
 	  //pos - object, pos.x - left, pox.y - top
-	  isVisible: function isVisible() {
-	    return true;
+	  isVisible: function () {
+	    return this._visible;
 	  },
-	  show: function show(data, pos$$1) {
-	    if (this._disabled) return; //render sefl only if new data was provided
-
-	    if (this.data != data) {
+	  _alt_render: function (text) {
+	    if (this.callEvent("onBeforeRender", [text])) {
+	      //it is critical to have this as two commands
+	      //its prevent destruction race in Chrome
+	      this._dataobj.innerHTML = "";
+	      this._dataobj.innerHTML = text;
+	      this.callEvent("onAfterRender", []);
+	    }
+	  },
+	  css_setter: function (value) {
+	    if (_typeof(value) === "object") value = createCss(value);
+	    this._viewobj.className = "webix_tooltip " + value;
+	    return value;
+	  },
+	  show: function (data, pos$$1) {
+	    if (this._disabled) return;
+	    this._visible = true;
+	    if (typeof data === "string") this._alt_render(data);else {
 	      this.data = exports.extend({}, data);
-	      this.render(data);
+	      this.render();
 	    }
 
 	    if (this._dataobj.firstChild) {
@@ -6037,25 +5276,23 @@
 	      if (positionY - this._settings.dy > this._contentobj.offsetHeight) positionY = pos$$1.y;else positionY = pos$$1.y - this._settings.dy - this._contentobj.offsetHeight;
 	      this._contentobj.style.left = positionX + this._settings.dx + "px";
 	      this._contentobj.style.top = positionY + this._settings.dy + "px";
-	    }
-
-	    this._visible = true;
+	    } else this.hide();
 	  },
 	  //hide tooltip
-	  hide: function hide() {
+	  hide: function () {
 	    this.data = null; //nulify, to be sure that on next show it will be fresh-rendered
 
 	    this._contentobj.style.display = "none";
 	    this._visible = false;
 	  },
-	  disable: function disable() {
+	  disable: function () {
 	    this._disabled = true;
 	  },
-	  enable: function enable() {
+	  enable: function () {
 	    this._disabled = false;
 	  },
 	  type: {
-	    template: template("{obj.id}"),
+	    template: template("{obj.value}"),
 	    templateStart: template.empty,
 	    templateEnd: template.empty
 	  }
@@ -6067,74 +5304,65 @@
 	*/
 
 	var AutoTooltip = {
-	  tooltip_setter: function tooltip_setter(value) {
+	  tooltip_setter: function (value) {
 	    if (value) {
-	      if (typeof value == "function") value = {
+	      if (typeof value === "function" || typeof value === "string") value = {
 	        template: value
 	      };
 	      if (_typeof(value) !== "object") value = {};
-	      var col_mode = !value.template;
-	      var t = new ui.tooltip(value);
-
-	      this._enable_mouse_move();
-
-	      var showEvent = this.attachEvent("onMouseMove", function (id, e) {
-	        //show tooltip on mousemove
-	        this._mouseEventX = e.clientX;
-	        this._mouseEventY = e.clientY;
-
-	        if (this.getColumnConfig) {
-	          var config = t.type.column = this.getColumnConfig(id.column);
-
-	          if (col_mode) {
-	            //empty tooltip - ignoring
-	            if (!config.tooltip && config.tooltip != undefined) return;
-	            var trg = e.target || e.srcElements;
-
-	            if (trg.getAttribute("webix_area") && config.tooltip) {
-	              var area = trg.getAttribute("webix_area");
-
-	              t.type.template = function (obj, common) {
-	                var values = obj[common.column.id];
-	                return template(config.tooltip).call(this, obj, common, values[area], area);
-	              };
-	            } else {
-	              if (config.tooltip) t.type.template = config.tooltip = template(config.tooltip);else {
-	                var text = this.getText(id.row, id.column);
-
-	                t.type.template = function () {
-	                  return text;
-	                };
-	              }
-	            }
-	          }
-	        }
-
-	        if (!DragControl.active) t.show(this.getItem(id.row || id), pos(e));
-	      }); // [[IMPROVE]]  As we can can have only one instance of tooltip per page 
-	      //				this handler can be attached once per page, not once per component
-
-	      var hideEvent = event$1(document.body, "mousemove", bind(function (e) {
-	        e = e || event$1;
-	        if (this._mouseEventX != e.clientX || this._mouseEventY != e.clientY) t.hide();
-	      }, this));
+	      TooltipControl.addTooltip(this);
 	      this.attachEvent("onDestruct", function () {
-	        if (this.config.tooltip) this.config.tooltip.destructor();
+	        TooltipControl.removeTooltip(this);
 	      });
 	      this.attachEvent("onAfterScroll", function () {
-	        t.hide();
+	        if (TooltipControl._tooltip_exist) TooltipControl._hide_tooltip();
 	      });
-	      t.attachEvent("onDestruct", bind(function () {
-	        this.detachEvent(showEvent);
-	        eventRemove(hideEvent);
-	      }, this));
-	      return t;
+	      return value;
 	    }
+	  },
+	  $tooltipIn: function (t) {
+	    var tooltip = TooltipControl._tooltip;
+	    var def = exports.extend({
+	      dx: 20,
+	      dy: 0,
+	      template: "{obj.value}",
+	      css: ""
+	    }, this._settings.tooltip, true);
+	    tooltip.define(def);
+	    return t;
+	  },
+	  $tooltipOut: function () {
+	    TooltipControl._hide_tooltip();
+
+	    delete TooltipControl._tooltip.type.column;
+	    return null;
+	  },
+	  $tooltipMove: function (t, e, text) {
+	    TooltipControl._tooltip.hide();
+
+	    clearTimeout(TooltipControl._before_show_delay);
+	    TooltipControl._before_show_delay = delay(this._show_tooltip, this, [t, e, text], TooltipControl.delay);
+	  },
+	  _show_tooltip: function (t, e, text) {
+	    var data = text || this._get_tooltip_data(t, e);
+
+	    if (!data) return;
+
+	    TooltipControl._tooltip.show(data, pos(e));
+	  },
+	  _get_tooltip_data: function (t, e) {
+	    if (this.locate && this.getItem) {
+	      var id = this.locate(e);
+	      if (!id) return null;
+	      return this.getItem(id);
+	    }
+
+	    return this._settings;
 	  }
 	};
 
 	var Canvas = exports.proto({
-	  $init: function $init(container) {
+	  $init: function (container) {
 	    this._canvas_labels = [];
 	    this._canvas_series = !isUndefined(container.series) ? container.series : container.name;
 	    this._obj = toNode(container.container || container);
@@ -6145,7 +5373,7 @@
 
 	    this._prepareCanvas(container.name, style, width, height, container.title);
 	  },
-	  _prepareCanvas: function _prepareCanvas(name, style, x, y, title) {
+	  _prepareCanvas: function (name, style, x, y, title) {
 	    //canvas has the same size as master object
 	    this._canvas = create("canvas", {
 	      title: title,
@@ -6173,7 +5401,7 @@
 
 	    return this._canvas;
 	  },
-	  getCanvas: function getCanvas(context) {
+	  getCanvas: function (context) {
 	    var ctx = (this._canvas || this._prepareCanvas(this._contentobj)).getContext(context || "2d");
 
 	    if (!this._webixDevicePixelRatio) {
@@ -6183,7 +5411,7 @@
 
 	    return ctx;
 	  },
-	  _resizeCanvas: function _resizeCanvas(x, y) {
+	  _resizeCanvas: function (x, y) {
 	    if (this._canvas) {
 	      this._canvas.setAttribute("width", x * (window.devicePixelRatio || 1));
 
@@ -6194,7 +5422,7 @@
 	      this._webixDevicePixelRatio = false;
 	    }
 	  },
-	  renderText: function renderText(x, y, text, css, w) {
+	  renderText: function (x, y, text, css, w) {
 	    if (!text) return; //ignore empty text
 
 	    if (w) w = Math.max(w, 0);
@@ -6213,7 +5441,7 @@
 	    if (w) t.style.width = w + "px";
 	    return t;
 	  },
-	  renderTextAt: function renderTextAt(valign, align, x, y, t, c, w) {
+	  renderTextAt: function (valign, align, x, y, t, c, w) {
 	    var text = this.renderText.call(this, x, y, t, c, w);
 
 	    if (text) {
@@ -6228,7 +5456,7 @@
 
 	    return text;
 	  },
-	  clearCanvas: function clearCanvas(skipMap) {
+	  clearCanvas: function (skipMap) {
 	    var areas = [];
 	    remove(this._canvas_labels);
 	    this._canvas_labels = [];
@@ -6255,16 +5483,16 @@
 
 	    this.getCanvas().clearRect(0, 0, this._canvas.offsetWidth || Math.floor(this._canvas.width / (window.devicePixelRatio || 1)), this._canvas.offsetHeight || Math.floor(this._canvas.height / (window.devicePixelRatio || 1)));
 	  },
-	  toggleCanvas: function toggleCanvas() {
+	  toggleCanvas: function () {
 	    this._toggleCanvas(this._canvas.style.display == "none");
 	  },
-	  showCanvas: function showCanvas() {
+	  showCanvas: function () {
 	    this._toggleCanvas(true);
 	  },
-	  hideCanvas: function hideCanvas() {
+	  hideCanvas: function () {
 	    this._toggleCanvas(false);
 	  },
-	  _toggleCanvas: function _toggleCanvas(show) {
+	  _toggleCanvas: function (show) {
 	    var areas, i;
 
 	    for (i = 0; i < this._canvas_labels.length; i++) {
@@ -6282,7 +5510,7 @@
 
 	    this._canvas.style.display = show ? "" : "none";
 	  },
-	  _getMapAreas: function _getMapAreas() {
+	  _getMapAreas: function () {
 	    var res = [],
 	        areas,
 	        i;
@@ -6298,7 +5526,7 @@
 	  }
 	});
 
-	var animate = function animate(html_element, config) {
+	var animate = function (html_element, config) {
 	  var animation = config;
 
 	  if (isArray(html_element)) {
@@ -6721,7 +5949,7 @@
 	    clean: 0,
 	    head: 0,
 	    line: 0,
-	    toolbar: 4,
+	    toolbar: 3,
 	    form: 17,
 	    accordion: 0
 	  },
@@ -6784,7 +6012,7 @@
 	    clean: 0,
 	    head: 0,
 	    line: 0,
-	    toolbar: 2,
+	    toolbar: 1,
 	    form: 12,
 	    accordion: 0
 	  },
@@ -6847,7 +6075,7 @@
 	    clean: 0,
 	    head: 0,
 	    line: 0,
-	    toolbar: 4,
+	    toolbar: 3,
 	    form: 17,
 	    accordion: 0
 	  },
@@ -6865,19 +6093,12 @@
 	  optionHeight: 32
 	};
 
-	var skin$5 = {
-	  material: skin,
-	  mini: skin$1,
-	  flat: skin$2,
-	  compact: skin$3,
-	  contrast: skin$4
-	};
 	var $active, $name;
 	function set$1(name) {
 	  assert(skin$5[name], "Incorrect skin name: " + name);
 	  if ($name === name) return;
-	  $active = skin$5[name];
-	  $name = name;
+	  skin$5.$active = $active = skin$5[name];
+	  skin$5.$name = $name = name;
 
 	  if (ui) {
 	    for (var key in ui) {
@@ -6886,21 +6107,919 @@
 	    }
 	  }
 	}
+	var skin$5 = {
+	  set: set$1,
+	  material: skin,
+	  mini: skin$1,
+	  flat: skin$2,
+	  compact: skin$3,
+	  contrast: skin$4
+	};
 	set$1(window.webix_skin || "material"); //necessary for skin builder
 
-	var skin$6 = /*#__PURE__*/Object.freeze({
-		get $active () { return $active; },
-		get $name () { return $name; },
-		set: set$1,
-		material: skin,
-		mini: skin$1,
-		flat: skin$2,
-		compact: skin$3,
-		contrast: skin$4
+	var Touch = {
+	  config: {
+	    longTouchDelay: 1000,
+	    scrollDelay: 150,
+	    gravity: 500,
+	    deltaStep: 30,
+	    speed: "0ms",
+	    finish: 1500,
+	    ellastic: true,
+	    fastClick: true
+	  },
+	  limit: function (value) {
+	    Touch._limited = value !== false;
+	  },
+	  disable: function () {
+	    Touch._disabled = true;
+	  },
+	  enable: function () {
+	    Touch._disabled = false;
+	  },
+	  $init: function () {
+	    Touch.$init = function () {};
+
+	    event$1(document.body, mouse.down, Touch._touchstart, {
+	      passive: false
+	    });
+	    event$1(document.body, mouse.move, Touch._touchmove, {
+	      passive: false
+	    });
+	    event$1(document.body, mouse.up, Touch._touchend);
+	    event$1(document.body, "dragstart", function (e) {
+	      if (Touch._disabled || Touch._limited) return;
+	      return preventEvent(e);
+	    });
+	    event$1(document.body, "touchstart", function (e) {
+	      if (Touch._disabled || Touch._limited || !Touch.config.fastClick) return; //fast click mode for iOS
+	      //To have working form elements Android must not block event - so there are no fast clicks for Android
+	      //Selects still don't work with fast clicks
+
+	      if (env.isSafari) {
+	        var tag = e.srcElement.tagName.toLowerCase();
+	        if (tag == "input" || tag == "textarea" || tag == "select" || tag == "label") return true;
+	        Touch._fire_fast_event = true;
+	        return preventEvent(e);
+	      }
+	    }, {
+	      passive: false
+	    });
+
+	    Touch._clear_artefacts();
+
+	    Touch._scroll = [null, null];
+	    Touch.$active = true;
+	  },
+	  _clear_artefacts: function () {
+	    Touch._start_context = Touch._current_context = Touch._prev_context = Touch._scroll_context = null;
+	    Touch._scroll_mode = Touch._scroll_node = Touch._scroll_stat = this._long_touched = null; //remove(Touch._scroll);
+	    //Touch._scroll = [null, null];
+
+	    Touch._delta = {
+	      _x_moment: 0,
+	      _y_moment: 0,
+	      _time: 0
+	    };
+
+	    if (Touch._css_button_remove) {
+	      removeCss(Touch._css_button_remove, "webix_touch");
+	      Touch._css_button_remove = null;
+	    }
+
+	    window.clearTimeout(Touch._long_touch_timer);
+	    Touch._was_not_moved = true;
+	    Touch._axis_x = true;
+	    Touch._axis_y = true;
+	    if (!Touch._active_transion) Touch._scroll_end();
+	  },
+	  _touchend: function (e) {
+	    if (Touch._start_context) {
+	      if (!Touch._scroll_mode) {
+	        if (!this._long_touched) {
+	          if (Touch._axis_y && !Touch._axis_x) {
+	            Touch._translate_event("onSwipeX");
+	          } else if (Touch._axis_x && !Touch._axis_y) {
+	            Touch._translate_event("onSwipeY");
+	          } else {
+	            if (env.isSafari && Touch._fire_fast_event) {
+	              //need to test for mobile ff and blackbery
+	              Touch._fire_fast_event = false;
+	              var target = Touch._start_context.target; //dark iOS magic, without delay it can skip repainting
+
+	              delay(function () {
+	                var click_event = document.createEvent("MouseEvents");
+	                click_event.initEvent("click", true, true);
+	                target.dispatchEvent(click_event);
+	              });
+	            }
+	          }
+	        }
+	      } else {
+	        var temp = Touch._get_matrix(Touch._scroll_node);
+
+	        var x = temp.e;
+	        var y = temp.f;
+	        var finish = Touch.config.finish;
+
+	        var delta = Touch._get_delta(e, true);
+
+	        var view = $$(Touch._scroll_node);
+	        var gravity = view && view.$scroll ? view.$scroll.gravity : Touch.config.gravity;
+
+	        if (delta._time) {
+	          var nx = x + gravity * delta._x_moment / delta._time;
+	          var ny = y + gravity * delta._y_moment / delta._time;
+	          var cnx = Touch._scroll[0] ? Touch._correct_minmax(nx, false, false, Touch._scroll_stat.dx, Touch._scroll_stat.px) : x;
+	          var cny = Touch._scroll[1] ? Touch._correct_minmax(ny, false, false, Touch._scroll_stat.dy, Touch._scroll_stat.py) : y;
+	          var size = Math.max(Math.abs(cnx - x), Math.abs(cny - y));
+	          if (size < 150) finish = finish * size / 150;
+	          if (cnx != x || cny != y) finish = Math.round(finish * Math.max((cnx - x) / (nx - x), (cny - y) / (ny - y)));
+	          var result = {
+	            e: cnx,
+	            f: cny
+	          };
+	          view = $$(Touch._scroll_node);
+	          if (view && view.adjustScroll) view.adjustScroll(result); //finish = Math.max(100,(Touch._fast_correction?100:finish));
+
+	          finish = Math.max(100, finish);
+
+	          if (x != result.e || y != result.f) {
+	            Touch._set_matrix(Touch._scroll_node, result.e, result.f, finish + "ms");
+
+	            if (Touch._scroll_master) Touch._scroll_master._sync_scroll(result.e, result.f, finish + "ms");
+
+	            Touch._set_scroll(result.e, result.f, finish + "ms");
+	          } else {
+	            Touch._scroll_end();
+	          }
+	        } else Touch._scroll_end();
+	      }
+
+	      Touch._translate_event("onTouchEnd");
+
+	      Touch._clear_artefacts();
+	    }
+	  },
+	  _touchmove: function (e) {
+	    if (!Touch._scroll_context || !Touch._start_context) return;
+
+	    var delta = Touch._get_delta(e);
+
+	    Touch._translate_event("onTouchMove");
+
+	    if (Touch._scroll_mode) {
+	      Touch._set_scroll_pos(delta);
+	    } else {
+	      Touch._axis_x = Touch._axis_check(delta._x, "x", Touch._axis_x);
+	      Touch._axis_y = Touch._axis_check(delta._y, "y", Touch._axis_y);
+
+	      if (Touch._scroll_mode) {
+	        var view = Touch._get_event_view("onBeforeScroll", true);
+
+	        if (view) {
+	          var data = {};
+	          view.callEvent("onBeforeScroll", [data]);
+
+	          if (data.update) {
+	            Touch.config.speed = data.speed;
+	            Touch.config.scale = data.scale;
+	          }
+	        }
+
+	        Touch._init_scroller(delta); //apply scrolling
+
+	      }
+	    }
+
+	    return preventEvent(e);
+	  },
+	  _set_scroll_pos: function () {
+	    if (!Touch._scroll_node) return;
+
+	    var temp = Touch._get_matrix(Touch._scroll_node);
+
+	    var prev = Touch._prev_context || Touch._start_context;
+	    var view = $$(Touch._scroll_node);
+	    var ellastic = view && view.$scroll ? view.$scroll.ellastic : Touch.config.ellastic;
+	    if (Touch._scroll[0]) temp.e = Touch._correct_minmax(temp.e - prev.x + Touch._current_context.x, ellastic, temp.e, Touch._scroll_stat.dx, Touch._scroll_stat.px);
+	    if (Touch._scroll[1]) temp.f = Touch._correct_minmax(temp.f - prev.y + Touch._current_context.y, ellastic, temp.f, Touch._scroll_stat.dy, Touch._scroll_stat.py);
+
+	    Touch._set_matrix(Touch._scroll_node, temp.e, temp.f, "0ms");
+
+	    if (Touch._scroll_master) Touch._scroll_master._sync_scroll(temp.e, temp.f, "0ms");
+
+	    Touch._set_scroll(temp.e, temp.f, "0ms");
+	  },
+	  _set_scroll: function (dx, dy, speed) {
+	    var edx = Touch._scroll_stat.px / Touch._scroll_stat.dx * -dx;
+	    var edy = Touch._scroll_stat.py / Touch._scroll_stat.dy * -dy;
+	    if (Touch._scroll[0]) Touch._set_matrix(Touch._scroll[0], edx, 0, speed);
+	    if (Touch._scroll[1]) Touch._set_matrix(Touch._scroll[1], 0, edy, speed);
+	  },
+	  scrollTo: function (node, x, y, speed) {
+	    Touch._set_matrix(node, x, y, speed);
+	  },
+	  _set_matrix: function (node, xv, yv, speed) {
+	    if (!Touch._in_anim_frame && window.setAnimationFrame) {
+	      window.setAnimationFrame(function () {
+	        Touch._in_anim_frame = true;
+	        return Touch._set_matrix(node, xv, yv, speed);
+	      });
+	    }
+
+	    Touch._in_anim_frame = null;
+	    Touch._active_transion = true;
+
+	    if (node) {
+	      var trans = Touch.config.translate || env.translate;
+	      node.style[env.transform] = trans + "(" + Math.round(xv) + "px, " + Math.round(yv) + "px" + (trans == "translate3d" ? ", 0" : "") + ")";
+	      node.style[env.transitionDuration] = speed;
+	    }
+	  },
+	  _get_matrix: function (node) {
+	    var matrix = window.getComputedStyle(node)[env.transform];
+	    var tmatrix;
+	    if (matrix == "none") tmatrix = {
+	      e: 0,
+	      f: 0
+	    };else {
+	      if (window.WebKitCSSMatrix)
+	        /* global WebKitCSSMatrix */
+	        tmatrix = new WebKitCSSMatrix(matrix);else if (window.MSCSSMatrix)
+	        /* global MSCSSMatrix */
+	        tmatrix = new MSCSSMatrix(matrix);else {
+	        // matrix(1, 0, 0, 1, 0, 0) --> 1, 0, 0, 1, 0, 0
+	        var _tmatrix = matrix.replace(/(matrix\()(.*)(\))/gi, "$2"); // 1, 0, 0, 1, 0, 0 --> 1,0,0,1,0,0
+
+
+	        _tmatrix = _tmatrix.replace(/\s/gi, "");
+	        _tmatrix = _tmatrix.split(",");
+	        tmatrix = {};
+	        var tkey = ["a", "b", "c", "d", "e", "f"];
+
+	        for (var i = 0; i < tkey.length; i++) {
+	          tmatrix[tkey[i]] = parseInt(_tmatrix[i], 10);
+	        }
+	      }
+	    }
+	    if (Touch._scroll_master) Touch._scroll_master._sync_pos(tmatrix);
+	    return tmatrix;
+	  },
+	  _correct_minmax: function (value, allow, current, dx, px) {
+	    if (value === current) return value;
+	    var delta = Math.abs(value - current);
+	    var sign = delta / (value - current); //	Touch._fast_correction = true;
+
+	    if (value > 0) return allow ? current + sign * Math.sqrt(delta) : 0;
+	    var max = dx - px;
+	    if (max + value < 0) return allow ? current - Math.sqrt(-(value - current)) : -max; //	Touch._fast_correction = false;
+
+	    return value;
+	  },
+	  _init_scroll_node: function (node) {
+	    if (!node.scroll_enabled) {
+	      node.scroll_enabled = true;
+	      node.parentNode.style.position = "relative";
+	      var prefix = env.cssPrefix;
+	      node.style.cssText += prefix + "transition: " + prefix + "transform; " + prefix + "user-select:none; " + prefix + "transform-style:flat;";
+	      node.addEventListener(env.transitionEnd, Touch._scroll_end, false);
+	    }
+	  },
+	  _init_scroller: function () {
+	    if (Touch._scroll_mode.indexOf("x") != -1) Touch._scroll[0] = Touch._create_scroll("x", Touch._scroll_stat.dx, Touch._scroll_stat.px, "width");
+	    if (Touch._scroll_mode.indexOf("y") != -1) Touch._scroll[1] = Touch._create_scroll("y", Touch._scroll_stat.dy, Touch._scroll_stat.py, "height");
+
+	    Touch._init_scroll_node(Touch._scroll_node);
+
+	    window.setTimeout(Touch._set_scroll_pos, 1);
+	  },
+	  _create_scroll: function (mode, dy, py, dim) {
+	    if (dy - py < 2) {
+	      var matrix = Touch._get_matrix(Touch._scroll_node);
+
+	      var e = mode == "y" ? matrix.e : 0;
+	      var f = mode == "y" ? 0 : matrix.f;
+	      if (!Touch._scroll_master) Touch._set_matrix(Touch._scroll_node, e, f, "0ms");
+	      Touch._scroll_mode = Touch._scroll_mode.replace(mode, "");
+	      return "";
+	    }
+
+	    var scroll = create("DIV", {
+	      "class": "webix_scroll_" + mode
+	    }, "");
+	    scroll.style[dim] = Math.max(py * py / dy - 7, 10) + "px";
+	    if (Touch._scroll_stat.left) if (mode === "x") scroll.style.left = Touch._scroll_stat.left + "px";else scroll.style.right = -Touch._scroll_stat.left + "px";
+	    if (Touch._scroll_stat.hidden) scroll.style.visibility = "hidden";
+
+	    Touch._scroll_node.parentNode.appendChild(scroll);
+
+	    return scroll;
+	  },
+	  _axis_check: function (value, mode, old) {
+	    if (value > Touch.config.deltaStep) {
+	      if (Touch._was_not_moved) {
+	        Touch._long_move(mode);
+
+	        Touch._locate(mode);
+
+	        if ((Touch._scroll_mode || "").indexOf(mode) == -1) Touch._scroll_mode = "";
+	      }
+
+	      return false;
+	    }
+
+	    return old;
+	  },
+	  _scroll_end: function () {
+	    //sending event to the owner of the scroll only
+	    var result, state, view;
+	    view = $$(Touch._scroll_node || this);
+
+	    if (view) {
+	      if (Touch._scroll_node) result = Touch._get_matrix(Touch._scroll_node);else if (view.getScrollState) {
+	        state = view.getScrollState();
+	        result = {
+	          e: state.x,
+	          f: state.y
+	        };
+	      }
+	      callEvent("onAfterScroll", [result]);
+	      if (view.callEvent) view.callEvent("onAfterScroll", [result]);
+	    }
+
+	    if (!Touch._scroll_mode) {
+	      remove(Touch._scroll);
+	      Touch._scroll = [null, null];
+	    }
+
+	    Touch._active_transion = false;
+	  },
+	  _long_move: function () {
+	    window.clearTimeout(Touch._long_touch_timer);
+	    Touch._was_not_moved = false;
+	  },
+	  _stop_old_scroll: function (e) {
+	    if (Touch._scroll[0] || Touch._scroll[1]) {
+	      Touch._stop_scroll(e, Touch._scroll[0] ? "x" : "y");
+	    } else return true;
+	  },
+	  _touchstart: function (e) {
+	    var target = e.target || event$1.srcElement;
+	    if (Touch._disabled || target.tagName && target.tagName.toLowerCase() == "textarea" && target.offsetHeight < target.scrollHeight) return;
+	    Touch._long_touched = null;
+	    Touch._scroll_context = Touch._start_context = mouse.context(e); // in "limited" mode we should have possibility to use slider
+
+	    var element = $$(e);
+
+	    if (Touch._limited && !Touch._is_scroll() && !(element && element.$touchCapture)) {
+	      Touch._scroll_context = null;
+	    }
+
+	    Touch._translate_event("onTouchStart");
+
+	    if (Touch._stop_old_scroll(e)) Touch._long_touch_timer = window.setTimeout(Touch._long_touch, Touch.config.longTouchDelay);
+
+	    if (element && element.touchable && (!target.className || target.className.indexOf("webix_view") !== 0)) {
+	      Touch._css_button_remove = element.getNode(e);
+	      addCss(Touch._css_button_remove, "webix_touch");
+	    }
+	  },
+	  _long_touch: function () {
+	    if (Touch._start_context) {
+	      Touch._translate_event("onLongTouch");
+
+	      callEvent("onClick", [Touch._start_context]);
+	      Touch._long_touched = true; //Touch._clear_artefacts();
+	    }
+	  },
+	  _stop_scroll: function (e, stop_mode) {
+	    Touch._locate(stop_mode);
+
+	    var scroll = Touch._scroll[0] || Touch._scroll[1];
+
+	    if (scroll) {
+	      var view = Touch._get_event_view("onBeforeScroll", true);
+
+	      if (view) view.callEvent("onBeforeScroll", [Touch._start_context, Touch._current_context]);
+	    }
+
+	    if (scroll && (!Touch._scroll_node || scroll.parentNode != Touch._scroll_node.parentNode)) {
+	      Touch._clear_artefacts();
+
+	      Touch._scroll_end();
+
+	      Touch._start_context = mouse.context(e);
+	    }
+
+	    Touch._touchmove(e);
+	  },
+	  _get_delta: function (e) {
+	    Touch._prev_context = Touch._current_context;
+	    Touch._current_context = mouse.context(e);
+	    Touch._delta._x = Math.abs(Touch._start_context.x - Touch._current_context.x);
+	    Touch._delta._y = Math.abs(Touch._start_context.y - Touch._current_context.y);
+
+	    if (Touch._prev_context) {
+	      if (Touch._current_context.time - Touch._prev_context.time < Touch.config.scrollDelay) {
+	        Touch._delta._x_moment = Touch._delta._x_moment / 1.3 + Touch._current_context.x - Touch._prev_context.x;
+	        Touch._delta._y_moment = Touch._delta._y_moment / 1.3 + Touch._current_context.y - Touch._prev_context.y;
+	      } else {
+	        Touch._delta._y_moment = Touch._delta._x_moment = 0;
+	      }
+
+	      Touch._delta._time = Touch._delta._time / 1.3 + (Touch._current_context.time - Touch._prev_context.time);
+	    }
+
+	    return Touch._delta;
+	  },
+	  _get_sizes: function (node) {
+	    Touch._scroll_stat = {
+	      dx: node.offsetWidth,
+	      dy: node.offsetHeight,
+	      px: node.parentNode.offsetWidth,
+	      py: node.parentNode.offsetHeight
+	    };
+	  },
+	  _is_scroll: function (locate_mode) {
+	    var node = Touch._start_context.target;
+	    if (!env.touch && !env.transition && !env.transform) return null;
+
+	    while (node && node.tagName != "BODY") {
+	      if (node.getAttribute) {
+	        var mode = node.getAttribute("touch_scroll");
+	        if (mode && (!locate_mode || mode.indexOf(locate_mode) != -1)) return [node, mode];
+	      }
+
+	      node = node.parentNode;
+	    }
+
+	    return null;
+	  },
+	  _locate: function (locate_mode) {
+	    var state = this._is_scroll(locate_mode);
+
+	    if (state) {
+	      Touch._scroll_mode = state[1];
+	      Touch._scroll_node = state[0];
+
+	      Touch._get_sizes(state[0]);
+	    }
+
+	    return state;
+	  },
+	  _translate_event: function (name) {
+	    callEvent(name, [Touch._start_context, Touch._current_context]);
+
+	    var view = Touch._get_event_view(name);
+
+	    if (view) view.callEvent(name, [Touch._start_context, Touch._current_context]);
+	  },
+	  _get_event_view: function (name, active) {
+	    var view = $$(active ? Touch._scroll_node : Touch._start_context);
+	    if (!view) return null;
+
+	    while (view) {
+	      if (view.hasEvent && view.hasEvent(name)) return view;
+	      view = view.getParentView();
+	    }
+
+	    return null;
+	  },
+	  _get_context: function (e) {
+	    if (!e.touches[0]) {
+	      var temp = Touch._current_context;
+	      temp.time = new Date();
+	      return temp;
+	    }
+
+	    return {
+	      target: e.target,
+	      x: e.touches[0].pageX,
+	      y: e.touches[0].pageY,
+	      time: new Date()
+	    };
+	  },
+	  _get_context_m: function (e) {
+	    return {
+	      target: e.target || e.srcElement,
+	      x: e.pageX,
+	      y: e.pageY,
+	      time: new Date()
+	    };
+	  }
+	};
+
+	function touchInit() {
+	  if (env.touch) {
+	    Touch.$init(); //not full screen mode
+
+	    if (document.body.className.indexOf("webix_full_screen") == -1) Touch.limit(true);
+	    if (window.MSCSSMatrix) addStyle(".webix_view{ -ms-touch-action: none; }");
+	  } else {
+	    var id = event$1(document.body, "touchstart", function (ev) {
+	      if (ev.touches.length && ev.touches[0].radiusX > 4) {
+	        env.touch = true;
+	        setMouse(mouse);
+	        touchInit();
+
+	        for (var key in ui.views) {
+	          var view = ui.views[key];
+	          if (view && view.$touch) view.$touch();
+	        }
+	      }
+
+	      eventRemove(id);
+	    }, {
+	      capture: true
+	    });
+	  }
+	}
+
+	function setMouse(mouse) {
+	  mouse.down = "touchstart";
+	  mouse.move = "touchmove";
+	  mouse.up = "touchend";
+	  mouse.context = Touch._get_context;
+	}
+
+	ready(touchInit);
+	var mouse = env.mouse = {
+	  down: "mousedown",
+	  up: "mouseup",
+	  move: "mousemove",
+	  context: Touch._get_context_m
+	};
+
+	if (window.navigator.pointerEnabled) {
+	  mouse.down = "pointerdown";
+	  mouse.move = "pointermove";
+	  mouse.up = "pointerup";
+	} else if (window.navigator.msPointerEnabled) {
+	  mouse.down = "MSPointerDown";
+	  mouse.move = "MSPointerMove";
+	  mouse.up = "MSPointerUp";
+	} else if (env.touch) setMouse(mouse);
+
+	/*
+		Behavior:DND - low-level dnd handling
+		@export
+			getContext
+			addDrop
+			addDrag
+			
+		DND master can define next handlers
+			onCreateDrag
+			onDragIng
+			onDragOut
+			onDrag
+			onDrop
+		all are optional
+	*/
+
+	var DragControl = {
+	  //has of known dnd masters
+	  _drag_masters: toArray(["dummy"]),
+
+	  /*
+	  	register drop area
+	  	@param node 			html node or ID
+	  	@param ctrl 			options dnd master
+	  	@param master_mode 		true if you have complex drag-area rules
+	  */
+	  addDrop: function (node, ctrl, master_mode) {
+	    node = toNode(node);
+	    node.webix_drop = this._getCtrl(ctrl);
+	    if (master_mode) node.webix_master = true;
+	  },
+	  //return index of master in collection
+	  //it done in such way to prevent dnd master duplication
+	  //probably useless, used only by addDrop and addDrag methods
+	  _getCtrl: function (ctrl) {
+	    ctrl = ctrl || DragControl;
+
+	    var index$$1 = this._drag_masters.find(ctrl);
+
+	    if (index$$1 < 0) {
+	      index$$1 = this._drag_masters.length;
+
+	      this._drag_masters.push(ctrl);
+	    }
+
+	    return index$$1;
+	  },
+	  _createTouchDrag: function (e) {
+	    var dragCtrl = DragControl;
+
+	    var master = this._getActiveDragMaster(); // for data items only
+
+
+	    if (master && master._getDragItemPos) {
+	      if (!dragCtrl._html) dragCtrl.createDrag(e);
+	      var ctx = dragCtrl._drag_context;
+	      dragCtrl._html.style.left = e.x + dragCtrl.left + (ctx.x_offset || 0) + "px";
+	      dragCtrl._html.style.top = e.y + dragCtrl.top + (ctx.y_offset || 0) + "px";
+	    }
+	  },
+
+	  /*
+	  	register drag area
+	  	@param node 	html node or ID
+	  	@param ctrl 	options dnd master
+	  */
+	  addDrag: function (node, ctrl) {
+	    node = toNode(node);
+	    node.webix_drag = this._getCtrl(ctrl);
+
+	    _event(node, env.mouse.down, this._preStart, {
+	      bind: node
+	    });
+
+	    _event(node, "dragstart", preventEvent);
+	  },
+	  //logic of drag - start, we are not creating drag immediately, instead of that we hears mouse moving
+	  _preStart: function (e) {
+	    if (DragControl._active) {
+	      //if we have nested drag areas, use the top one and ignore the inner one
+	      if (DragControl._saved_event == e) return;
+
+	      DragControl._preStartFalse();
+
+	      DragControl.destroyDrag(e);
+	    }
+
+	    DragControl._active = this;
+	    var evobj = env.mouse.context(e);
+	    DragControl._start_pos = evobj;
+	    DragControl._saved_event = e;
+	    DragControl._webix_drag_mm = event$1(document.body, env.mouse.move, DragControl._startDrag);
+	    DragControl._webix_drag_mu = event$1(document, env.mouse.up, DragControl._preStartFalse); //need to run here, or will not work in IE
+
+	    addCss(document.body, "webix_noselect", 1);
+	  },
+	  //if mouse was released before moving - this is not a dnd, remove event handlers
+	  _preStartFalse: function () {
+	    DragControl._clean_dom_after_drag();
+	  },
+	  //mouse was moved without button released - dnd started, update event handlers
+	  _startDrag: function (e) {
+	    //prevent unwanted dnd
+	    var pos$$1 = env.mouse.context(e);
+
+	    var master = DragControl._getActiveDragMaster(); // only long-touched elements can be dragged
+
+
+	    var longTouchLimit = master && env.touch && master._getDragItemPos && !Touch._long_touched;
+	    if (longTouchLimit || Math.abs(pos$$1.x - DragControl._start_pos.x) < 5 && Math.abs(pos$$1.y - DragControl._start_pos.y) < 5) return;
+
+	    DragControl._clean_dom_after_drag(true);
+
+	    if (!DragControl._html) if (!DragControl.createDrag(DragControl._saved_event)) return;
+	    DragControl.sendSignal("start"); //useless for now
+
+	    DragControl._webix_drag_mm = event$1(document.body, env.mouse.move, DragControl._moveDrag);
+	    DragControl._webix_drag_mu = event$1(document, env.mouse.up, DragControl._stopDrag);
+
+	    DragControl._moveDrag(e);
+
+	    if (env.touch) return preventEvent(e);
+	  },
+	  //mouse was released while dnd is active - process target
+	  _stopDrag: function (e) {
+	    DragControl._clean_dom_after_drag();
+
+	    DragControl._saved_event = null;
+
+	    if (DragControl._last) {
+	      //if some drop target was confirmed
+	      DragControl.$drop(DragControl._active, DragControl._last, e);
+	      DragControl.$dragOut(DragControl._active, DragControl._last, null, e);
+	    }
+
+	    DragControl.destroyDrag(e);
+	    DragControl.sendSignal("stop"); //useless for now
+	  },
+	  _clean_dom_after_drag: function (still_drag) {
+	    this._webix_drag_mm = eventRemove(this._webix_drag_mm);
+	    this._webix_drag_mu = eventRemove(this._webix_drag_mu);
+	    if (!still_drag) removeCss(document.body, "webix_noselect");
+	  },
+	  //dnd is active and mouse position was changed
+	  _moveDrag: function (e) {
+	    var dragCtrl = DragControl;
+	    var pos$$1 = pos(e); //give possibility to customize drag position
+
+	    var customPos = dragCtrl.$dragPos(pos$$1, e); //adjust drag marker position
+
+	    var ctx = dragCtrl._drag_context;
+	    dragCtrl._html.style.top = pos$$1.y + dragCtrl.top + (customPos || !ctx.y_offset ? 0 : ctx.y_offset) + "px";
+	    dragCtrl._html.style.left = pos$$1.x + dragCtrl.left + (customPos || !ctx.x_offset ? 0 : ctx.x_offset) + "px";
+	    var evobj = e;
+	    if (dragCtrl._skip) dragCtrl._skip = false;else {
+	      if (env.touch) {
+	        var context = env.mouse.context(e);
+	        var target = document.elementFromPoint(context.x, context.y);
+	        evobj = new Proxy(e, {
+	          get: function (obj, prop) {
+	            if (prop === "target") {
+	              return target;
+	            }
+
+	            var res = obj[prop];
+
+	            if (typeof res === "function") {
+	              return res.bind(e);
+	            }
+
+	            return res;
+	          }
+	        });
+	      }
+
+	      dragCtrl._checkLand(evobj.target || evobj.srcElement, evobj);
+	    }
+	    return preventEvent(e);
+	  },
+	  //check if item under mouse can be used as drop landing
+	  _checkLand: function (node, e) {
+	    while (node && node.tagName != "BODY") {
+	      if (node.webix_drop) {
+	        //if drop area registered
+	        if (this._last && (this._last != node || node.webix_master)) //if this area with complex dnd master
+	          this.$dragOut(this._active, this._last, node, e); //inform master about possible mouse-out
+
+	        if (!this._last || this._last != node || node.webix_master) {
+	          //if this is new are or area with complex dnd master
+	          this._last = null; //inform master about possible mouse-in
+
+	          this._landing = this.$dragIn(DragControl._active, node, e);
+	          if (this._landing) //landing was rejected
+	            this._last = node;
+	          return;
+	        }
+
+	        return;
+	      }
+
+	      node = node.parentNode;
+	    }
+
+	    if (this._last) //mouse was moved out of previous landing, and without finding new one 
+	      this._last = this._landing = this.$dragOut(this._active, this._last, null, e);
+	  },
+	  //mostly useless for now, can be used to add cross-frame dnd
+	  sendSignal: function (signal) {
+	    DragControl.active = signal == "start";
+	    callEvent("onDragMode", [signal]);
+	  },
+	  //return master for html area
+	  getMaster: function (t) {
+	    return this._drag_masters[t.webix_drag || t.webix_drop];
+	  },
+	  //return dhd-context object
+	  getContext: function () {
+	    return this._drag_context;
+	  },
+	  getNode: function () {
+	    return this._html;
+	  },
+	  //called when dnd is initiated, must create drag representation
+	  createDrag: function (e) {
+	    var dragCtl = DragControl;
+	    var a = dragCtl._active;
+	    dragCtl._drag_context = {};
+	    var master = this._drag_masters[a.webix_drag];
+	    var drag_container; //if custom method is defined - use it
+
+	    if (master.$dragCreate) {
+	      drag_container = master.$dragCreate(a, e);
+	      if (!drag_container) return false;
+
+	      this._setDragOffset(e);
+
+	      drag_container.style.position = "absolute";
+	    } else {
+	      //overvise use default one
+	      var text = dragCtl.$drag(a, e);
+
+	      dragCtl._setDragOffset(e);
+
+	      if (!text) return false;
+	      drag_container = document.createElement("DIV");
+	      drag_container.innerHTML = text;
+	      drag_container.className = "webix_drag_zone";
+	      document.body.appendChild(drag_container);
+	      var context = dragCtl._drag_context;
+
+	      if (context.html && env.pointerevents) {
+	        context.x_offset = -Math.round(drag_container.offsetWidth * 0.5);
+	        context.y_offset = -Math.round(drag_container.offsetHeight * 0.75);
+	      }
+	    }
+	    /*
+	    	dragged item must have topmost z-index
+	    	in some cases item already have z-index
+	    	so we will preserve it if possible
+	    */
+
+
+	    drag_container.style.zIndex = Math.max(drag_container.style.zIndex, zIndex());
+	    DragControl._skipDropH = event$1(drag_container, env.mouse.move, DragControl._skip_mark);
+	    if (!DragControl._drag_context.from) DragControl._drag_context = {
+	      source: a,
+	      from: a
+	    };
+	    DragControl._html = drag_container;
+	    return true;
+	  },
+	  //helper, prevents unwanted mouse-out events
+	  _skip_mark: function () {
+	    DragControl._skip = true;
+	  },
+	  //after dnd end, remove all traces and used html elements
+	  destroyDrag: function (e) {
+	    var a = DragControl._active;
+	    var master = this._drag_masters[a.webix_drag];
+
+	    if (master && master.$dragDestroy) {
+	      DragControl._skipDropH = eventRemove(DragControl._skipDropH);
+	      if (DragControl._html) master.$dragDestroy(a, DragControl._html, e);
+	    } else {
+	      remove(DragControl._html);
+	    }
+
+	    if (DragControl._dropHTML) remove(DragControl._dropHTML);
+	    DragControl._landing = DragControl._active = DragControl._last = DragControl._html = DragControl._dropHTML = null; //DragControl._x_offset = DragControl._y_offset = null;
+	  },
+	  _getActiveDragMaster: function () {
+	    return DragControl._drag_masters[DragControl._active.webix_drag];
+	  },
+	  top: 0,
+	  //relative position of drag marker to mouse cursor
+	  left: 0,
+	  _setDragOffset: function (e) {
+	    var dragCtl = DragControl;
+	    var pos$$1 = dragCtl._start_pos;
+	    var ctx = dragCtl._drag_context;
+	    if (typeof ctx.x_offset != "undefined" && typeof ctx.y_offset != "undefined") return null;
+	    ctx.x_offset = ctx.y_offset = 0;
+
+	    if (env.pointerevents) {
+	      var m = DragControl._getActiveDragMaster();
+
+	      if (m._getDragItemPos && m !== this) {
+	        var itemPos = m._getDragItemPos(pos$$1, e);
+
+	        if (itemPos) {
+	          ctx.x_offset = itemPos.x - pos$$1.x;
+	          ctx.y_offset = itemPos.y - pos$$1.y;
+	        }
+	      }
+	    }
+	  },
+	  $dragPos: function (pos$$1, e) {
+	    var m = this._drag_masters[DragControl._active.webix_drag];
+
+	    if (m.$dragPos && m != this) {
+	      m.$dragPos(pos$$1, e, DragControl._html);
+	      return true;
+	    }
+	  },
+	  //called when mouse was moved in drop area
+	  $dragIn: function (s, t, e) {
+	    var m = this._drag_masters[t.webix_drop];
+	    if (m.$dragIn && m != this) return m.$dragIn(s, t, e);
+	    t.className = t.className + " webix_drop_zone";
+	    return t;
+	  },
+	  //called when mouse was moved out drop area
+	  $dragOut: function (s, t, n, e) {
+	    var m = this._drag_masters[t.webix_drop];
+	    if (m.$dragOut && m != this) return m.$dragOut(s, t, n, e);
+	    t.className = t.className.replace("webix_drop_zone", "");
+	    return null;
+	  },
+	  //called when mouse was released over drop area
+	  $drop: function (s, t, e) {
+	    var m = this._drag_masters[t.webix_drop];
+	    DragControl._drag_context.from = DragControl.getMaster(s);
+	    if (m.$drop && m != this) return m.$drop(s, t, e);
+	    t.appendChild(s);
+	  },
+	  //called when dnd just started
+	  $drag: function (s, e) {
+	    var m = this._drag_masters[s.webix_drag];
+	    if (m.$drag && m != this) return m.$drag(s, e);
+	    return "<div style='" + s.style.cssText + "'>" + s.innerHTML + "</div>";
+	  }
+	}; //global touch-drag handler
+
+	attachEvent("onLongTouch", function (ev) {
+	  if (DragControl._active) DragControl._createTouchDrag(ev);
 	});
 
 	var Movable = {
-	  move_setter: function move_setter(value) {
+	  move_setter: function (value) {
 	    if (value) {
 	      this._move_admin = clone(this._move_admin);
 	      this._move_admin.master = this;
@@ -6910,7 +7029,7 @@
 	    return value;
 	  },
 	  _move_admin: {
-	    $dragCreate: function $dragCreate(object, e) {
+	    $dragCreate: function (object, e) {
 	      if (this.master.config.move) {
 	        var elOffset = offset(object);
 	        var elPos = pos(e);
@@ -6919,7 +7038,7 @@
 	        return toNode(this.master._viewobj);
 	      }
 	    },
-	    $dragDestroy: function $dragDestroy(node, drag) {
+	    $dragDestroy: function (node, drag) {
 	      var view = this.master;
 
 	      if (view._settings) {
@@ -6927,18 +7046,18 @@
 	        view._settings.left = parseInt(drag.style.left, 10);
 	      }
 
-	      DragControl.top = DragControl.left = 5;
+	      DragControl.top = DragControl.left = 0;
 	      this.master.callEvent("onViewMoveEnd", []);
 	      return;
 	    },
-	    $dragPos: function $dragPos(pos$$1, e) {
+	    $dragPos: function (pos$$1, e) {
 	      this.master.callEvent("onViewMove", [pos$$1, e]);
 	    }
 	  }
 	};
 
 	var Modality = {
-	  _modal_set: function _modal_set(value) {
+	  _modal_set: function (value) {
 	    if (value) {
 	      if (!this._modal_cover) {
 	        this._modal_cover = create("div", {
@@ -6979,11 +7098,11 @@
 	};
 
 	var ResizeArea = {
-	  resize_setter: function resize_setter(value) {
+	  resize_setter: function (value) {
 	    if (value && !this._resizeHandlers) this._renderResizeHandler();
 	    return value;
 	  },
-	  _renderResizeHandler: function _renderResizeHandler() {
+	  _renderResizeHandler: function () {
 	    if (!this._rwHandle) {
 	      var rp = this._viewobj;
 
@@ -7003,7 +7122,7 @@
 	      });
 	    }
 	  },
-	  _showResizeFrame: function _showResizeFrame(width, height) {
+	  _showResizeFrame: function (width, height) {
 	    if (!this._resizeFrame) {
 	      this._resizeFrame = create("div", {
 	        "class": "webix_resize_frame"
@@ -7018,7 +7137,7 @@
 	    this._resizeFrame.style.width = width + "px";
 	    this._resizeFrame.style.height = height + "px";
 	  },
-	  _wrDown: function _wrDown() {
+	  _wrDown: function () {
 	    if (this.config.resize) {
 	      addCss(document.body, "webix_noselect webix_resize_cursor");
 	      this._wsReady = offset(this._viewobj);
@@ -7030,7 +7149,7 @@
 	      });
 	    }
 	  },
-	  _wrMove: function _wrMove(e) {
+	  _wrMove: function (e) {
 	    if (this._wsReady !== false) {
 	      var elPos = pos(e);
 	      var progress = {
@@ -7038,14 +7157,16 @@
 	        y: elPos.y - this._wsReady.y + 10
 	      };
 	      if (this.$resizeMove) this.$resizeMove(progress);else {
-	        if (Math.abs(this._wsReady.x - elPos.x) < (this.config.minWidth || 100) || Math.abs(this._wsReady.y - elPos.y) < (this.config.minHeight || 100)) return;
+	        var width = Math.abs(this._wsReady.x - elPos.x),
+	            height = Math.abs(this._wsReady.y - elPos.y);
+	        if (width < (this.config.minWidth || 100) || height < (this.config.minHeight || 100) || width > this._settings.maxWidth || height > this._settings.maxHeight) return;
 	      }
 	      this._wsProgress = progress;
 
 	      this._showResizeFrame(progress.x, progress.y);
 	    }
 	  },
-	  _wrUp: function _wrUp() {
+	  _wrUp: function () {
 	    // remove resize frame and css styles
 	    if (this._resizeFrame) this._resizeFrame = remove(this._resizeFrame);
 	    removeCss(document.body, "webix_resize_cursor");
@@ -7069,7 +7190,7 @@
 	state._popups = toArray();
 	var api$3 = {
 	  name: "window",
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    this._viewobj.innerHTML = "<div class='webix_win_content'><div class='webix_win_head'></div><div class='webix_win_body'></div></div>";
 	    this._contentobj = this._viewobj.firstChild;
 	    this._headobj = this._contentobj.childNodes[0];
@@ -7108,26 +7229,26 @@
 	      if (this._settings.position) delete this._settings.position;
 	    });
 	  },
-	  _ignore_clicks: function _ignore_clicks(e) {
+	  _ignore_clicks: function (e) {
 	    var popups = state._popups;
 	    var index$$1 = popups.find(this);
 	    if (index$$1 == -1) index$$1 = popups.length - 1;
 	    e.click_view = index$$1;
 	    if (env.isIE8) e.srcElement.click_view = index$$1;
 	  },
-	  getChildViews: function getChildViews() {
+	  getChildViews: function () {
 	    if (this._head_cell) return [this._head_cell, this._body_cell];else return [this._body_cell];
 	  },
-	  zIndex_setter: function zIndex_setter(value) {
+	  zIndex_setter: function (value) {
 	    this._viewobj.style.zIndex = value;
 	    return value;
 	  },
-	  _remove: function _remove() {
+	  _remove: function () {
 	    this._body_cell = {
-	      destructor: function destructor() {}
+	      destructor: function () {}
 	    };
 	  },
-	  _replace: function _replace(new_view) {
+	  _replace: function (new_view) {
 	    this._body_cell.destructor();
 
 	    this._body_cell = new_view;
@@ -7139,7 +7260,7 @@
 	    this._body_cell._settings._inner = clone(this._settings._inner);
 	    this.resize(true);
 	  },
-	  show: function show(node, mode, point) {
+	  show: function (node, mode, point) {
 	    if (node === true) {
 	      //recursive call from some child item
 	      if (!this._settings.hidden) return;
@@ -7293,7 +7414,7 @@
 	    if (-1 == state._popups.find(this)) state._popups.push(this);
 	    this.callEvent("onShow", []);
 	  },
-	  _hide: function _hide(e) {
+	  _hide: function (e) {
 	    //do not hide modal windows
 	    if (this._settings.hidden || this._settings.modal || this._hide_timer || e && e.showpopup) return; //do not hide popup, when we have modal layer above the popup
 
@@ -7310,11 +7431,11 @@
 
 	    this.hide();
 	  },
-	  hidden_setter: function hidden_setter(value) {
+	  hidden_setter: function (value) {
 	    if (value) this.hide();else this.show();
 	    return !!value;
 	  },
-	  hide: function hide(force) {
+	  hide: function (force) {
 	    if (this.$destructed) return;
 	    if (!force) if (this._settings.hidden) return;
 	    if (this._settings.modal) this._modal_set(false);
@@ -7342,7 +7463,7 @@
 	    this._hide_sub_popups();
 	  },
 	  //hide all child-popups
-	  _hide_sub_popups: function _hide_sub_popups() {
+	  _hide_sub_popups: function () {
 	    var order = state._popups;
 	    var index$$1 = order.find(this);
 	    var size = order.length - 1;
@@ -7352,7 +7473,7 @@
 	    }
 	    order.removeAt(index$$1);
 	  },
-	  destructor: function destructor() {
+	  destructor: function () {
 	    this._modal_set(false);
 
 	    remove(this._viewobj);
@@ -7367,20 +7488,20 @@
 	    if (this._hide_point) this._hide_point();
 	    Destruction.destructor.apply(this, []);
 	  },
-	  _hide_callback: function _hide_callback() {
+	  _hide_callback: function () {
 	    if (!this.$destructed) {
 	      this._viewobj.style.display = "none";
 	      this._settings.hidden = true;
 	      this.callEvent("onHide", []);
 	    }
 	  },
-	  close: function close() {
+	  close: function () {
 	    this.destructor();
 	  },
-	  _inner_body_set: function _inner_body_set(value) {
+	  _inner_body_set: function (value) {
 	    if (typeof value.borderless == "undefined") value.borderless = true;
 	  },
-	  body_setter: function body_setter(value) {
+	  body_setter: function (value) {
 	    if (_typeof(value) != "object") value = {
 	      template: value
 	    };
@@ -7394,7 +7515,7 @@
 
 	    return value;
 	  },
-	  head_setter: function head_setter(value) {
+	  head_setter: function (value) {
 	    if (value === false) return value;
 
 	    if (_typeof(value) != "object") {
@@ -7414,26 +7535,26 @@
 
 	    return value;
 	  },
-	  getBody: function getBody() {
+	  getBody: function () {
 	    return this._body_cell;
 	  },
-	  getHead: function getHead() {
+	  getHead: function () {
 	    return this._head_cell;
 	  },
-	  adjust: function adjust() {
+	  adjust: function () {
 	    return this.resize();
 	  },
-	  resizeChildren: function resizeChildren() {
+	  resizeChildren: function () {
 	    if (this._body_cell) this.resize();
 	  },
-	  resize: function resize$$1() {
+	  resize: function () {
 	    baseview.api.adjust.call(this);
 
 	    if (this.isVisible()) {
 	      this._setPosition(this._settings.left, this._settings.top);
 	    }
 	  },
-	  _checkFixedPosition: function _checkFixedPosition() {
+	  _checkFixedPosition: function () {
 	    if (this._settings.master) {
 	      var top = $$(this._settings.master).getTopParentView().$view;
 	      return top && top.style.position === "fixed";
@@ -7441,7 +7562,7 @@
 
 	    return false;
 	  },
-	  _setPosition: function _setPosition(x, y) {
+	  _setPosition: function (x, y) {
 	    if (this._settings.position || this._checkFixedPosition()) {
 	      this.$view.style.position = "fixed";
 	      var width = this._content_width;
@@ -7490,18 +7611,18 @@
 	      });
 	    } else this.setPosition(x, y);
 	  },
-	  _topPositionCallback: function _topPositionCallback(node) {
+	  _topPositionCallback: function (node) {
 	    animate.clear(node);
 	    this._settings.top = -((this._settings.padding || 0) * 2);
 	    this.setPosition(this._settings.left, this._settings.top);
 	  },
-	  setPosition: function setPosition(x, y) {
+	  setPosition: function (x, y) {
 	    this._viewobj.style.top = y + "px";
 	    this._viewobj.style.left = x + "px";
 	    this._settings.left = x;
 	    this._settings.top = y;
 	  },
-	  $getSize: function $getSize(dx, dy) {
+	  $getSize: function (dx, dy) {
 	    var _borders = this._settings._inner;
 
 	    if (_borders) {
@@ -7540,7 +7661,7 @@
 	    self_size[2] = Math.min(Math.max(self_size[2], size[2] + dy), self_size[3]);
 	    return self_size;
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    base.api.$setSize.call(this, x, y);
 	    x = this._content_width;
 	    y = this._content_height;
@@ -7555,7 +7676,7 @@
 	      this._body_cell.$setSize(x, y - this._settings.headHeight);
 	    }
 	  },
-	  $skin: function $skin() {
+	  $skin: function () {
 	    this.defaults.headHeight = $active.barHeight;
 	  },
 	  defaults: {
@@ -7582,12 +7703,12 @@
 	    padding: "4",
 	    hidden: true
 	  },
-	  body_setter: function body_setter(value) {
+	  body_setter: function (value) {
 	    value = window$1.api.body_setter.call(this, value);
 	    this._body_cell._viewobj.style.borderWidth = "0px";
 	    return value;
 	  },
-	  attachTo: function attachTo(obj) {
+	  attachTo: function (obj) {
 	    assert(obj, "Invalid target for Context::attach");
 	    var id;
 	    if (obj.on_context) id = obj.attachEvent("onAfterContextMenu", bind(this._show_at_ui, this));else id = event$1(obj, "contextmenu", this._show_at_node, {
@@ -7598,24 +7719,24 @@
 	      obj = null;
 	    });
 	  },
-	  getContext: function getContext() {
+	  getContext: function () {
 	    return this._area;
 	  },
-	  setContext: function setContext(area) {
+	  setContext: function (area) {
 	    this._area = area;
 	  },
-	  _show_at_node: function _show_at_node(e) {
+	  _show_at_node: function (e) {
 	    this._area = toNode(e || event$1);
 	    return this._show_at(e);
 	  },
-	  _show_at_ui: function _show_at_ui(id, e) {
+	  _show_at_ui: function (id, e) {
 	    this._area = {
 	      obj: $$(e),
 	      id: id
 	    };
 	    return this._show_at(e);
 	  },
-	  _show_at: function _show_at(e) {
+	  _show_at: function (e) {
 	    var result = this.show(e, null, true);
 	    if (result === false) return result; //event forced to close other popups|context menus
 
@@ -7623,7 +7744,7 @@
 	    return preventEvent(e);
 	  },
 	  _show_on_mouse_out: true,
-	  master_setter: function master_setter(value) {
+	  master_setter: function (value) {
 	    this.attachTo(value);
 	    return null;
 	  }
@@ -7636,7 +7757,7 @@
 
 	  /*! create textarea or returns existing
 	   **/
-	  init: function init() {
+	  init: function () {
 	    // returns existing textarea
 	    if (this._area !== null) return this._area;
 	    state.destructors.push({
@@ -7668,13 +7789,13 @@
 	    }, this));
 	    return this._area;
 	  },
-	  destructor: function destructor() {
+	  destructor: function () {
 	    this._area = null;
 	  },
 
 	  /*! set text into buffer
 	   **/
-	  set: function set(text) {
+	  set: function (text) {
 	    this.init();
 	    text = text === "" ? "\n" : text;
 	    this._area.value = text;
@@ -7683,7 +7804,7 @@
 
 	  /*! select text in textarea
 	   **/
-	  focus: function focus() {
+	  focus: function () {
 	    // if there is native browser selection, skip focus
 	    if (!this._isSelectRange()) {
 	      this.init();
@@ -7696,7 +7817,7 @@
 
 	  /*! checks document selection
 	   **/
-	  _isSelectRange: function _isSelectRange() {
+	  _isSelectRange: function () {
 	    var text = "";
 
 	    if (typeof window.getSelection != "undefined") {
@@ -7710,7 +7831,7 @@
 
 	  /*! process ctrl+V pressing
 	   **/
-	  _paste: function _paste(e) {
+	  _paste: function (e) {
 	    var trg = e.target || e.srcElement;
 
 	    if (trg === this._area) {
@@ -7727,7 +7848,7 @@
 	};
 
 	var CopyPaste = {
-	  clipboard_setter: function clipboard_setter(value) {
+	  clipboard_setter: function (value) {
 	    if (value === true || value === 1) value = "modify";
 	    this.attachEvent("onAfterSelect", function (id) {
 	      var item = this.getItem(id);
@@ -7753,13 +7874,13 @@
 	  },
 	  _paste: {
 	    // insert new item with pasted value
-	    insert: function insert(text) {
+	    insert: function (text) {
 	      this.add({
 	        value: text
 	      });
 	    },
 	    // change value of each selected item
-	    modify: function modify(text) {
+	    modify: function (text) {
 	      var sel = this.getSelectedId(true);
 
 	      for (var i = 0; i < sel.length; i++) {
@@ -7768,20 +7889,20 @@
 	      }
 	    },
 	    // do nothing
-	    custom: function custom() {}
+	    custom: function () {}
 	  },
-	  templateCopy_setter: function templateCopy_setter(value) {
+	  templateCopy_setter: function (value) {
 	    this.type.templateCopy = template(value);
 	  },
 	  type: {
-	    templateCopy: function templateCopy(item) {
+	    templateCopy: function (item) {
 	      return this.template(item);
 	    }
 	  }
 	};
 
 	var CustomPrint = {
-	  $customPrint: function $customPrint(options, htmlOnly) {
+	  $customPrint: function (options, htmlOnly) {
 	    if (this._prePrint(options, htmlOnly)) return true;
 
 	    var tableData = this._getTableArray(options);
@@ -7797,20 +7918,20 @@
 	    window.print();
 	    remove(doc);
 	  },
-	  _prePrint: function _prePrint(options, htmlOnly) {
+	  _prePrint: function (options, htmlOnly) {
 	    if (!htmlOnly && (this.config.layout == "y" || options.scroll || this.config.prerender || this.config.autoheight)) return true;
 	    if (this.config.layout == "x") exports.extend(options || {}, {
 	      xCount: this.count(),
 	      nobreaks: true
 	    }, true);
 	  },
-	  _getPageWidth: function _getPageWidth(options) {
+	  _getPageWidth: function (options) {
 	    if (options.fit == "page") return Infinity;
 	    var size = options.size;
 	    var width = size[options.mode == "portrait" ? "width" : "height"];
 	    return Math.min(width * env.printPPI - 2 * env.printMargin);
 	  },
-	  _getTableArray: function _getTableArray(options, base, start) {
+	  _getTableArray: function (options, base, start) {
 	    var maxWidth = this._getPageWidth(options);
 
 	    var xCount = options.xCount || this._getVisibleRange()._dx;
@@ -7868,7 +7989,7 @@
 	    if (newTableStart) this._getTableArray(options, base, newTableStart);
 	    return base;
 	  },
-	  _getTableHTML: function _getTableHTML(tableData, options) {
+	  _getTableHTML: function (tableData, options) {
 	    var container = create("div");
 	    tableData.forEach(bind(function (table, i) {
 	      var tableHTML = create("table", {
@@ -7913,14 +8034,14 @@
 
 	var CustomScroll = {
 	  scrollStep: 40,
-	  init: function init() {
+	  init: function () {
 	    this._init_once();
 
 	    env.$customScroll = true;
 	    env.scrollSize = 0;
 	    state.destructors.push({
 	      obj: {
-	        destructor: function destructor() {
+	        destructor: function () {
 	          this._last_active_node = null;
 	        }
 	      }
@@ -7932,10 +8053,10 @@
 
 	    attachEvent("onClick", CustomScroll._on_reconstruct);
 	  },
-	  resize: function resize() {
+	  resize: function () {
 	    this._on_reconstruct();
 	  },
-	  _enable_datatable: function _enable_datatable(view) {
+	  _enable_datatable: function (view) {
 	    view._body._custom_scroll_view = view._settings.id;
 	    view.attachEvent("onAfterRender", function () {
 	      var scroll = CustomScroll._get_datatable_sizes(this);
@@ -7956,7 +8077,7 @@
 
 	    _event(view._body, "mouseout", CustomScroll._mouse_out);
 	  },
-	  enable: function enable(view, mode) {
+	  enable: function (view, mode) {
 	    CustomScroll._init_once();
 
 	    if (view.mapCells) return this._enable_datatable(view);
@@ -7979,7 +8100,7 @@
 
 	    this._setDataHandler(view);
 	  },
-	  _on_reconstruct: function _on_reconstruct() {
+	  _on_reconstruct: function () {
 	    var last = CustomScroll._last_active_node;
 
 	    if (last && last._custom_scroll_size) {
@@ -7988,18 +8109,18 @@
 	      CustomScroll._mouse_in.call(last);
 	    }
 	  },
-	  _init_once: function _init_once() {
+	  _init_once: function () {
 	    event$1(document.body, "mousemove", function (e) {
 	      if (CustomScroll._active_drag_area) CustomScroll._adjust_scroll(CustomScroll._active_drag_area, CustomScroll._active_drag_area._scroll_drag_pos, pos(e));
 	    });
 
 	    CustomScroll._init_once = function () {};
 	  },
-	  _mouse_in: function _mouse_in(e) {
+	  _mouse_in: function () {
 	    CustomScroll._last_active_node = this;
 	    clearTimeout(this._mouse_out_timer);
 	    if (this._custom_scroll_size || CustomScroll._active_drag_area) return;
-	    var view = $$(e);
+	    var view = $$(this);
 	    if (view && !view.isEnabled()) return;
 	    var sizes;
 
@@ -8038,7 +8159,7 @@
 
 	    CustomScroll._update_scroll(this);
 	  },
-	  _create_bar: function _create_bar(node, mode) {
+	  _create_bar: function (node, mode) {
 	    var bar = create("DIV", {
 	      "webixignore": "1",
 	      "class": "webix_c_scroll_bar_" + mode
@@ -8046,7 +8167,7 @@
 	    node.appendChild(bar);
 	    return bar;
 	  },
-	  _adjust_scroll: function _adjust_scroll(node, old, pos$$1) {
+	  _adjust_scroll: function (node, old, pos$$1) {
 	    var config = node._custom_scroll_size;
 	    var view = node._custom_scroll_view;
 	    if (view) view = $$(view);
@@ -8066,7 +8187,7 @@
 
 	    CustomScroll._update_scroll(node);
 	  },
-	  _get_datatable_sizes: function _get_datatable_sizes(view) {
+	  _get_datatable_sizes: function (view) {
 	    var sizes = {};
 
 	    if (view._x_scroll && view._settings.scrollX) {
@@ -8083,11 +8204,11 @@
 
 	    return sizes;
 	  },
-	  _mouse_out: function _mouse_out() {
+	  _mouse_out: function () {
 	    clearTimeout(this._mouse_out_timer);
 	    this._mouse_out_timer = delay(CustomScroll._mouse_out_timed, this, [], 200);
 	  },
-	  _removeScroll: function _removeScroll(scroll) {
+	  _removeScroll: function (scroll) {
 	    if (scroll) {
 	      remove(scroll);
 
@@ -8098,7 +8219,7 @@
 	      }
 	    }
 	  },
-	  _mouse_out_timed: function _mouse_out_timed() {
+	  _mouse_out_timed: function () {
 	    if (this._custom_scroll_size) {
 	      if (this._scroll_drag_enabled) {
 	        this._scroll_drag_released = true;
@@ -8124,18 +8245,21 @@
 	      this._custom_scroll_size = null;
 	    }
 	  },
-	  _mouse_wheel: function _mouse_wheel(e) {
+	  _mouse_wheel: function (e) {
 	    var sizes = this._custom_scroll_size;
 	    var delta = e.wheelDelta / -40;
-	    var toblock = true;
+	    var toblock = false;
 	    if (!delta && e.detail && isUndefined(e.wheelDelta)) delta = e.detail;
 
 	    if (sizes) {
-	      if (sizes._scroll_x_node && (e.wheelDeltaX || delta && !sizes._scroll_y_node)) {
+	      if (!e.scrolledBy) e.scrolledBy = sizes._scroll_y ? "y" : "x";
+	      var touchpadMoveX = e.wheelDeltaX && Math.abs(e.wheelDeltaX) > Math.abs(e.wheelDeltaY);
+
+	      if (sizes._scroll_x_node && (e.scrolledBy !== "y" && (e.wheelDeltaX || delta) || touchpadMoveX)) {
 	        var x_dir = e.wheelDeltaX / -40 || delta; //see below
 
 	        toblock = CustomScroll._set_scroll_value(this, "scrollLeft", x_dir * CustomScroll.scrollStep);
-	      } else if (delta && sizes._scroll_y_node) {
+	      } else if (!touchpadMoveX && delta && sizes._scroll_y_node) {
 	        //lesser flickering of scroll in IE
 	        //also prevent scrolling outside of borders because of scroll-html-elements
 	        toblock = CustomScroll._set_scroll_value(this, "scrollTop", delta * CustomScroll.scrollStep);
@@ -8144,9 +8268,11 @@
 
 	    CustomScroll._update_scroll(this);
 
-	    if (toblock !== false) return preventEvent(e);
+	    if (toblock !== false) {
+	      return preventEvent(e);
+	    }
 	  },
-	  _set_scroll_value: function _set_scroll_value(node, pose, value) {
+	  _set_scroll_value: function (node, pose, value) {
 	    var sizes = node._custom_scroll_size;
 	    var max_scroll = pose == "scrollLeft" ? sizes.dx - sizes.px : sizes.dy - sizes.py;
 	    var now = node[pose];
@@ -8161,7 +8287,7 @@
 
 	    return true;
 	  },
-	  _create_scroll: function _create_scroll(node, mode, dy, py, dim) {
+	  _create_scroll: function (node, mode, dy, py, dim) {
 	    var scroll = create("DIV", {
 	      "webixignore": "1",
 	      "class": "webix_c_scroll_" + mode
@@ -8174,7 +8300,7 @@
 	    node._webix_event_sc3 = event$1(document.body, "mouseleave", bind(CustomScroll._scroll_drop, node));
 	    return scroll;
 	  },
-	  _scroll_drag: function _scroll_drag(node) {
+	  _scroll_drag: function (node) {
 	    return function (e) {
 	      addCss(document.body, "webix_noselect", 1);
 	      this.className += " webix_scroll_active";
@@ -8183,7 +8309,7 @@
 	      node._scroll_drag_pos = pos(e);
 	    };
 	  },
-	  _scroll_drop: function _scroll_drop() {
+	  _scroll_drop: function () {
 	    if (this._scroll_drag_enabled) {
 	      removeCss(document.body, "webix_noselect");
 	      this._scroll_drag_enabled.className = this._scroll_drag_enabled.className.toString().replace(" webix_scroll_active", "");
@@ -8197,7 +8323,7 @@
 	      }
 	    }
 	  },
-	  _update_scroll: function _update_scroll(node, pose, value) {
+	  _update_scroll: function (node, pose, value) {
 	    var sizes = node._custom_scroll_size;
 
 	    if (sizes && (sizes._scroll_x_node || sizes._scroll_y_node)) {
@@ -8230,7 +8356,7 @@
 	      }
 	    }
 	  },
-	  _setDataHandler: function _setDataHandler(view) {
+	  _setDataHandler: function (view) {
 	    if (view.data && view.data.attachEvent) view.data.attachEvent("onStoreUpdated", function () {
 	      var node = CustomScroll._last_active_node;
 	      if (node && view.$view.contains(node)) CustomScroll.resize();
@@ -8239,7 +8365,7 @@
 	};
 
 	var DataMarks = {
-	  addCss: function addCss(id, css, silent) {
+	  addCss: function (id, css, silent) {
 	    if (!this.addRowCss && !silent) {
 	      if (!this.hasCss(id, css)) {
 	        var node = this.getItemNode(id);
@@ -8253,7 +8379,7 @@
 
 	    return this.data.addMark(id, css, 1, 1, silent);
 	  },
-	  removeCss: function removeCss(id, css, silent) {
+	  removeCss: function (id, css, silent) {
 	    if (!this.addRowCss && !silent) {
 	      if (this.hasCss(id, css)) {
 	        var node = this.getItemNode(id);
@@ -8267,10 +8393,10 @@
 
 	    return this.data.removeMark(id, css, 1, silent);
 	  },
-	  hasCss: function hasCss(id, mark) {
+	  hasCss: function (id, mark) {
 	    return this.data.getMark(id, mark);
 	  },
-	  clearCss: function clearCss(css, silent) {
+	  clearCss: function (css, silent) {
 	    return this.data.clearMark(css, 1, silent);
 	  }
 	};
@@ -8284,7 +8410,7 @@
 
 	var DataMove = {
 	  //creates a copy of the item
-	  copy: function copy$$1(sid, tindex, tobj, details) {
+	  copy: function (sid, tindex, tobj, details) {
 	    details = details || {};
 	    var new_id = details.newId || sid;
 	    tobj = tobj || this;
@@ -8295,14 +8421,14 @@
 
 	    return tobj.data.add(tobj._externalData(data, new_id), tindex, details.parent || 0);
 	  },
-	  _next_move_index: function _next_move_index(nid, next, source) {
+	  _next_move_index: function (nid, next, source) {
 	    if (next && nid) {
 	      var new_index = this.getIndexById(nid);
 	      return new_index + (source == this && source.getIndexById(next) < new_index ? 0 : 1);
 	    }
 	  },
 	  //move item to the new position
-	  move: function move(sid, tindex, tobj, details) {
+	  move: function (sid, tindex, tobj, details) {
 	    details = details || {};
 	    var new_id = details.newId || sid;
 	    tobj = tobj || this;
@@ -8351,19 +8477,19 @@
 	    return nid; //return ID of item after moving
 	  },
 	  //move item on one position up
-	  moveUp: function moveUp(id, step) {
+	  moveUp: function (id, step) {
 	    return this.move(id, this.getIndexById(id) - (step || 1));
 	  },
 	  //move item on one position down
-	  moveDown: function moveDown(id, step) {
+	  moveDown: function (id, step) {
 	    return this.moveUp(id, (step || 1) * -1);
 	  },
 	  //move item to the first position
-	  moveTop: function moveTop(id) {
+	  moveTop: function (id) {
 	    return this.move(id, 0);
 	  },
 	  //move item to the last position
-	  moveBottom: function moveBottom(id) {
+	  moveBottom: function (id) {
 	    return this.move(id, this.data.count() - 1);
 	  },
 
@@ -8371,7 +8497,7 @@
 	  	this is a stub for future functionality
 	  	currently it just makes a copy of data object, which is enough for current situation
 	  */
-	  _externalData: function _externalData(data, id) {
+	  _externalData: function (data, id) {
 	    var newdata = exports.extend({}, data);
 	    newdata.id = !id || this.data.pull[id] ? uid() : id;
 	    newdata.$template = null;
@@ -8381,32 +8507,32 @@
 	};
 
 	var rules = {
-	  isEmail: function isEmail(value) {
+	  isEmail: function (value) {
 	    return /\S+@[^@\s]+\.[^@\s]+$/.test((value || "").toString());
 	  },
-	  isNumber: function isNumber(value) {
+	  isNumber: function (value) {
 	    return parseFloat(value) == value;
 	  },
-	  isChecked: function isChecked(value) {
+	  isChecked: function (value) {
 	    return !!value || value === "0";
 	  },
-	  isNotEmpty: function isNotEmpty(value) {
+	  isNotEmpty: function (value) {
 	    return value === 0 || value;
 	  }
 	};
 
 	var ValidateData = {
-	  $init: function $init() {
+	  $init: function () {
 	    if (this._events) this.attachEvent("onChange", this.clearValidation);
 	  },
-	  clearValidation: function clearValidation() {
+	  clearValidation: function () {
 	    if (this.elements) {
 	      for (var id in this.elements) {
 	        this._clear_invalid(id);
 	      }
 	    }
 	  },
-	  validate: function validate(mode, obj) {
+	  validate: function (mode, obj) {
 	    assert(this.callEvent, "using validate for eventless object");
 	    this.callEvent("onBeforeValidate", []);
 	    var failed = this._validate_details = {}; //optimistic by default :) 
@@ -8496,7 +8622,7 @@
 	    this.callEvent("onAfterValidation", [result, this._validate_details]);
 	    return result;
 	  },
-	  _validate: function _validate(rule, data, obj, key) {
+	  _validate: function (rule, data, obj, key) {
 	    if (typeof rule == "string") rule = rules[rule];
 
 	    if (rule.call(this, data, obj, key)) {
@@ -8543,16 +8669,16 @@
 
 	  /*! constructor
 	   **/
-	  $init: function $init() {
+	  $init: function () {
 	    this.reset();
 	    this._ignore = false;
 	    this.name = "DataProcessor";
 	    this.$ready.push(this._after_init_call);
 	  },
-	  reset: function reset() {
+	  reset: function () {
 	    this._updates = [];
 	  },
-	  url_setter: function url_setter(value) {
+	  url_setter: function (value) {
 	    /*
 	    	we can use simple url or mode->url
 	    */
@@ -8570,10 +8696,10 @@
 	      value = value.url;
 	    }
 
-	    if (mode) return proxy$b(mode, value);
+	    if (mode) return proxy$a(mode, value);
 	    return value;
 	  },
-	  master_setter: function master_setter(value) {
+	  master_setter: function (value) {
 	    var store = value;
 	    if (value.name != "DataStore") store = value.data;
 	    this._settings.store = store;
@@ -8582,26 +8708,26 @@
 
 	  /*! attaching onStoreUpdated event
 	   **/
-	  _after_init_call: function _after_init_call() {
+	  _after_init_call: function () {
 	    assert(this._settings.store, "store or master need to be defined for the dataprocessor");
 
 	    this._settings.store.attachEvent("onStoreUpdated", bind(this._onStoreUpdated, this));
 
 	    this._settings.store.attachEvent("onDataMove", bind(this._onDataMove, this));
 	  },
-	  ignore: function ignore(code, master) {
+	  ignore: function (code, master) {
 	    var temp = this._ignore;
 	    this._ignore = true;
 	    code.call(master || this);
 	    this._ignore = temp;
 	  },
-	  off: function off() {
+	  off: function () {
 	    this._ignore = true;
 	  },
-	  on: function on() {
+	  on: function () {
 	    this._ignore = false;
 	  },
-	  _copy_data: function _copy_data(source) {
+	  _copy_data: function (source) {
 	    var obj = {};
 
 	    for (var key in source) {
@@ -8610,12 +8736,12 @@
 
 	    return obj;
 	  },
-	  save: function save(id, operation, obj) {
+	  save: function (id, operation, obj) {
 	    operation = operation || "update";
 
 	    this._save_inner(id, obj || this._settings.store.getItem(id), operation);
 	  },
-	  _save_inner: function _save_inner(id, obj, operation) {
+	  _save_inner: function (id, obj, operation) {
 	    if (_typeof(id) == "object") id = id.toString();
 	    if (!id || this._ignore === true || !operation || operation == "paint") return true;
 	    var store = this._settings.store;
@@ -8639,7 +8765,7 @@
 	    if (this._settings.autoupdate) this.send();
 	    return true;
 	  },
-	  _onDataMove: function _onDataMove(sid, tindex, parent, targetid) {
+	  _onDataMove: function (sid, tindex, parent, targetid) {
 	    if (this._settings.trackMove) {
 	      var obj = copy(this._settings.store.getItem(sid));
 	      obj.webix_move_index = tindex;
@@ -8649,7 +8775,7 @@
 	      this._save_inner(sid, obj, "order");
 	    }
 	  },
-	  _onStoreUpdated: function _onStoreUpdated(id, obj, operation) {
+	  _onStoreUpdated: function (id, obj, operation) {
 	    switch (operation) {
 	      case "save":
 	        operation = "update";
@@ -8673,7 +8799,7 @@
 
 	    return this._save_inner(id, obj, operation);
 	  },
-	  _check_unique: function _check_unique(check) {
+	  _check_unique: function (check) {
 	    for (var i = 0; i < this._updates.length; i++) {
 	      var one = this._updates[i];
 
@@ -8690,10 +8816,12 @@
 
 	    return true;
 	  },
-	  send: function send() {
+	  send: function () {
 	    this._sendData();
 	  },
-	  _sendData: function _sendData() {
+	  _sendData: function () {
+	    var _this = this;
+
 	    if (!this._settings.url) return;
 	    var marked = this._updates;
 	    var to_send = [];
@@ -8705,8 +8833,8 @@
 	      if (tosave._invalid) continue;
 	      var id = tosave.id;
 	      var operation = tosave.operation;
-	      var precise_url = _typeof(url) == "object" && !url.$proxy ? url[operation] : url;
-	      var proxy = precise_url && (precise_url.$proxy || typeof precise_url === "function");
+	      var precise_url = proxy$a.$parse(_typeof(url) == "object" && !url.$proxy ? url[operation] : url);
+	      var custom = precise_url && (precise_url.$proxy || typeof precise_url === "function");
 	      if (!precise_url) continue;
 	      if (this._settings.store._scheme_save) this._settings.store._scheme_save(tosave.data);
 	      if (!this.callEvent("onBefore" + operation, [id, tosave])) continue;
@@ -8720,19 +8848,22 @@
 	      });
 
 	      if (precise_url.$proxy) {
-	        if (precise_url.save) precise_url.save(this.config.master, tosave, this, callback);
+	        if (precise_url.save) {
+	          //proxy
+	          var result = precise_url.save(this.config.master, tosave, this);
+
+	          this._proxy_on_save(result, callback);
+	        }
+
 	        to_send.push(tosave);
 	      } else {
 	        if (operation == "insert") delete tosave.data.id;
 
-	        if (proxy) {
-	          //promise
-	          precise_url(tosave.id, tosave.operation, tosave.data).then(function (data) {
-	            if (data && typeof data.json == "function") data = data.json();
-	            callback.success("", data, -1);
-	          }, function (error) {
-	            callback.error("", null, error);
-	          });
+	        if (custom) {
+	          //save function
+	          var _result = precise_url.call(this.config.master, tosave.id, tosave.operation, tosave.data);
+
+	          this._proxy_on_save(_result, callback);
 	        } else {
 	          //normal url
 	          tosave.data[this._settings.operationName] = operation;
@@ -8744,7 +8875,32 @@
 	      this.callEvent("onAfterDataSend", [tosave]);
 	    }
 
-	    if (url.$proxy && url.saveAll && to_send.length) url.saveAll(this.config.master, to_send, this, this._send_callback({}));
+	    if (url.$proxy && url.saveAll && to_send.length) {
+	      var _result2 = url.saveAll(this.config.master, to_send, this);
+
+	      if (_result2) {
+	        if (!_result2.then) _result2 = Deferred.resolve(_result2);
+
+	        _result2.then(function (data) {
+	          if (data && typeof data.json == "function") data = data.json();
+
+	          _this._processResult(data);
+	        }, function (x) {
+	          _this._processError(null, "", null, x);
+	        });
+	      }
+	    }
+	  },
+	  _proxy_on_save: function (result, callback) {
+	    if (result) {
+	      if (!result.then) result = Deferred.resolve(result);
+	      result.then(function (data) {
+	        if (data && typeof data.json == "function") data = data.json();
+	        callback.success("", data, -1); //text, data, loader
+	      }, function (x) {
+	        callback.error("", null, x);
+	      });
+	    }
 	  },
 
 	  /*! process updates list to POST and GET params according dataprocessor protocol
@@ -8753,7 +8909,7 @@
 	   *	@return
 	   *		object { post: { hash of post params as name: value }, get: { hash of get params as name: value } }
 	   **/
-	  _updatesData: function _updatesData(source) {
+	  _updatesData: function (source) {
 	    var target = {};
 
 	    for (var j in source) {
@@ -8774,29 +8930,29 @@
 	   *	@mode
 	   *		'post' or 'get'
 	   **/
-	  _send: function _send(url, post, mode, operation, callback) {
+	  _send: function (url, post, mode, operation, callback) {
 	    assert(url, "url was not set for DataProcessor");
 	    if (typeof url == "function") return url(post, operation, callback);
 	    ajax()[mode](url, post, callback);
 	  },
-	  _send_callback: function _send_callback(id) {
+	  _send_callback: function (id) {
 	    var self = this;
 	    return {
-	      success: function success(t, d, l) {
+	      success: function (t, d, l) {
 	        return self._processResult(id, t, d, l);
 	      },
-	      error: function error(t, d, l) {
+	      error: function (t, d, l) {
 	        return self._processError(id, t, d, l);
 	      }
 	    };
 	  },
-	  attachProgress: function attachProgress(start, end, error) {
+	  attachProgress: function (start, end, error) {
 	    this.attachEvent("onBeforeDataSend", start);
 	    this.attachEvent("onAfterSync", end);
 	    this.attachEvent("onAfterSaveError", error);
 	    this.attachEvent("onLoadError", error);
 	  },
-	  _processError: function _processError(id, text, data, loader) {
+	  _processError: function (id, text, data, loader) {
 	    if (id) this._innerProcessResult(true, id.id, false, id.status, false, {
 	      text: text,
 	      data: data,
@@ -8806,7 +8962,7 @@
 	      callEvent("onLoadError", [text, data, loader, this]);
 	    }
 	  },
-	  _innerProcessResult: function _innerProcessResult(error, id, newid, status, obj, details) {
+	  _innerProcessResult: function (error, id, newid, status, obj, details) {
 	    var master = this._settings.master;
 	    var update = this.getItemState(id);
 	    update._in_progress = false;
@@ -8838,7 +8994,7 @@
 	    this.callEvent("onAfterSave", [obj, id, details]);
 	    this.callEvent("onAfter" + status, [obj, id, details]);
 	  },
-	  processResult: function processResult(state, hash, details) {
+	  processResult: function (state, hash, details) {
 	    //compatibility with custom json response
 	    var error = hash && (hash.status == "error" || hash.status == "invalid");
 	    var newid = hash ? hash.newid || hash.id : false;
@@ -8846,30 +9002,39 @@
 	    this._innerProcessResult(error, state.id, newid, state.status, hash, details);
 	  },
 	  // process saving from result
-	  _processResult: function _processResult(state, text, data, loader) {
+	  _processResult: function (state, text, data, loader) {
+	    var _this2 = this;
+
 	    this.callEvent("onBeforeSync", [state, text, data, loader]);
 
-	    if (loader === -1) {
-	      //callback from promise
-	      this.processResult(state, data, {});
+	    if (isArray(state)) {
+	      //saveAll results
+	      state.forEach(function (one) {
+	        _this2.processResult(one, one, {});
+	      });
 	    } else {
-	      var proxy = this._settings.url;
-	      if (proxy.$proxy && proxy.result) proxy.result(state, this._settings.master, this, text, data, loader);else {
-	        var hash;
+	      if (loader === -1) {
+	        //callback from promise
+	        this.processResult(state, data, {});
+	      } else {
+	        var proxy = this._settings.url;
+	        if (proxy.$proxy && proxy.result) proxy.result(state, this._settings.master, this, text, data, loader);else {
+	          var hash;
 
-	        if (text) {
-	          hash = data.json(); //invalid response
+	          if (text) {
+	            hash = data.json(); //invalid response
 
-	          if (text && (hash === null || typeof hash == "undefined")) hash = {
-	            status: "error"
-	          };
+	            if (text && (hash === null || typeof hash == "undefined")) hash = {
+	              status: "error"
+	            };
+	          }
+
+	          this.processResult(state, hash, {
+	            text: text,
+	            data: data,
+	            loader: loader
+	          });
 	        }
-
-	        this.processResult(state, hash, {
-	          text: text,
-	          data: data,
-	          loader: loader
-	        });
 	      }
 	    }
 
@@ -8882,10 +9047,10 @@
 	   *	@return
 	   *		escaped value
 	   **/
-	  escape: function escape(value) {
+	  escape: function (value) {
 	    if (this._settings.escape) return this._settings.escape(value);else return encodeURIComponent(value);
 	  },
-	  getState: function getState() {
+	  getState: function () {
 	    if (!this._updates.length) return false;
 
 	    for (var i = this._updates.length - 1; i >= 0; i--) {
@@ -8894,19 +9059,19 @@
 
 	    return true;
 	  },
-	  getItemState: function getItemState(id) {
+	  getItemState: function (id) {
 	    var index = this._get_stack_index(id);
 
 	    return this._updates[index] || null;
 	  },
-	  setItemState: function setItemState(id, state) {
+	  setItemState: function (id, state) {
 	    if (state) this.save(id, state);else {
 	      var index = this._get_stack_index(id);
 
 	      if (index > -1) this._updates.splice(index, 1);
 	    }
 	  },
-	  _get_stack_index: function _get_stack_index(id) {
+	  _get_stack_index: function (id) {
 	    var index = -1;
 
 	    for (var i = 0; i < this._updates.length; i++) {
@@ -8956,12 +9121,12 @@
 	DataStore.prototype = {
 	  //defines type of used data driver
 	  //data driver is an abstraction other different data formats - xml, json, csv, etc.
-	  setDriver: function setDriver(type) {
+	  setDriver: function (type) {
 	    assert(DataDriver[type], "incorrect DataDriver");
 	    this.driver = DataDriver[type];
 	  },
 	  //process incoming raw data
-	  _parse: function _parse(data) {
+	  _parse: function (data) {
 	    this.callEvent("onParse", [this.driver, data]);
 	    if (this._filter_order) this.filter(); //get size and position of data
 
@@ -8989,7 +9154,7 @@
 
 	    this.refresh();
 	  },
-	  _inner_parse: function _inner_parse(info, recs) {
+	  _inner_parse: function (info, recs) {
 	    var from = info.from;
 	    var subload = true;
 	    var marks = false; //some data is loaded and new data doesn't have "pos" - assuming update
@@ -9052,10 +9217,10 @@
 	    }
 	  },
 	  //generate id for data object
-	  id: function id(data) {
+	  id: function (data) {
 	    return data.id || (data.id = uid());
 	  },
-	  changeId: function changeId(old, newid) {
+	  changeId: function (old, newid) {
 	    //assert(this.pull[old],"Can't change id, for non existing item: "+old);
 	    if (old == newid) return;
 	    if (this.pull[old]) this.pull[newid] = this.pull[old];
@@ -9073,11 +9238,11 @@
 	    delete this.pull[old];
 	  },
 	  //get data from hash by id
-	  getItem: function getItem(id) {
+	  getItem: function (id) {
 	    return this.pull[id];
 	  },
 	  //assigns data by id
-	  updateItem: function updateItem(id, update, mode) {
+	  updateItem: function (id, update, mode) {
 	    if (_typeof(id) === "object") id = id.toString();
 	    var data = this.getItem(id);
 	    var old = null; //check is change tracking active
@@ -9100,20 +9265,20 @@
 	    if (changeTrack) this.callEvent("onDataUpdate", [id, data, old]);
 	  },
 	  //sends repainting signal
-	  refresh: function refresh(id) {
+	  refresh: function (id) {
 	    if (this._skip_refresh) return;
 
 	    if (id) {
 	      if (this.exists(id)) this.callEvent("onStoreUpdated", [id, this.pull[id], "paint"]);
 	    } else this.callEvent("onStoreUpdated", [null, null, null]);
 	  },
-	  silent: function silent(code, master) {
+	  silent: function (code, master) {
 	    this._skip_refresh = true;
 	    code.call(master || this);
 	    this._skip_refresh = false;
 	  },
 	  //converts range IDs to array of all IDs between them
-	  getRange: function getRange(from, to) {
+	  getRange: function (from, to) {
 	    //if some point is not defined - use first or last id
 	    //BEWARE - do not use empty or null ID
 	    if (from) from = this.getIndexById(from);else from = this.$min || this.startOffset || 0;
@@ -9132,7 +9297,7 @@
 	    return this.getIndexRange(from, to);
 	  },
 	  //converts range of indexes to array of all IDs between them
-	  getIndexRange: function getIndexRange(from, to) {
+	  getIndexRange: function (from, to) {
 	    to = Math.min(to === 0 ? 0 : to || Infinity, this.count() - 1);
 	    var ret = toArray(); //result of method is rich-array
 
@@ -9143,16 +9308,16 @@
 	    return ret;
 	  },
 	  //returns total count of elements
-	  count: function count() {
+	  count: function () {
 	    return this.order.length;
 	  },
 	  //returns truy if item with such ID exists
-	  exists: function exists(id) {
+	  exists: function (id) {
 	    return !!this.pull[id];
 	  },
 	  //nextmethod is not visible on component level, check DataMove.move
 	  //moves item from source index to the target index
-	  move: function move(sindex, tindex) {
+	  move: function (sindex, tindex) {
 	    assert(sindex >= 0 && tindex >= 0, "DataStore::move", "Incorrect indexes");
 	    if (sindex == tindex) return;
 	    var id = this.getIdByIndex(sindex);
@@ -9164,7 +9329,7 @@
 
 	    this.callEvent("onStoreUpdated", [id, obj, "move"]);
 	  },
-	  _move_inner: function _move_inner(col, sindex, tindex, sid, tid) {
+	  _move_inner: function (col, sindex, tindex, sid, tid) {
 	    if (sid || tid) {
 	      sindex = tindex = -1;
 
@@ -9179,20 +9344,21 @@
 
 	    col.insertAt(id, Math.min(col.length, tindex)); //insert at new position
 	  },
-	  scheme: function scheme(config) {
+	  scheme: function (config) {
 	    this._scheme = {};
 	    this._scheme_save = config.$save;
 	    this._scheme_init = config.$init || config.$change;
 	    this._scheme_update = config.$update || config.$change;
 	    this._scheme_serialize = config.$serialize;
 	    this._scheme_group = config.$group;
-	    this._scheme_sort = config.$sort; //ignore $-starting properties, as they have special meaning
+	    this._scheme_sort = config.$sort;
+	    this._scheme_export = config.$export; //ignore $-starting properties, as they have special meaning
 
 	    for (var key in config) {
 	      if (key.substr(0, 1) != "$") this._scheme[key] = config[key];
 	    }
 	  },
-	  importData: function importData(target, silent) {
+	  importData: function (target, silent) {
 	    var data = target ? target.data || target : [];
 	    this._filter_order = null;
 
@@ -9254,7 +9420,7 @@
 	    this.callEvent("onStoreLoad", []);
 	    if (!silent) this.callEvent("onStoreUpdated", []);
 	  },
-	  sync: function sync(source, filter, silent) {
+	  sync: function (source, filter, silent) {
 	    this.unsync();
 
 	    var type = _typeof(source);
@@ -9303,7 +9469,7 @@
 	    });
 	    sync_logic();
 	  },
-	  unsync: function unsync() {
+	  unsync: function () {
 	    if (this._sync_source) {
 	      var source = this._sync_source;
 
@@ -9322,13 +9488,13 @@
 	      this._sync_source = null;
 	    }
 	  },
-	  destructor: function destructor() {
+	  destructor: function () {
 	    this.unsync();
 	    this.pull = this.order = this._marks = null;
 	    this._evs_events = this._evs_handlers = {};
 	  },
 	  //adds item to the store
-	  add: function add(obj, index) {
+	  add: function (obj, index) {
 	    //default values		
 	    if (this._scheme) for (var key in this._scheme) {
 	      if (isUndefined(obj[key])) obj[key] = this._scheme[key];
@@ -9369,7 +9535,7 @@
 	    return obj.id;
 	  },
 	  //removes element from datastore
-	  remove: function remove(id) {
+	  remove: function (id) {
 	    //id can be an array of IDs - result of getSelect, for example
 	    if (isArray(id)) {
 	      for (var i = 0; i < id.length; i++) {
@@ -9393,7 +9559,7 @@
 	    this.callEvent("onAfterDelete", [id]);
 	  },
 	  //deletes all records in datastore
-	  clearAll: function clearAll(soft) {
+	  clearAll: function (soft) {
 	    //instead of deleting one by one - just reset inner collections
 	    this.pull = {};
 	    this._marks = {};
@@ -9405,28 +9571,28 @@
 	    this.refresh();
 	  },
 	  //converts id to index
-	  getIdByIndex: function getIdByIndex(index) {
+	  getIdByIndex: function (index) {
 	    assert(index >= 0, "DataStore::getIdByIndex Incorrect index");
 	    return this.order[index];
 	  },
 	  //converts index to id
-	  getIndexById: function getIndexById(id) {
+	  getIndexById: function (id) {
 	    if (!this.pull[id]) return -1;else return this.order.find(id); //slower than getIdByIndex
 	  },
 	  //returns ID of next element
-	  getNextId: function getNextId(id, step) {
+	  getNextId: function (id, step) {
 	    return this.order[this.getIndexById(id) + (step || 1)];
 	  },
 	  //returns ID of first element
-	  getFirstId: function getFirstId() {
+	  getFirstId: function () {
 	    return this.order[0];
 	  },
 	  //returns ID of last element
-	  getLastId: function getLastId() {
+	  getLastId: function () {
 	    return this.order[this.order.length - 1];
 	  },
 	  //returns ID of previous element
-	  getPrevId: function getPrevId(id, step) {
+	  getPrevId: function (id, step) {
 	    return this.order[this.getIndexById(id) - (step || 1)];
 	  },
 
@@ -9447,7 +9613,7 @@
 	  	
 	  	Sorting function will accept 2 parameters and must return 1,0,-1, based on desired order
 	  */
-	  sort: function sort(by, dir, as) {
+	  sort: function (by, dir, as) {
 	    var sort = by;
 	    if (typeof by == "function") sort = {
 	      as: by,
@@ -9465,7 +9631,7 @@
 	    this.refresh();
 	    this.callEvent("onAfterSort", parameters);
 	  },
-	  _sort_core: function _sort_core(sort, order) {
+	  _sort_core: function (sort, order) {
 	    var sorter = this.sorting.create(sort);
 
 	    if (this.order.length) {
@@ -9499,14 +9665,14 @@
 	  	
 	  	Filter method will receive data object and must return true or false
 	  */
-	  _filter_reset: function _filter_reset(preserve) {
+	  _filter_reset: function (preserve) {
 	    //remove previous filtering , if any
 	    if (this._filter_order && !preserve) {
 	      this.order = this._filter_order;
 	      delete this._filter_order;
 	    }
 	  },
-	  _filter_core: function _filter_core(filter, value, preserve) {
+	  _filter_core: function (filter, value, preserve) {
 	    var neworder = toArray();
 	    var freeze = this.$freeze || 0;
 
@@ -9519,7 +9685,7 @@
 	    if (!preserve || !this._filter_order) this._filter_order = this.order;
 	    this.order = neworder;
 	  },
-	  find: function find(config, first) {
+	  find: function (config, first) {
 	    var result = [];
 
 	    for (var i in this.pull) {
@@ -9539,9 +9705,9 @@
 	      if (first && result.length) return result[0];
 	    }
 
-	    return result;
+	    return first ? null : result;
 	  },
-	  filter: function filter(text, value, preserve) {
+	  filter: function (text, value, preserve) {
 	    //unfilter call but we already in not-filtered state
 	    if (!text && !this._filter_order && !this._filter_branch) return;
 	    if (!this.callEvent("onBeforeFilter", [text, value])) return;
@@ -9556,12 +9722,12 @@
 
 	      if (typeof text == "string") {
 	        text = text.replace(/#/g, "");
-	        if (typeof value == "function") filter = function filter(obj) {
+	        if (typeof value == "function") filter = function (obj) {
 	          return value(obj[text]);
 	        };else {
 	          value = value.toString().toLowerCase();
 
-	          filter = function filter(obj, value) {
+	          filter = function (obj, value) {
 	            //default filter - string start from, case in-sensitive
 	            assert(obj, "Client side filtering can't be used with dynamic loading");
 	            return (obj[text] || "").toString().toLowerCase().indexOf(value) != -1;
@@ -9580,7 +9746,7 @@
 	  /*
 	  	Iterate through collection
 	  */
-	  _obj_array: function _obj_array() {
+	  _obj_array: function () {
 	    var data = [];
 
 	    for (var i = this.order.length - 1; i >= 0; i--) {
@@ -9589,7 +9755,7 @@
 
 	    return data;
 	  },
-	  each: function each(method, master, all) {
+	  each: function (method, master, all) {
 	    var order = this.order;
 	    if (all) order = this._filter_order || order;
 
@@ -9597,7 +9763,7 @@
 	      if (order[i]) method.call(master || this, this.getItem(order[i]), i);
 	    }
 	  },
-	  _methodPush: function _methodPush(object, method) {
+	  _methodPush: function (object, method) {
 	    return function () {
 	      return object[method].apply(object, arguments);
 	    };
@@ -9606,7 +9772,7 @@
 	  /*
 	  	map inner methods to some distant object
 	  */
-	  provideApi: function provideApi(target, eventable) {
+	  provideApi: function (target, eventable) {
 	    if (eventable) {
 	      this.mapEvent({
 	        onbeforesort: target,
@@ -9629,7 +9795,7 @@
 	      target[list[i]] = this._methodPush(this, list[i]);
 	    }
 	  },
-	  addMark: function addMark(id, mark, css, value, silent) {
+	  addMark: function (id, mark, css, value, silent) {
 	    var obj = this._marks[id] || {};
 	    this._marks[id] = obj;
 
@@ -9646,7 +9812,7 @@
 
 	    return obj[mark];
 	  },
-	  removeMark: function removeMark(id, mark, css, silent) {
+	  removeMark: function (id, mark, css, silent) {
 	    var obj = this._marks[id];
 
 	    if (obj) {
@@ -9663,11 +9829,11 @@
 	      if (!silent) this.refresh(id);
 	    }
 	  },
-	  getMark: function getMark(id, mark) {
+	  getMark: function (id, mark) {
 	    var obj = this._marks[id];
 	    return obj ? obj[mark] : false;
 	  },
-	  clearMark: function clearMark(name, css, silent) {
+	  clearMark: function (name, css, silent) {
 	    for (var id in this._marks) {
 	      var obj = this._marks[id];
 
@@ -9682,7 +9848,7 @@
 	  /*
 	  	serializes data to a json object
 	  */
-	  serialize: function serialize(all) {
+	  serialize: function (all) {
 	    var ids = this.order;
 	    if (all && this._filter_order) ids = this._filter_order;
 	    var result = [];
@@ -9701,41 +9867,41 @@
 	    return result;
 	  },
 	  sorting: {
-	    create: function create(config) {
+	    create: function (config) {
 	      return this._dir(config.dir, this._by(config.by, config.as));
 	    },
 	    as: {
 	      //handled by dataFeed
-	      "server": function server() {
+	      "server": function () {
 	        return false;
 	      },
-	      "date": function date(a, b) {
+	      "date": function (a, b) {
 	        a = a - 0;
 	        b = b - 0;
 	        return a > b ? 1 : a < b ? -1 : 0;
 	      },
-	      "int": function int(a, b) {
+	      "int": function (a, b) {
 	        a = a * 1;
 	        b = b * 1;
 	        return a > b ? 1 : a < b ? -1 : 0;
 	      },
-	      "string_strict": function string_strict(a, b) {
+	      "string_strict": function (a, b) {
 	        a = a.toString();
 	        b = b.toString();
 	        return a > b ? 1 : a < b ? -1 : 0;
 	      },
-	      "string": function string(a, b) {
+	      "string": function (a, b) {
 	        if (!b) return 1;
 	        if (!a) return -1;
 	        a = a.toString().toLowerCase();
 	        b = b.toString().toLowerCase();
 	        return a > b ? 1 : a < b ? -1 : 0;
 	      },
-	      "raw": function raw(a, b) {
+	      "raw": function (a, b) {
 	        return a > b ? 1 : a < b ? -1 : 0;
 	      }
 	    },
-	    _by: function _by(prop, method) {
+	    _by: function (prop, method) {
 	      if (!prop) return method;
 	      if (typeof method != "function") method = this.as[method || "string"];
 	      assert(method, "Invalid sorting method");
@@ -9743,7 +9909,7 @@
 	        return method(a[prop], b[prop]);
 	      };
 	    },
-	    _dir: function _dir(prop, method) {
+	    _dir: function (prop, method) {
 	      if (prop == "asc" || !prop) return method;
 	      return function (a, b) {
 	        return method(a, b) * -1;
@@ -9761,7 +9927,7 @@
 	*/
 
 	var DataLoader = exports.proto({
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    //prepare data store
 	    config = config || ""; //list of all active ajax requests
 
@@ -9774,22 +9940,19 @@
 	    this.data.feed = this._feed;
 	    this.data.owner = config.id;
 	  },
-	  _feed: function _feed(from, count, callback) {
+	  _feed: function (from, count, callback) {
 	    //allow only single request at same time
 	    if (this._load_count) return this._load_count = [from, count, callback]; //save last ignored request
 	    else this._load_count = true;
 	    this._feed_last.from = from;
 	    this._feed_last.count = count;
-
-	    this._feed_common.call(this, from, count, callback);
+	    return this._feed_common.call(this, from, count, callback);
 	  },
-	  _feed_common: function _feed_common(from, count, callback, url, details) {
+	  _feed_common: function (from, count, callback, url, details) {
+	    var _this = this;
+
 	    var state = null;
 	    url = url || this.data.url;
-	    var final_callback = [{
-	      success: this._feed_callback,
-	      error: this._feed_callback
-	    }, callback];
 	    if (from < 0) from = 0;
 	    if (!details) details = {
 	      start: from,
@@ -9804,7 +9967,12 @@
 	        if (state.filter) details.filter = state.filter;
 	      }
 
-	      this.load(url, final_callback, details);
+	      return this.load(url, 0, details).then(function (data) {
+	        _this._feed_callback();
+
+	        if (callback) ajax.$callback(_this, callback, data);
+	        return data;
+	      });
 	    } else {
 	      // GET
 	      url = url + (url.indexOf("?") == -1 ? "?" : "&");
@@ -9828,28 +9996,33 @@
 
 	      if (this._feed_last.url !== url) {
 	        this._feed_last.url = url;
-	        this.load(url, final_callback);
+	        return this.load(url).then(function (data) {
+	          _this._feed_callback();
+
+	          if (callback) ajax.$callback(_this, callback, data);
+	          return data;
+	        });
 	      } else {
 	        this._load_count = false;
 	      }
 	    }
 	  },
-	  _feed_callback: function _feed_callback() {
+	  _feed_callback: function () {
 	    //after loading check if we have some ignored requests
 	    var temp = this._load_count;
 	    this._load_count = false;
 	    if (_typeof(temp) == "object") this.data.feed.apply(this, temp); //load last ignored request
 	  },
 	  //loads data from external URL
-	  load: function load(url) {
-	    url = proxy$b.$parse(url);
+	  load: function (url) {
+	    url = proxy$a.$parse(url);
 	    var ajax$$1 = AtomDataLoader.load.apply(this, arguments); //prepare data feed for dyn. loading
 
 	    if (!this.data.url) this.data.url = url;
 	    return ajax$$1;
 	  },
 	  //load next set of data rows
-	  loadNext: function loadNext(count, start, callback, url, now) {
+	  loadNext: function (count, start, callback, url, now) {
 	    var config = this._settings;
 
 	    if (config.datathrottle && !now) {
@@ -9863,9 +10036,9 @@
 	    if (!start && start !== 0) start = this.count();
 	    if (!count) count = config.datafetch || this.count();
 	    this.data.url = this.data.url || url;
-	    if (this.callEvent("onDataRequest", [start, count, callback, url]) && this.data.url) this.data.feed.call(this, start, count, callback);
+	    if (this.callEvent("onDataRequest", [start, count, callback, url]) && this.data.url) return this.data.feed.call(this, start, count, callback);
 	  },
-	  _maybe_loading_already: function _maybe_loading_already(count, from) {
+	  _maybe_loading_already: function (count, from) {
 	    var last = this._feed_last;
 
 	    if (this._load_count && last.url) {
@@ -9874,13 +10047,13 @@
 
 	    return false;
 	  },
-	  removeMissed_setter: function removeMissed_setter(value) {
+	  removeMissed_setter: function (value) {
 	    return this.data._removeMissed = value;
 	  },
 	  //init of dataprocessor delayed after all settings processing
 	  //because it need to be the last in the event processing chain
 	  //to get valid validation state
-	  _init_dataprocessor: function _init_dataprocessor() {
+	  _init_dataprocessor: function () {
 	    var url = this._settings.save;
 	    if (url === true) url = this._settings.save = this._settings.url;
 	    var obj = {
@@ -9889,16 +10062,18 @@
 	    if (url && url.url) exports.extend(obj, url);else obj.url = url;
 	    dp(obj);
 	  },
-	  save_setter: function save_setter(value) {
+	  save_setter: function (value) {
 	    if (value) this.$ready.push(this._init_dataprocessor);
 	    return value;
 	  },
-	  scheme_setter: function scheme_setter(value) {
+	  scheme_setter: function (value) {
 	    this.data.scheme(value);
 	  },
-	  dataFeed_setter: function dataFeed_setter(value) {
-	    value = proxy$b.$parse(value);
+	  dataFeed_setter: function (value) {
+	    value = proxy$a.$parse(value);
 	    this.data.attachEvent("onBeforeFilter", bind(function (text, filtervalue) {
+	      var _this2 = this;
+
 	      //complex filtering, can't be routed to dataFeed
 	      if (typeof text == "function") return true; //we have dataFeed and some text
 
@@ -9906,35 +10081,37 @@
 	        text = text || "id";
 	        if (filtervalue && _typeof(filtervalue) == "object") filtervalue = filtervalue.id;
 	        this.clearAll();
-	        var url = this._settings.dataFeed; //js data feed
+	        var url = this._settings.dataFeed; //url data feed
 
-	        if (typeof url == "function") {
-	          var filter = {};
-	          filter[text] = filtervalue;
-	          url.call(this, filtervalue, filter);
-	        } else if (url.$proxy) {
-	          if (url.load) {
-	            var filterobj = {};
-	            filterobj[text] = filtervalue;
-	            url.load(this, {
-	              success: this._onLoad,
-	              error: this._onLoadError
-	            }, {
-	              filter: filterobj
-	            });
-	          }
-	        } else {
-	          //url data feed
+	        if (typeof url == "string") {
 	          var urldata = "filter[" + text + "]=" + encodeURIComponent(filtervalue);
 	          this.load(url + (url.indexOf("?") < 0 ? "?" : "&") + urldata, this._settings.datatype);
-	        }
+	        } //js data feed
+	        else {
+	            var filter = {};
+	            filter[text] = filtervalue;
+
+	            if (typeof url == "function") {
+	              url.call(this, filtervalue, filter);
+	            } else if (url.$proxy) {
+	              if (url.load) {
+	                url.load(this, {
+	                  filter: filter
+	                }).then(function (data) {
+	                  _this2._onLoad(data);
+	                }, function (x) {
+	                  _this2._onLoadError(x);
+	                });
+	              }
+	            }
+	          }
 
 	        return false;
 	      }
 	    }, this));
 	    return value;
 	  },
-	  _call_onready: function _call_onready() {
+	  _call_onready: function () {
 	    if (this._settings.ready && !this._ready_was_used) {
 	      var code = toFunctor(this._settings.ready, this.$scope);
 	      if (code) delay(code, this, arguments);
@@ -9942,7 +10119,7 @@
 	      this._ready_was_used = true;
 	    }
 	  },
-	  _call_onclearall: function _call_onclearall(soft) {
+	  _call_onclearall: function (soft) {
 	    for (var i = 0; i < this._ajax_queue.length; i++) {
 	      var xhr = this._ajax_queue[i]; //IE9 and IE8 deny extending of ActiveX wrappers
 
@@ -9962,13 +10139,13 @@
 	      this.waitData = Deferred.defer();
 	    }
 	  },
-	  _call_on_config: function _call_on_config(config) {
+	  _call_on_config: function (config) {
 	    this._parseSeetingColl(config);
 	  }
 	}, AtomDataLoader);
 
 	var DataState = {
-	  getState: function getState() {
+	  getState: function () {
 	    var cols_n = this.config.columns.length;
 	    var columns = this.config.columns;
 	    var settings = {
@@ -10017,7 +10194,7 @@
 
 	    return settings;
 	  },
-	  setState: function setState(obj) {
+	  setState: function (obj) {
 	    var columns = this.config.columns;
 	    if (!obj) return;
 	    this._last_sorted = null;
@@ -10145,7 +10322,7 @@
 
 	var DragItem = {
 	  //helper - defines component's container as active zone for dragging and for dropping
-	  _initHandlers: function _initHandlers(obj, source, target) {
+	  _initHandlers: function (obj, source, target) {
 	    if (!source) DragControl.addDrop(obj._contentobj, obj, true);
 	    if (!target) DragControl.addDrag(obj._contentobj, obj);
 	    this.attachEvent("onDragOut", function (a, b) {
@@ -10156,11 +10333,11 @@
 	      return !!(DragControl._active && context && (context.to === this || this._auto_scroll_force));
 	    });
 	  },
-	  drag_setter: function drag_setter(value) {
+	  drag_setter: function (value) {
 	    if (value) {
 	      exports.extend(this, AutoScroll, true);
-	      if (value == "order") exports.extend(this, use("DragOrder"), true);
-	      if (value == "inner") this._inner_drag_only = true;
+	      if (value == "order" || value == "move") exports.extend(this, use("DragOrder"), true);
+	      if (value == "inner" || value == "order") this._inner_drag_only = true;
 
 	      this._initHandlers(this, value == "source", value == "target");
 
@@ -10177,7 +10354,7 @@
 	  	e - native html event 
 	  */
 	  //called when drag moved over possible target
-	  $dragIn: function $dragIn(s, t, e) {
+	  $dragIn: function (s, t, e) {
 	    var id = this.locate(e) || null;
 	    var context = DragControl._drag_context; //in inner drag mode - ignore dnd from other components
 
@@ -10207,17 +10384,17 @@
 	    this.$dragMark(context, e);
 	    return html;
 	  },
-	  $dropAllow: function $dropAllow() {
+	  $dropAllow: function () {
 	    return true;
 	  },
-	  _drag_pause: function _drag_pause() {//may be reimplemented in some components
+	  _drag_pause: function () {//may be reimplemented in some components
 	    // tree for example
 	  },
-	  _target_to_id: function _target_to_id(target) {
+	  _target_to_id: function (target) {
 	    return target && _typeof(target) === "object" ? target.toString() : target;
 	  },
 	  //called when drag moved out from possible target
-	  $dragOut: function $dragOut(s, t, n, e) {
+	  $dragOut: function (s, t, n, e) {
 	    var id = (this._viewobj.contains(n) ? this.locate(e) : null) || null;
 	    var context = DragControl._drag_context; //still over previous target
 
@@ -10234,20 +10411,13 @@
 	    return null;
 	  },
 	  //called when drag moved on target and button is released
-	  $drop: function $drop(s, t, e) {
+	  $drop: function (s, t, e) {
 	    if (this._auto_scroll_delay) this._auto_scroll_delay = window.clearTimeout(this._auto_scroll_delay);
 	    var context = DragControl._drag_context; //finalize context details
 
 	    context.to = this;
 
-	    var target = this._target_to_id(context.target);
-
-	    if (this.getBranchIndex) {
-	      if (target) {
-	        context.parent = this.getParentId(target);
-	        context.index = this.getBranchIndex(target);
-	      }
-	    } else context.index = target ? this.getIndexById(target) : this.count(); //unmark last target
+	    this._define_index(s, t, context); //unmark last target
 
 
 	    this.$dragMark({}, e);
@@ -10262,7 +10432,17 @@
 
 	    this.callEvent("onAfterDrop", [context, e]);
 	  },
-	  _context_to_move: function _context_to_move(context) {
+	  _define_index: function (s, t, context) {
+	    var target = this._target_to_id(context.target);
+
+	    if (this.getBranchIndex) {
+	      if (target) {
+	        context.parent = this.getParentId(target);
+	        context.index = this.getBranchIndex(target);
+	      } else context.index = -1;
+	    } else context.index = target ? this.getIndexById(target) : this.count();
+	  },
+	  _context_to_move: function (context) {
 	    assert(context.from, "Unsopported d-n-d combination");
 
 	    if (context.from && context.from.move) {
@@ -10274,7 +10454,7 @@
 	      context.from.move(context.source, context.index, context.to, details);
 	    }
 	  },
-	  _getDragItemPos: function _getDragItemPos(pos$$1, e) {
+	  _getDragItemPos: function (pos$$1, e) {
 	    if (this.getItemNode) {
 	      var id = this.locate(e, true); //in some case, node may be outiside of dom ( spans in datatable for example )
 	      //so getItemNode can return null
@@ -10284,13 +10464,13 @@
 	    }
 	  },
 	  //called when drag action started
-	  $drag: function $drag(s, e) {
+	  $drag: function (s, e) {
 	    var id = this.locate(e, true);
 
 	    if (id) {
 	      var list = [id];
 
-	      if (this.getSelectedId && !this._do_not_drag_selection) {
+	      if (this.getSelectedId) {
 	        //has selection model
 	        //if dragged item is one of selected - drag all selected
 	        var selection = this.getSelectedId(true, true);
@@ -10321,16 +10501,25 @@
 	      if (this.callEvent("onBeforeDrag", [context, e])) {
 	        if (Touch) Touch._start_context = null; //set drag representation
 
-	        return context.html || this.$dragHTML(this.getItem(id), e);
+	        return context.html || this.$dragHTML(this.getItem(id), e, context);
 	      }
 	    }
 
 	    return null;
 	  },
-	  $dragHTML: function $dragHTML(obj) {
-	    return this._toHTML(obj);
+	  $dragHTML: function (obj, e, context) {
+	    var html = this._toHTML(obj);
+
+	    if (isArray(context.source) && context.source.length > 1) html = this._toMultipleHTML(html, context.source.length);
+	    return html;
 	  },
-	  $dragMark: function $dragMark(context) {
+	  _toMultipleHTML: function (html, len) {
+	    html = "<div class='webix_drag_main'>" + html + "</div>";
+	    var multiple = "<div class='webix_drag_multiple'></div>";
+	    if (len > 2) multiple = "<div class='webix_drag_multiple_last'></div>" + multiple;
+	    return multiple + html + "<span class='webix_badge'>" + len + "</span>";
+	  },
+	  $dragMark: function (context) {
 	    var target = null;
 	    if (context.target) target = this._target_to_id(context.target); //touch webkit will stop touchmove event if source node removed
 	    //datatable can't repaint rows without repainting
@@ -10349,136 +10538,150 @@
 	    if (context.to) {
 	      return true;
 	    } else return false;
+	  },
+	  // methods used in order/move modes
+	  $dropHTML: function () {
+	    return "";
+	  },
+	  _set_drop_area: function (target, t) {
+	    var node = this.getItemNode(target);
+
+	    if (node) {
+	      node.parentNode.insertBefore(DragControl._dropHTML[0], node);
+	    } else t.children[0].appendChild(DragControl._dropHTML[0]);
 	  }
 	};
 
 	var DragOrder = {
-	  _do_not_drag_selection: true,
-	  $drag: function $drag(s, e) {
-	    var html = DragItem.$drag.call(this, s, e);
+	  $drag: function (s, e) {
+	    var html = DragItem.$drag.apply(this, arguments);
+	    if (!html) return html;
+	    var context = DragControl._drag_context;
+	    if (this._close_branches) this._close_branches(context);
+	    if (this._inner_drag_only && this.getBranchIndex) this._drag_order_stored_left = this._drag_order_complex ? (this.getItem(context.start).$level + 1) * 20 + 8 : 0;
 
-	    if (html) {
-	      var context = DragControl.getContext();
-	      if (this.getBranchIndex) this._drag_order_stored_left = this._drag_order_complex ? this.getItem(context.start).$level * 16 : 0;
-	      if (!context.fragile) this.addCss(context.start, "webix_transparent");
+	    if (isArray(context.source) && !context.fragile) {
+	      DragControl._setDragOffset(e);
+
+	      this._add_css(context.source);
 	    }
 
 	    return html;
 	  },
-	  _getDragItemPos: function _getDragItemPos(pos$$1, e) {
-	    return DragItem._getDragItemPos(pos$$1, e);
+	  _add_css: function (source) {
+	    for (var i = 0; i < source.length; i++) {
+	      this.addCss(source[i], "webix_invisible");
+	    }
 	  },
-	  $dragPos: function $dragPos(pos$$1, e, node) {
+	  _remove_css: function (source) {
+	    for (var i = 0; i < source.length; i++) {
+	      this.removeCss(source[i], "webix_invisible");
+	    }
+	  },
+	  $dragIn: function (s, t, e) {
+	    var html = DragItem.$dragIn.apply(this, arguments);
+	    if (!html) return html;
+	    if (!DragControl._dropHTML) DragControl._dropHTML = this._init_drop_area();
+	    var context = DragControl._drag_context;
+	    var target = "$webix-last";
+	    if (context.target) target = this._target_to_id(context.target);
+
+	    if (target != "$webix-last" && target != "$webix-drop") {
+	      var settings = {
+	        direction: this._settings.layout || this._drag_direction || "y",
+	        x: "width",
+	        y: "height"
+	      };
+	      var ofs = offset(html);
+	      var direction = pos(e)[settings.direction] - ofs[settings.direction];
+	      if (direction * 2 > ofs[settings[settings.direction]]) target = this.getNextId(target) || "$webix-last";
+	    }
+
+	    if (target == this._marked_item_id || target == "$webix-drop") return html;
+	    this._marked_item_id = target;
+
+	    this._set_drop_area(target, t);
+
+	    return html;
+	  },
+	  $dragPos: function (pos$$1) {
+	    if (!this._inner_drag_only) {
+	      var context = DragControl._drag_context;
+	      pos$$1.y += context.y_offset;
+	      pos$$1.x += context.x_offset;
+	      return;
+	    }
+
 	    var box = offset(this.$view);
-	    var left = box.x + (this._drag_order_complex ? 1 + this._drag_order_stored_left : 1);
-	    var top = pos$$1.y;
-	    var config = this._settings;
-	    var xdrag = config.layout == "x";
+	    var xdrag = this._settings.layout == "x";
 
 	    if (xdrag) {
-	      top = box.y + (this._drag_order_complex ? +box.height - env.scrollSize - 1 : 1);
-	      left = pos$$1.x;
-	    }
-
-	    node.style.display = "none";
-	    var html = document.elementFromPoint(left, top);
-
-	    if (html != this._last_sort_dnd_node) {
-	      var view = $$(html); //this type of dnd is limited to the self
-
-	      if (view && view == this) {
-	        var id = this.locate(html, true); // sometimes 'mousedown' on item is followed by 'mousemove' on empty area and item caanot be located
-
-	        if (!id && DragControl._saved_event) id = this.locate(DragControl._saved_event, true);
-	        var start_id = DragControl.getContext().start;
-	        this._auto_scroll_force = true;
-
-	        if (id) {
-	          if (id != this._last_sort_dnd_node) {
-	            if (id != start_id) {
-	              var details, index$$1;
-
-	              if (this.getBranchIndex) {
-	                details = {
-	                  parent: this.getParentId(id)
-	                };
-	                index$$1 = this.getBranchIndex(id);
-	              } else {
-	                details = {};
-	                index$$1 = this.getIndexById(id);
-	              }
-
-	              if (this.callEvent("onBeforeDropOrder", [start_id, index$$1, e, details])) {
-	                this.move(start_id, index$$1, this, details);
-	                this._last_sort_dnd_node = id;
-	              }
-	            }
-
-	            DragControl._last = this._contentobj;
-	          }
-	        } else {
-	          id = "$webix-last";
-
-	          if (this._last_sort_dnd_node != id) {
-	            if (!this.callEvent("onBeforeDropOrder", [start_id, -1, e, {
-	              parent: 0
-	            }])) return;
-	            this._last_sort_dnd_node = id;
-	          }
-	        }
-	      }
-	    }
-
-	    node.style.display = "block";
-
-	    if (xdrag) {
-	      pos$$1.y = box.y;
+	      box.x -= 12;
+	      pos$$1.y = box.y - 8;
 	      pos$$1.x = pos$$1.x - 18;
 	      if (pos$$1.x < box.x) pos$$1.x = box.x;else {
-	        var max = box.x + this.$view.offsetWidth - 60;
+	        var max = box.x + box.width;
 	        if (pos$$1.x > max) pos$$1.x = max;
 	      }
 	    } else {
-	      box.y += this._header_height;
-	      pos$$1.x = this._drag_order_stored_left || box.x;
+	      box.y += (this._header_height || 0) - 12;
+	      pos$$1.x = (this._drag_order_stored_left || box.x) + 8;
 	      pos$$1.y = pos$$1.y - 18;
 	      if (pos$$1.y < box.y) pos$$1.y = box.y;else {
-	        var _max = box.y + this.$view.offsetHeight - 60;
+	        var _max = box.y + box.height - (this._header_height || 0);
 
 	        if (pos$$1.y > _max) pos$$1.y = _max;
 	      }
 	    }
-
-	    if (this._auto_scroll_delay) this._auto_scroll_delay = window.clearTimeout(this._auto_scroll_delay);
-	    this._auto_scroll_delay = delay(this._auto_scroll, this, [pos(e), this.locate(e) || null], 250); //prevent normal dnd landing checking
-
-	    DragControl._skip = true;
 	  },
-	  $dragIn: function $dragIn() {
-	    return false;
-	  },
-	  $drop: function $drop(s, t, e) {
-	    if (this._auto_scroll_delay) {
-	      this._auto_scroll_force = null;
-	      this._auto_scroll_delay = window.clearTimeout(this._auto_scroll_delay);
+	  $dragOut: function (s, ot, nt) {
+	    if (ot != nt) {
+	      remove(DragControl._dropHTML);
+	      this._marked_item_id = DragControl._dropHTML = null;
 	    }
 
-	    var context = DragControl.getContext();
-	    var id = context.start;
-	    this.removeCss(id, "webix_transparent");
-	    var index$$1 = this.getIndexById(id);
-	    this.callEvent("onAfterDropOrder", [id, index$$1, e]);
-	    if (context.fragile) this.refresh();
+	    return DragItem.$dragOut.apply(this, arguments);
+	  },
+	  _define_index: function (s, t, context) {
+	    var target = this._marked_item_id == "$webix-last" ? null : this._marked_item_id;
+
+	    if (this.getBranchIndex) {
+	      if (target) {
+	        context.parent = this.getParentId(target);
+	        context.index = this.getBranchIndex(target);
+	        if (s == t && this.getParentId(context.start) == context.parent && this.getBranchIndex(context.start) < context.index) context.index -= 1;
+	      } else context.index = -1;
+	    } else {
+	      context.index = target ? this.getIndexById(target) : this.count();
+	      context.index -= s == t && this.getIndexById(context.start) < context.index ? 1 : 0;
+	    }
+	  },
+	  $dragDestroy: function () {
+	    var context = DragControl._drag_context;
+	    if (isArray(context.source) && !context.fragile) this._remove_css(context.source);
+	    remove(DragControl._html);
+	  },
+	  _init_drop_area: function () {
+	    var node = document.createElement("div");
+	    node.className = "webix_drop_area";
+	    node.style.width = this.type.width + "px";
+	    node.style.height = this.type.height + "px";
+	    node.innerHTML = this.$dropHTML();
+	    node.setAttribute(this._id, "$webix-drop");
+	    return [node];
+	  },
+	  $dragMark: function () {
+	    return false;
 	  }
 	};
 	define("DragOrder", DragOrder);
 
 	var Undo = {
-	  $init: function $init() {
+	  $init: function () {
 	    this._undoHistory = exports.extend([], PowerArray, true);
 	    this._undoCursor = -1;
 	  },
-	  undo_setter: function undo_setter(value) {
+	  undo_setter: function (value) {
 	    if (value) {
 	      this._init_undo();
 
@@ -10487,7 +10690,7 @@
 
 	    return value;
 	  },
-	  _init_undo: function _init_undo() {
+	  _init_undo: function () {
 	    var view = this; // drag-n-drop
 
 	    this.attachEvent("onBeforeDrop", function (context) {
@@ -10545,7 +10748,7 @@
 	      }
 	    });
 	  },
-	  _addToHistory: function _addToHistory(id, data, action) {
+	  _addToHistory: function (id, data, action) {
 	    if (!this._skipHistory && this._settings.undo) {
 	      this._undoHistory.push({
 	        id: id,
@@ -10557,12 +10760,12 @@
 	      if (!this._skipCursorInc) this._undoCursor = this._undoHistory.length - 1;
 	    }
 	  },
-	  ignoreUndo: function ignoreUndo(func, master) {
+	  ignoreUndo: function (func, master) {
 	    this._skipHistory = true;
 	    func.call(master || this);
 	    this._skipHistory = false;
 	  },
-	  removeUndo: function removeUndo(id) {
+	  removeUndo: function (id) {
 	    for (var i = this._undoHistory.length - 1; i >= 0; i--) {
 	      if (this._undoHistory[i].id == id) {
 	        if (this._undoHistory[i].action == "id") {
@@ -10575,7 +10778,7 @@
 
 	    this._undoCursor = this._undoHistory.length - 1;
 	  },
-	  undo: function undo(id) {
+	  undo: function (id) {
 	    if (id) {
 	      this.ignoreUndo(function () {
 	        var data, i;
@@ -10609,7 +10812,7 @@
 	      }
 	    }
 	  },
-	  _undoAction: function _undoAction(obj) {
+	  _undoAction: function (obj) {
 	    if (obj.action == "delete") {
 	      var branch = null,
 	          parentId = obj.data.$parent;
@@ -10687,50 +10890,50 @@
 
 	var editors = {
 	  "text": {
-	    focus: function focus() {
+	    focus: function () {
 	      this.getInputNode(this.node).focus();
 	      this.getInputNode(this.node).select();
 	    },
-	    getValue: function getValue$$1() {
+	    getValue: function () {
 	      return this.getInputNode(this.node).value;
 	    },
-	    setValue: function setValue(value) {
+	    setValue: function (value) {
 	      var input = this.getInputNode(this.node);
 	      input.value = value;
 	      init_suggest(this, input);
 	    },
-	    getInputNode: function getInputNode() {
+	    getInputNode: function () {
 	      return this.node.firstChild;
 	    },
-	    render: function render() {
+	    render: function () {
 	      return create("div", {
 	        "class": "webix_dt_editor"
 	      }, "<input type='text' aria-label='" + getLabel(this.config) + "'>");
 	    }
 	  },
 	  "inline-checkbox": {
-	    render: function render() {
+	    render: function () {
 	      return {};
 	    },
-	    getValue: function getValue$$1() {
+	    getValue: function () {
 	      return this.node.checked;
 	    },
-	    setValue: function setValue() {},
-	    focus: function focus() {
+	    setValue: function () {},
+	    focus: function () {
 	      this.node.focus();
 	    },
-	    getInputNode: function getInputNode() {},
+	    getInputNode: function () {},
 	    $inline: true
 	  },
 	  "inline-text": {
-	    render: function render() {
+	    render: function () {
 	      return {};
 	    },
-	    getValue: function getValue$$1() {
+	    getValue: function () {
 	      return this.node.value;
 	    },
-	    setValue: function setValue() {},
-	    focus: function focus() {
+	    setValue: function () {},
+	    focus: function () {
 	      try {
 	        //IE9
 	        this.node.select();
@@ -10738,42 +10941,42 @@
 	      } catch (e) {} //eslint-disable-line
 
 	    },
-	    getInputNode: function getInputNode() {},
+	    getInputNode: function () {},
 	    $inline: true
 	  },
 	  "checkbox": {
-	    focus: function focus() {
+	    focus: function () {
 	      this.getInputNode().focus();
 	    },
-	    getValue: function getValue$$1() {
+	    getValue: function () {
 	      return this.getInputNode().checked;
 	    },
-	    setValue: function setValue(value) {
+	    setValue: function (value) {
 	      this.getInputNode().checked = !!value;
 	    },
-	    getInputNode: function getInputNode() {
+	    getInputNode: function () {
 	      return this.node.firstChild.firstChild;
 	    },
-	    render: function render() {
+	    render: function () {
 	      return create("div", {
 	        "class": "webix_dt_editor"
 	      }, "<div><input type='checkbox' aria-label='" + getLabel(this.config) + "'></div>");
 	    }
 	  },
 	  "select": {
-	    focus: function focus() {
+	    focus: function () {
 	      this.getInputNode().focus();
 	    },
-	    getValue: function getValue$$1() {
+	    getValue: function () {
 	      return this.getInputNode().value;
 	    },
-	    setValue: function setValue(value) {
+	    setValue: function (value) {
 	      this.getInputNode().value = value;
 	    },
-	    getInputNode: function getInputNode() {
+	    getInputNode: function () {
 	      return this.node.firstChild;
 	    },
-	    render: function render() {
+	    render: function () {
 	      var html = "";
 	      var options = this.config.options || this.config.collection;
 	      assert(options, "options not defined for select editor");
@@ -10798,27 +11001,27 @@
 	    }
 	  },
 	  popup: {
-	    focus: function focus() {
+	    focus: function () {
 	      this.getInputNode().focus();
 	    },
-	    destroy: function destroy() {
+	    destroy: function () {
 	      this.getPopup().hide();
 	    },
-	    getValue: function getValue$$1() {
+	    getValue: function () {
 	      return this.getInputNode().getValue() || "";
 	    },
-	    setValue: function setValue(value) {
+	    setValue: function (value) {
 	      this.getPopup().show(this.node);
 	      this.getInputNode().setValue(value);
 	    },
-	    getInputNode: function getInputNode() {
+	    getInputNode: function () {
 	      return this.getPopup().getChildViews()[0];
 	    },
-	    getPopup: function getPopup() {
+	    getPopup: function () {
 	      if (!this.config.$popup) this.config.$popup = this.createPopup();
 	      return $$(this.config.$popup);
 	    },
-	    createPopup: function createPopup() {
+	    createPopup: function () {
 	      var popup = this.config.popup || this.config.suggest;
 
 	      if (popup) {
@@ -10848,7 +11051,7 @@
 
 	      return type._settings.id;
 	    },
-	    linkInput: function linkInput(node) {
+	    linkInput: function (node) {
 	      _event(toNode(node), "keydown", bind(function (e) {
 	        //abort, when editor was not initialized yet
 	        if (!this.config.$popup) return;
@@ -10871,52 +11074,52 @@
 	        else if (code === 13 && (e.target.nodeName !== "TEXTAREA" || !e.shiftKey)) callEvent("onEditEnd", []);
 	      }, this));
 	    },
-	    popupInit: function popupInit() {},
+	    popupInit: function () {},
 	    popupType: "text",
-	    render: function render() {
+	    render: function () {
 	      return {};
 	    },
 	    $inline: true
 	  }
 	};
 	editors.color = exports.extend({
-	  focus: function focus() {},
+	  focus: function () {},
 	  popupType: "color",
-	  popupInit: function popupInit(popup) {
+	  popupInit: function (popup) {
 	    popup.getChildViews()[0].attachEvent("onItemClick", function (value) {
 	      callEvent("onEditEnd", [value]);
 	    });
 	  }
 	}, editors.popup);
 	editors.date = exports.extend({
-	  focus: function focus() {},
+	  focus: function () {},
 	  popupType: "date",
-	  setValue: function setValue(value) {
+	  setValue: function (value) {
 	    this._is_string = this.config.stringResult || value && typeof value == "string";
 	    editors.popup.setValue.call(this, value);
 	  },
-	  getValue: function getValue$$1() {
+	  getValue: function () {
 	    return this.getInputNode().getValue(this._is_string ? i18n.parseFormatStr : "") || "";
 	  },
-	  popupInit: function popupInit(popup) {
+	  popupInit: function (popup) {
 	    popup.getChildViews()[0].attachEvent("onDateSelect", function (value) {
 	      callEvent("onEditEnd", [value]);
 	    });
 	  }
 	}, editors.popup);
 	editors.combo = exports.extend({
-	  _create_suggest: function _create_suggest(config) {
+	  _create_suggest: function (config) {
 	    if (this.config.popup) {
 	      return this.config.popup.config.id;
 	    } else if (config) {
 	      return create_suggest(config);
 	    } else return this._shared_suggest(config);
 	  },
-	  _shared_suggest: function _shared_suggest() {
+	  _shared_suggest: function () {
 	    var e = editors.combo;
 	    return e._suggest = e._suggest || this._create_suggest(true);
 	  },
-	  render: function render() {
+	  render: function () {
 	    var node = create("div", {
 	      "class": "webix_dt_editor"
 	    }, "<input type='text' role='combobox' aria-label='" + getLabel(this.config) + "'>"); //save suggest id for future reference		
@@ -10931,10 +11134,10 @@
 
 	    return node;
 	  },
-	  getPopup: function getPopup() {
+	  getPopup: function () {
 	    return $$(this.config.suggest);
 	  },
-	  showPopup: function showPopup() {
+	  showPopup: function () {
 	    var popup = this.getPopup();
 	    var list = popup.getList();
 	    var input = this.getInputNode();
@@ -10956,10 +11159,10 @@
 
 	    popup._last_input_target = input;
 	  },
-	  afterRender: function afterRender() {
+	  afterRender: function () {
 	    this.showPopup();
 	  },
-	  setValue: function setValue(value) {
+	  setValue: function (value) {
 	    this._initial_value = value;
 
 	    if (this.config.suggest) {
@@ -10969,7 +11172,7 @@
 	      this.getInputNode(this.node).value = sobj.getItemText(value);
 	    }
 	  },
-	  getValue: function getValue$$1() {
+	  getValue: function () {
 	    var value = this.getInputNode().value;
 
 	    if (this.config.suggest) {
@@ -10982,27 +11185,27 @@
 	  }
 	}, editors.text);
 	editors.richselect = exports.extend({
-	  focus: function focus() {},
-	  getValue: function getValue$$1() {
+	  focus: function () {},
+	  getValue: function () {
 	    return this.getPopup().getValue();
 	  },
-	  setValue: function setValue(value) {
+	  setValue: function (value) {
 	    var suggest = this.config.collection || this.config.options;
 	    this.getInputNode();
 	    if (suggest) this.getPopup().getList().data.importData(suggest);
 	    this.getPopup().show(this.node);
 	    this.getPopup().setValue(value);
 	  },
-	  getInputNode: function getInputNode() {
+	  getInputNode: function () {
 	    return this.getPopup().getList();
 	  },
-	  popupInit: function popupInit(popup) {
+	  popupInit: function (popup) {
 	    popup.linkInput(document.body);
 	  },
 	  popupType: "richselect"
 	}, editors.popup);
 	editors.password = exports.extend({
-	  render: function render() {
+	  render: function () {
 	    return create("div", {
 	      "class": "webix_dt_editor"
 	    }, "<input type='password' aria-label='" + getLabel(this.config) + "'>");
@@ -11061,7 +11264,7 @@
 	  defaults: {
 	    editaction: "click"
 	  },
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    this._editors = {};
 	    this._in_edit_mode = 0;
 	    this._edit_open_time = 0;
@@ -11072,7 +11275,7 @@
 	    if (this._settings.editable) this._init_edit_events_once();
 	    exports.extend(this, Undo);
 	  },
-	  _refocus_try: function _refocus_try(newnode) {
+	  _refocus_try: function (newnode) {
 	    try {
 	      //Chrome throws an error if selectionStart is not accessible
 	      if (typeof newnode.selectionStart == "number") {
@@ -11085,7 +11288,7 @@
 	    } catch (e) {} // eslint-disable-line
 
 	  },
-	  _refocus_inline_editor: function _refocus_inline_editor() {
+	  _refocus_inline_editor: function () {
 	    var editor = this.getEditor();
 
 	    if (editor && editor.$inline && !editor.getPopup) {
@@ -11101,11 +11304,11 @@
 	      } else this.editStop();
 	    }
 	  },
-	  editable_setter: function editable_setter(value) {
+	  editable_setter: function (value) {
 	    if (value) this._init_edit_events_once();
 	    return value;
 	  },
-	  _init_edit_events_once: function _init_edit_events_once() {
+	  _init_edit_events_once: function () {
 	    //will close editor on any click outside
 	    attachEvent("onEditEnd", bind(function () {
 	      if (this._in_edit_mode) this.editStop();
@@ -11136,7 +11339,7 @@
 
 	    if (this._component_specific_edit_init) this._component_specific_edit_init();
 	  },
-	  _handle_live_edits: function _handle_live_edits() {
+	  _handle_live_edits: function () {
 	    delay(function () {
 	      var editor = this.getEditor();
 
@@ -11154,7 +11357,7 @@
 	      }
 	    }, this);
 	  },
-	  _show_editor_form: function _show_editor_form(id) {
+	  _show_editor_form: function (id) {
 	    var form = this._settings.form;
 	    if (typeof form != "string") this._settings.form = form = ui(form).config.id;
 	    form = $$(form);
@@ -11165,7 +11368,7 @@
 	    var first = realform.getChildViews()[0];
 	    if (first.focus) first.focus();
 	  },
-	  edit: function edit(id, preserve, show) {
+	  edit: function (id, preserve, show) {
 	    if (!this._settings.editable || !this.callEvent("onBeforeEditStart", [id])) return;
 	    if (this._settings.form) return this._show_editor_form(id);
 
@@ -11200,11 +11403,11 @@
 
 	    return null;
 	  },
-	  getEditor: function getEditor(id) {
+	  getEditor: function (id) {
 	    if (!id) return this._last_editor;
 	    return this._editors[id];
 	  },
-	  _changeEditorId: function _changeEditorId(oldid, newid) {
+	  _changeEditorId: function (oldid, newid) {
 	    var editor = this._editors[oldid];
 
 	    if (editor) {
@@ -11213,13 +11416,13 @@
 	      delete this._editors[oldid];
 	    }
 	  },
-	  _on_editor_change: function _on_editor_change() {
+	  _on_editor_change: function () {
 	    if (this.view.hasEvent("onEditorChange")) this.view.callEvent("onEditorChange", [this.id, this.view.getEditorValue(this.id)]);
 	  },
-	  _get_edit_config: function _get_edit_config() {
+	  _get_edit_config: function () {
 	    return this._settings;
 	  },
-	  _init_editor: function _init_editor(id, type, show) {
+	  _init_editor: function (id, type, show) {
 	    type.config = this._get_edit_config(id);
 	    var node = type.render();
 	    if (type.$inline) node = this._locateInput(id);
@@ -11240,24 +11443,24 @@
 	    if (type.afterRender) type.afterRender();
 	    return node;
 	  },
-	  _locate_cell: function _locate_cell(id) {
+	  _locate_cell: function (id) {
 	    return this.getItemNode(id);
 	  },
-	  _locateInput: function _locateInput(id) {
+	  _locateInput: function (id) {
 	    var cell = this._locate_cell(id);
 
 	    if (cell) cell = cell.getElementsByTagName("input")[0] || cell;
 	    return cell;
 	  },
-	  _get_editor_type: function _get_editor_type() {
+	  _get_editor_type: function () {
 	    return this._settings.editor;
 	  },
-	  _addEditor: function _addEditor(id, type) {
+	  _addEditor: function (id, type) {
 	    type.id = id;
 	    this._editors[id] = this._last_editor = type;
 	    this._in_edit_mode++;
 	  },
-	  _removeEditor: function _removeEditor(editor) {
+	  _removeEditor: function (editor) {
 	    if (this._last_editor == editor) this._last_editor = 0;
 	    if (editor.destroy) editor.destroy();
 	    delete editor.popup;
@@ -11265,14 +11468,14 @@
 	    delete this._editors[editor.id];
 	    this._in_edit_mode--;
 	  },
-	  focusEditor: function focusEditor() {
+	  focusEditor: function () {
 	    var editor = this.getEditor.apply(this, arguments);
 	    if (editor && editor.focus) editor.focus();
 	  },
-	  editCancel: function editCancel() {
+	  editCancel: function () {
 	    this.editStop(null, null, true);
 	  },
-	  _applyChanges: function _applyChanges(el) {
+	  _applyChanges: function (el) {
 	    if (el) {
 	      var ed = this.getEditor();
 	      if (ed && ed.getPopup && ed.getPopup() == el.getTopParentView()) return;
@@ -11280,7 +11483,7 @@
 
 	    this.editStop();
 	  },
-	  editStop: function editStop(id) {
+	  editStop: function (id) {
 	    if (this._edit_stop) return;
 	    this._edit_stop = 1;
 	    var cancel = arguments[2];
@@ -11295,7 +11498,7 @@
 	    this._edit_stop = 0;
 	    return result;
 	  },
-	  _cellPosition: function _cellPosition(id) {
+	  _cellPosition: function (id) {
 	    var html = this.getItemNode(id);
 	    return {
 	      left: html.offsetLeft,
@@ -11305,7 +11508,7 @@
 	      parent: this._contentobj
 	    };
 	  },
-	  _sizeToCell: function _sizeToCell(id, node, inline) {
+	  _sizeToCell: function (id, node, inline) {
 	    //fake inputs
 	    if (!node.style) return;
 
@@ -11319,15 +11522,15 @@
 
 	    if (inline) pos$$1.parent.appendChild(node);
 	  },
-	  _for_each_editor: function _for_each_editor(handler) {
+	  _for_each_editor: function (handler) {
 	    for (var editor in this._editors) {
 	      handler.call(this, this._editors[editor]);
 	    }
 	  },
-	  _editStop: function _editStop(editor, ignore) {
+	  _editStop: function (editor, ignore) {
 	    if (!editor || state._final_destruction) return;
 	    var state$$1 = {
-	      value: editor.getValue(),
+	      value: this._get_new_value(editor),
 	      old: editor.value
 	    };
 
@@ -11358,7 +11561,7 @@
 
 	    return 0;
 	  },
-	  validateEditor: function validateEditor(id) {
+	  validateEditor: function (id) {
 	    var result = true;
 
 	    if (this._settings.rules) {
@@ -11380,15 +11583,15 @@
 
 	    return result;
 	  },
-	  getEditorValue: function getEditorValue(id) {
+	  getEditorValue: function (id) {
 	    var editor;
 	    if (arguments.length === 0) editor = this._last_editor;else editor = this.getEditor(id);
 	    if (editor) return editor.getValue();
 	  },
-	  getEditState: function getEditState() {
+	  getEditState: function () {
 	    return this._last_editor || false;
 	  },
-	  editNext: function editNext(next, from) {
+	  editNext: function (next, from) {
 	    next = next !== false; //true by default
 
 	    if (this._in_edit_mode == 1 || from) {
@@ -11412,8 +11615,8 @@
 	    }
 	  },
 	  //stab, used in datatable
-	  _after_edit_next: function _after_edit_next() {},
-	  _find_cell_next: function _find_cell_next(start, check, direction) {
+	  _after_edit_next: function () {},
+	  _find_cell_next: function (start, check, direction) {
 	    var row = this.getIndexById(start.id);
 	    var order = this.data.order;
 
@@ -11429,7 +11632,10 @@
 
 	    return null;
 	  },
-	  _set_new_value: function _set_new_value(editor, new_value, copy$$1) {
+	  _get_new_value: function (editor) {
+	    return editor.getValue();
+	  },
+	  _set_new_value: function (editor, new_value, copy$$1) {
 	    var item = copy$$1 ? {} : this.getItem(editor.id);
 	    item[this._settings.editValue || "value"] = new_value;
 	    return item;
@@ -11437,13 +11643,13 @@
 	};
 
 	var FlexLayout = {
-	  $init: function $init() {
+	  $init: function () {
 	    this.$view.className += " webix_flexlayout";
 	  },
-	  _fix_vertical_layout: function _fix_vertical_layout() {},
-	  _beforeResetBorders: function _beforeResetBorders() {},
-	  _afterResetBorders: function _afterResetBorders() {},
-	  $getSize: function $getSize() {
+	  _fix_vertical_layout: function () {},
+	  _beforeResetBorders: function () {},
+	  _afterResetBorders: function () {},
+	  $getSize: function () {
 	    debug_size_box_start(this, true);
 	    var w = 0,
 	        h = 0,
@@ -11459,23 +11665,25 @@
 	      h = Math.max(h, size[2]);
 	    }
 
-	    w += (this._paddingX || 0) * 2;
-	    h += (this._paddingY || 0) * 2;
+	    w += this._padding.left + this._padding.right;
+	    h += this._padding.top + this._padding.bottom;
 	    if (this._settings.width) w = Math.max(w, this._settings.width);
 	    if (this._settings.height) h = Math.max(h, this._settings.height);
 	    var self_size = [w, 100000, h, 100000, g];
 	    debug_size_box_end(this, self_size);
 	    return self_size;
 	  },
-	  render: function render() {
+	  render: function () {
 	    this.resize();
 	  },
-	  _set_child_size: function _set_child_size() {
+	  _set_child_size: function () {
 	    if (!this.isVisible(this._settings.id)) return;
 	    var st = this.$view.style;
 	    var margin = Math.round(this._margin / 2);
-	    st.paddingTop = st.paddingBottom = this._paddingY - margin + "px";
-	    st.paddingLeft = st.paddingRight = this._paddingX - margin + "px";
+	    st.paddingTop = this._padding.top - margin + "px";
+	    st.paddingBottom = this._padding.bottom - margin + "px";
+	    st.paddingLeft = this._padding.left - margin + "px";
+	    st.paddingRight = this._padding.right - margin + "px";
 
 	    for (var i = 0; i < this._cells.length; i++) {
 	      if (this._cells[i]._settings.hidden) continue;
@@ -11523,37 +11731,42 @@
 	};
 
 	var GroupMethods = {
-	  sum: function sum(property, data) {
+	  sum: function (property, data) {
 	    data = data || this;
 	    var summ = 0;
 
 	    for (var i = 0; i < data.length; i++) {
-	      summ += property(data[i]) * 1;
+	      var num = parseFloat(property(data[i]), 10);
+	      if (!isNaN(num)) summ += num;
 	    }
 
 	    return summ;
 	  },
-	  min: function min(property, data) {
+	  min: function (property, data) {
 	    data = data || this;
 	    var min = Infinity;
 
 	    for (var i = 0; i < data.length; i++) {
-	      if (property(data[i]) * 1 < min) min = property(data[i]) * 1;
+	      var num = parseFloat(property(data[i]), 10);
+	      if (isNaN(num)) continue;
+	      if (num < min) min = num;
 	    }
 
-	    return min * 1;
+	    return min === Infinity ? 0 : min * 1;
 	  },
-	  max: function max(property, data) {
+	  max: function (property, data) {
 	    data = data || this;
 	    var max = -Infinity;
 
 	    for (var i = 0; i < data.length; i++) {
-	      if (property(data[i]) * 1 > max) max = property(data[i]) * 1;
+	      var num = parseFloat(property(data[i]), 10);
+	      if (isNaN(num)) continue;
+	      if (num > max) max = num;
 	    }
 
-	    return max * 1;
+	    return max === -Infinity ? 0 : max * 1;
 	  },
-	  count: function count(property, data) {
+	  count: function (property, data) {
 	    var count = 0;
 
 	    for (var i = 0; i < data.length; i++) {
@@ -11563,23 +11776,23 @@
 
 	    return count;
 	  },
-	  any: function any(property, data) {
+	  any: function (property, data) {
 	    return property(data[0]);
 	  },
-	  string: function string(property) {
+	  string: function (property) {
 	    return property.$name;
 	  }
 	};
 
 	var GroupStore = {
-	  $init: function $init() {
+	  $init: function () {
 	    this.attachEvent("onClearAll", this._reset_groups);
 	  },
-	  _reset_groups: function _reset_groups() {
+	  _reset_groups: function () {
 	    this._not_grouped_order = this._not_grouped_pull = null;
 	    this._group_level_count = 0;
 	  },
-	  ungroup: function ungroup(skipRender) {
+	  ungroup: function (skipRender) {
 	    if (this.getBranchIndex) return this._ungroup_tree.apply(this, arguments);
 
 	    if (this._not_grouped_order) {
@@ -11589,22 +11802,22 @@
 	      if (!skipRender) this.callEvent("onStoreUpdated", []);
 	    }
 	  },
-	  _group_processing: function _group_processing(scheme) {
+	  _group_processing: function (scheme) {
 	    this.blockEvent();
 	    this.group(scheme);
 	    this.unblockEvent();
 	  },
-	  _group_prop_accessor: function _group_prop_accessor(val) {
+	  _group_prop_accessor: function (val) {
 	    if (typeof val == "function") return val;
 
-	    var acc = function acc(obj) {
+	    var acc = function (obj) {
 	      return obj[val];
 	    };
 
 	    acc.$name = val;
 	    return acc;
 	  },
-	  group: function group(stats) {
+	  group: function (stats) {
 	    if (this.getBranchIndex) return this._group_tree.apply(this, arguments);
 	    if (typeof stats == "string") stats = {
 	      by: stats,
@@ -11661,7 +11874,7 @@
 
 	    this.callEvent("onStoreUpdated", []);
 	  },
-	  _group_tree: function _group_tree(input, parent) {
+	  _group_tree: function (input, parent) {
 	    this._group_level_count = (this._group_level_count || 0) + 1; //supports simplified group by syntax
 
 	    var stats;
@@ -11775,7 +11988,7 @@
 
 	    this.callEvent("onStoreUpdated", []);
 	  },
-	  _ungroup_tree: function _ungroup_tree(skipRender, parent, force) {
+	  _ungroup_tree: function (skipRender, parent, force) {
 	    //not grouped
 	    if (!force && !this._group_level_count) return;
 	    this._group_level_count = Math.max(0, this._group_level_count - 1);
@@ -11801,7 +12014,7 @@
 
 	    if (!skipRender) this.callEvent("onStoreUpdated", []);
 	  },
-	  _fix_group_levels: function _fix_group_levels(branch, parent, level) {
+	  _fix_group_levels: function (branch, parent, level) {
 	    if (parent) this.getItem(parent).$count = branch.length;
 
 	    for (var i = 0; i < branch.length; i++) {
@@ -11815,7 +12028,7 @@
 	};
 
 	var Group = {
-	  $init: function $init() {
+	  $init: function () {
 	    exports.extend(this.data, GroupStore); //in case of plain store we need to remove store original dataset
 
 	    this.data.attachEvent("onClearAll", bind(function () {
@@ -11823,11 +12036,11 @@
 	      this._group_level_count = 0;
 	    }, this));
 	  },
-	  group: function group(config) {
+	  group: function (config) {
 	    this.data.ungroup(true);
 	    this.data.group(config);
 	  },
-	  ungroup: function ungroup(skipRender) {
+	  ungroup: function (skipRender) {
 	    this.data.ungroup(skipRender);
 	  }
 	};
@@ -11835,32 +12048,36 @@
 	/*aria-style handling for options of multiple-value controls (radio, segmented, tabbar)*/
 
 	var HTMLOptions = {
-	  $init: function $init() {
-	    if ($active.customRadio || this.addOption) _event(this.$view, "keydown", this._moveSelection, {
-	      bind: this
+	  $init: function () {
+	    var _this = this;
+
+	    if ($active.customRadio || this.addOption) this.$ready.push(function () {
+	      _event(_this.$view, "keydown", _this._moveSelection, {
+	        bind: _this
+	      });
 	    });
 	  },
-	  _focus: function _focus() {
-	    if (!this._settings.disabled && !this.queryView({
-	      disabled: true
-	    }, "parent")) {
-	      var input = this._getInputNode();
+	  _focus: function () {
+	    if (!UIManager.canFocus(this)) return false;
 
-	      if (input) for (var i = 0; i < input.length; i++) {
+	    var input = this._getInputNode();
+
+	    if (input) {
+	      for (var i = 0; i < input.length; i++) {
 	        if (input[i].getAttribute("tabindex") == "0") {
 	          input[i].focus();
 	        }
 	      }
 	    }
 	  },
-	  _blur: function _blur() {
+	  _blur: function () {
 	    var input = this._getInputNode();
 
 	    if (input) for (var i = 0; i < input.length; i++) {
 	      if (input[i].getAttribute("tabindex") == "0") input[i].blur();
 	    }
 	  },
-	  _moveSelection: function _moveSelection(e) {
+	  _moveSelection: function (e) {
 	    var code = e.which || e.keyCode;
 	    var startCode = this.addOption ? 34 : 36;
 
@@ -11888,23 +12105,43 @@
 	        inp[index$$1].focus();
 	      }
 	    }
+	  },
+	  _get_tooltip_data: function (t, e) {
+	    var node = e.target || e.srcElement;
+
+	    while (node && !node.webix_tooltip) {
+	      var id = node.getAttribute("webix_t_id");
+	      if (id) return this.getOption(id);
+	      node = node.parentNode;
+	    }
+
+	    return null;
+	  },
+	  getOption: function (id) {
+	    var options = this._check_options(this._settings.options);
+
+	    for (var i = 0; i < options.length; i++) {
+	      if (options[i].id == id) return options[i];
+	    }
+
+	    return null;
 	  }
 	};
 
 	var HtmlMap = exports.proto({
-	  $init: function $init(key) {
+	  $init: function (key) {
 	    this._id = "map_" + uid();
 	    this._key = key;
 	    this._map = [];
 	    this._areas = [];
 	  },
-	  addRect: function addRect(id, points, userdata) {
+	  addRect: function (id, points, userdata) {
 	    this._createMapArea(id, "RECT", points, userdata);
 	  },
-	  addPoly: function addPoly(id, points, userdata) {
+	  addPoly: function (id, points, userdata) {
 	    this._createMapArea(id, "POLY", points, userdata);
 	  },
-	  _createMapArea: function _createMapArea(id, shape, coords, userdata) {
+	  _createMapArea: function (id, shape, coords, userdata) {
 	    var extra_data = "";
 	    if (arguments.length == 4) extra_data = "userdata='" + userdata + "'";
 
@@ -11915,7 +12152,7 @@
 	      points: coords
 	    });
 	  },
-	  addSector: function addSector(id, alpha0, alpha1, x, y, R, ky, userdata) {
+	  addSector: function (id, alpha0, alpha1, x, y, R, ky, userdata) {
 	    var points = [];
 	    points.push(x);
 	    points.push(Math.floor(y * ky));
@@ -11931,7 +12168,7 @@
 	    points.push(Math.floor(y * ky));
 	    return this.addPoly(id, points, userdata);
 	  },
-	  hide: function hide(obj, data, mode) {
+	  hide: function (obj, data, mode) {
 	    if (obj.querySelectorAll) {
 	      var nodes = obj.querySelectorAll("area[userdata=\"" + data + "\"]");
 
@@ -11956,7 +12193,7 @@
 	      }
 	    }
 	  },
-	  render: function render(obj) {
+	  render: function (obj) {
 	    var d = create("DIV");
 	    d.style.cssText = "position:absolute; width:100%; height:100%; top:0px; left:0px;";
 	    obj.appendChild(d);
@@ -11969,7 +12206,7 @@
 	});
 
 	var IdSpace = {
-	  $init: function $init() {
+	  $init: function () {
 	    this._elements = {};
 	    this._translate_ids = {};
 	    this.getTopParentView = this._get_self = bind(function () {
@@ -11980,17 +12217,17 @@
 
 	    this.$ready.push(this._run_after_inner_init_logic);
 	  },
-	  $$: function $$$$1(id) {
+	  $$: function (id) {
 	    return this._elements[id];
 	  },
-	  innerId: function innerId(id) {
+	  innerId: function (id) {
 	    return this._translate_ids[id];
 	  },
-	  _run_inner_init_logic: function _run_inner_init_logic() {
+	  _run_inner_init_logic: function () {
 	    this._prev_global_col = state._global_collection;
 	    state._global_collection = this;
 	  },
-	  _run_after_inner_init_logic: function _run_after_inner_init_logic() {
+	  _run_after_inner_init_logic: function () {
 	    for (var name in this._elements) {
 	      var input = this._elements[name];
 	      if (this.callEvent && input.mapEvent && !input._evs_map.onitemclick) input.mapEvent({
@@ -12002,10 +12239,10 @@
 	    state._global_collection = this._prev_global_col;
 	    this._prev_global_col = 0;
 	  },
-	  _destroy_child: function _destroy_child(id) {
+	  _destroy_child: function (id) {
 	    delete this._elements[id];
 	  },
-	  ui: function ui$$1() {
+	  ui: function () {
 	    this._run_inner_init_logic();
 
 	    var temp = ui.apply(this, arguments);
@@ -12017,17 +12254,17 @@
 	};
 
 	var KeysNavigation = {
-	  $init: function $init() {
+	  $init: function () {
 	    if (this.getSelectedId) this.attachEvent("onAfterRender", this._set_focusable_item);
 	    if (this.moveSelection) this.attachEvent("onTabFocus", this._set_item_focus);
 	  },
-	  _set_item_focus: function _set_item_focus() {
+	  _set_item_focus: function () {
 	    if (this.getSelectedId) {
 	      var sel = this.getSelectedId(true);
 	      if (!sel.length || !this.getItemNode(sel[0])) this.moveSelection("down"); //select and show
 	    }
 	  },
-	  _set_focusable_item: function _set_focusable_item() {
+	  _set_focusable_item: function () {
 	    var sel = this.getSelectedId(true);
 
 	    if (!sel.length || !this.getItemNode(sel[0])) {
@@ -12036,7 +12273,7 @@
 	      if (node) node.setAttribute("tabindex", "0");
 	    }
 	  },
-	  _navigation_helper: function _navigation_helper(mode) {
+	  _navigation_helper: function (mode) {
 	    return function (view, e) {
 	      var tag = e.srcElement || e.target; //ignore clipboard listener
 
@@ -12058,7 +12295,7 @@
 	      return true;
 	    };
 	  },
-	  moveSelection: function moveSelection(mode, details, focus) {
+	  moveSelection: function (mode, details, focus) {
 	    var config = this._settings;
 	    if (config.disabled) return; //get existing selection
 
@@ -12115,7 +12352,7 @@
 
 	    return false;
 	  },
-	  navigation_setter: function navigation_setter(value) {
+	  navigation_setter: function (value) {
 	    //using global flag to apply hotkey only once
 	    if (value && !UIManager._global_nav_grid_hotkeys) {
 	      UIManager._global_nav_grid_hotkeys = true; //hotkeys will react on any component but will not work in edit mode
@@ -12146,14 +12383,14 @@
 	/*Data collection mapping logic */
 
 	var MapCollection = {
-	  $init: function $init() {
+	  $init: function () {
 	    this.$ready.push(this._create_scheme_init);
 	    this.attachEvent("onStructureUpdate", this._create_scheme_init);
 	    this.attachEvent("onStructureLoad", function () {
 	      if (!this._scheme_init_order.length) this._create_scheme_init();
 	    });
 	  },
-	  _create_scheme_init: function _create_scheme_init() {
+	  _create_scheme_init: function () {
 	    var stack = this._scheme_init_order = [];
 	    var config = this._settings;
 	    if (config.columns) this._build_data_map(config.columns);
@@ -12167,17 +12404,17 @@
 	      };
 	    }
 	  },
-	  _process_field_map: function _process_field_map(map) {
+	  _process_field_map: function (map) {
 	    for (var key in map) {
 	      this._scheme_init_order.push(this._process_single_map(key, map[key]));
 	    }
 	  },
-	  _process_single_map: function _process_single_map(target, map, extra) {
+	  _process_single_map: function (target, map, extra) {
 	    var source = map.replace(/^(\s|)\((date|number)\)/, "");
 	    var getSource;
 
 	    if (source === "") {
-	      getSource = function getSource(a) {
+	      getSource = function (a) {
 	        return a[target];
 	      };
 	    } else {
@@ -12204,7 +12441,7 @@
 	      };
 	    }
 	  },
-	  _build_data_map: function _build_data_map(columns) {
+	  _build_data_map: function (columns) {
 	    //for datatable
 	    for (var i = 0; i < columns.length; i++) {
 	      var map = columns[i].map;
@@ -12220,7 +12457,7 @@
 	      this._map_options(columns[i]);
 	    }
 	  },
-	  _map_options: function _map_options(element) {
+	  _map_options: function (element) {
 	    var options = element.options || element.collection;
 
 	    if (options) {
@@ -12272,7 +12509,7 @@
 	      }
 	    }
 	  },
-	  _bind_collection: function _bind_collection(options, element) {
+	  _bind_collection: function (options, element) {
 	    if (element) {
 	      delete element.options;
 	      element.collection = options;
@@ -12286,7 +12523,7 @@
 	      });
 	    }
 	  },
-	  _collection_accesser: function _collection_accesser(options, id, multi) {
+	  _collection_accesser: function (options, id, multi) {
 	    if (multi) {
 	      var separator = typeof multi == "string" ? multi : ",";
 	      return function (obj) {
@@ -12306,7 +12543,7 @@
 	      };
 	    }
 	  },
-	  _bind_accesser: function _bind_accesser(col, id, multi) {
+	  _bind_accesser: function (col, id, multi) {
 	    if (multi) {
 	      var separator = typeof multi == "string" ? multi : ",";
 	      return function (obj) {
@@ -12333,7 +12570,7 @@
 	};
 
 	var MouseEvents = {
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    config = config || {};
 	    this._clickstamp = 0;
 	    this._dbl_sensetive = 300;
@@ -12363,7 +12600,7 @@
 	    });
 	    if (this.on_mouse_move) this._enable_mouse_move();
 	  },
-	  _enable_mouse_move: function _enable_mouse_move() {
+	  _enable_mouse_move: function () {
 	    if (!this._mouse_move_enabled) {
 	      this.on_mouse_move = this.on_mouse_move || {};
 
@@ -12381,7 +12618,7 @@
 	      });
 	    }
 	  },
-	  _mouse_action_extend: function _mouse_action_extend(config, key) {
+	  _mouse_action_extend: function (config, key) {
 	    if (config) {
 	      var now = this[key];
 	      var step = now ? exports.extend({}, now) : {};
@@ -12389,7 +12626,7 @@
 	    }
 	  },
 	  //inner onclick object handler
-	  _onClick: function _onClick(e) {
+	  _onClick: function (e) {
 	    if (!this.isEnabled()) return false;
 
 	    UIManager._focus_action(this);
@@ -12415,11 +12652,11 @@
 	    return result;
 	  },
 	  //inner ondblclick object handler
-	  _onDblClick: function _onDblClick(e) {
+	  _onDblClick: function (e) {
 	    return this._mouseEvent(e, this.on_dblclick, "ItemDblClick");
 	  },
 	  //process oncontextmenu events
-	  _onContext: function _onContext(e) {
+	  _onContext: function (e) {
 	    this._mouseEvent(e, this.on_context, "BeforeContextMenu", "AfterContextMenu");
 	  },
 
@@ -12428,7 +12665,7 @@
 	  	during mouse moving there are a lot of event firing - we need no so much
 	  	also, mouseout can fire when moving inside the same html container - we need to ignore such fake calls
 	  */
-	  _onMouse: function _onMouse(e) {
+	  _onMouse: function (e) {
 	    if (this.$destructed) return;
 	    if (document.createEventObject) //make a copy of event, will be used in timed call
 	      e = document.createEventObject(event);else if (!isUndefined(e.movementY) && !e.movementY && !e.movementX) return; //logitech mouse driver can send false signals in Chrome
@@ -12444,15 +12681,15 @@
 	    }, this), this._settings.mouseEventDelay || 500);
 	  },
 	  //inner mousemove object handler
-	  _onMouseMove: function _onMouseMove(e) {
+	  _onMouseMove: function (e) {
 	    if (!this._mouseEvent(e, this.on_mouse_move, "MouseMove")) this.callEvent("onMouseOut", [e || event]);
 	  },
 	  //inner mouseout object handler
-	  _onMouseOut: function _onMouseOut(e) {
+	  _onMouseOut: function (e) {
 	    this.callEvent("onMouseOut", [e || event]);
 	  },
 	  //common logic for click and dbl-click processing
-	  _mouseEvent: function _mouseEvent(e, hash, name, pair) {
+	  _mouseEvent: function (e, hash, name, pair) {
 	    e = e || event;
 	    if (e.processed || !this._viewobj) return;
 	    e.processed = true;
@@ -12516,12 +12753,12 @@
 	*/
 
 	var NavigationButtons = {
-	  $init: function $init() {
+	  $init: function () {
 	    this.$ready.push(function () {
 	      this.attachEvent("onKeyPress", this._onKeyPress);
 	    });
 	  },
-	  _moveActive: function _moveActive(code, e) {
+	  _moveActive: function (code, e) {
 	    if (code === 37 || code === 39) {
 	      preventEvent(e);
 
@@ -12532,7 +12769,7 @@
 	      if (node) node.focus();
 	    }
 	  },
-	  _renderPanel: function _renderPanel() {
+	  _renderPanel: function () {
 	    remove(this._navPanel);
 	    this._navPanel = create("DIV", {
 	      "class": "webix_nav_panel " + "webix_nav_panel_" + this._settings.navigation.type,
@@ -12547,7 +12784,7 @@
 
 	    this._setLinkEventHandler();
 	  },
-	  _setLinkEventHandler: function _setLinkEventHandler() {
+	  _setLinkEventHandler: function () {
 	    var h = [];
 	    if (this._navPanel) h[0] = event$1(this._navPanel, "click", bind(function (e) {
 	      var elem = e.srcElement || e.target;
@@ -12579,7 +12816,7 @@
 	      h = null;
 	    });
 	  },
-	  _showNavItem: function _showNavItem(inc) {
+	  _showNavItem: function (inc) {
 	    if (this._cells) {
 	      var index$$1 = this._active_cell + inc;
 
@@ -12590,10 +12827,10 @@
 	      this.setActiveIndex(index$$1);
 	    }
 	  },
-	  _showPanelBind: function _showPanelBind(id) {
+	  _showPanelBind: function (id) {
 	    if (this._cells) $$(id).show();
 	  },
-	  _renderNavItems: function _renderNavItems() {
+	  _renderNavItems: function () {
 	    var item, config;
 	    config = this._settings.navigation;
 
@@ -12617,7 +12854,7 @@
 	      }
 	    }
 	  },
-	  _clearPanel: function _clearPanel() {
+	  _clearPanel: function () {
 	    if (this._navPanel) {
 	      var coll = this._navPanel.childNodes;
 
@@ -12626,7 +12863,7 @@
 	      }
 	    }
 	  },
-	  _renderNavButtons: function _renderNavButtons() {
+	  _renderNavButtons: function () {
 	    var config = this._settings.navigation;
 
 	    if (config.buttons) {
@@ -12648,7 +12885,7 @@
 	};
 
 	var OverlayBox = {
-	  showOverlay: function showOverlay(message) {
+	  showOverlay: function (message) {
 	    if (!this._overlay) {
 	      this._overlay = create("DIV", {
 	        "class": "webix_overlay"
@@ -12657,7 +12894,7 @@
 	      this._viewobj.style.position = "relative";
 	    } else this._overlay.innerHTML = message;
 	  },
-	  hideOverlay: function hideOverlay() {
+	  hideOverlay: function () {
 	    if (this._overlay) {
 	      remove(this._overlay);
 	      this._overlay = null;
@@ -12666,7 +12903,7 @@
 	};
 
 	var PagingAbility = {
-	  pager_setter: function pager_setter(pager) {
+	  pager_setter: function (pager) {
 	    if (typeof pager == "string") {
 	      var ui_pager = $$(pager);
 
@@ -12728,7 +12965,7 @@
 	    this.data._count_pager_total = this._count_pager_total;
 	    return pager._settings;
 	  },
-	  _count_pager_total: function _count_pager_total(level) {
+	  _count_pager_total: function (level) {
 	    if (level && level !== 0) {
 	      var count = 0;
 	      this.each(function (obj) {
@@ -12737,7 +12974,7 @@
 	      return count;
 	    } else return this.count();
 	  },
-	  _count_pager_index: function _count_pager_index(start, count) {
+	  _count_pager_index: function (start, count) {
 	    var s = this._settings.pager;
 
 	    if (s.level && s.level !== 0) {
@@ -12753,26 +12990,26 @@
 	      return end;
 	    } else return start + count;
 	  },
-	  setPage: function setPage(value) {
+	  setPage: function (value) {
 	    if (this._pager) this._pager.select(value);
 	  },
-	  getPage: function getPage() {
+	  getPage: function () {
 	    return this._pager._settings.page;
 	  },
-	  getPager: function getPager() {
+	  getPager: function () {
 	    return this._pager;
 	  }
 	};
 
 	var ProgressBar = {
-	  $init: function $init() {
+	  $init: function () {
 	    if (isUndefined(this._progress) && this.attachEvent) {
 	      this.attachEvent("onBeforeLoad", this.showProgress);
 	      this.attachEvent("onAfterLoad", this.hideProgress);
 	      this._progress = null;
 	    }
 	  },
-	  showProgress: function showProgress(config) {
+	  showProgress: function (config) {
 	    // { position: 0 - 1, delay: 2000ms by default, css : name of css class to use }
 	    if (!this._progress) {
 	      config = exports.extend({
@@ -12852,7 +13089,7 @@
 	      this._progress_delay = 0;
 	    }, this);else if (config && config.type == "icon" && config.hide) delay(this.hideProgress, this, [1], config.delay);
 	  },
-	  hideProgress: function hideProgress(now) {
+	  hideProgress: function (now) {
 	    if (this._progress_delay) now = true;
 
 	    if (this._progress) {
@@ -12874,7 +13111,7 @@
 	};
 
 	var RenderStack = {
-	  $init: function $init() {
+	  $init: function () {
 	    assert(this.data, "RenderStack :: Component doesn't have DataStore");
 	    assert(template, "template :: template is not accessible"); //used for temporary HTML elements
 	    //automatically nulified during destruction
@@ -12892,13 +13129,13 @@
 
 	    this.type = clone(this.type);
 	  },
-	  customize: function customize(obj) {
+	  customize: function (obj) {
 	    type(this, obj);
 	  },
-	  item_setter: function item_setter(value) {
+	  item_setter: function (value) {
 	    return this.type_setter(value);
 	  },
-	  type_setter: function type_setter(value) {
+	  type_setter: function (value) {
 	    if (!this.types[value]) this.customize(value);else {
 	      this.type = clone(this.types[value]);
 	      if (this.type.css) this._contentobj.className += " " + this.type.css;
@@ -12906,11 +13143,11 @@
 	    if (this.type.on_click) exports.extend(this.on_click, this.type.on_click);
 	    return value;
 	  },
-	  template_setter: function template_setter(value) {
+	  template_setter: function (value) {
 	    this.type.template = template(value);
 	  },
 	  //convert single item to HTML text (templating)
-	  _toHTML: function _toHTML(obj) {
+	  _toHTML: function (obj) {
 	    var mark = this.data._marks[obj.id]; //check if related template exist
 
 	    assert(!obj.$template || this.type["template" + obj.$template], "RenderStack :: Unknown template: " + obj.$template);
@@ -12918,11 +13155,11 @@
 	    return this.type.templateStart(obj, this.type, mark) + (obj.$template ? this.type["template" + obj.$template] : this.type.template)(obj, this.type, mark) + this.type.templateEnd(obj, this.type, mark);
 	  },
 	  //convert item to HTML object (templating)
-	  _toHTMLObject: function _toHTMLObject(obj) {
+	  _toHTMLObject: function (obj) {
 	    this._html.innerHTML = this._toHTML(obj);
 	    return this._html.firstChild;
 	  },
-	  _render_change_id: function _render_change_id(old, newid) {
+	  _render_change_id: function (old, newid) {
 	    var obj = this.getItemNode(old);
 
 	    if (obj) {
@@ -12932,7 +13169,7 @@
 	    }
 	  },
 	  //calls function that is set in onclick property
-	  _call_onclick: function _call_onclick() {
+	  _call_onclick: function () {
 	    if (this._settings.click) {
 	      var code = toFunctor(this._settings.click, this.$scope);
 	      if (code && code.call) code.apply(this, arguments);
@@ -12940,7 +13177,7 @@
 	  },
 	  //return html container by its ID
 	  //can return undefined if container doesn't exists
-	  getItemNode: function getItemNode(search_id) {
+	  getItemNode: function (search_id) {
 	    if (this._htmlmap) return this._htmlmap[search_id]; //fill map if it doesn't created yet
 
 	    this._htmlmap = {};
@@ -12956,12 +13193,12 @@
 	    return this.getItemNode(search_id);
 	  },
 	  //return id of item from html event
-	  locate: function locate$$1(e) {
+	  locate: function (e) {
 	    return locate(e, this._id);
 	  },
 
 	  /*change scrolling state of top level container, so related item will be in visible part*/
-	  showItem: function showItem(id) {
+	  showItem: function (id) {
 	    var html = this.getItemNode(id);
 
 	    if (html && this.scrollTo) {
@@ -12981,7 +13218,7 @@
 	  //update view after data update
 	  //method calls low-level rendering for related items
 	  //when called without parameters - all view refreshed
-	  render: function render(id, data, type$$1) {
+	  render: function (id, data, type$$1) {
 	    if (!this.isVisible(this._settings.id) || this.$blockRender) return;
 
 	    if (id) {
@@ -13036,7 +13273,7 @@
 	};
 
 	var Scrollable = {
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    //do not spam unwanted scroll containers for templates 
 	    if (config && !config.scroll && this._one_time_scroll) return this._dataobj = this._dataobj || this._contentobj;
 
@@ -13055,9 +13292,10 @@
 	  /*defaults:{
 	  	scroll:true
 	  },*/
-	  scroll_setter: function scroll_setter(value) {
+	  scroll_setter: function (value) {
 	    if (!value) return false;
-	    var marker = value == "x" ? "x" : value == "xy" ? "xy" : value == "a" ? "xy" : "y";
+	    var auto = value === "auto";
+	    var marker = value == "x" ? "x" : value == "xy" ? "xy" : auto ? "xy" : "y";
 
 	    if (Touch.$active && env.touch != "native") {
 	      this._dataobj.setAttribute("touch_scroll", marker);
@@ -13070,7 +13308,7 @@
 	      } else {
 	        var node = this._dataobj.parentNode.style;
 
-	        if (value.toString().indexOf("a") != -1) {
+	        if (auto) {
 	          node.overflowX = node.overflowY = "auto";
 	        } else {
 	          if (marker.indexOf("x") != -1) {
@@ -13088,7 +13326,7 @@
 
 	    return marker;
 	  },
-	  _onoff_scroll: function _onoff_scroll(mode, dir) {
+	  _onoff_scroll: function (mode, dir) {
 	    if (!!this._settings.scroll == !!mode) return;
 
 	    if (!env.$customScroll) {
@@ -13102,9 +13340,9 @@
 	      this._scroll_y = mode;
 	    }
 
-	    this._settings.scroll = mode ? dir : mode;
+	    this._settings.scroll = mode ? dir : false;
 	  },
-	  getScrollState: function getScrollState() {
+	  getScrollState: function () {
 	    if (Touch.$active) {
 	      var temp = Touch._get_matrix(this._dataobj);
 
@@ -13117,7 +13355,7 @@
 	      y: this._dataobj.parentNode.scrollTop
 	    };
 	  },
-	  scrollTo: function scrollTo(x, y) {
+	  scrollTo: function (x, y) {
 	    if (Touch.$active && env.touch != "native") {
 	      y = Math.max(0, Math.min(y, this._dataobj.offsetHeight - this._content_height));
 	      x = Math.max(0, Math.min(x, this._dataobj.offsetWidth - this._content_width));
@@ -13128,7 +13366,7 @@
 	      this._dataobj.parentNode.scrollTop = y;
 	    }
 	  },
-	  _refresh_scroll: function _refresh_scroll() {
+	  _refresh_scroll: function () {
 	    if (this._settings.scroll.toString().indexOf("x") != -1) {
 	      var x = this._dataobj.scrollWidth;
 
@@ -13172,7 +13410,7 @@
 	*/
 
 	var SelectionModel = {
-	  $init: function $init() {
+	  $init: function () {
 	    //collection of selected IDs
 	    this._selected = toArray();
 	    assert(this.data, "SelectionModel :: Component doesn't have DataStore"); //remove selection from deleted items
@@ -13184,7 +13422,7 @@
 	    this.data.attachEvent("onIdChange", bind(this._id_changed, this));
 	    this.$ready.push(this._set_noselect);
 	  },
-	  _set_noselect: function _set_noselect() {
+	  _set_noselect: function () {
 	    if (this._settings.select == "multiselect" || this._settings.multiselect || this._settings.select == "area") _event(this.$view, "mousedown", function (e) {
 	      var shiftKey = (e || event$1).shiftKey;
 
@@ -13194,12 +13432,12 @@
 	      }
 	    });
 	  },
-	  _id_changed: function _id_changed(oldid, newid) {
+	  _id_changed: function (oldid, newid) {
 	    for (var i = this._selected.length - 1; i >= 0; i--) {
 	      if (this._selected[i] == oldid) this._selected[i] = newid;
 	    }
 	  },
-	  _data_filtered: function _data_filtered() {
+	  _data_filtered: function () {
 	    for (var i = this._selected.length - 1; i >= 0; i--) {
 	      if (this.data.getIndexById(this._selected[i]) < 0) {
 	        var id = this._selected[i];
@@ -13212,7 +13450,7 @@
 	    }
 	  },
 	  //helper - linked to onStoreUpdated
-	  _data_updated: function _data_updated(id, obj, type) {
+	  _data_updated: function (id, obj, type) {
 	    if (type == "delete") {
 	      //remove selection from deleted items
 	      if (this.loadBranch) {
@@ -13224,18 +13462,18 @@
 	      this._selected = toArray();
 	    }
 	  },
-	  _data_loaded: function _data_loaded() {
+	  _data_loaded: function () {
 	    if (this._settings.select) this.data.each(function (obj) {
 	      if (obj && obj.$selected) this.select(obj.id);
 	    }, this);
 	  },
-	  _select_check: function _select_check() {
+	  _select_check: function () {
 	    for (var i = this._selected.length - 1; i >= 0; i--) {
 	      if (!this.exists(this._selected[i])) this._selected.splice(i, 1);
 	    }
 	  },
 	  //helper - changes state of selection for some item
-	  _select_mark: function _select_mark(id, state$$1, refresh, need_unselect) {
+	  _select_mark: function (id, state$$1, refresh, need_unselect) {
 	    var sname = state$$1 ? "onBeforeSelect" : "onBeforeUnSelect";
 	    if (!this.callEvent(sname, [id, state$$1])) return false;
 
@@ -13259,7 +13497,7 @@
 	    return true;
 	  },
 	  //select some item
-	  select: function select(id, preserve) {
+	  select: function (id, preserve) {
 	    var ctrlKey = arguments[2];
 	    var shiftKey = arguments[3]; //if id not provide - works as selectAll
 
@@ -13289,7 +13527,7 @@
 	    this._select_mark(id, true, null, need_unselect);
 	  },
 	  //unselect some item
-	  unselect: function unselect(id) {
+	  unselect: function (id) {
 	    //if id is not provided  - unselect all items
 	    if (!id) return this.unselectAll();
 	    if (!this.isSelected(id)) return;
@@ -13297,7 +13535,7 @@
 	    this._select_mark(id, false);
 	  },
 	  //select all items, or all in defined range
-	  selectAll: function selectAll(from, to) {
+	  selectAll: function (from, to) {
 	    var range;
 	    var refresh = [];
 	    if (from || to) range = this.data.getRange(from || null, to || null); //get limited set if bounds defined
@@ -13315,7 +13553,7 @@
 	    this._refresh_selection(refresh);
 	  },
 	  //remove selection from all items
-	  unselectAll: function unselectAll() {
+	  unselectAll: function () {
 	    var refresh = [];
 
 	    this._selected.each(function (id) {
@@ -13329,7 +13567,7 @@
 
 	  },
 	  //returns true if item is selected
-	  isSelected: function isSelected(id) {
+	  isSelected: function (id) {
 	    return this._selected.find(id) != -1;
 	  },
 
@@ -13339,7 +13577,7 @@
 	  		with such flag command will always return an array 
 	  		empty array in case when no item was selected
 	  */
-	  getSelectedId: function getSelectedId(as_array) {
+	  getSelectedId: function (as_array) {
 	    switch (this._selected.length) {
 	      case 0:
 	        return as_array ? [] : "";
@@ -13352,7 +13590,7 @@
 	      //isolation
 	    }
 	  },
-	  getSelectedItem: function getSelectedItem(as_array) {
+	  getSelectedItem: function (as_array) {
 	    var sel = this.getSelectedId(true);
 
 	    if (sel.length > 1 || as_array) {
@@ -13364,11 +13602,11 @@
 	    } else if (sel.length) return this.getItem(sel[0]);
 	  },
 	  //detects which repainting mode need to be used
-	  _is_mass_selection: function _is_mass_selection(obj) {
+	  _is_mass_selection: function (obj) {
 	    // crappy heuristic, but will do the job
 	    return obj.length > 100 || obj.length > this.data.count / 2;
 	  },
-	  _refresh_selection: function _refresh_selection(refresh) {
+	  _refresh_selection: function (refresh) {
 	    if (_typeof(refresh) != "object") refresh = [refresh];
 	    if (!refresh.length) return; //nothing to repaint
 
@@ -13391,7 +13629,7 @@
 
 	var color = {
 	  _toHex: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"],
-	  toHex: function toHex(number, length) {
+	  toHex: function (number, length) {
 	    number = parseInt(number, 10);
 	    var str = "";
 
@@ -13406,7 +13644,7 @@
 
 	    return str;
 	  },
-	  rgbToHex: function rgbToHex(rgb) {
+	  rgbToHex: function (rgb) {
 	    var arr = [];
 	    if (typeof rgb === "string") rgb.replace(/[\d+.]+/g, function (v) {
 	      arr.push(parseFloat(v));
@@ -13417,10 +13655,10 @@
 	      return color.toHex(Math.floor(n), 2);
 	    }).join("");
 	  },
-	  hexToDec: function hexToDec(hex) {
+	  hexToDec: function (hex) {
 	    return parseInt(hex, 16);
 	  },
-	  toRgb: function toRgb(rgb) {
+	  toRgb: function (rgb) {
 	    var r, g, b, rgbArr;
 
 	    if (typeof rgb != "string") {
@@ -13450,7 +13688,7 @@
 	    if (b < 0 || b > 255) b = 0;
 	    return [r, g, b];
 	  },
-	  hsvToRgb: function hsvToRgb(h, s, v) {
+	  hsvToRgb: function (h, s, v) {
 	    var hi, f, p, q, t, r, g, b;
 	    hi = Math.floor(h / 60) % 6;
 	    f = h / 60 - hi;
@@ -13507,7 +13745,7 @@
 	    b = Math.floor(b * 255);
 	    return [r, g, b];
 	  },
-	  rgbToHsv: function rgbToHsv(r, g, b) {
+	  rgbToHsv: function (r, g, b) {
 	    var r0, g0, b0, min0, max0, s, h, v;
 	    r0 = r / 255;
 	    g0 = g / 255;
@@ -13568,19 +13806,19 @@
 
 	SVG._handlers = {
 	  // MoveTo: {x:px,y:py}
-	  "M": function M(p) {
+	  "M": function (p) {
 	    return " M " + p.x + " " + p.y;
 	  },
 	  // LineTo: {x:px,y:py}
-	  "L": function L(p) {
+	  "L": function (p) {
 	    return " L " + p.x + " " + p.y;
 	  },
 	  // Curve: 3 points {x:px,y:py}: two control points and an end point
-	  "C": function C(cp0, cp1, p) {
+	  "C": function (cp0, cp1, p) {
 	    return " C " + cp0.x + " " + cp0.y + " " + cp1.x + " " + cp1.y + " " + p.x + " " + p.y;
 	  },
 	  // Arc: center point {x:px,y:py}, radius, angle0, angle1
-	  "A": function A(p, radius, angle0, angle1) {
+	  "A": function (p, radius, angle0, angle1) {
 	    var x = p.x + Math.cos(angle1) * radius;
 	    var y = p.y + Math.sin(angle1) * radius;
 	    var bigCircle = angle1 - angle0 >= Math.PI;
@@ -13871,7 +14109,7 @@
 	  minHeight: 4,
 	  eventRadius: 8,
 	  origin: 0,
-	  itemCss: function itemCss(value) {
+	  itemCss: function (value) {
 	    return value < (this.config.origin || 0) ? " webix_sparklines_bar_negative" : "";
 	  }
 	};
@@ -14050,7 +14288,7 @@
 	      i,
 	      sectors,
 	      config = this.config,
-	      _color = config.color || this._getColor,
+	      color = config.color || this._getColor,
 	      points = this.getAngles(data),
 	      renderer = SVG,
 	      y = config.paddingY || 0,
@@ -14060,15 +14298,14 @@
 	  x0 = width / 2,
 	      y0 = height / 2; // draw sectors
 
-
-	  if (typeof _color != "function") _color = function color() {
-	    return _color;
+	  if (typeof color != "function") color = function () {
+	    return color;
 	  };
 	  sectors = "";
 
 	  for (i = 0; i < points.length; i++) {
 	    attrs = {};
-	    attrs[renderer.styleMap["color"]] = _color.call(this, i, data, this._context);
+	    attrs[renderer.styleMap["color"]] = color.call(this, i, data, this._context);
 	    sectors += renderer.getSector({
 	      x: x0,
 	      y: y0
@@ -14394,7 +14631,7 @@
 	    rows: "\n",
 	    cols: "\t"
 	  },
-	  parse: function parse(text, sep) {
+	  parse: function (text, sep) {
 	    sep = sep || this.delimiter;
 	    if (!this.escape) return this._split_clip_data(text, sep);
 	    var lines = text.replace(/\n$/, "").split(sep.rows);
@@ -14443,7 +14680,7 @@
 
 	    return csv;
 	  },
-	  _split_clip_data: function _split_clip_data(text, sep) {
+	  _split_clip_data: function (text, sep) {
 	    var lines = text.split(sep.rows);
 
 	    for (var i = 0; i < lines.length; i++) {
@@ -14454,11 +14691,11 @@
 	  },
 
 	  /*! counts how many occurances substring in string **/
-	  _substr_count: function _substr_count(string, substring) {
+	  _substr_count: function (string, substring) {
 	    var arr = string.split(substring);
 	    return arr.length - 1;
 	  },
-	  stringify: function stringify(data, sep) {
+	  stringify: function (data, sep) {
 	    sep = sep || this.delimiter;
 
 	    if (!this.escape) {
@@ -14486,7 +14723,7 @@
 	};
 
 	var TablePaste = {
-	  clipboard_setter: function clipboard_setter(value) {
+	  clipboard_setter: function (value) {
 	    if (value === true || value === 1) value = "block";
 	    clipbuffer.init();
 	    this.attachEvent("onSelectChange", this._sel_to_clip); // solution for clicks on selected items
@@ -14501,13 +14738,13 @@
 	    return value;
 	  },
 	  templateCopy_setter: template,
-	  _sel_to_clip: function _sel_to_clip() {
+	  _sel_to_clip: function () {
 	    var data = this._get_sel_text();
 
 	    clipbuffer.set(data);
 	    UIManager.setFocus(this);
 	  },
-	  _get_sel_text: function _get_sel_text() {
+	  _get_sel_text: function () {
 	    var data = [];
 	    var filter = this._settings.templateCopy;
 	    this.mapSelection(function (value, row, col, row_ind) {
@@ -14519,7 +14756,7 @@
 	    var value = data.length === 1 && data[0].length === 1 ? data[0][0] : csv$1.stringify(data, this._settings.delimiter);
 	    return value;
 	  },
-	  _clip_to_sel: function _clip_to_sel(text) {
+	  _clip_to_sel: function (text) {
 	    if (!isUndefined(this._paste[this._settings.clipboard])) {
 	      var data = csv$1.parse(text, this._settings.delimiter);
 
@@ -14527,7 +14764,7 @@
 	    }
 	  },
 	  _paste: {
-	    block: function block(data) {
+	    block: function (data) {
 	      var leftTop = this.mapSelection(null);
 	      if (!leftTop) return; // filling cells with data
 
@@ -14540,14 +14777,14 @@
 	      });
 	      this.render();
 	    },
-	    selection: function selection(data) {
+	    selection: function (data) {
 	      this.mapSelection(function (value, row, col, row_ind, col_ind) {
 	        if (data[row_ind] && data[row_ind].length > col_ind) return data[row_ind][col_ind];
 	        return value;
 	      });
 	      this.render();
 	    },
-	    repeat: function repeat(data) {
+	    repeat: function (data) {
 	      this.mapSelection(function (value, row, col, row_ind, col_ind) {
 	        row = data[row_ind % data.length];
 	        value = row[col_ind % row.length];
@@ -14555,15 +14792,16 @@
 	      });
 	      this.render();
 	    },
-	    custom: function custom() {}
+	    custom: function () {}
 	  }
 	};
 
 	var TreeAPI = {
-	  open: function open(id, show) {
+	  open: function (id, show) {
 	    if (!id) return; //ignore open for leaf items
 
 	    var item = this.getItem(id);
+	    assert(item, "Incorrect ID to open: " + id);
 	    if (!item.$count || item.open) return;
 
 	    if (this.callEvent("onBeforeOpen", [id])) {
@@ -14574,7 +14812,7 @@
 
 	    if (show && id != "0") this.open(this.getParentId(id), show);
 	  },
-	  close: function close(id) {
+	  close: function (id) {
 	    if (!id) return;
 	    var item = this.getItem(id);
 	    if (!item.open) return;
@@ -14585,19 +14823,19 @@
 	      this.callEvent("onAfterClose", [id]);
 	    }
 	  },
-	  openAll: function openAll(id) {
+	  openAll: function (id) {
 	    this.data.eachSubItem(id || 0, function (obj, branch) {
 	      if (branch) obj.open = true;
 	    });
 	    this.data.refresh();
 	  },
-	  closeAll: function closeAll(id) {
+	  closeAll: function (id) {
 	    this.data.eachSubItem(id || 0, function (obj, branch) {
 	      if (branch) obj.open = false;
 	    });
 	    this.data.refresh();
 	  },
-	  _tree_check_uncheck: function _tree_check_uncheck(id, mode, e) {
+	  _tree_check_uncheck: function (id, mode, e) {
 	    if (this._settings.threeState) return this._tree_check_uncheck_3(id, mode !== null ? mode : "");
 	    var value,
 	        item = this.getItem(id),
@@ -14608,13 +14846,13 @@
 	    item.checked = value;
 	    this.callEvent("onItemCheck", [id, item.checked, e]);
 	  },
-	  isBranchOpen: function isBranchOpen(search_id) {
+	  isBranchOpen: function (search_id) {
 	    if (search_id == "0") return true;
 	    var item = this.getItem(search_id);
 	    if (item.open) return this.isBranchOpen(item.$parent);
 	    return false;
 	  },
-	  getOpenItems: function getOpenItems() {
+	  getOpenItems: function () {
 	    var open = [];
 
 	    for (var id in this.data.branch) {
@@ -14623,20 +14861,20 @@
 
 	    return open;
 	  },
-	  getState: function getState() {
+	  getState: function () {
 	    return {
 	      open: this.getOpenItems(),
 	      select: this.getSelectedId(true)
 	    };
 	  },
-	  _repeat_set_state: function _repeat_set_state(tree, open) {
+	  _repeat_set_state: function (tree, open) {
 	    var event = this.data.attachEvent("onStoreLoad", function () {
 	      tree.setState.call(tree, open);
 	      tree.data.detachEvent(event);
 	      tree = null;
 	    });
 	  },
-	  setState: function setState(state) {
+	  setState: function (state) {
 	    if (state.open) {
 	      this.closeAll();
 	      var open = state.open;
@@ -14674,15 +14912,15 @@
 	};
 
 	var TreeClick = {
-	  webix_tree_open: function webix_tree_open(e, id) {
+	  webix_tree_open: function (e, id) {
 	    this.close(id);
 	    return false;
 	  },
-	  webix_tree_close: function webix_tree_close(e, id) {
+	  webix_tree_close: function (e, id) {
 	    this.open(id);
 	    return false;
 	  },
-	  webix_tree_checkbox: function webix_tree_checkbox(e, id) {
+	  webix_tree_checkbox: function (e, id) {
 	    this._tree_check_uncheck(id, null, e);
 
 	    return false;
@@ -14690,12 +14928,12 @@
 	};
 
 	var TreeDataLoader = {
-	  $init: function $init() {
+	  $init: function () {
 	    this.data.attachEvent("onStoreUpdated", bind(this._sync_hierarchy, this), null, true); //redefine methods
 
 	    this._feed_common = this._feed_commonA;
 	  },
-	  _feed_commonA: function _feed_commonA(id, count, callback, url) {
+	  _feed_commonA: function (id, count, callback, url) {
 	    // branch loading
 	    var details = count === 0 ? {
 	      parent: encodeURIComponent(id)
@@ -14704,12 +14942,12 @@
 	    DataLoader.prototype._feed_common.call(this, id, count, callback, url, details);
 	  },
 	  //load next set of data rows
-	  loadBranch: function loadBranch(id, callback, url) {
+	  loadBranch: function (id, callback, url) {
 	    id = id || 0;
 	    this.data.url = url || this.data.url;
 	    if (this.callEvent("onDataRequest", [id, callback, this.data.url]) && this.data.url) this.data.feed.call(this, id, 0, callback, url);
 	  },
-	  _sync_hierarchy: function _sync_hierarchy(id, data, mode) {
+	  _sync_hierarchy: function (id, data, mode) {
 	    if (!mode || mode == "add" || mode == "delete" || mode == "branch") {
 	      this.data._sync_to_order(this);
 	    }
@@ -14724,22 +14962,22 @@
 	*/
 
 	var TreeDataMove = {
-	  $init: function $init() {
+	  $init: function () {
 	    assert(this.data, "DataMove :: Component doesn't have DataStore");
 	  },
 	  //creates a copy of the item
-	  copy: function copy$$1(sid, tindex, tobj, details) {
+	  copy: function (sid, tindex, tobj, details) {
 	    details = details || {};
 	    details.copy = true;
 	    return this.move(sid, tindex, tobj, details);
 	  },
-	  _next_move_index: function _next_move_index(nid, next, source) {
+	  _next_move_index: function (nid, next, source) {
 	    if (next && nid) {
 	      var new_index = this.getBranchIndex(nid);
 	      return new_index + (source == this && source.getBranchIndex(next) < new_index ? 0 : 1);
 	    }
 	  },
-	  _check_branch_child: function _check_branch_child(parent, child) {
+	  _check_branch_child: function (parent, child) {
 	    var t = this.data.branch[parent];
 
 	    if (t && t.length) {
@@ -14752,7 +14990,7 @@
 	    return false;
 	  },
 	  //move item to the new position
-	  move: function move(sid, tindex, tobj, details) {
+	  move: function (sid, tindex, tobj, details) {
 	    details = details || {};
 	    tindex = tindex || 0;
 	    var new_id = details.newId || sid;
@@ -14826,7 +15064,7 @@
 	    this.refresh();
 	    return new_id; //return ID of item after moving
 	  },
-	  _set_level_rec: function _set_level_rec(item, value) {
+	  _set_level_rec: function (item, value) {
 	    item.$level = value;
 	    var branch = this.data.branch[item.id];
 	    if (branch) for (var i = 0; i < branch.length; i++) {
@@ -14834,15 +15072,15 @@
 	    }
 	  },
 	  //reaction on pause during dnd
-	  _drag_pause: function _drag_pause(id) {
-	    if (id && !id.header) //ignore drag other header
+	  _drag_pause: function (id) {
+	    if (id && !id.header && this.exists(id) && this._target_to_id(id) != DragControl._drag_context.start) //ignore drag other header
 	      this.open(id);
 	  },
-	  $dropAllow: function $dropAllow(context) {
+	  $dropAllow: function (context) {
 	    if (context.from != context.to) return true;
 
 	    for (var i = 0; i < context.source.length; i++) {
-	      if (context.source == context.target || this._check_branch_child(context.source, context.target)) return false;
+	      if (this._check_branch_child(context.source, context.target)) return false;
 	    }
 
 	    return true;
@@ -14852,7 +15090,7 @@
 	  	this is a stub for future functionality
 	  	currently it just makes a copy of data object, which is enough for current situation
 	  */
-	  _externalData: function _externalData(data, id) {
+	  _externalData: function (data, id) {
 	    var new_data = DataMove._externalData.call(this, data, id);
 
 	    delete new_data.open;
@@ -14861,20 +15099,20 @@
 	};
 
 	var TreeRenderStack = {
-	  $init: function $init() {
+	  $init: function () {
 	    assert(this.render, "TreeRenderStack :: Object must use RenderStack first");
 	  },
-	  _toHTMLItem: function _toHTMLItem(obj) {
+	  _toHTMLItem: function (obj) {
 	    var mark = this.data._marks[obj.id];
 	    this.callEvent("onItemRender", [obj]);
 	    return this.type.templateStart(obj, this.type, mark) + (obj.$template ? this.type["template" + obj.$template](obj, this.type, mark) : this.type.template(obj, this.type, mark)) + this.type.templateEnd();
 	  },
-	  _toHTMLItemObject: function _toHTMLItemObject(obj) {
+	  _toHTMLItemObject: function (obj) {
 	    this._html.innerHTML = this._toHTMLItem(obj);
 	    return this._html.firstChild;
 	  },
 	  //convert single item to HTML text (templating)
-	  _toHTML: function _toHTML(obj) {
+	  _toHTML: function (obj) {
 	    //check if related template exist
 	    assert(!obj.$template || this.type["template" + obj.$template], "RenderStack :: Unknown template: " + obj.$template);
 
@@ -14884,7 +15122,7 @@
 	    html += "</div>";
 	    return html;
 	  },
-	  _toHTMLLevel: function _toHTMLLevel(id) {
+	  _toHTMLLevel: function (id) {
 	    var html = "";
 	    var leaves = this.data.branch[id];
 
@@ -14905,7 +15143,7 @@
 	    return html;
 	  },
 	  //return true when some actual rendering done
-	  render: function render(id, data, type) {
+	  render: function (id, data, type) {
 	    TreeRenderStack._obj = this; //can be used from complex render
 
 	    if (!this.isVisible(this._settings.id) || this.$blockRender) return;
@@ -14997,7 +15235,7 @@
 	    TreeRenderStack._obj = null;
 	    return true;
 	  },
-	  getItemNode: function getItemNode(search_id) {
+	  getItemNode: function (search_id) {
 	    if (this._htmlmap) return this._htmlmap[search_id]; //fill map if it doesn't created yet
 
 	    this._htmlmap = {};
@@ -15017,7 +15255,7 @@
 	};
 
 	var TreeStateCheckbox = {
-	  _init_render_tree_state: function _init_render_tree_state() {
+	  _init_render_tree_state: function () {
 	    if (this._branch_render_supported) {
 	      var old_render = this.render;
 
@@ -15029,11 +15267,11 @@
 	      this._init_render_tree_state = function () {};
 	    }
 	  },
-	  threeState_setter: function threeState_setter(value) {
+	  threeState_setter: function (value) {
 	    if (value) this._init_render_tree_state();
 	    return value;
 	  },
-	  _setThirdState: function _setThirdState(id) {
+	  _setThirdState: function (id) {
 	    var i, leaves, parents, checkedParents, tree;
 	    parents = [];
 	    tree = this;
@@ -15073,7 +15311,7 @@
 
 	    tree = null;
 	  },
-	  _setCheckboxIndeterminate: function _setCheckboxIndeterminate(id) {
+	  _setCheckboxIndeterminate: function (id) {
 	    var chElem, elem;
 	    elem = this.getItemNode(id);
 
@@ -15088,7 +15326,7 @@
 	      }
 	    }
 	  },
-	  _setParentThirdState: function _setParentThirdState(itemId) {
+	  _setParentThirdState: function (itemId) {
 	    //we need to use dynamic function creating
 	    //jshint -W083:true
 	    var checked, checkedCount, indeterminate, parentId, result, unsureCount, needrender;
@@ -15130,7 +15368,7 @@
 	  },
 
 	  /*get all checked items in tree*/
-	  getChecked: function getChecked() {
+	  getChecked: function () {
 	    var result = [];
 	    var tree = this;
 	    this.data.eachSubItem(0, function (obj) {
@@ -15138,7 +15376,7 @@
 	    });
 	    return result;
 	  },
-	  _tree_check_uncheck_3: function _tree_check_uncheck_3(id, mode) {
+	  _tree_check_uncheck_3: function (id, mode) {
 	    var item = this.getItem(id);
 
 	    if (item) {
@@ -15163,19 +15401,19 @@
 	  },
 
 	  /*set checked state for item checkbox*/
-	  checkItem: function checkItem(id) {
+	  checkItem: function (id) {
 	    this._tree_check_uncheck(id, true);
 
 	    this.updateItem(id);
 	  },
 
 	  /*uncheckes an item checkbox*/
-	  uncheckItem: function uncheckItem(id) {
+	  uncheckItem: function (id) {
 	    this._tree_check_uncheck(id, false);
 
 	    this.updateItem(id);
 	  },
-	  _checkUncheckAll: function _checkUncheckAll(id, mode, all) {
+	  _checkUncheckAll: function (id, mode, all) {
 	    var method = mode ? "checkItem" : "uncheckItem";
 	    if (!id) id = 0;else this[method](id);
 
@@ -15189,15 +15427,15 @@
 	  },
 
 	  /*checkes checkboxes of all items in a branch/tree*/
-	  checkAll: function checkAll(id, all) {
+	  checkAll: function (id, all) {
 	    this._checkUncheckAll(id, true, all);
 	  },
 
 	  /*uncheckes checkboxes of all items in a branch/tree*/
-	  uncheckAll: function uncheckAll(id, all) {
+	  uncheckAll: function (id, all) {
 	    this._checkUncheckAll(id, false, all);
 	  },
-	  _correctThreeState: function _correctThreeState(id) {
+	  _correctThreeState: function (id) {
 	    var state;
 	    var item = this.getItem(id);
 	    item.indeterminate = false;
@@ -15214,12 +15452,12 @@
 	  },
 
 	  /*returns checked state of item checkbox*/
-	  isChecked: function isChecked(id) {
+	  isChecked: function (id) {
 	    return this.getItem(id).checked;
 	  },
 
 	  /*gets all leaves in a certain branch (in the whole tree if id is not set)*/
-	  _getAllLeaves: function _getAllLeaves(parentId) {
+	  _getAllLeaves: function (parentId) {
 	    var result = [];
 	    this.data.eachSubItem(parentId, function (obj, branch) {
 	      if (!branch) result.push(obj.id);
@@ -15233,7 +15471,7 @@
 
 	var TreeStore = {
 	  name: "TreeStore",
-	  $init: function $init() {
+	  $init: function () {
 	    this._filterMode = {
 	      //level:1,
 	      showSubItems: true
@@ -15248,10 +15486,10 @@
 	      this._filter_branch = null;
 	    }, this));
 	  },
-	  filterMode_setter: function filterMode_setter(mode) {
+	  filterMode_setter: function (mode) {
 	    return exports.extend(this._filterMode, mode, true);
 	  },
-	  _filter_reset: function _filter_reset(preserve) {
+	  _filter_reset: function (preserve) {
 	    //remove previous filtering , if any
 	    if (this._filter_branch && !preserve) {
 	      this.branch = this._filter_branch;
@@ -15265,7 +15503,7 @@
 	      delete this._filter_branch;
 	    }
 	  },
-	  _filter_core: function _filter_core(filter, value, preserve, filterMode) {
+	  _filter_core: function (filter, value, preserve, filterMode) {
 	    //for tree we have few filtering options
 	    //- filter leafs only
 	    //- filter data on specific level
@@ -15280,7 +15518,7 @@
 
 	    this.branch[0] = this._filter_branch_rec(filter, value, this.branch[0], 1, filterMode || {});
 	  },
-	  _filter_branch_rec: function _filter_branch_rec(filter, value, branch, level, config) {
+	  _filter_branch_rec: function (filter, value, branch, level, config) {
 	    //jshint -W041
 	    var neworder = [];
 	    var allow = config.level && config.level != level;
@@ -15325,7 +15563,7 @@
 
 	    return neworder;
 	  },
-	  count: function count() {
+	  count: function () {
 	    if (this.order.length) return this.order.length; //we must return some non-zero value, or logic of selection will think that we have not data at all
 
 	    var count = 0;
@@ -15334,7 +15572,7 @@
 	    });
 	    return count;
 	  },
-	  _change_branch_id: function _change_branch_id(branches, parent, old, newid) {
+	  _change_branch_id: function (branches, parent, old, newid) {
 	    if (branches[old]) {
 	      var branch = branches[newid] = branches[old];
 
@@ -15350,7 +15588,7 @@
 	      if (index >= 0) branches[parent][index] = newid;
 	    }
 	  },
-	  changeId: function changeId(old, newid) {
+	  changeId: function (old, newid) {
 	    if (old == newid) return;
 	    var parent = this.getItem(old).$parent;
 
@@ -15360,47 +15598,47 @@
 	    if (this._filter_branch) this._change_branch_id(this._filter_branch, parent, old, newid);
 	    return DataStore.prototype.changeId.call(this, old, newid);
 	  },
-	  clearAll: function clearAll(soft) {
+	  clearAll: function (soft) {
 	    this.branch = {
 	      0: []
 	    };
 	    DataStore.prototype.clearAll.call(this, soft);
 	  },
-	  getPrevSiblingId: function getPrevSiblingId(id) {
+	  getPrevSiblingId: function (id) {
 	    var order = this.branch[this.getItem(id).$parent];
 	    var pos = PowerArray.find.call(order, id) - 1;
 	    if (pos >= 0) return order[pos];
 	    return null;
 	  },
-	  getNextSiblingId: function getNextSiblingId(id) {
+	  getNextSiblingId: function (id) {
 	    var order = this.branch[this.getItem(id).$parent];
 	    var pos = PowerArray.find.call(order, id) + 1;
 	    if (pos < order.length) return order[pos];
 	    return null;
 	  },
-	  getParentId: function getParentId(id) {
+	  getParentId: function (id) {
 	    return this.getItem(id).$parent;
 	  },
-	  getFirstChildId: function getFirstChildId(id) {
+	  getFirstChildId: function (id) {
 	    var order = this.branch[id];
 	    if (order && order.length) return order[0];
 	    return null;
 	  },
-	  isBranch: function isBranch(parent) {
+	  isBranch: function (parent) {
 	    return !!this.branch[parent];
 	  },
-	  getBranchIndex: function getBranchIndex(child) {
+	  getBranchIndex: function (child) {
 	    var t = this.branch[this.pull[child].$parent];
 	    return PowerArray.find.call(t, child);
 	  },
-	  _set_child_scheme: function _set_child_scheme(parse_name) {
+	  _set_child_scheme: function (parse_name) {
 	    if (typeof parse_name == "string") this._datadriver_child = function (obj) {
 	      var t = obj[parse_name];
 	      if (t) delete obj[parse_name];
 	      return t;
 	    };else this._datadriver_child = parse_name;
 	  },
-	  _inner_parse: function _inner_parse(info, recs) {
+	  _inner_parse: function (info, recs) {
 	    var parent = info.parent || 0;
 
 	    for (var i = 0; i < recs.length; i++) {
@@ -15428,7 +15666,7 @@
 	    delete pItem.webix_kids;
 	    if (info.size && info.size != pBranch.length) pBranch[info.size - 1] = undefined;
 	  },
-	  _extraParser: function _extraParser(obj, parent, level, update, from) {
+	  _extraParser: function (obj, parent, level, update, from) {
 	    //processing top item
 	    obj.$count = 0; //using soft check, as parent can be a both 0 and "0" ( second one in case of loading from server side ) 
 
@@ -15475,12 +15713,12 @@
 	    var branch = this.branch[obj.id];
 	    if (branch) obj.$count = branch.length;
 	  },
-	  _sync_to_order: function _sync_to_order(master) {
+	  _sync_to_order: function (master) {
 	    this.order = toArray();
 
 	    this._sync_each_child(0, master);
 	  },
-	  _sync_each_child: function _sync_each_child(start, master) {
+	  _sync_each_child: function (start, master) {
 	    var branch = this.branch[start];
 
 	    for (var i = 0; i < branch.length; i++) {
@@ -15495,7 +15733,7 @@
 	      }
 	    }
 	  },
-	  provideApi: function provideApi(target, eventable) {
+	  provideApi: function (target, eventable) {
 	    var list = ["getPrevSiblingId", "getNextSiblingId", "getParentId", "getFirstChildId", "isBranch", "getBranchIndex", "filterMode_setter"];
 
 	    for (var i = 0; i < list.length; i++) {
@@ -15504,12 +15742,12 @@
 
 	    if (!target.getIndexById) DataStore.prototype.provideApi.call(this, target, eventable);
 	  },
-	  getTopRange: function getTopRange() {
+	  getTopRange: function () {
 	    return toArray([].concat(this.branch[0])).map(function (id) {
 	      return this.getItem(id);
 	    }, this);
 	  },
-	  eachChild: function eachChild(id, functor, master, all) {
+	  eachChild: function (id, functor, master, all) {
 	    var branch = this.branch;
 	    if (all && this._filter_branch) branch = this._filter_branch;
 	    var stack = branch[id];
@@ -15517,7 +15755,7 @@
 	      if (stack[i]) functor.call(master || this, this.getItem(stack[i]));
 	    }
 	  },
-	  each: function each(method, master, all, id) {
+	  each: function (method, master, all, id) {
 	    this.eachChild(id || 0, function (item) {
 	      var branch = this.branch;
 	      method.call(master || this, item);
@@ -15525,13 +15763,13 @@
 	      if (item && branch[item.id]) this.each(method, master, all, item.id);
 	    }, this, all);
 	  },
-	  eachOpen: function eachOpen(method, master, id) {
+	  eachOpen: function (method, master, id) {
 	    this.eachChild(id || 0, function (item) {
 	      method.call(master || this, item);
 	      if (this.branch[item.id] && item.open) this.eachOpen(method, master, item.id);
 	    });
 	  },
-	  eachSubItem: function eachSubItem(id, functor) {
+	  eachSubItem: function (id, functor) {
 	    var top = this.branch[id || 0];
 	    if (top) for (var i = 0; i < top.length; i++) {
 	      var key = top[i];
@@ -15542,7 +15780,7 @@
 	      } else functor.call(this, this.getItem(key), false);
 	    }
 	  },
-	  eachLeaf: function eachLeaf(id, functor) {
+	  eachLeaf: function (id, functor) {
 	    var top = this.branch[id || 0];
 	    if (top) for (var i = 0; i < top.length; i++) {
 	      var key = top[i];
@@ -15552,7 +15790,7 @@
 	      } else functor.call(this, this.getItem(key), false);
 	    }
 	  },
-	  _sort_core: function _sort_core(sort, order) {
+	  _sort_core: function (sort, order) {
 	    var sorter = this.sorting.create(sort);
 
 	    for (var key in this.branch) {
@@ -15574,7 +15812,7 @@
 
 	    return order;
 	  },
-	  add: function add(obj, index, pid) {
+	  add: function (obj, index, pid) {
 	    var refresh_parent = false;
 	    var parent = this.getItem(pid || 0);
 
@@ -15615,7 +15853,7 @@
 	    if (refresh_parent) this.refresh(pid);
 	    return result;
 	  },
-	  _rec_remove: function _rec_remove(id) {
+	  _rec_remove: function (id) {
 	    var obj = this.pull[id];
 
 	    if (this.branch[obj.id] && this.branch[obj.id].length > 0) {
@@ -15631,14 +15869,14 @@
 	    delete this.pull[id];
 	    if (this._marks[id]) delete this._marks[id];
 	  },
-	  _filter_removed: function _filter_removed(pull, parentId, id) {
+	  _filter_removed: function (pull, parentId, id) {
 	    var branch = pull[parentId];
 
 	    if (branch.length == 1 && branch[0] == id && parentId) {
 	      delete pull[parentId];
 	    } else toArray(branch).remove(id);
 	  },
-	  remove: function remove(id) {
+	  remove: function (id) {
 	    //id can be an array of IDs - result of getSelect, for example
 	    if (isArray(id)) {
 	      for (var i = 0; i < id.length; i++) {
@@ -15681,7 +15919,7 @@
 	  /*
 	  	serializes data to a json object
 	  */
-	  getBranch: function getBranch(id) {
+	  getBranch: function (id) {
 	    var out = [];
 	    var items = (this._filter_branch || this.branch)[id];
 	    if (items) for (var i = 0; i < items.length; i++) {
@@ -15689,7 +15927,7 @@
 	    }
 	    return out;
 	  },
-	  serialize: function serialize(id, all) {
+	  serialize: function (id, all) {
 	    var coll = this.branch; //use original collection of branches
 
 	    if (all && this._filter_branch) coll = this._filter_branch;
@@ -15714,7 +15952,7 @@
 	};
 
 	var TreeTablePaste = {
-	  insert: function insert(data) {
+	  insert: function (data) {
 	    var parent = this.getSelectedId(true, true);
 
 	    for (var i = 0; i < data.length; i++) {
@@ -15731,7 +15969,7 @@
 	};
 
 	var TreeType = {
-	  space: function space(obj) {
+	  space: function (obj) {
 	    var html = "";
 
 	    for (var i = 1; i < obj.$level; i++) {
@@ -15740,16 +15978,16 @@
 
 	    return html;
 	  },
-	  icon: function icon(obj) {
+	  icon: function (obj) {
 	    if (obj.$count) {
 	      if (obj.open) return "<div class='webix_tree_open'></div>";else return "<div class='webix_tree_close'></div>";
 	    } else return "<div class='webix_tree_none'></div>";
 	  },
-	  checkbox: function checkbox(obj) {
+	  checkbox: function (obj) {
 	    if (obj.nocheckbox) return "";
 	    return "<input type='checkbox' class='webix_tree_checkbox' " + (obj.checked ? "checked" : "") + (obj.disabled ? " disabled" : "") + ">";
 	  },
-	  folder: function folder(obj) {
+	  folder: function (obj) {
 	    if (obj.icon) return "<div class='webix_tree_file webix_tree_" + obj.icon + "'></div>";
 
 	    if (obj.$count) {
@@ -15762,7 +16000,7 @@
 
 	var UploadDriver = {
 	  flash: {
-	    $render: function $render() {
+	    $render: function () {
 	      if (!window.swfobject) require("legacy/swfobject.js", true); // sync loading
 
 	      var config = this._settings;
@@ -15792,17 +16030,17 @@
 
 	      this.files.attachEvent("onBeforeDelete", bind(this._stop_file, this));
 	    },
-	    $applyFlash: function $applyFlash(name, params) {
+	    $applyFlash: function (name, params) {
 	      return this[name].apply(this, params);
 	    },
-	    getSwfObject: function getSwfObject() {
+	    getSwfObject: function () {
 	      /* global swfobject */
 	      return swfobject.getObjectById(this._settings.swfId);
 	    },
-	    fileDialog: function fileDialog() {
+	    fileDialog: function () {
 	      if (this.getSwfObject()) this.getSwfObject().showDialog();
 	    },
-	    send: function send(id) {
+	    send: function (id) {
 	      if (typeof id == "function") {
 	        this._last_assigned_upload_callback = id;
 	        id = 0;
@@ -15833,7 +16071,7 @@
 
 	      return true;
 	    },
-	    $beforeAddFileToQueue: function $beforeAddFileToQueue(id, name, size) {
+	    $beforeAddFileToQueue: function (id, name, size) {
 	      var type = name.split(".").pop();
 
 	      var format = this._format_size(size);
@@ -15846,7 +16084,7 @@
 	        type: type
 	      }]);
 	    },
-	    $addFileToQueue: function $addFileToQueue(id, name, size) {
+	    $addFileToQueue: function (id, name, size) {
 	      if (this.files.exists(id)) return false;
 	      if (!this._settings.multiple) this.files.clearAll();
 	      var type = name.split(".").pop();
@@ -15865,10 +16103,10 @@
 	      this.callEvent("onAfterFileAdd", [file_struct]);
 	      if (id && this._settings.autosend) this.send(id);
 	    },
-	    stopUpload: function stopUpload(id) {
+	    stopUpload: function (id) {
 	      this._stop_file(id);
 	    },
-	    _stop_file: function _stop_file(id) {
+	    _stop_file: function (id) {
 	      var item = this.files.getItem(id);
 
 	      if (item.status == "transfer") {
@@ -15876,14 +16114,14 @@
 	        item.status = "client";
 	      }
 	    },
-	    _drop: function _drop() {},
+	    _drop: function () {},
 	    //drop of files is not supported in IE9-
-	    $onUploadComplete: function $onUploadComplete() {
+	    $onUploadComplete: function () {
 	      if (this._settings.autosend) {
 	        this._upload_complete();
 	      }
 	    },
-	    $onUploadSuccess: function $onUploadSuccess(id, name, response) {
+	    $onUploadSuccess: function (id, name, response) {
 	      var item = this.files.getItem(id);
 
 	      if (item) {
@@ -15900,7 +16138,7 @@
 	        this.files.updateItem(id);
 	      }
 	    },
-	    $onUploadFail: function $onUploadFail(id) {
+	    $onUploadFail: function (id) {
 	      var item = this.files.getItem(id);
 	      item.status = "error";
 	      delete item.percent;
@@ -15909,7 +16147,7 @@
 	    }
 	  },
 	  html5: {
-	    $render: function $render() {
+	    $render: function () {
 	      if (this._upload_area) {
 	        //firstChild is webix_el_box container, which have relative position
 	        //as result, file control is placed under the button and not in the top corner
@@ -15968,10 +16206,10 @@
 
 	      _event(this._viewobj, "dragover", preventEvent);
 	    },
-	    _directoryEntry: function _directoryEntry(value) {
+	    _directoryEntry: function (value) {
 	      return value.isDirectory;
 	    },
-	    _directoryDrop: function _directoryDrop(item, state, path) {
+	    _directoryDrop: function (item, state, path) {
 	      if (item.isFile) {
 	        item.file(function (file) {
 	          state.addFile(file, null, null, {
@@ -15989,7 +16227,7 @@
 	      }
 	    },
 	    // adding files by drag-n-drop
-	    _drop: function _drop(e) {
+	    _drop: function (e) {
 	      var files = e.dataTransfer.files;
 	      var items = e.dataTransfer.items;
 
@@ -16016,7 +16254,7 @@
 
 	      this.callEvent("onAfterFileDrop", [files, e]);
 	    },
-	    fileDialog: function fileDialog(context) {
+	    fileDialog: function (context) {
 	      this._upload_timer_click = new Date();
 	      this._last_file_context = context;
 
@@ -16024,7 +16262,7 @@
 
 	      inputs[inputs.length - 1].click();
 	    },
-	    send: function send(id) {
+	    send: function (id) {
 	      //alternative syntx send(callback)
 	      if (typeof id == "function") {
 	        this._last_assigned_upload_callback = id;
@@ -16080,7 +16318,7 @@
 	      this.$updateProgress(id, 0);
 	      return true;
 	    },
-	    _file_complete: function _file_complete(id) {
+	    _file_complete: function (id) {
 	      var item = this.files.getItem(id);
 
 	      if (item) {
@@ -16108,10 +16346,10 @@
 	        delete item.xhr;
 	      }
 	    },
-	    stopUpload: function stopUpload(id) {
+	    stopUpload: function (id) {
 	      bind(this._stop_file, this.files)(id);
 	    },
-	    _stop_file: function _stop_file(id) {
+	    _stop_file: function (id) {
 	      var item = this.getItem(id);
 
 	      if (typeof item.xhr !== "undefined") {
@@ -16125,7 +16363,7 @@
 	};
 
 	var ValidateCollection = {
-	  _validate_init_once: function _validate_init_once() {
+	  _validate_init_once: function () {
 	    this.data.attachEvent("onStoreUpdated", bind(function (id, data, mode) {
 	      if (id && (mode == "add" || mode == "update")) this.validate(id);
 	    }, this));
@@ -16133,17 +16371,17 @@
 
 	    this._validate_init_once = function () {};
 	  },
-	  rules_setter: function rules_setter(value) {
+	  rules_setter: function (value) {
 	    if (value) {
 	      this._validate_init_once();
 	    }
 
 	    return value;
 	  },
-	  clearValidation: function clearValidation() {
+	  clearValidation: function () {
 	    this.data.clearMark("webix_invalid", true);
 	  },
-	  validate: function validate(id) {
+	  validate: function (id) {
 	    var result = true;
 	    if (!id) for (var key in this.data.pull) {
 	      result = this.validate(key) && result;
@@ -16160,7 +16398,7 @@
 	    }
 	    return result;
 	  },
-	  _validate: function _validate(rule, data, obj, key) {
+	  _validate: function (rule, data, obj, key) {
 	    if (typeof rule == "string") rule = rules[rule];
 	    var res = rule.call(this, data, obj, key);
 
@@ -16170,41 +16408,44 @@
 
 	    return res;
 	  },
-	  _clear_invalid: function _clear_invalid(id) {
+	  _clear_invalid: function (id) {
 	    this.data.removeMark(id, "webix_invalid", true);
 	  },
-	  _mark_invalid: function _mark_invalid(id) {
+	  _mark_invalid: function (id) {
 	    this.data.addMark(id, "webix_invalid", true);
 	  }
 	};
 
 	var Values = {
-	  $init: function $init() {
+	  $init: function () {
 	    this.elements = {};
 	  },
-	  focus: function focus(name) {
+	  focus: function (name) {
 	    if (name) {
 	      assert(this.elements[name], "unknown input name: " + name);
 
 	      this._focus(this.elements[name]);
 	    } else {
 	      for (var n in this.elements) {
-	        if (this._focus(this.elements[n])) return true;
+	        if (this._focus(this.elements[n]) !== false) return true;
 	      }
 	    }
+
+	    return false;
 	  },
-	  _focus: function _focus(target) {
+	  _focus: function (target) {
 	    if (target && target.focus) {
-	      target.focus();
-	      return true;
+	      return target.focus();
 	    }
+
+	    return false;
 	  },
-	  setValues: function setValues(data, update) {
+	  setValues: function (data, update) {
 	    if (this._settings.complexData) data = CodeParser.collapseNames(data);
 
 	    this._inner_setValues(data, update);
 	  },
-	  _inner_setValues: function _inner_setValues(data, update) {
+	  _inner_setValues: function (data, update) {
 	    this._is_form_dirty = update; //prevent onChange calls from separate controls
 
 	    this.blockEvent();
@@ -16226,16 +16467,16 @@
 	    this.unblockEvent();
 	    this.callEvent("onValues", []);
 	  },
-	  isDirty: function isDirty() {
+	  isDirty: function () {
 	    if (this._is_form_dirty) return true;
 	    if (this.getDirtyValues(1) === 1) return true;
 	    return false;
 	  },
-	  setDirty: function setDirty(flag) {
+	  setDirty: function (flag) {
 	    this._is_form_dirty = flag;
 	    if (!flag) this._values = this._inner_getValues();
 	  },
-	  getDirtyValues: function getDirtyValues() {
+	  getDirtyValues: function () {
 	    var result = {};
 
 	    if (this._values) {
@@ -16252,16 +16493,16 @@
 
 	    return result;
 	  },
-	  getCleanValues: function getCleanValues() {
+	  getCleanValues: function () {
 	    return this._values;
 	  },
-	  getValues: function getValues(filter) {
+	  getValues: function (filter) {
 	    var data = this._inner_getValues(filter);
 
 	    if (this._settings.complexData) data = CodeParser.expandNames(data);
 	    return data;
 	  },
-	  _inner_getValues: function _inner_getValues(filter) {
+	  _inner_getValues: function (filter) {
 	    //get original data		
 	    var success,
 	        elem = null,
@@ -16283,7 +16524,7 @@
 
 	    return data;
 	  },
-	  clear: function clear() {
+	  clear: function () {
 	    this._is_form_dirty = false;
 	    var data = {};
 
@@ -16293,7 +16534,7 @@
 
 	    this._inner_setValues(data);
 	  },
-	  markInvalid: function markInvalid(name, state) {
+	  markInvalid: function (name, state) {
 	    // remove 'invalid' mark
 	    if (state === false) {
 	      this._clear_invalid(name);
@@ -16308,7 +16549,7 @@
 	        this._mark_invalid(name);
 	      }
 	  },
-	  _mark_invalid: function _mark_invalid(id) {
+	  _mark_invalid: function (id) {
 	    var input = this.elements[id];
 
 	    if (id && input) {
@@ -16320,7 +16561,7 @@
 	      if (typeof message === "string" && input.setBottomText) input.setBottomText();
 	    }
 	  },
-	  _clear_invalid: function _clear_invalid(id, silent) {
+	  _clear_invalid: function (id, silent) {
 	    var input = this.elements[id];
 
 	    if (id && input && input.$view && input._settings.invalid) {
@@ -16343,7 +16584,7 @@
 	*/
 
 	var VirtualRenderStack = {
-	  $init: function $init() {
+	  $init: function () {
 	    assert(this.render, "VirtualRenderStack :: Object must use RenderStack first");
 	    this._htmlmap = {}; //init map of rendered elements
 	    //we need to repaint area each time when view resized or scrolling state is changed
@@ -16358,12 +16599,12 @@
 	    this._unrendered_area = [];
 	  },
 	  //return html object by item's ID. Can return null for not-rendering element
-	  getItemNode: function getItemNode(search_id) {
+	  getItemNode: function (search_id) {
 	    //collection was filled in _render_visible_rows
 	    return this._htmlmap[search_id];
 	  },
 	  //adjust scrolls to make item visible
-	  showItem: function showItem(id) {
+	  showItem: function (id) {
 	    var range = this._getVisibleRange();
 
 	    var ind = this.data.getIndexById(id); //we can't use DOM method for not-rendered-yet items, so fallback to pure math
@@ -16375,7 +16616,7 @@
 	  },
 	  //repain self after changes in DOM
 	  //for add, delete, move operations - render is delayed, to minify performance impact
-	  render: function render(id, data, type) {
+	  render: function (id, data, type) {
 	    if (!this.isVisible(this._settings.id) || this.$blockRender) return;
 
 	    if (id) {
@@ -16417,7 +16658,7 @@
 	    }
 	  },
 	  //implement double-thread-rendering pattern
-	  _render_delayed: function _render_delayed() {
+	  _render_delayed: function () {
 	    //this flag can be reset from outside, to prevent actual rendering 
 	    if (this._wait_for_render) return;
 	    this._wait_for_render = true;
@@ -16426,7 +16667,7 @@
 	    }, this), 1);
 	  },
 	  //create empty placeholders, which will take space before rendering
-	  _create_placeholder: function _create_placeholder(height) {
+	  _create_placeholder: function (height) {
 	    if (env.maxHTMLElementSize) height = Math.min(env.maxHTMLElementSize, height);
 	    var node = document.createElement("DIV");
 	    node.style.cssText = "height:" + height + "px; width:100%; overflow:hidden;";
@@ -16438,7 +16679,7 @@
 	  	If, during rendering, some not-loaded items was detected - extra data loading is initiated.
 	  	reset - flag, which forces clearing of previously rendered elements
 	  */
-	  _render_visible_rows: function _render_visible_rows(e, reset) {
+	  _render_visible_rows: function (e, reset) {
 	    this._unrendered_area = []; //clear results of previous calls
 
 	    var viewport = this._getVisibleRange(); //details of visible view
@@ -16563,7 +16804,7 @@
 	    }
 	  },
 	  //calculates visible view
-	  _getVisibleRange: function _getVisibleRange() {
+	  _getVisibleRange: function () {
 	    var state = this.getScrollState();
 	    var top = Math.max(0, state.y);
 	    var width = this._content_width;
@@ -16589,7 +16830,7 @@
 	      _dx: dx
 	    };
 	  },
-	  _cellPosition: function _cellPosition(id) {
+	  _cellPosition: function (id) {
 	    var html = this.getItemNode(id);
 
 	    if (!html) {
@@ -16615,7 +16856,7 @@
 	*/
 
 	var VRenderStack = {
-	  $init: function $init() {
+	  $init: function () {
 	    this._htmlmap = {};
 
 	    if (Touch.$active) {
@@ -16639,18 +16880,18 @@
 	      }, this));
 	    }
 	  },
-	  _sync_scroll: function _sync_scroll(x, y, t) {
+	  _sync_scroll: function (x, y, t) {
 	    if (this._settings.footer) Touch._set_matrix(this._footer.childNodes[1].firstChild, x, 0, t);
 	    this.callEvent("onSyncScroll", [x, y, t]);
 	  },
 	  //return html container by its ID
 	  //can return undefined if container doesn't exists
-	  getItemNode: function getItemNode(search_id) {
+	  getItemNode: function (search_id) {
 	    return this._htmlmap && this._htmlmap[search_id];
 	  },
 
 	  /*change scrolling state of top level container, so related item will be in visible part*/
-	  showItem: function showItem(id) {
+	  showItem: function (id) {
 	    var index$$1 = this.data.getIndexById(id);
 
 	    if (index$$1 > -1) {
@@ -16663,7 +16904,7 @@
 	  },
 	  //update view after data update
 	  //when called without parameters - all view refreshed
-	  render: function render(id, data, type) {
+	  render: function (id, data, type) {
 	    if (!this.isVisible(this._settings.id) || this.$blockRender) return;
 	    var parent = this._renderobj || this._dataobj;
 
@@ -16748,170 +16989,22 @@
 	      this.callEvent("onAfterRender", []);
 	    }
 	  },
-	  $setSize: function $setSize() {
+	  $setSize: function () {
 	    if (base.api.$setSize.apply(this, arguments)) {
 	      this.render(null, null, "paint");
 	    }
 	  },
-	  _run_load_next: function _run_load_next(conf) {
+	  _run_load_next: function (conf) {
 	    var count = Math.max(conf.count, this._settings.datafetch || this._settings.loadahead || 0);
 	    if (this._maybe_loading_already(conf.count, conf.start)) return;
 	    this.loadNext(count, conf.start);
 	  }
 	};
 
-	var version$1 = "6.1.0";
+	var version$1 = "6.2.0";
 	var name$1 = "core";
 
 	var errorMessage = "non-existing view for export";
-	var toPNG = function toPNG(id, options) {
-	  var defer = Deferred.defer();
-	  return require(env.cdn + "/extras/html2canvas.min.js").then(function () {
-	    //backward compatibility
-	    if (typeof options === "string") options = {
-	      filename: options
-	    };
-	    options = options || {};
-	    var view = $$(id);
-	    if (view && view.$exportView) view = view.$exportView(options);
-	    assert(view, errorMessage);
-	    if (!view) return defer.reject(errorMessage);
-	    var node = view ? view.$view : toNode(id);
-	    var filename = (options.filename || "Data") + ".png";
-	    window.html2canvas(node).then(function (canvas) {
-	      var callback = function callback(data) {
-	        if (options.download !== false) download(data, filename);
-	        canvas.remove();
-	        defer.resolve(data);
-	      };
-
-	      if (canvas.msToBlob) callback(canvas.msToBlob());else canvas.toBlob(callback, "image/png");
-	    });
-	    return defer;
-	  });
-	};
-	var toExcel = function toExcel(id, options) {
-	  options = options || {};
-	  options.export_mode = "excel";
-	  id = isArray(id) ? id : [id];
-	  var views = [];
-
-	  for (var i = 0; i < id.length; i++) {
-	    var view = $$(id[i]);
-	    if (view && view.$exportView) view = view.$exportView(options);
-	    if (view) views = views.concat(view);
-	    assert(view, errorMessage); //spreadsheet and excelviewer require plain data output first
-
-	    if (options.dataOnly) {
-	      var scheme = getExportScheme(view, options);
-	      views[i] = {
-	        scheme: scheme,
-	        exportData: getExportData(view, options, scheme),
-	        spans: options.spans ? getSpans(view, options) : []
-	      };
-	    }
-	  }
-
-	  if (options.dataOnly) return views;
-	  var defer = Deferred.defer();
-	  return require(env.cdn + "/extras/xlsx.core.styles.min.js").then(function () {
-	    if (!views.length) return defer.reject(errorMessage);
-	    var wb = {
-	      SheetNames: [],
-	      Sheets: {},
-	      Workbook: {
-	        WBProps: {},
-	        Names: []
-	      }
-	    };
-	    var name = isArray(options.sheets) ? options.sheets : [options.name || "Data"];
-
-	    for (var i = 0; i < views.length; i++) {
-	      var scheme = views[i].scheme || getExportScheme(views[i], options);
-	      var result = views[i].exportData || getExportData(views[i], options, scheme);
-	      var spans = views[i].spans ? views[i].spans : options.spans ? getSpans(views[i], options) : [];
-	      var ranges = views[i].ranges || [];
-	      var styles = views[i].styles || [];
-	      var data = getExcelData(result, scheme, spans, styles, options);
-	      var sname = (name[i] || "Data" + i).replace(/[*?:[\]\\/]/g, "").replace(/&/g, "&amp;").substring(0, 31);
-	      wb.SheetNames.push(sname);
-	      wb.Sheets[sname] = data;
-	      wb.Workbook.Names = wb.Workbook.Names.concat(ranges);
-	    }
-	    /* global XLSX */
-
-
-	    var xls = XLSX.write(wb, {
-	      bookType: "xlsx",
-	      bookSST: false,
-	      type: "binary"
-	    });
-	    var filename = (options.filename || name.join(",")) + ".xlsx";
-	    var blob = new Blob([str2array(xls)], {
-	      type: "application/xlsx"
-	    });
-	    if (options.download !== false) download(blob, filename);
-	    defer.resolve(blob);
-	    return defer;
-	  });
-	};
-	var toCSV = function toCSV(id, options) {
-	  options = options || {};
-	  var view = $$(id);
-	  if (view && view.$exportView) view = view.$exportView(options);
-	  assert(view, errorMessage);
-	  if (!view) return Deferred.reject(errorMessage);
-	  options.export_mode = "csv";
-	  options.filterHTML = true;
-	  var scheme = getExportScheme(view, options);
-	  var result = getExportData(view, options, scheme);
-	  var data = getCsvData(result, scheme);
-	  var filename = (options.filename || "Data") + ".csv";
-	  var blob = new Blob(["\uFEFF" + data], {
-	    type: "text/csv"
-	  });
-	  if (options.download !== false) download(blob, filename);
-	  return Deferred.resolve(blob);
-	};
-
-	function getCsvData(data) {
-	  return csv$1.stringify(data);
-	}
-
-	var font;
-	var toPDF = function toPDF(id, options) {
-	  var defer = Deferred.defer();
-	  return require(env.cdn + "/extras/pdfjs.js").then(function () {
-	    options = options || {};
-	    var view = $$(id);
-	    if (view && view.$exportView) view = view.$exportView(options);
-	    assert(view, errorMessage);
-	    if (!view) return defer.reject(errorMessage);
-	    options.export_mode = "pdf";
-	    options._export_font = font;
-	    options.fontName = options.fontName || "pt-sans.regular";
-	    var scheme = getExportScheme(view, options);
-	    var data = getExportData(view, options, scheme);
-
-	    var callback = function callback(pdf, options) {
-	      var filename = (options.filename || "Data") + ".pdf";
-	      var blob = new Blob([pdf.toString()], {
-	        type: "application/pdf"
-	      });
-	      if (options.download !== false) download(blob, filename);
-	      defer.resolve(blob);
-	    };
-
-	    if (options._export_font) getPdfData(scheme, data, options, callback);else
-	      /* global pdfjs */
-	      pdfjs.load(env.cdn + "/extras/" + options.fontName + ".ttf", function (err, buf) {
-	        if (err) throw err;
-	        font = options._export_font = new pdfjs.TTFFont(buf);
-	        getPdfData(scheme, data, options, callback);
-	      });
-	    return defer;
-	  });
-	};
 
 	function getDataHelper(key, column, raw) {
 	  if (!raw && column.format) return function (obj) {
@@ -16962,7 +17055,7 @@
 	    id: "id",
 	    width: 50,
 	    header: " ",
-	    template: function template(obj) {
+	    template: function (obj) {
 	      return obj.id;
 	    }
 	  });
@@ -16981,13 +17074,13 @@
 	      }(_i);
 	    }
 
-	    var index$$1 = 0;
+	    var index = 0;
 
 	    for (var _i2 = columns.length - 1; _i2 >= 0; _i2--) {
-	      if (columns[_i2].id === flatKey) index$$1 = _i2;
+	      if (columns[_i2].id === flatKey) index = _i2;
 	    }
 
-	    columns = [].concat(columns.slice(0, index$$1)).concat(copy$$1).concat(columns.slice(index$$1 + 1));
+	    columns = [].concat(columns.slice(0, index)).concat(copy$$1).concat(columns.slice(index + 1));
 	  }
 
 	  for (var j = 0; j < columns.length; j++) {
@@ -17024,7 +17117,9 @@
 	    }];else record.header = copy(record.header);
 
 	    for (var _i3 = 0; _i3 < record.header.length; _i3++) {
-	      record.header[_i3] = record.header[_i3] ? record.header[_i3].value || record.header[_i3].text.replace(/<[^>]*>/gi, "") : "";
+	      var hcell = record.header[_i3] || {};
+	      var text = hcell.contentId ? view.getHeaderContent(hcell.contentId).getValue(true) : hcell.text;
+	      record.header[_i3] = (text || "").toString().replace(/<[^>]*>/gi, "");
 	    }
 
 	    h_count = Math.max(h_count, record.header.length);
@@ -17064,7 +17159,6 @@
 
 	  return scheme;
 	}
-
 	function getExportData(view, options, scheme) {
 	  var filterHTML = !!options.filterHTML;
 	  var htmlFilter = /<[^>]*>/gi;
@@ -17102,6 +17196,10 @@
 	  var treeline = options.flatTree || options.plainOutput ? "" : " - ";
 	  view.data.each(function (item) {
 	    if (!options.filter || options.filter(item)) {
+	      if (this.data._scheme_export) {
+	        item = view.data._scheme_export(item);
+	      }
+
 	      var line = [];
 
 	      for (var _i6 = 0; _i6 < scheme.length; _i6++) {
@@ -17169,104 +17267,417 @@
 	  return data;
 	}
 
-	function getColumnsWidths(scheme) {
-	  var wscols = [];
+	var toPNG = function (id, options) {
+	  var defer = Deferred.defer();
+	  return require(env.cdn + "/extras/html2canvas-1.0.min.js").then(function () {
+	    //backward compatibility
+	    if (typeof options === "string") options = {
+	      filename: options
+	    };
+	    options = options || {};
+	    var view = $$(id);
+	    if (view && view.$exportView) view = view.$exportView(options);
+	    assert(view, errorMessage);
+	    if (!view) return defer.reject(errorMessage);
+	    var node = view ? view.$view : toNode(id);
+	    var filename = (options.filename || "Data") + ".png";
+	    window.html2canvas(node, {
+	      background: "#fff",
+	      logging: false
+	    }).then(function (canvas) {
+	      var callback = function (data) {
+	        if (options.download !== false) download(data, filename);
+	        canvas.remove();
+	        defer.resolve(data);
+	      };
 
-	  for (var i = 0; i < scheme.length; i++) {
-	    wscols.push({
-	      wch: scheme[i].width
+	      if (canvas.msToBlob) callback(canvas.msToBlob());else canvas.toBlob(callback, "image/png");
 	    });
-	  }
+	    return defer;
+	  });
+	};
 
-	  return wscols;
+	var toCSV = function (id, options) {
+	  options = options || {};
+	  var view = $$(id);
+	  if (view && view.$exportView) view = view.$exportView(options);
+	  assert(view, errorMessage);
+	  if (!view) return Deferred.reject(errorMessage);
+	  options.export_mode = "csv";
+	  options.filterHTML = true;
+	  var scheme = getExportScheme(view, options);
+	  var result = getExportData(view, options, scheme);
+	  var data = getCsvData(result, scheme);
+	  var filename = (options.filename || "Data") + ".csv";
+	  var blob = new Blob(["\uFEFF" + data], {
+	    type: "text/csv"
+	  });
+	  if (options.download !== false) download(blob, filename);
+	  return Deferred.resolve(blob);
+	};
+
+	function getCsvData(data) {
+	  return csv$1.stringify(data);
 	}
 
-	function excelDate(date) {
-	  return Math.round(25569 + date / (24 * 60 * 60 * 1000));
-	}
+	var font = {};
+	var toPDF = function (id, options) {
+	  return require([env.cdn + "/extras/pdfjs.js", env.cdn + "/extras/html2canvas-1.0.min.js"]).then(function () {
+	    options = options || {};
+	    options.export_mode = "pdf";
+	    options._export_font = font;
+	    options.fontName = options.fontName || "pt-sans.regular";
+	    options.display = options.display || "table";
+	    id = isArray(id) ? id : [id];
+	    var views = [];
 
-	function getSpans(view, options) {
-	  var isTable = view.getColumnConfig;
-	  var pull = view._spans_pull;
-	  var spans = [];
+	    for (var i = 0; i < id.length; i++) {
+	      if (!id[i].id) id[i] = {
+	        id: id[i]
+	      };
+	      var view = $$(id[i].id);
+	      var viewOptions = exports.extend(id[i].options || {}, options);
+	      if (view && view.$exportView) view = view.$exportView(viewOptions);
 
-	  if (isTable) {
-	    if (options.header !== false) spans = getHeaderSpans(view, options, "header", spans);
-
-	    if (pull) {
-	      var xc = options.xCorrection || 0;
-	      var yc = options.yCorrection || 0;
-
-	      for (var row in pull) {
-	        //{ s:{c:1, r:0}, e:{c:3, r:0} }
-	        var cols = pull[row];
-
-	        for (var col in cols) {
-	          var sc = view.getColumnIndex(col) - xc;
-	          var sr = view.getIndexById(row) - yc;
-	          var ec = sc + cols[col][0] - 1;
-	          var er = sr + (cols[col][1] - 1);
-	          spans.push({
-	            s: {
-	              c: sc,
-	              r: sr
-	            },
-	            e: {
-	              c: ec,
-	              r: er
-	            }
+	      if (view) {
+	        if (viewOptions.display !== "table") {
+	          views.push({
+	            node: view.$view,
+	            viewOptions: viewOptions
 	          });
+	          if (options.autowidth) options.width = Math.max(options.width || 0, view.$view.$width);
+	        }
+
+	        if (viewOptions.display !== "image" && view.data && view.data.pull) {
+	          var scheme = getExportScheme(view, viewOptions);
+	          views.push({
+	            scheme: scheme,
+	            data: getExportData(view, viewOptions, scheme),
+	            viewOptions: viewOptions
+	          });
+	          if (options.autowidth) options.width = Math.max(options.width || 0, getAutowidth(scheme));
 	        }
 	      }
+
+	      assert(view, errorMessage);
 	    }
 
-	    if (options.footer !== false) spans = getHeaderSpans(view, options, "footer", spans);
-	  }
+	    if (views.length == 0) return Deferred.reject(errorMessage);
 
-	  return spans;
+	    if (font[options.fontName]) {
+	      options._export_font = font[options.fontName];
+	      return getPdfData(views, options).then(function (pdf) {
+	        return getBlob(pdf, options);
+	      });
+	    } else {
+	      var defer = Deferred.defer();
+	      /* global pdfjs */
+
+	      pdfjs.load(env.cdn + "/extras/" + options.fontName + ".ttf", function (err, buf) {
+	        if (err) throw err;
+	        options._export_font = font[options.fontName] = new pdfjs.TTFFont(buf);
+	        defer.resolve(getPdfData(views, options).then(function (pdf) {
+	          return getBlob(pdf, options);
+	        }));
+	      });
+	      return defer;
+	    }
+	  });
+	};
+
+	function getBlob(pdf, options) {
+	  var filename = (options.filename || "Data") + ".pdf";
+	  var blob = new Blob([pdf.toString()], {
+	    type: "application/pdf"
+	  });
+	  if (options.download !== false) download(blob, filename);
+	  return blob;
 	}
 
-	function getHeaderSpans(view, options, group, spans) {
-	  var columns = view.config.columns;
-	  var delta = (options.docHeader ? 2 : 0) + (group == "header" ? 0 : (options.header !== false ? view._headers.length : 0) + view.count());
+	function getPdfData(views, options) {
+	  var doc = addPDFDoc(options);
+	  var promises = [];
 
-	  for (var i = 0; i < columns.length; i++) {
-	    var header = columns[i][group];
+	  for (var i = 0; i < views.length; i++) {
+	    if (views[i].node) promises.push(getPDFImage(views[i].node));else promises.push(Deferred.resolve());
+	  }
 
-	    for (var h = 0; h < header.length; h++) {
-	      if (header[h] && (header[h].colspan || header[h].rowspan)) {
-	        spans.push({
-	          s: {
-	            c: i,
-	            r: h + delta
-	          },
-	          e: {
-	            c: i + (header[h].colspan || 1) - 1,
-	            r: h + (header[h].rowspan || 1) - 1 + delta
-	          }
-	        });
+	  return Deferred.all(promises).then(function (images) {
+	    for (var _i = 0; _i < promises.length; _i++) {
+	      var viewOptions = views[_i].viewOptions;
+	      if (viewOptions.textBefore) addText(doc, "before", viewOptions.textBefore);
+	      if (images[_i]) doc.image(images[_i], {
+	        align: "center"
+	      });else addPDFTable(views[_i].scheme, views[_i].data, viewOptions, doc);
+	      if (viewOptions.textAfter) addText(doc, "after", viewOptions.textAfter);
+	      if (_i != views.length - 1) doc.pageBreak();
+	    }
+
+	    return addPDFHeader(doc, options);
+	  });
+	}
+
+	function addText(doc, type, text) {
+	  if (type == "after") doc.text().br();
+	  if (typeof text == "string") text = {
+	    text: text
+	  };
+	  doc.text(text.text, text.options || {});
+	  if (type == "before") doc.text().br();
+	}
+
+	function getPDFImage(node) {
+	  return window.html2canvas(node, {
+	    background: "#fff",
+	    logging: false
+	  }).then(function (canvas) {
+	    var defer = Deferred.defer();
+	    var image = canvas.toDataURL("image/jpeg");
+	    pdfjs.load(image, function (err, buffer) {
+	      defer.resolve(new pdfjs.Image(buffer));
+	    });
+	    return defer;
+	  });
+	}
+
+	function getAutowidth(scheme) {
+	  var width = 80; //paddings
+
+	  for (var i = 0; i < scheme.length; i++) {
+	    width += scheme[i].width;
+	  }
+
+	  return width;
+	}
+
+	function addPDFDoc(options) {
+	  var width = options.width || 595.296,
+	      height = options.height || 841.896; // default A4 size
+
+	  if (options.orientation && options.orientation === "landscape") height = [width, width = height][0];
+	  return new pdfjs.Document({
+	    padding: 40,
+	    font: options._export_font,
+	    threshold: 256,
+	    width: width,
+	    height: height
+	  });
+	}
+
+	function addPDFTable(scheme, data, options, doc) {
+	  options.header = isUndefined(options.header) || options.header === true ? {} : options.header;
+	  options.footer = isUndefined(options.footer) || options.footer === true ? {} : options.footer;
+	  options.table = options.table || {}; //render table
+
+	  var h_count = options.header === false ? 0 : scheme[0].header.length;
+	  var f_count = options.footer === false || !scheme[0].footer ? 0 : scheme[0].footer.length;
+	  var colWidths = [];
+
+	  for (var i = 0; i < scheme.length; i++) {
+	    colWidths[i] = scheme[i].width;
+	  }
+
+	  var tableOps = exports.extend(options.table, {
+	    borderWidth: 1,
+	    height: 20,
+	    lineHeight: 1.1,
+	    borderColor: 0xEEEEEE,
+	    backgroundColor: 0xFFFFFF,
+	    color: 0x666666,
+	    textAlign: "left",
+	    paddingRight: 10,
+	    paddingLeft: 10,
+	    headerRows: h_count,
+	    widths: colWidths.length ? colWidths : ["100%"]
+	  });
+	  var table = doc.table(tableOps); //render table header
+
+	  if (h_count) {
+	    var headerOps = exports.extend(options.header, {
+	      borderRightColor: 0xB0CEE3,
+	      borderBottomColor: 0xB0CEE3,
+	      color: 0x4A4A4A,
+	      backgroundColor: 0xD2E3EF,
+	      height: 27,
+	      lineHeight: 1.2
+	    });
+
+	    for (var _i2 = 0; _i2 < h_count; _i2++) {
+	      var header = table.tr(headerOps);
+
+	      for (var s = 0; s < scheme.length; s++) {
+	        header.td(scheme[s].header[_i2].toString());
+	      }
+	    }
+	  } //render table data
+
+
+	  for (var r = 0; r < data.length; r++) {
+	    var row = table.tr({});
+
+	    for (var c = 0; c < data[r].length; c++) {
+	      row.td(data[r][c]);
+	    }
+	  } //render table footer
+
+
+	  if (f_count) {
+	    var footerOps = exports.extend(options.footer, {
+	      borderRightColor: 0xEEEEEE,
+	      borderBottomColor: 0xEEEEEE,
+	      backgroundColor: 0xFAFAFA,
+	      color: 0x666666,
+	      height: 27,
+	      lineHeight: 1.2
+	    });
+
+	    for (var _i3 = 0; _i3 < f_count; _i3++) {
+	      var footer = table.tr(footerOps);
+
+	      for (var _s = 0; _s < scheme.length; _s++) {
+	        footer.td(scheme[_s].footer[_i3].toString());
 	      }
 	    }
 	  }
-
-	  return spans;
 	}
 
-	function getStyles(r, c, styles) {
-	  //row index, column index, styles array
-	  if (styles[r] && styles[r][c]) return styles[r][c];
-	  return "";
-	}
-
-	function getRowHeights(heights) {
-	  for (var i in heights) {
-	    heights[i] = {
-	      hpx: heights[i],
-	      hpt: heights[i] * 0.75
-	    };
+	function addPDFHeader(doc, options) {
+	  //doc footer
+	  if (options.docFooter !== false) {
+	    var ft = doc.footer();
+	    ft.text({
+	      color: 0x666666,
+	      textAlign: "center"
+	    }).append(i18n.dataExport.page || "Page").pageNumber().append("  " + (i18n.dataExport.of || "of") + "  ").pageCount();
 	  }
 
-	  return heights;
+	  var horder = {
+	    text: 0,
+	    image: 1
+	  }; //doc header, configurable
+
+	  if (options.docHeader) {
+	    if (typeof options.docHeader == "string") options.docHeader = {
+	      text: options.docHeader
+	    };
+	    exports.extend(options.docHeader, {
+	      color: 0x666666,
+	      textAlign: "right",
+	      order: 0
+	    });
+	    horder.text = options.docHeader.order;
+	  }
+
+	  if (options.docHeaderImage) {
+	    if (typeof options.docHeaderImage == "string") options.docHeaderImage = {
+	      url: options.docHeaderImage
+	    };
+	    exports.extend(options.docHeaderImage, {
+	      align: "right",
+	      order: 1
+	    });
+	    horder.image = options.docHeaderImage.order;
+	  }
+
+	  if (options.docHeader && horder.image > horder.text) doc.header({
+	    paddingBottom: 10
+	  }).text(options.docHeader.text, options.docHeader);
+
+	  if (options.docHeaderImage) {
+	    var defer = Deferred.defer();
+	    pdfjs.load(options.docHeaderImage.url, function (err, buffer) {
+	      if (!err) {
+	        var img = new pdfjs.Image(buffer);
+	        doc.header({
+	          paddingBottom: 10
+	        }).image(img, options.docHeaderImage);
+	        if (options.docHeader && horder.image < horder.text) doc.header({
+	          paddingBottom: 10
+	        }).text(options.docHeader.text, options.docHeader);
+	      } //render pdf and show in browser
+
+
+	      defer.resolve(doc.render());
+	    });
+	    return defer;
+	  } else return Deferred.resolve(doc.render());
+	}
+
+	var toExcel = function (id, options) {
+	  options = options || {};
+	  options.export_mode = "excel";
+	  id = isArray(id) ? id : [id];
+	  var views = [];
+
+	  for (var i = 0; i < id.length; i++) {
+	    var view = $$(id[i]);
+	    if (view && view.$exportView) view = view.$exportView(options);
+	    if (view) views = views.concat(view);
+	    assert(view, errorMessage); //spreadsheet and excelviewer require plain data output first
+
+	    if (options.dataOnly) {
+	      var scheme = getExportScheme(view, options);
+	      views[i] = {
+	        scheme: scheme,
+	        exportData: getExportData(view, options, scheme),
+	        spans: options.spans ? getSpans(view, options) : []
+	      };
+	    }
+	  }
+
+	  if (options.dataOnly) return views;
+	  var defer = Deferred.defer();
+	  return require(env.cdn + "/extras/xlsx.core.styles.min.js").then(function () {
+	    if (!views.length) return defer.reject(errorMessage);
+	    var wb = {
+	      SheetNames: [],
+	      Sheets: {},
+	      Workbook: {
+	        WBProps: {},
+	        Names: []
+	      }
+	    };
+	    var name = isArray(options.sheets) ? options.sheets : [options.name || "Data"];
+
+	    for (var i = 0; i < views.length; i++) {
+	      var scheme = views[i].scheme || getExportScheme(views[i], options);
+	      var result = views[i].exportData || getExportData(views[i], options, scheme);
+	      var spans = views[i].spans ? views[i].spans : options.spans ? getSpans(views[i], options) : [];
+	      var ranges = views[i].ranges || [];
+	      var styles = views[i].styles || [];
+	      var data = getExcelData(result, scheme, spans, styles, options);
+	      var sname = (name[i] || "Data" + i).replace(/[*?:[\]\\/]/g, "").replace(/&/g, "&amp;").substring(0, 31);
+	      wb.SheetNames.push(sname);
+	      wb.Sheets[sname] = data;
+	      wb.Workbook.Names = wb.Workbook.Names.concat(ranges);
+	    }
+	    /* global XLSX */
+
+
+	    var xls = XLSX.write(wb, {
+	      bookType: "xlsx",
+	      bookSST: false,
+	      type: "binary"
+	    });
+	    var filename = (options.filename || name.join(",")) + ".xlsx";
+	    var blob = new Blob([str2array(xls)], {
+	      type: "application/xlsx"
+	    });
+	    if (options.download !== false) download(blob, filename);
+	    defer.resolve(blob);
+	    return defer;
+	  });
+	};
+
+	function str2array(s) {
+	  var buf = new ArrayBuffer(s.length);
+	  var view = new Uint8Array(buf);
+
+	  for (var i = 0; i != s.length; ++i) {
+	    view[i] = s.charCodeAt(i) & 0xFF;
+	  }
+
+	  return buf;
 	}
 
 	var types = {
@@ -17337,7 +17748,17 @@
 	        }
 	      }
 
-	      if (styles) cell.s = getStyles(R, C, styles);
+	      if (styles) {
+	        var cellStyle = getStyles(R, C, styles);
+
+	        if (cellStyle.format) {
+	          cell.z = cellStyle.format;
+	          delete cellStyle.format;
+	        }
+
+	        cell.s = cellStyle;
+	      }
+
 	      ws[cell_ref] = cell;
 	    }
 	  }
@@ -17349,198 +17770,126 @@
 	  return ws;
 	}
 
-	function str2array(s) {
-	  var buf = new ArrayBuffer(s.length);
-	  var view = new Uint8Array(buf);
-
-	  for (var i = 0; i != s.length; ++i) {
-	    view[i] = s.charCodeAt(i) & 0xFF;
+	function getRowHeights(heights) {
+	  for (var i in heights) {
+	    heights[i] = {
+	      hpx: heights[i],
+	      hpt: heights[i] * 0.75
+	    };
 	  }
 
-	  return buf;
+	  return heights;
 	}
 
-	function getPdfData(scheme, data, options, callback) {
-	  options.header = isUndefined(options.header) || options.header === true ? {} : options.header;
-	  options.footer = isUndefined(options.footer) || options.footer === true ? {} : options.footer;
-	  options.table = options.table || {};
-	  var width = options.width || 595.296,
-	      height = options.height || 841.896; // default A4 size
-
-	  if (options.orientation && options.orientation === "landscape") height = [width, width = height][0];
-
-	  if (options.autowidth) {
-	    width = 80; //paddings
-
-	    for (var i = 0; i < scheme.length; i++) {
-	      width += scheme[i].width;
-	    }
-	  }
-
-	  var doc = new pdfjs.Document({
-	    padding: 40,
-	    font: options._export_font,
-	    threshold: 256,
-	    width: width,
-	    height: height
-	  }); //render table
-
-	  var h_count = options.header === false ? 0 : scheme[0].header.length;
-	  var f_count = options.footer === false || !scheme[0].footer ? 0 : scheme[0].footer.length;
-	  var colWidths = [];
-
-	  for (var _i8 = 0; _i8 < scheme.length; _i8++) {
-	    colWidths[_i8] = scheme[_i8].width;
-	  }
-
-	  var tableOps = exports.extend(options.table, {
-	    borderWidth: 1,
-	    height: 20,
-	    lineHeight: 1.1,
-	    borderColor: 0xEEEEEE,
-	    backgroundColor: 0xFFFFFF,
-	    color: 0x666666,
-	    textAlign: "left",
-	    paddingRight: 10,
-	    paddingLeft: 10,
-	    headerRows: h_count,
-	    widths: colWidths.length ? colWidths : ["100%"]
-	  });
-	  var table = doc.table(tableOps); //render table header
-
-	  if (h_count) {
-	    var headerOps = exports.extend(options.header, {
-	      borderRightColor: 0xB0CEE3,
-	      borderBottomColor: 0xB0CEE3,
-	      color: 0x4A4A4A,
-	      backgroundColor: 0xD2E3EF,
-	      height: 27,
-	      lineHeight: 1.2
-	    });
-
-	    for (var _i9 = 0; _i9 < h_count; _i9++) {
-	      var header = table.tr(headerOps);
-
-	      for (var s = 0; s < scheme.length; s++) {
-	        header.td(scheme[s].header[_i9].toString());
-	      }
-	    }
-	  } //render table data
-
-
-	  for (var r = 0; r < data.length; r++) {
-	    var row = table.tr({});
-
-	    for (var c = 0; c < data[r].length; c++) {
-	      row.td(data[r][c]);
-	    }
-	  } //render table footer
-
-
-	  if (f_count) {
-	    var footerOps = exports.extend(options.footer, {
-	      borderRightColor: 0xEEEEEE,
-	      borderBottomColor: 0xEEEEEE,
-	      backgroundColor: 0xFAFAFA,
-	      color: 0x666666,
-	      height: 27,
-	      lineHeight: 1.2
-	    });
-
-	    for (var _i10 = 0; _i10 < f_count; _i10++) {
-	      var footer = table.tr(footerOps);
-
-	      for (var _s = 0; _s < scheme.length; _s++) {
-	        footer.td(scheme[_s].footer[_i10].toString());
-	      }
-	    }
-	  } //doc footer
-
-
-	  if (options.docFooter !== false) {
-	    var ft = doc.footer();
-	    ft.text({
-	      color: 0x666666,
-	      textAlign: "center"
-	    }).append(i18n.dataExport.page || "Page").pageNumber().append("  " + (i18n.dataExport.of || "of") + "  ").pageCount();
-	  }
-
-	  var horder = {
-	    text: 0,
-	    image: 1
-	  }; //doc header, configurable
-
-	  if (options.docHeader) {
-	    if (typeof options.docHeader == "string") options.docHeader = {
-	      text: options.docHeader
-	    };
-	    exports.extend(options.docHeader, {
-	      color: 0x666666,
-	      textAlign: "right",
-	      order: 0
-	    });
-	    horder.text = options.docHeader.order;
-	  }
-
-	  if (options.docHeaderImage) {
-	    if (typeof options.docHeaderImage == "string") options.docHeaderImage = {
-	      url: options.docHeaderImage
-	    };
-	    exports.extend(options.docHeaderImage, {
-	      align: "right",
-	      order: 1
-	    });
-	    horder.image = options.docHeaderImage.order;
-	  }
-
-	  if (options.docHeader && horder.image > horder.text) doc.header({
-	    paddingBottom: 10
-	  }).text(options.docHeader.text, options.docHeader);
-
-	  if (options.docHeaderImage) {
-	    pdfjs.load(options.docHeaderImage.url, function (err, buffer) {
-	      if (!err) {
-	        var img = new pdfjs.Image(buffer);
-	        doc.header({
-	          paddingBottom: 10
-	        }).image(img, options.docHeaderImage);
-	        if (options.docHeader && horder.image < horder.text) doc.header({
-	          paddingBottom: 10
-	        }).text(options.docHeader.text, options.docHeader);
-	      } //render pdf and show in browser
-
-
-	      var pdf = doc.render();
-	      callback(pdf, options);
-	    });
-	  } else {
-	    //render pdf and show in browser
-	    var pdf = doc.render();
-	    callback(pdf, options);
-	  }
+	function getStyles(r, c, styles) {
+	  //row index, column index, styles array
+	  if (styles[r] && styles[r][c]) return styles[r][c];
+	  return "";
 	}
 
-	var _webix_msg_cfg = null;
+	function getSpans(view, options) {
+	  var isTable = view.getColumnConfig;
+	  var pull = view._spans_pull;
+	  var spans = [];
+
+	  if (isTable) {
+	    if (options.header !== false) spans = getHeaderSpans(view, options, "header", spans);
+
+	    if (pull) {
+	      var xc = options.xCorrection || 0;
+	      var yc = options.yCorrection || 0;
+
+	      for (var row in pull) {
+	        //{ s:{c:1, r:0}, e:{c:3, r:0} }
+	        var cols = pull[row];
+
+	        for (var col in cols) {
+	          var sc = view.getColumnIndex(col) - xc;
+	          var sr = view.getIndexById(row) - yc;
+	          if (sc < 0 || sr < 0) //hidden cols/rows
+	            continue;
+	          var ec = sc + cols[col][0] - 1;
+	          var er = sr + (cols[col][1] - 1);
+	          spans.push({
+	            s: {
+	              c: sc,
+	              r: sr
+	            },
+	            e: {
+	              c: ec,
+	              r: er
+	            }
+	          });
+	        }
+	      }
+	    }
+
+	    if (options.footer !== false) spans = getHeaderSpans(view, options, "footer", spans);
+	  }
+
+	  return spans;
+	}
+
+	function getHeaderSpans(view, options, group, spans) {
+	  var columns = view.config.columns;
+	  var delta = (options.docHeader ? 2 : 0) + (group == "header" ? 0 : (options.header !== false ? view._headers.length : 0) + view.count());
+
+	  for (var i = 0; i < columns.length; i++) {
+	    var header = columns[i][group];
+
+	    for (var h = 0; h < header.length; h++) {
+	      if (header[h] && (header[h].colspan || header[h].rowspan)) {
+	        spans.push({
+	          s: {
+	            c: i,
+	            r: h + delta
+	          },
+	          e: {
+	            c: i + (header[h].colspan || 1) - 1,
+	            r: h + (header[h].rowspan || 1) - 1 + delta
+	          }
+	        });
+	      }
+	    }
+	  }
+
+	  return spans;
+	}
+
+	function excelDate(date) {
+	  return Math.round(25569 + date / (24 * 60 * 60 * 1000));
+	}
+
+	function getColumnsWidths(scheme) {
+	  var wscols = [];
+
+	  for (var i = 0; i < scheme.length; i++) {
+	    wscols.push({
+	      wch: scheme[i].width
+	    });
+	  }
+
+	  return wscols;
+	}
 
 	function callback(config, result) {
+	  config.type.indexOf("confirm") != -1 && result === false ? config._promise.reject() : config._promise.resolve(result);
 	  var usercall = config.callback;
-	  modality(false);
-	  config.box.parentNode.removeChild(config.box);
-	  _webix_msg_cfg = config.box = null;
 	  if (usercall) usercall(result, config.details);
+	  modalbox.hide(config.id);
 	}
 
 	function modal_key(e) {
-	  if (_webix_msg_cfg) {
+	  var count = modalbox.order.length;
+
+	  if (count > 0 && message.keyboard) {
 	    e = e || event$1;
 	    var code = e.which || event$1.keyCode;
-
-	    if (message.keyboard) {
-	      if (code == 13 || code == 32) callback(_webix_msg_cfg, true);
-	      if (code == 27) callback(_webix_msg_cfg, false);
-	      if (e.preventDefault) e.preventDefault();
-	      return !(e.cancelBubble = true);
-	    }
+	    var lastModalbox = modalbox.pull[modalbox.order[count - 1]];
+	    if (code == 13 || code == 32) callback(lastModalbox, true);
+	    if (code == 27) callback(lastModalbox, false);
+	    if (e.preventDefault) e.preventDefault();
+	    return !(e.cancelBubble = true);
 	  }
 	}
 
@@ -17548,16 +17897,39 @@
 	  capture: true
 	});
 
-	function modality(mode) {
-	  if (!modality.cover || !modality.cover.parentNode) {
-	    modality.cover = document.createElement("DIV"); //necessary for IE only
+	function modality(mode, container) {
+	  var node = container || document.body;
+	  var cover;
 
-	    modality.cover.onkeydown = modal_key;
-	    modality.cover.className = "webix_modal_cover";
-	    document.body.appendChild(modality.cover);
+	  if (isUndefined(node.modality)) {
+	    cover = create("DIV", {
+	      class: "webix_modal_cover",
+	      style: "position:" + (container ? "absolute" : "fixed") + ";"
+	    });
+	    cover.onkeydown = modal_key;
+
+	    if (container) {
+	      var position = window.getComputedStyle(container).position;
+	      if (position != "fixed" && position != "absolute" && position != "sticky" && position != "relative") node.style.position = "relative";
+	    }
+
+	    node.appendChild(cover);
+	    node.modality = 1;
+	  } else mode ? node.modality++ : node.modality--; //trigger visibility only if necessary
+
+
+	  if (mode && node.modality === 1 || node.modality === 0) {
+	    if (cover) cover.style.display = "inline-block";else {
+	      cover = node.querySelectorAll(".webix_modal_cover");
+
+	      for (var i = 0; i < cover.length; i++) {
+	        if (cover[i].parentNode == node) {
+	          cover[i].style.display = node.modality == 1 ? "inline-block" : "none";
+	          break;
+	        }
+	      }
+	    }
 	  }
-
-	  modality.cover.style.display = mode ? "inline-block" : "none";
 	}
 
 	function button(text, result, className) {
@@ -17577,7 +17949,7 @@
 	  t.hide(text.id);
 	  var message = document.createElement("DIV");
 	  message.innerHTML = "<div>" + text.text + "</div>";
-	  message.className = "webix_info webix_" + text.type;
+	  message.className = "webix_message webix_" + text.type;
 
 	  message.onclick = function () {
 	    t.hide(text.id);
@@ -17606,10 +17978,10 @@
 	  if (config.height) box.style.height = config.height + (rules.isNumber(config.height) ? "px" : "");
 	  if (config.title) inner += "<div class=\"webix_popup_title\">" + config.title + "</div>";
 	  inner += "<div class=\"webix_popup_text\"><span>" + (config.content ? "" : config.text) + "</span></div><div  class=\"webix_popup_controls\">";
-	  if (ok || config.ok) inner += button(config.ok || i18n.message.ok, true, "confirm");
-	  if (cancel || config.cancel) inner += button(config.cancel || i18n.message.cancel, false);
+	  if (cancel) inner += button(config.cancel || i18n.message.cancel, false);
+	  if (ok) inner += button(config.ok || i18n.message.ok, true, "confirm");
 
-	  if (config.buttons) {
+	  if (config.buttons && !ok && !cancel) {
 	    for (var i = 0; i < config.buttons.length; i++) {
 	      inner += button(config.buttons[i], i);
 	    }
@@ -17639,28 +18011,38 @@
 	    e.cancelBubble = true;
 	  };
 
-	  config.box = box;
-	  if (ok || cancel || config.buttons) _webix_msg_cfg = config;
+	  config._box = box;
 	  return box;
 	}
 
+	modalbox.pull = {};
+	modalbox.order = [];
+
 	function _createBox(config, ok, cancel) {
 	  var box = config.tagName ? config : _boxStructure(config, ok, cancel);
-	  if (!config.hidden) modality(true);
-	  toNode(config.container || document.body).appendChild(box);
-	  var x = config.left || Math.abs(Math.floor(((window.innerWidth || document.documentElement.offsetWidth) - box.offsetWidth) / 2));
-	  var y = config.top || Math.abs(Math.floor(((window.innerHeight || document.documentElement.offsetHeight) - box.offsetHeight) / 2));
+	  var containerWidth = config.container ? config.container.offsetWidth : window.innerWidth || document.documentElement.offsetWidth;
+	  var containerHeight = config.container ? config.container.offsetHeight : window.innerHeight || document.documentElement.offsetHeight;
+	  if (config.container) box.style.position = "absolute";
+	  toNode((config.container || document.body).appendChild(box));
+	  modality(true, config.container);
+	  var x = config.left || Math.abs(Math.floor((containerWidth - box.offsetWidth) / 2));
+	  var y = config.top || Math.abs(Math.floor((containerHeight - box.offsetHeight) / 2));
 	  if (config.position == "top") box.style.top = "-3px";else box.style.top = y + "px";
 	  box.style.left = x + "px"; //necessary for IE only
 
 	  box.onkeydown = modal_key;
 	  box.focus();
-	  if (config.hidden) modalbox.hide(box);
-	  return box;
+	  if (!config.id) config.id = _uid("modalbox");else if (modalbox.pull[config.id]) {
+	    modalbox.hide(config.id);
+	  }
+	  modalbox.order.push(config.id);
+	  modalbox.pull[config.id] = config;
+	  config._promise = Deferred.defer();
+	  return config._promise;
 	}
 
 	function alertPopup(config) {
-	  return _createBox(config, true, false);
+	  return _createBox(config, true);
 	}
 
 	function confirmPopup(config) {
@@ -17695,19 +18077,19 @@
 	    expire: expire,
 	    id: id
 	  };
-	  text.id = text.id || t.uid();
+	  text.id = text.id || _uid("message");
 	  text.expire = text.expire || t.expire;
 	  return text;
 	}
 
 	function alert() {
 	  var text = box_params.apply(this, arguments);
-	  text.type = text.type || "confirm";
+	  text.type = text.type || "alert";
 	  return alertPopup(text);
 	}
 	function confirm() {
 	  var text = box_params.apply(this, arguments);
-	  text.type = text.type || "alert";
+	  text.type = text.type || "confirm";
 	  return confirmPopup(text);
 	}
 	function modalbox() {
@@ -17716,19 +18098,23 @@
 	  return boxPopup(text);
 	}
 
-	modalbox.hide = function (node) {
-	  if (node) {
-	    while (node && node.getAttribute && !node.getAttribute("webixbox")) {
-	      node = node.parentNode;
-	    }
+	modalbox.hide = function (id) {
+	  if (id && modalbox.pull[id]) {
+	    var node = modalbox.pull[id]._box;
 
 	    if (node) {
 	      node.parentNode.removeChild(node);
+	      modalbox.order.splice(modalbox.order.indexOf(id), 1);
+	      modality(false, modalbox.pull[id].container);
+	      delete modalbox.pull[id];
 	    }
 	  }
+	};
 
-	  modality(false);
-	  _webix_msg_cfg = null;
+	modalbox.hideAll = function () {
+	  for (var id in modalbox.pull) {
+	    this.hide(id);
+	  }
 	};
 
 	function message(text, type, expire, id) {
@@ -17752,12 +18138,6 @@
 	  }
 	}
 	var t = message;
-	t.seed = new Date().valueOf();
-
-	t.uid = function () {
-	  return t.seed++;
-	};
-
 	t.expire = 4000;
 	t.keyboard = true;
 	t.position = "top";
@@ -17792,6 +18172,13 @@
 
 	function editStop() {
 	  callEvent("onEditEnd", []);
+	}
+
+	if (env.isIE8) {
+	  // Not really a polyfill, silence the esModule flag
+	  Object.defineProperty = function (obj, key, data) {
+	    obj[key] = data.value;
+	  };
 	}
 
 	var en = {
@@ -17834,7 +18221,9 @@
 	    actualSize: "Actual Size",
 	    pageFit: "Page Fit",
 	    pageWidth: "Page Width",
-	    pageHeight: "Page Height"
+	    pageHeight: "Page Height",
+	    enterPassword: "Enter password",
+	    passwordError: "Wrong password"
 	  },
 	  aria: {
 	    calendar: "Calendar",
@@ -17892,12 +18281,12 @@
 
 	var wDate = {
 	  startOnMonday: false,
-	  toFixed: function toFixed(num, ms) {
+	  toFixed: function (num, ms) {
 	    if (num < 10) num = "0" + num;
 	    if (ms && num < 100) num = "0" + num;
 	    return num;
 	  },
-	  weekStart: function weekStart(date) {
+	  weekStart: function (date) {
 	    date = this.copy(date);
 	    var shift = date.getDay();
 
@@ -17907,20 +18296,20 @@
 
 	    return this.datePart(this.add(date, -1 * shift, "day"));
 	  },
-	  monthStart: function monthStart(date) {
+	  monthStart: function (date) {
 	    date = this.copy(date);
 	    date.setDate(1);
 	    return this.datePart(date);
 	  },
-	  yearStart: function yearStart(date) {
+	  yearStart: function (date) {
 	    date = this.copy(date);
 	    date.setMonth(0);
 	    return this.monthStart(date);
 	  },
-	  dayStart: function dayStart(date) {
+	  dayStart: function (date) {
 	    return this.datePart(date, true);
 	  },
-	  dateToStr: function dateToStr(format, utc) {
+	  dateToStr: function (format, utc) {
 	    if (typeof format == "function") return format;
 
 	    if (env.strict) {
@@ -17930,7 +18319,7 @@
 	        format.replace(/%[a-zA-Z]/g, function (s, pos) {
 	          str += format.slice(lastPos, pos);
 
-	          var fn = function fn(date) {
+	          var fn = function (date) {
 	            if (s == "%d") return wDate.toFixed(date.getDate());
 	            if (s == "%m") return wDate.toFixed(date.getMonth() + 1);
 	            if (s == "%j") return date.getDate();
@@ -18057,7 +18446,7 @@
 	      return temp(v, i18n, wDate);
 	    };
 	  },
-	  strToDate: function strToDate(format, utc) {
+	  strToDate: function (format, utc) {
 	    if (typeof format == "function") return format;
 	    var mask = format.match(/%[a-zA-Z]/g);
 	    var splt = "var temp=date.split(/[^0-9a-zA-Z]+/g);";
@@ -18188,7 +18577,7 @@
 	      return temp(v, i18n);
 	    };
 	  },
-	  getISOWeek: function getISOWeek(ndate) {
+	  getISOWeek: function (ndate) {
 	    if (!ndate) return false;
 	    var nday = ndate.getDay();
 
@@ -18205,10 +18594,10 @@
 	    var weekNumber = 1 + Math.floor(ordinal_date / 7);
 	    return weekNumber;
 	  },
-	  getUTCISOWeek: function getUTCISOWeek(ndate) {
+	  getUTCISOWeek: function (ndate) {
 	    return this.getISOWeek(ndate);
 	  },
-	  _correctDate: function _correctDate(d, d0, inc, checkFunc) {
+	  _correctDate: function (d, d0, inc, checkFunc) {
 	    if (!inc) return;
 	    var incorrect = checkFunc(d, d0);
 
@@ -18222,7 +18611,7 @@
 	      }
 	    }
 	  },
-	  add: function add(date, inc, mode, copy) {
+	  add: function (date, inc, mode, copy) {
 	    if (copy) date = this.copy(date);
 	    var d = wDate.copy(date);
 
@@ -18283,7 +18672,7 @@
 
 	    return date;
 	  },
-	  datePart: function datePart(date, copy) {
+	  datePart: function (date, copy) {
 	    if (copy) date = this.copy(date); // workaround for non-existent hours
 
 	    var d = this.copy(date);
@@ -18300,25 +18689,25 @@
 	    date.setMilliseconds(0);
 	    return date;
 	  },
-	  timePart: function timePart(date, copy) {
+	  timePart: function (date, copy) {
 	    if (copy) date = this.copy(date);
 	    return (date.valueOf() / 1000 - date.getTimezoneOffset() * 60) % 86400;
 	  },
-	  copy: function copy(date) {
+	  copy: function (date) {
 	    return new Date(date.valueOf());
 	  },
-	  equal: function equal(a, b) {
+	  equal: function (a, b) {
 	    if (!a || !b) return false;
 	    return a.valueOf() === b.valueOf();
 	  },
-	  isHoliday: function isHoliday(day) {
+	  isHoliday: function (day) {
 	    day = day.getDay();
 	    if (day === 0 || day == 6) return "webix_cal_event";
 	  }
 	};
 
 	var Number$1 = {
-	  getConfig: function getConfig(value) {
+	  getConfig: function (value) {
 	    var config = {
 	      decimalSize: 0,
 	      groupSize: 999,
@@ -18357,7 +18746,7 @@
 
 	    return config;
 	  },
-	  parse: function parse(value, config) {
+	  parse: function (value, config) {
 	    if (!value || typeof value !== "string") return value;
 	    if (config.prefix) value = value.toLowerCase().replace(config.prefix.toLowerCase() || "", "");
 	    if (config.sufix) value = value.toLowerCase().replace(config.sufix.toLowerCase() || "", "");
@@ -18379,7 +18768,7 @@
 	    if (decimal) value += "." + decimal;
 	    return parseFloat(value) * sign;
 	  },
-	  format: function format(value, config) {
+	  format: function (value, config) {
 	    if (value === "" || typeof value === "undefined") return value;
 	    config = config || i18n;
 	    value = parseFloat(value);
@@ -18407,7 +18796,7 @@
 	      return config.prefix + str + config.sufix;
 	    } else return str;
 	  },
-	  numToStr: function numToStr(config) {
+	  numToStr: function (config) {
 	    return function (value) {
 	      return Number$1.format(value, config);
 	    };
@@ -18471,7 +18860,7 @@
 	 */
 
 	var history = {
-	  track: function track(id, url) {
+	  track: function (id, url) {
 	    this._init_state(id, url);
 
 	    if (this._aHandler) $$(this._aViewId).detachEvent(this._aHandler);
@@ -18480,7 +18869,7 @@
 	      this._aViewId = id;
 	      var view = $$(id);
 
-	      var handler = function handler() {
+	      var handler = function () {
 	        if (history._ignored) return;
 	        if (view.getValue) history.push(id, view.getValue());
 	      };
@@ -18488,13 +18877,13 @@
 	      if (view.getActiveId) this._aHandler = view.attachEvent("onViewChange", handler);else this._aHandler = view.attachEvent("onChange", handler);
 	    }
 	  },
-	  _set_state: function _set_state(view, state$$1) {
+	  _set_state: function (view, state$$1) {
 	    history._ignored = 1;
 	    view = $$(view);
 	    if (view.callEvent("onBeforeHistoryNav", [state$$1])) if (view.setValue) view.setValue(state$$1);
 	    history._ignored = 0;
 	  },
-	  push: function push(view, url, value) {
+	  push: function (view, url, value) {
 	    view = $$(view);
 	    var new_url = "";
 	    if (url) new_url = "#!/" + url;
@@ -18509,7 +18898,7 @@
 	      value: value
 	    }, "", new_url);
 	  },
-	  _init_state: function _init_state(view, url) {
+	  _init_state: function (view, url) {
 	    event$1(window, "popstate", function (ev) {
 	      if (ev.state && ev.state.webix) {
 	        history._set_state(ev.state.id, ev.state.value);
@@ -18533,7 +18922,7 @@
 	  attribute: "data-",
 	  dataTag: "li",
 	  _dash: /-([a-z])/g,
-	  _after_dash: function _after_dash(match) {
+	  _after_dash: function (match) {
 	    return match[1].toUpperCase();
 	  },
 	  _parse_int: {
@@ -18554,10 +18943,10 @@
 	    disabled: true,
 	    hidden: true
 	  },
-	  _view_has_method: function _view_has_method(view, name) {
+	  _view_has_method: function (view, name) {
 	    return hasMethod(view, name);
 	  },
-	  init: function init(node, target, scope) {
+	  init: function (node, target, scope) {
 	    node = node || document.body;
 	    var els = [];
 
@@ -18580,7 +18969,7 @@
 
 	    return ui$$1;
 	  },
-	  parse: function parse(source, mode) {
+	  parse: function (source, mode) {
 	    //convert from string to object
 	    if (typeof source == "string") source = DataDriver[mode || "xml"].toObject(source, source);
 
@@ -18588,7 +18977,7 @@
 
 	    return this._sub_markup(els[0], els.html);
 	  },
-	  _initComponent: function _initComponent(config, node, html, target) {
+	  _initComponent: function (config, node, html, target) {
 	    if (!target) {
 	      config.container = node.parentNode;
 	      remove(node);
@@ -18598,7 +18987,7 @@
 
 	    return ui(config);
 	  },
-	  _get_core_els: function _get_core_els(node) {
+	  _get_core_els: function (node) {
 	    this._full_prefix = this.namespace ? this.namespace + ":" : "";
 	    this._full_prefix_top = this._full_prefix + "ui"; //xhtml mode
 
@@ -18619,7 +19008,7 @@
 	    return els;
 	  },
 	  //html conversion
-	  _get_html_tops: function _get_html_tops(node) {
+	  _get_html_tops: function (node) {
 	    if (node.getAttribute && node.getAttribute(this.attribute + "view")) return [node];
 	    var els = node.querySelectorAll("[" + this.attribute + "view]");
 	    var tags = [];
@@ -18630,7 +19019,7 @@
 
 	    return tags;
 	  },
-	  _sub_markup: function _sub_markup(el, html, json) {
+	  _sub_markup: function (el, html, json) {
 	    var htmltable = false; //ignore top x:ui for xhtml and xml 
 
 	    if (!json) {
@@ -18769,7 +19158,7 @@
 
 	    return json;
 	  },
-	  _empty: function _empty(str) {
+	  _empty: function (str) {
 	    var clean = str.replace(/\s+/gm, "");
 	    return clean.length > 0 ? false : true;
 	  },
@@ -18785,7 +19174,7 @@
 	    column: 1,
 	    config: 1
 	  },
-	  _get_config_html: function _get_config_html(tag, json, html) {
+	  _get_config_html: function (tag, json, html) {
 	    var master = this._attrs_to_json(tag, {});
 
 	    if (master.name) {
@@ -18806,7 +19195,7 @@
 
 	    return json;
 	  },
-	  _get_name: function _get_name(tag, html) {
+	  _get_name: function (tag, html) {
 	    //value of view attribute or config tag
 	    if (html) return tag.getAttribute(this.attribute + "view") || (tag.tagName.toLowerCase() == "config" ? "config" : null);
 	    var name = tag.tagName.toLowerCase();
@@ -18819,7 +19208,7 @@
 
 	    return 0;
 	  },
-	  _handle_data: function _handle_data(el, html) {
+	  _handle_data: function (el, html) {
 	    var data = [];
 	    var records = el.getElementsByTagName(markup.dataTag);
 
@@ -18838,12 +19227,12 @@
 	    remove(el);
 	    return data;
 	  },
-	  _content: function _content(el) {
+	  _content: function (el) {
 	    if (el.style) return el.innerHTML;
 	    if (el.firstChild) return el.firstChild.wholeText || el.firstChild.data || "";
 	    return "";
 	  },
-	  _tag_to_json: function _tag_to_json(el, html) {
+	  _tag_to_json: function (el, html) {
 	    if (!html) return DataDriver.xml.tagToObject(el);
 
 	    var json = this._attrs_to_json(el, {}, html);
@@ -18851,7 +19240,7 @@
 	    if (!json.value && el.childNodes.length) json.value = this._content(el, html);
 	    return json;
 	  },
-	  _attrs_to_json: function _attrs_to_json(el, json, html) {
+	  _attrs_to_json: function (el, json, html) {
 	    var attrs = el.attributes;
 
 	    for (var i = 0; i < attrs.length; i++) {
@@ -18904,7 +19293,7 @@
 	  }
 	};
 
-	var print = function print(id, options) {
+	var print = function (id, options) {
 	  var view = $$(id);
 	  if (view && view.$printView) view = view.$printView();
 	  assert(view, "non-existing view for printing");
@@ -19007,6 +19396,33 @@
 	/*
 		Common helpers
 	*/
+	var html$1 = {
+	  denySelect: denySelect,
+	  allowSelect: allowSelect,
+	  index: index,
+	  createCss: createCss,
+	  addStyle: addStyle,
+	  removeStyle: removeStyle,
+	  create: create,
+	  getValue: getValue,
+	  remove: remove,
+	  insertBefore: insertBefore,
+	  locate: locate,
+	  offset: offset,
+	  posRelative: posRelative,
+	  pos: pos,
+	  preventEvent: preventEvent,
+	  stopEvent: stopEvent,
+	  triggerEvent: triggerEvent,
+	  addCss: addCss,
+	  removeCss: removeCss,
+	  getTextSize: getTextSize,
+	  download: download,
+	  _getClassName: _getClassName,
+	  setSelectionRange: setSelectionRange,
+	  getSelectionRange: getSelectionRange,
+	  addMeta: addMeta
+	};
 
 	var timers = {};
 	function jsonp(url, params, callback, master) {
@@ -19073,7 +19489,7 @@
 	}
 
 	RemoteContext.prototype = {
-	  _process: function _process(config) {
+	  _process: function (config) {
 	    if (config.$key) this._key = config.$key;
 	    if (config.$vars) for (var key in config.$vars) {
 	      this._proxy[key] = config.$vars[key];
@@ -19081,7 +19497,7 @@
 
 	    this._parse(config, this._proxy, "");
 	  },
-	  _parse: function _parse(api, obj, prefix) {
+	  _parse: function (api, obj, prefix) {
 	    for (var key in api) {
 	      if (key === "$key" || key === "$vars") continue;
 	      var val = api[key];
@@ -19093,7 +19509,7 @@
 	      } else obj[key] = this._proxy_call(this, prefix + key);
 	    }
 	  },
-	  _call: function _call(name, args) {
+	  _call: function (name, args) {
 	    var def = this._deffer(this, name, args);
 
 	    this._queue.push(def);
@@ -19102,10 +19518,10 @@
 
 	    return def;
 	  },
-	  _start_queue: function _start_queue() {
+	  _start_queue: function () {
 	    if (!this._timer) this._timer = setTimeout(bind(this._run_queue, this), 1);
 	  },
-	  _run_queue: function _run_queue() {
+	  _run_queue: function () {
 	    var data = [],
 	        defs = this._queue;
 
@@ -19155,7 +19571,7 @@
 	    this._queue = [];
 	    this._timer = null;
 	  },
-	  _sync: function _sync() {
+	  _sync: function () {
 	    var value = null;
 	    this.$sync = true;
 	    var data = [{
@@ -19180,7 +19596,7 @@
 
 	    return value;
 	  },
-	  _deffer: function _deffer(master, name, args) {
+	  _deffer: function (master, name, args) {
 	    var pr = Deferred.defer();
 	    pr.sync = master._sync;
 	    pr.$name = name;
@@ -19188,15 +19604,15 @@
 	    pr.$context = this;
 	    return pr;
 	  },
-	  _proxy_call: function _proxy_call(master, name) {
+	  _proxy_call: function (master, name) {
 	    return function () {
 	      return master._call(name, [].slice.call(arguments));
 	    };
 	  },
-	  _getProxy: function _getProxy() {
+	  _getProxy: function () {
 	    return this._ready || this._proxy;
 	  },
-	  _pack: function _pack(obj) {
+	  _pack: function (obj) {
 	    return {
 	      key: this._key,
 	      payload: obj
@@ -19216,7 +19632,7 @@
 	  return proxy;
 	}
 
-	var remote = function remote(url, config) {
+	var remote = function (url, config) {
 	  if (_typeof(url) === "object") {
 	    var scripts = document.getElementsByTagName("script");
 	    config = url;
@@ -19283,7 +19699,7 @@
 	      direction: "left"
 	    };
 
-	    var getHTML = function getHTML(view) {
+	    var getHTML = function (view) {
 	      var el = view._viewobj;
 	      var css = el.className;
 	      var content = el.innerHTML;
@@ -19356,7 +19772,7 @@
 	  addMeta("apple-mobile-web-app-capable", "yes");
 	  addMeta("viewport", "initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no");
 
-	  var fix = function fix() {
+	  var fix = function () {
 	    var x = window.innerWidth;
 	    var y = window.innerHeight;
 
@@ -19369,7 +19785,7 @@
 	    resize();
 	  };
 
-	  var onrotate = function onrotate() {
+	  var onrotate = function () {
 	    state._freeze_resize = true;
 	    delay(fix, null, [], 500);
 	  };
@@ -19382,11 +19798,11 @@
 	var datafilter = {
 	  textWaitDelay: 500,
 	  "summColumn": {
-	    getValue: function getValue$$1(node) {
+	    getValue: function (node) {
 	      return node.firstChild.innerHTML;
 	    },
-	    setValue: function setValue() {},
-	    refresh: function refresh(master, node, value) {
+	    setValue: function () {},
+	    refresh: function (master, node, value) {
 	      var result = 0;
 	      master.mapCells(null, value.columnId, null, 1, function (value) {
 	        value = value * 1;
@@ -19399,30 +19815,30 @@
 	      node.firstChild.innerHTML = result;
 	    },
 	    trackCells: true,
-	    render: function render(master, config) {
+	    render: function (master, config) {
 	      if (config.template) config.template = template(config.template);
 	      return "";
 	    }
 	  },
 	  "masterCheckbox": {
-	    getValue: function getValue$$1() {},
-	    setValue: function setValue() {},
-	    getHelper: function getHelper(node, config) {
+	    getValue: function () {},
+	    setValue: function () {},
+	    getHelper: function (node, config) {
 	      return {
-	        check: function check() {
+	        check: function () {
 	          config.checked = false;
 	          node.onclick();
 	        },
-	        uncheck: function uncheck() {
+	        uncheck: function () {
 	          config.checked = true;
 	          node.onclick();
 	        },
-	        isChecked: function isChecked() {
+	        isChecked: function () {
 	          return config.checked;
 	        }
 	      };
 	    },
-	    refresh: function refresh(master, node, config) {
+	    refresh: function (master, node, config) {
 	      node.onclick = function () {
 	        this.getElementsByTagName("input")[0].checked = config.checked = !config.checked;
 	        var column = master.getColumnConfig(config.columnId);
@@ -19435,23 +19851,23 @@
 	        master.refresh();
 	      };
 	    },
-	    render: function render(master, config) {
+	    render: function (master, config) {
 	      return "<input type='checkbox' " + (config.checked ? "checked='1'" : "") + ">";
 	    }
 	  },
 	  "textFilter": {
-	    getInputNode: function getInputNode(node) {
+	    getInputNode: function (node) {
 	      return node.firstChild ? node.firstChild.firstChild : {
 	        value: null
 	      };
 	    },
-	    getValue: function getValue$$1(node) {
+	    getValue: function (node) {
 	      return this.getInputNode(node).value;
 	    },
-	    setValue: function setValue(node, value) {
+	    setValue: function (node, value) {
 	      this.getInputNode(node).value = value;
 	    },
-	    refresh: function refresh(master, node, value) {
+	    refresh: function (master, node, value) {
 	      node.component = master._settings.id;
 	      master.registerFilter(node, value, this);
 	      node._comp_id = master._settings.id;
@@ -19460,12 +19876,12 @@
 
 	      _event(node, "keydown", this._on_key_down);
 	    },
-	    render: function render(master, config) {
+	    render: function (master, config) {
 	      if (this.init) this.init(config);
 	      config.css = "webix_ss_filter";
 	      return "<input " + (config.placeholder ? "placeholder=\"" + config.placeholder + "\" " : "") + "type='text'>";
 	    },
-	    _on_key_down: function _on_key_down(e) {
+	    _on_key_down: function (e) {
 	      var id = this._comp_id; //tabbing through filters must not trigger filtering
 	      //we can improve this functionality by preserving initial filter value
 	      //and comparing new one with it
@@ -19480,18 +19896,18 @@
 	    }
 	  },
 	  "selectFilter": {
-	    getInputNode: function getInputNode(node) {
+	    getInputNode: function (node) {
 	      return node.firstChild ? node.firstChild.firstChild : {
 	        value: null
 	      };
 	    },
-	    getValue: function getValue$$1(node) {
+	    getValue: function (node) {
 	      return this.getInputNode(node).value;
 	    },
-	    setValue: function setValue(node, value) {
+	    setValue: function (node, value) {
 	      this.getInputNode(node).value = value;
 	    },
-	    refresh: function refresh(master, node, value) {
+	    refresh: function (master, node, value) {
 	      //value - config from header { contet: }
 	      value.compare = value.compare || function (a, b) {
 	        return a == b;
@@ -19511,7 +19927,7 @@
 	          }, this));
 	        } else data = options;
 	      } else {
-	        data = master.collectValues(value.columnId);
+	        data = master.collectValues(value.columnId, value.collect);
 	        data.unshift({
 	          id: "",
 	          value: ""
@@ -19543,19 +19959,19 @@
 
 	      _event(select, "change", this._on_change);
 	    },
-	    render: function render(master, config) {
+	    render: function (master, config) {
 	      if (this.init) this.init(config);
 	      config.css = "webix_ss_filter";
 	      return "";
 	    },
-	    _on_change: function _on_change() {
+	    _on_change: function () {
 	      $$(this._comp_id).filterByAll();
 	    }
 	  }
 	};
 	datafilter.serverFilter = exports.extend({
 	  $server: true,
-	  _on_key_down: function _on_key_down(e) {
+	  _on_key_down: function (e) {
 	    var id = this._comp_id,
 	        code = e.which || e.keyCode; //ignore tab and navigation keys
 
@@ -19568,42 +19984,53 @@
 	}, datafilter.textFilter);
 	datafilter.serverSelectFilter = exports.extend({
 	  $server: true,
-	  _on_change: function _on_change() {
+	  _on_change: function () {
 	    var id = this._comp_id;
 	    $$(id).filterByAll();
 	  }
 	}, datafilter.selectFilter);
 	datafilter.numberFilter = exports.extend({
-	  init: function init(config) {
+	  init: function (config) {
 	    config.prepare = function (value) {
-	      var equality = value.indexOf("=") != -1 ? 1 : 0;
+	      var _this = this;
+
+	      var equality = value.indexOf("=") != -1;
 	      var intvalue = this.format(value);
 	      if (intvalue === "") return "";
-	      if (value.indexOf(">") != -1) config.compare = this._greater;else if (value.indexOf("<") != -1) {
-	        config.compare = this._lesser;
-	        equality *= -1;
-	      } else {
-	        config.compare = this._equal;
-	        equality = 0;
+	      var compare;
+
+	      if (value.indexOf(">") != -1) {
+	        compare = this._greater;
+	      } else if (value.indexOf("<") != -1) {
+	        compare = this._lesser;
 	      }
-	      return intvalue - equality;
+
+	      if (compare && equality) {
+	        config.compare = function (a, b) {
+	          return _this._equal(a, b) || compare(a, b);
+	        };
+	      } else {
+	        config.compare = compare || this._equal;
+	      }
+
+	      return intvalue;
 	    };
 	  },
-	  format: function format(value) {
+	  format: function (value) {
 	    return value.replace(/[^\-.0-9]/g, "");
 	  },
-	  _greater: function _greater(a, b) {
+	  _greater: function (a, b) {
 	    return a * 1 > b;
 	  },
-	  _lesser: function _lesser(a, b) {
+	  _lesser: function (a, b) {
 	    return a !== "" && a * 1 < b;
 	  },
-	  _equal: function _equal(a, b) {
-	    return a * 1 == b;
+	  _equal: function (a, b) {
+	    return a !== "" && a * 1 == b;
 	  }
 	}, datafilter.textFilter);
 	datafilter.dateFilter = exports.extend({
-	  format: function format(value) {
+	  format: function (value) {
 	    if (value === "") return "";
 	    var date = new Date();
 
@@ -19625,12 +20052,12 @@
 
 	var api$4 = {
 	  name: "baselayout",
-	  restore: function restore(state$$1, factory, configOnly) {
+	  restore: function (state$$1, factory, configOnly) {
 	    var out = this._restore(copy(state$$1), factory);
 
 	    if (configOnly) return out;else ui(out.cols || out.rows, this);
 	  },
-	  _restore: function _restore(state$$1, factory) {
+	  _restore: function (state$$1, factory) {
 	    if (state$$1.$layout) {
 	      var sub = state$$1.cols || state$$1.rows;
 
@@ -19643,7 +20070,7 @@
 
 	    return state$$1;
 	  },
-	  serialize: function serialize(serializer) {
+	  serialize: function (serializer) {
 	    var out = [];
 	    var childs = this.getChildViews();
 
@@ -19669,11 +20096,17 @@
 	    if (this.config.rows) obj.rows = out;else obj.cols = out;
 	    return obj;
 	  },
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    this.$ready.push(this._parse_cells);
 	    this._dataobj = this._contentobj;
 	    this._layout_sizes = [];
 	    this._responsive = [];
+	    this._padding = {
+	      top: 0,
+	      left: 0,
+	      right: 0,
+	      bottom: 0
+	    };
 
 	    if (config.$topView) {
 	      config.borderless = true;
@@ -19687,22 +20120,22 @@
 
 	    if (config.isolate) exports.extend(this, IdSpace);
 	  },
-	  rows_setter: function rows_setter(value) {
+	  rows_setter: function (value) {
 	    this._vertical_orientation = 1;
 	    this._collection = value;
 	    return true;
 	  },
-	  cols_setter: function cols_setter(value) {
+	  cols_setter: function (value) {
 	    this._vertical_orientation = 0;
 	    this.$view.style.whiteSpace = "nowrap";
 	    this._collection = value;
 	    return true;
 	  },
-	  _remove: function _remove(view) {
+	  _remove: function (view) {
 	    PowerArray.removeAt.call(this._cells, PowerArray.find.call(this._cells, view));
 	    this.resizeChildren(true);
 	  },
-	  _replace: function _replace(new_view, target_id) {
+	  _replace: function (new_view, target_id) {
 	    if (isUndefined(target_id)) {
 	      for (var i = 0; i < this._cells.length; i++) {
 	        this._cells[i].destructor();
@@ -19737,11 +20170,11 @@
 	    if (form) form._recollect_elements();
 	    callEvent("onReconstruct", [this]);
 	  },
-	  _fix_vertical_layout: function _fix_vertical_layout(cell) {
+	  _fix_vertical_layout: function (cell) {
 	    cell._viewobj.style.display = "inline-block";
 	    cell._viewobj.style.verticalAlign = "top";
 	  },
-	  addView: function addView(view, index$$1) {
+	  addView: function (view, index$$1) {
 	    if (isUndefined(index$$1)) index$$1 = this._cells.length;
 	    var top = this.$$ ? this : this.getTopParentView();
 	    state._parent_cell = this;
@@ -19749,7 +20182,7 @@
 	    state._parent_cell = null;
 	    return newui._settings.id;
 	  },
-	  removeView: function removeView(id) {
+	  removeView: function (id) {
 	    var view;
 	    if (_typeof(id) != "object") view = $$(id) || (this.$$ ? this.$$(id) : null);else view = id;
 	    var target = PowerArray.find.call(this._cells, view);
@@ -19770,22 +20203,22 @@
 
 	    callEvent("onReconstruct", [this]);
 	  },
-	  reconstruct: function reconstruct() {
+	  reconstruct: function () {
 	    this._hiddencells = 0;
 
 	    this._replace(this._collection);
 	  },
-	  _hide: function _hide(obj, settings, silent) {
+	  _hide: function (obj, settings, silent) {
 	    if (obj._settings.hidden) return;
 	    obj._settings.hidden = true;
 	    remove(obj._viewobj);
 	    this._hiddencells++;
 	    if (!silent && !state._ui_creation) this.resizeChildren(true);
 	  },
-	  _signal_hidden_cells: function _signal_hidden_cells(view) {
+	  _signal_hidden_cells: function (view) {
 	    if (view.callEvent) view.callEvent("onViewShow", []);
 	  },
-	  resizeChildren: function resizeChildren() {
+	  resizeChildren: function () {
 	    if (state._freeze_resize) return;
 
 	    if (this._layout_sizes) {
@@ -19828,10 +20261,10 @@
 	      callEvent("onResize", []);
 	    }
 	  },
-	  getChildViews: function getChildViews() {
+	  getChildViews: function () {
 	    return this._cells;
 	  },
-	  index: function index$$1(obj) {
+	  index: function (obj) {
 	    if (obj._settings) obj = obj._settings.id;
 
 	    for (var i = 0; i < this._cells.length; i++) {
@@ -19840,7 +20273,7 @@
 
 	    return -1;
 	  },
-	  _show: function _show(obj, settings, silent) {
+	  _show: function (obj, settings, silent) {
 	    if (!obj._settings.hidden) return;
 	    obj._settings.hidden = false; //index of sibling cell, next to which new item will appear
 
@@ -19864,7 +20297,7 @@
 	      ui.each(obj, this._signal_hidden_cells);
 	    }
 	  },
-	  showBatch: function showBatch(name, mode) {
+	  showBatch: function (name, mode) {
 	    var preserve = typeof mode != "undefined";
 	    mode = mode !== false;
 
@@ -19889,7 +20322,7 @@
 
 	    this.resizeChildren(true);
 	  },
-	  _parse_cells: function _parse_cells(collection) {
+	  _parse_cells: function (collection) {
 	    this._cells = [];
 	    assert(collection, this.name + " was incorrectly defined. <br><br> You have missed rows|cols|cells|elements collection");
 
@@ -19913,13 +20346,13 @@
 
 	    if (this._parse_cells_ext_end) this._parse_cells_ext_end(collection);
 	  },
-	  _bubble_size: function _bubble_size(prop, size, vertical) {
+	  _bubble_size: function (prop, size, vertical) {
 	    if (this._vertical_orientation != vertical) for (var i = 0; i < this._cells.length; i++) {
 	      this._cells[i]._settings[prop] = size;
 	      if (this._cells[i]._bubble_size) this._cells[i]._bubble_size(prop, size, vertical);
 	    }
 	  },
-	  $getSize: function $getSize(dx, dy) {
+	  $getSize: function (dx, dy) {
 	    debug_size_box_start(this, true);
 	    var minWidth = 0;
 	    var maxWidth = 100000;
@@ -19986,7 +20419,7 @@
 	    if (!this._vertical_orientation && this._settings.responsive) self_size[0] = 0;
 	    return self_size;
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    this._layout_sizes = [x, y];
 	    debug_size_box_start(this);
 	    baseview.api.$setSize.call(this, x, y);
@@ -19995,7 +20428,7 @@
 
 	    debug_size_box_end(this, [x, y]);
 	  },
-	  _set_child_size_a: function _set_child_size_a(sizes, min, max) {
+	  _set_child_size_a: function (sizes, min, max) {
 	    min = sizes[min];
 	    max = sizes[max];
 	    var height = min;
@@ -20018,7 +20451,7 @@
 
 	    return height;
 	  },
-	  _responsive_hide: function _responsive_hide(cell, mode) {
+	  _responsive_hide: function (cell, mode) {
 	    var target = $$(mode);
 
 	    if (target === "hide" || !target) {
@@ -20040,7 +20473,7 @@
 
 	    this._responsive.push(cell);
 	  },
-	  _responsive_show: function _responsive_show(cell) {
+	  _responsive_show: function (cell) {
 	    var target = cell._responsive_marker;
 	    cell._responsive_marker = 0;
 
@@ -20061,10 +20494,10 @@
 
 	    this._responsive.pop();
 	  },
-	  _responsive_cells: function _responsive_cells(x) {
+	  _responsive_cells: function (x) {
 	    state._responsive_tinkery = true;
 
-	    if (x + this._paddingX * 2 + this._margin * (this._cells.length - 1) < this._desired_size[0]) {
+	    if (x + this._padding.left + this._padding.right + this._margin * (this._cells.length - 1) < this._desired_size[0]) {
 	      var max = this._cells.length - 1;
 
 	      for (var i = 0; i < max; i++) {
@@ -20098,7 +20531,7 @@
 
 	    state._responsive_tinkery = false;
 	  },
-	  _set_child_size: function _set_child_size(x, y) {
+	  _set_child_size: function (x, y) {
 	    state._child_sizing_active = (state._child_sizing_active || 0) + 1;
 	    if (!this._vertical_orientation && this._settings.responsive) this._responsive_cells(x, y);
 	    this._set_size_delta = (this._vertical_orientation ? y : x) - this._master_size[0];
@@ -20146,12 +20579,12 @@
 
 	    state._child_sizing_active -= 1;
 	  },
-	  _next: function _next(obj, mode) {
+	  _next: function (obj, mode) {
 	    var index$$1 = this.index(obj);
 	    if (index$$1 == -1) return null;
 	    return this._cells[index$$1 + mode];
 	  },
-	  _first: function _first() {
+	  _first: function () {
 	    return this._cells[0];
 	  }
 	};
@@ -20163,13 +20596,13 @@
 
 	var api$5 = {
 	  name: "layout",
-	  $init: function $init() {
+	  $init: function () {
 	    this._hiddencells = 0;
 	  },
 	  defaults: {
 	    type: "line"
 	  },
-	  _parse_cells: function _parse_cells() {
+	  _parse_cells: function () {
 	    if (this._parse_cells_ext) collection = this._parse_cells_ext(collection);
 
 	    if (!this._parse_once) {
@@ -20178,10 +20611,11 @@
 	    }
 
 	    if (this._settings.margin !== undefined) this._margin = this._settings.margin;
-	    if (this._settings.padding != undefined) this._paddingX = this._paddingY = this._settings.padding;
-	    if (this._settings.paddingX !== undefined) this._paddingX = this._settings.paddingX;
-	    if (this._settings.paddingY !== undefined) this._paddingY = this._settings.paddingY;
-	    if (this._paddingY || this._paddingX) this._padding = true; //if layout has paddings we need to set the visible border 
+	    if (this._settings.padding !== undefined && _typeof(this._settings.padding) !== "object") this._padding.left = this._padding.right = this._padding.top = this._padding.bottom = this._settings.padding;
+	    if (this._settings.paddingX !== undefined) this._padding.left = this._padding.right = this._settings.paddingX;
+	    if (this._settings.paddingY !== undefined) this._padding.top = this._padding.bottom = this._settings.paddingY;
+	    if (_typeof(this._settings.padding) === "object") exports.extend(this._padding, this._settings.padding, true);
+	    if (this._padding.left || this._padding.right || this._padding.top || this._padding.bottom) this._padding.defined = true; //if layout has paddings we need to set the visible border 
 
 	    if (this._hasBorders() && !this._settings.borderless) {
 	      this._contentobj.style.borderWidth = "1px"; //if layout has border - normal bordering rules are applied
@@ -20203,7 +20637,7 @@
 
 	    this._afterResetBorders(collection);
 	  },
-	  $getSize: function $getSize(dx, dy) {
+	  $getSize: function (dx, dy) {
 	    dx = dx || 0;
 	    dy = dy || 0;
 	    var correction = this._margin * (this._cells.length - this._hiddencells - 1);
@@ -20217,11 +20651,11 @@
 	      }
 	    }
 
-	    if (!this._settings.height) dy += (this._paddingY || 0) * 2 + (this._vertical_orientation ? correction : 0);
-	    if (!this._settings.width) dx += (this._paddingX || 0) * 2 + (this._vertical_orientation ? 0 : correction);
+	    if (!this._settings.height) dy += this._padding.top + this._padding.bottom + (this._vertical_orientation ? correction : 0);
+	    if (!this._settings.width) dx += this._padding.left + this._padding.right + (this._vertical_orientation ? 0 : correction);
 	    return baselayout.api.$getSize.call(this, dx, dy);
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    this._layout_sizes = [x, y];
 	    debug_size_box_start(this);
 	    if (this._hasBorders() || this._render_borders) base.api.$setSize.call(this, x, y);else baseview.api.$setSize.call(this, x, y); //form with scroll
@@ -20239,20 +20673,14 @@
 
 	    debug_size_box_end(this, [x, y]);
 	  },
-	  _set_child_size: function _set_child_size(x, y) {
+	  _set_child_size: function (x, y) {
 	    var correction = this._margin * (this._cells.length - this._hiddencells - 1);
-
-	    if (this._vertical_orientation) {
-	      y -= correction + this._paddingY * 2;
-	      x -= this._paddingX * 2;
-	    } else {
-	      x -= correction + this._paddingX * 2;
-	      y -= this._paddingY * 2;
-	    }
-
+	    y -= this._padding.top + this._padding.bottom;
+	    x -= this._padding.left + this._padding.right;
+	    if (this._vertical_orientation) y -= correction;else x -= correction;
 	    return baselayout.api._set_child_size.call(this, x, y);
 	  },
-	  resizeChildren: function resizeChildren(structure_changed) {
+	  resizeChildren: function (structure_changed) {
 	    if (structure_changed) {
 	      this._last_size = null; //forces children resize
 
@@ -20277,10 +20705,10 @@
 	    if (state._responsive_tinkery) return;
 	    baselayout.api.resizeChildren.call(this);
 	  },
-	  _hasBorders: function _hasBorders() {
-	    return this._padding && this._margin > 0 && !this._cleanlayout;
+	  _hasBorders: function () {
+	    return this._padding.defined && this._margin > 0 && !this._cleanlayout;
 	  },
-	  _beforeResetBorders: function _beforeResetBorders(collection) {
+	  _beforeResetBorders: function (collection) {
 	    if (this._hasBorders() && (!this._settings.borderless || this._settings.type == "space")) {
 	      for (var i = 0; i < collection.length; i++) {
 	        if (!collection[i]._inner || !collection[i].borderless) collection[i]._inner = {
@@ -20331,13 +20759,13 @@
 	      }
 	    }
 	  },
-	  _fix_container_borders: function _fix_container_borders(style, inner) {
+	  _fix_container_borders: function (style, inner) {
 	    if (inner.top) style.borderTopWidth = "0px";
 	    if (inner.left) style.borderLeftWidth = "0px";
 	    if (inner.right) style.borderRightWidth = "0px";
 	    if (inner.bottom) style.borderBottomWidth = "0px";
 	  },
-	  _afterResetBorders: function _afterResetBorders(collection) {
+	  _afterResetBorders: function (collection) {
 	    var start = 0;
 
 	    for (var i = 0; i < collection.length; i++) {
@@ -20356,28 +20784,28 @@
 
 	    var style = this._vertical_orientation ? "marginLeft" : "marginTop";
 	    var contrstyle = this._vertical_orientation ? "marginTop" : "marginLeft";
-	    var padding = this._vertical_orientation ? this._paddingX : this._paddingY;
-	    var contrpadding = this._vertical_orientation ? this._paddingY : this._paddingX; //add top offset to all
+	    var padding = this._vertical_orientation ? this._padding.left : this._padding.top;
+	    var contrpadding = this._vertical_orientation ? this._padding.top : this._padding.left; //add top offset to all
 
 	    for (var _i5 = 0; _i5 < collection.length; _i5++) {
-	      this._cells[_i5]._viewobj.style[style] = (padding || 0) + "px";
+	      this._cells[_i5]._viewobj.style[style] = padding + "px";
 	    } //add left offset to first cell
 
 
-	    if (this._cells.length) this._cells[start]._viewobj.style[contrstyle] = (contrpadding || 0) + "px"; //add offset between cells
+	    if (this._cells.length) this._cells[start]._viewobj.style[contrstyle] = contrpadding + "px"; //add offset between cells
 
 	    for (var index = start + 1; index < collection.length; index++) {
 	      this._cells[index]._viewobj.style[contrstyle] = this._margin + "px";
 	    }
 	  },
-	  type_setter: function type_setter(value) {
-	    this._margin = typeof this._margin_set[value] != "undefined" ? this._margin_set[value] : this._margin_set["line"];
-	    this._paddingX = this._paddingY = typeof this._margin_set[value] != "undefined" ? this._padding_set[value] : this._padding_set["line"];
+	  type_setter: function (value) {
+	    this._margin = typeof this._margin_set[value] !== "undefined" ? this._margin_set[value] : this._margin_set["line"];
+	    this._padding.left = this._padding.right = this._padding.top = this._padding.bottom = typeof this._margin_set[value] !== "undefined" ? this._padding_set[value] : this._padding_set["line"];
 	    this._cleanlayout = value == "material" || value == "clean";
 	    if (value == "material") this._settings.borderless = true;
 	    return value;
 	  },
-	  $skin: function $skin() {
+	  $skin: function () {
 	    this._margin_set = $active.layoutMargin;
 	    this._padding_set = $active.layoutPadding;
 	  }
@@ -20399,7 +20827,7 @@
 	    calendarCount: 2,
 	    borderless: false
 	  },
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    config.calendar = config.calendar || {};
 	    config.value = this._correct_value(config.value);
 	    delete config.calendar.type; // other types are not implemented
@@ -20442,13 +20870,13 @@
 	      this._onKeyPress(e.which || e.keyCode, e);
 	    }, this));
 	  },
-	  value_setter: function value_setter(value) {
+	  value_setter: function (value) {
 	    return this._correct_value(value);
 	  },
-	  getValue: function getValue$$1() {
+	  getValue: function () {
 	    return this._settings.value;
 	  },
-	  setValue: function setValue(value, silent) {
+	  setValue: function (value, silent) {
 	    value = this._correct_value(value);
 	    this._settings.value = value;
 	    var start = value.start || value.end || new Date();
@@ -20466,7 +20894,7 @@
 	    this.callEvent("onChange", [value]);
 	    this.refresh();
 	  },
-	  refresh: function refresh() {
+	  refresh: function () {
 	    for (var i = 0; i < this._cals.length; i++) {
 	      if (this._cals[i]._zoom_level === this._zoom_level) {
 	        removeCss(this._cals[i].$view, "webix_cal_timepicker");
@@ -20487,17 +20915,17 @@
 	      }
 	    }
 	  },
-	  addToRange: function addToRange(date) {
+	  addToRange: function (date) {
 	    var value = this._add_date(this._string_to_date(date));
 
 	    this.setValue(value);
 	  },
 	  _icons: [{
-	    template: function template$$1() {
+	    template: function () {
 	      return "<span role='button' tabindex='0' class='webix_cal_icon_today webix_cal_icon'>" + i18n.calendar.today + "</span>";
 	    },
 	    on_click: {
-	      "webix_cal_icon_today": function webix_cal_icon_today() {
+	      "webix_cal_icon_today": function () {
 	        var date = new Date();
 	        if (!this._settings.timepicker) date = wDate.datePart(date);
 	        this.addToRange(date);
@@ -20505,17 +20933,17 @@
 	      }
 	    }
 	  }, {
-	    template: function template$$1() {
+	    template: function () {
 	      return "<span role='button' tabindex='0' class='webix_cal_icon_clear webix_cal_icon'>" + i18n.calendar.clear + "</span>";
 	    },
 	    on_click: {
-	      "webix_cal_icon_clear": function webix_cal_icon_clear() {
+	      "webix_cal_icon_clear": function () {
 	        this.setValue("");
 	        this.callEvent("onDateClear", []);
 	      }
 	    }
 	  }],
-	  _icons_template: function _icons_template(icons) {
+	  _icons_template: function (icons) {
 	    if (!icons) return {
 	      width: 0
 	    };else {
@@ -20547,7 +20975,7 @@
 	      return icons_template;
 	    }
 	  },
-	  _footer_row: function _footer_row(config, width) {
+	  _footer_row: function (config, width) {
 	    var button = {
 	      view: "button",
 	      value: i18n.calendar.done,
@@ -20555,7 +20983,7 @@
 	      maxWidth: 230,
 	      align: "center",
 	      height: 30,
-	      click: function click() {
+	      click: function () {
 	        this.getParentView().getParentView().hide();
 	      }
 	    };
@@ -20583,7 +21011,7 @@
 	    1: 12,
 	    2: 120
 	  },
-	  _correct_value: function _correct_value(value) {
+	  _correct_value: function (value) {
 	    if (!value) value = {
 	      start: null,
 	      end: null
@@ -20596,14 +21024,14 @@
 	    if (value.end && value.end < value.start || !value.start) value.end = [value.start, value.start = value.end][0];
 	    return value;
 	  },
-	  _string_to_date: function _string_to_date(date) {
+	  _string_to_date: function (date) {
 	    if (typeof date == "string") {
 	      date = i18n.parseFormatDate(date);
 	    }
 
 	    return isNaN(date * 1) ? null : date;
 	  },
-	  _isInRange: function _isInRange(date, isOutside) {
+	  _isInRange: function (date, isOutside) {
 	    if (isOutside) return;
 	    var v = this._settings.value,
 	        s = v.start ? wDate.datePart(wDate.copy(v.start)) : null,
@@ -20624,7 +21052,7 @@
 	    var holiday = wDate.isHoliday(date) + " " || "";
 	    return css + " " + holiday;
 	  },
-	  _after_init: function _after_init() {
+	  _after_init: function () {
 	    var cals = this._cals = this.getChildViews()[0].getChildViews();
 	    var range = this;
 	    var masterId = this.config.id;
@@ -20651,7 +21079,7 @@
 
 	    if (this._settings.timepicker) this.refresh();
 	  },
-	  _before_zoom: function _before_zoom(view, zoom) {
+	  _before_zoom: function (view, zoom) {
 	    var ind = this._getIndexById(view.config.id);
 
 	    if (zoom >= 0 && ind > 0 && ind !== this._cals.length - 1) return false;
@@ -20666,7 +21094,7 @@
 
 	    return true;
 	  },
-	  _month_change: function _month_change(now, prev) {
+	  _month_change: function (now, prev) {
 	    var dir = now > prev ? 1 : -1;
 	    var start = now > prev ? this._cals[this._cals.length - 1] : this._cals[0];
 	    var step = start._zoom_logic[start._zoom_level]._changeStep;
@@ -20675,7 +21103,7 @@
 
 	    this.refresh();
 	  },
-	  _after_zoom: function _after_zoom(start, zoom, oldzoom) {
+	  _after_zoom: function (start, zoom, oldzoom) {
 	    var step = start._zoom_logic[start._zoom_level]._changeStep;
 
 	    var ind = this._getIndexById(start.config.id);
@@ -20704,34 +21132,34 @@
 	      this.refresh();
 	    }
 	  },
-	  _changeDateSilent: function _changeDateSilent(view, dir, step) {
+	  _changeDateSilent: function (view, dir, step) {
 	    view.blockEvent();
 	    if (view._zoom_level >= 0) view._changeDate(dir, step);
 	    view.unblockEvent();
 	  },
-	  _getIndexById: function _getIndexById(id) {
+	  _getIndexById: function (id) {
 	    return this._cals_hash[id];
 	  },
-	  _shift: function _shift(dir, step, start) {
+	  _shift: function (dir, step, start) {
 	    for (var i = 0; i < this._cals.length; i++) {
 	      var next = this._cals[i];
 	      if (!start || next.config.id !== start.config.id) this._changeDateSilent(next, dir, step);
 	    }
 	  },
-	  _related_date: function _related_date(date) {
+	  _related_date: function (date) {
 	    var v = this._settings.value;
 	    var rel = {};
 	    if (v.start && v.start.getYear() === date.getYear() && v.start.getMonth() === date.getMonth()) rel.start = v.start;
 	    if (v.end && v.end.getYear() === date.getYear() && v.end.getMonth() === date.getMonth()) rel.end = v.end;
 	    return rel;
 	  },
-	  _set_time: function _set_time(date, source) {
+	  _set_time: function (date, source) {
 	    date.setHours(source.getHours());
 	    date.setMinutes(source.getMinutes());
 	    date.setSeconds(source.getSeconds());
 	    date.setMilliseconds(source.getMilliseconds());
 	  },
-	  _add_date: function _add_date(date, ind) {
+	  _add_date: function (date, ind) {
 	    var v = copy(this._settings.value); //year, month
 
 	    if (this._zoom_level !== 0 && !isUndefined(ind)) {
@@ -20746,7 +21174,7 @@
 
 	    return v;
 	  },
-	  _on_date_select: function _on_date_select(view, date) {
+	  _on_date_select: function (view, date) {
 	    if (this.callEvent("onBeforeDateSelect", [date])) {
 	      var v = this._settings.value;
 
@@ -20787,21 +21215,26 @@
 	};
 
 	datafilter.richSelectFilter = {
-	  getInputNode: function getInputNode(node) {
+	  getInputNode: function (node) {
 	    return $$(node.$webix) || null;
 	  },
-	  getValue: function getValue$$1(node) {
+	  getValue: function (node, text) {
 	    var ui$$1 = this.getInputNode(node);
+
+	    if (text && ui$$1.getText) {
+	      return ui$$1.getText();
+	    }
+
 	    return ui$$1 ? ui$$1.getValue() : "";
 	  },
-	  setValue: function setValue(node, value) {
+	  setValue: function (node, value) {
 	    var ui$$1 = this.getInputNode(node);
 	    return ui$$1 ? ui$$1.setValue(value) : "";
 	  },
-	  compare: function compare(a, b) {
+	  compare: function (a, b) {
 	    return a == b;
 	  },
-	  refresh: function refresh(master, node, value) {
+	  refresh: function (master, node, value) {
 	    if (master.$destructed) return;
 	    var select = $$(value.richselect); //IE8 can destory the content of richselect, so recreating
 
@@ -20829,7 +21262,7 @@
 	          this.refresh(master, node, value);
 	        }, this));
 	      } else data = options;
-	    } else data = master.collectValues(value.columnId);
+	    } else data = master.collectValues(value.columnId, value.collect);
 
 	    var list = select.getPopup().getList();
 	    var optview = $$(options);
@@ -20862,7 +21295,7 @@
 
 	    delay(select.resize, select);
 	  },
-	  render: function render(master, config) {
+	  render: function (master, config) {
 	    if (!config.richselect) {
 	      var d = create("div", {
 	        "class": "webix_richfilter"
@@ -20896,7 +21329,7 @@
 	datafilter.multiSelectFilter = exports.extend({
 	  $noEmptyOption: true,
 	  inputtype: "multiselect",
-	  prepare: function prepare(value, filter) {
+	  prepare: function (value, filter) {
 	    if (!value) return value;
 	    var hash = {};
 	    var parts = value.toString().split(filter.separator || ",");
@@ -20907,13 +21340,13 @@
 
 	    return hash;
 	  },
-	  compare: function compare(a, b) {
+	  compare: function (a, b) {
 	    return !b || b[a];
 	  }
 	}, datafilter.richSelectFilter);
 	datafilter.serverMultiSelectFilter = exports.extend({
 	  $server: true,
-	  _on_change: function _on_change() {
+	  _on_change: function () {
 	    var id = this._comp_id;
 	    $$(id).filterByAll();
 	  }
@@ -20931,33 +21364,35 @@
 	  }
 	}, datafilter.serverMultiSelectFilter);
 	datafilter.datepickerFilter = exports.extend({
-	  prepare: function prepare(value) {
+	  prepare: function (value) {
 	    return value || "";
 	  },
-	  compare: function compare(a, b) {
+	  compare: function (a, b) {
 	    return a * 1 == b * 1;
 	  },
 	  inputtype: "datepicker"
 	}, datafilter.richSelectFilter);
 	datafilter.columnGroup = {
-	  getValue: function getValue$$1() {},
-	  setValue: function setValue() {},
-	  getHelper: function getHelper(node, config) {
+	  getValue: function (node) {
+	    return node.innerHTML;
+	  },
+	  setValue: function () {},
+	  getHelper: function (node, config) {
 	    return {
-	      open: function open() {
+	      open: function () {
 	        config.closed = true;
 	        node.onclick();
 	      },
-	      close: function close() {
+	      close: function () {
 	        config.closed = false;
 	        node.onclick();
 	      },
-	      isOpened: function isOpened() {
+	      isOpened: function () {
 	        return config.closed;
 	      }
 	    };
 	  },
-	  refresh: function refresh(master, node, config) {
+	  refresh: function (master, node, config) {
 	    node.onclick = function (e) {
 	      stopEvent(e);
 	      var mark = this.firstChild.firstChild;
@@ -20981,16 +21416,16 @@
 	      if (config.closed) master.showColumnBatch(config.batch, false);
 	    }
 	  },
-	  render: function render(master, config) {
+	  render: function (master, config) {
 	    return "<div role='button' tabindex='0' aria-label='" + i18n.aria[config.closed ? "openGroup" : "closeGroup"] + "' class='" + (config.closed ? "webix_tree_close" : "webix_tree_open") + "'></div>" + (config.groupText || "");
 	  }
 	};
 	datafilter.dateRangeFilter = exports.extend({
-	  prepare: function prepare(value) {
+	  prepare: function (value) {
 	    if (!value.start && !value.end) return "";
 	    return daterange.api._correct_value(value);
 	  },
-	  compare: function compare(a, b) {
+	  compare: function (a, b) {
 	    return (!b.start || a >= b.start) && (!b.end || a <= b.end);
 	  },
 	  inputtype: "daterangepicker"
@@ -21086,7 +21521,9 @@
 	    actualSize: "Aktuelles Ausmaß",
 	    pageFit: "Seite Ausmaß",
 	    pageWidth: "Seite Breite",
-	    pageHeight: "Seite Höhe"
+	    pageHeight: "Seite Höhe",
+	    enterPassword: "Passwort eingeben",
+	    passwordError: "Falsches passwort"
 	  },
 	  aria: {
 	    calendar: "Kalender",
@@ -21182,7 +21619,9 @@
 	    actualSize: "Tamaño real",
 	    pageFit: "Tamaño de página",
 	    pageWidth: "Ancho de página",
-	    pageHeight: "Altura de la página"
+	    pageHeight: "Altura de la página",
+	    enterPassword: "Introduzca la contraseña",
+	    passwordError: "Contraseña incorrecta"
 	  },
 	  aria: {
 	    calendar: "Сalendario",
@@ -21271,7 +21710,9 @@
 	    actualSize: "Taille actuelle",
 	    pageFit: "Taille de la page",
 	    pageWidth: "Largeur de la page",
-	    pageHeight: "Hauteur de page"
+	    pageHeight: "Hauteur de page",
+	    enterPassword: "Entrez le mot de passe",
+	    passwordError: "Mauvais mot de passe"
 	  },
 	  aria: {
 	    calendar: "Сalendrier",
@@ -21367,7 +21808,9 @@
 	    actualSize: "Dimensione reale",
 	    pageFit: "Dimensioni della pagina",
 	    pageWidth: "Larghezza della pagina",
-	    pageHeight: "Altezza della pagina"
+	    pageHeight: "Altezza della pagina",
+	    enterPassword: "Inserisci la password",
+	    passwordError: "Password errata"
 	  },
 	  aria: {
 	    calendar: "Calendario",
@@ -21460,7 +21903,9 @@
 	    actualSize: "実サイズ",
 	    pageFit: "ページサイズ",
 	    pageWidth: "ページ幅",
-	    pageHeight: "ページの高さ"
+	    pageHeight: "ページの高さ",
+	    enterPassword: "パスワードを入力する",
+	    passwordError: "間違ったパスワード"
 	  },
 	  aria: {
 	    calendar: "カレンダー",
@@ -21556,7 +22001,9 @@
 	    actualSize: "Tamanho atual",
 	    pageFit: "Tamanho da página",
 	    pageWidth: "Largura da página",
-	    pageHeight: "Altura da página"
+	    pageHeight: "Altura da página",
+	    enterPassword: "Digite a senha",
+	    passwordError: "Senha incorreta"
 	  },
 	  aria: {
 	    calendar: "Calendário",
@@ -21652,7 +22099,9 @@
 	    actualSize: "实际尺寸",
 	    pageFit: "页面大小",
 	    pageWidth: "页面宽度",
-	    pageHeight: "页面高度"
+	    pageHeight: "页面高度",
+	    enterPassword: "输入密码",
+	    passwordError: "密码错误"
 	  },
 	  aria: {
 	    calendar: "日历",
@@ -21741,7 +22190,9 @@
 	    actualSize: "Настоящий размер",
 	    pageFit: "Размер страницы",
 	    pageWidth: "Ширина страницы",
-	    pageHeight: "Высота страницы"
+	    pageHeight: "Высота страницы",
+	    enterPassword: "Введите пароль",
+	    passwordError: "Неверный пароль"
 	  },
 	  aria: {
 	    calendar: "Календарь",
@@ -21834,7 +22285,9 @@
 	    actualSize: "Сапраўдны памер",
 	    pageFit: "Памер старонкі",
 	    pageWidth: "Шырыня старонкі",
-	    pageHeight: "Вышыня старонкі"
+	    pageHeight: "Вышыня старонкі",
+	    enterPassword: "Увядзіце пароль",
+	    passwordError: "Няправільны пароль"
 	  },
 	  aria: {
 	    calendar: "Каляндар",
@@ -21906,7 +22359,7 @@
 	  defaults: {
 	    borderless: true
 	  },
-	  $init: function $init() {
+	  $init: function () {
 	    this._viewobj.className += " webix_spacer";
 	  }
 	};
@@ -21914,7 +22367,7 @@
 
 	var api$8 = {
 	  name: "template",
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    var subtype = this._template_types[config.type];
 
 	    if (subtype) {
@@ -21936,15 +22389,16 @@
 
 	    this.attachEvent("onAfterRender", this._correct_width_scroll);
 	  },
-	  setValues: function setValues(obj, update) {
+	  setValues: function (obj, update) {
 	    this.data = update ? exports.extend(this.data, obj, true) : obj;
 	    this.render();
 	  },
-	  getValues: function getValues() {
+	  getValues: function () {
 	    return this.data;
 	  },
-	  $skin: function $skin() {
-	    this._template_types.header.height = this._template_types.section.height = $active.barHeight;
+	  $skin: function () {
+	    this._template_types.header.height = $active.barHeight - $active.borderWidth * 2;
+	    this._template_types.section.height = $active.barHeight;
 	  },
 	  _template_types: {
 	    "header": {
@@ -21959,7 +22413,7 @@
 	      borderless: true
 	    }
 	  },
-	  onClick_setter: function onClick_setter(value) {
+	  onClick_setter: function (value) {
 	    this.on_click = exports.extend(this.on_click || {}, value, true);
 	    if (!this._onClick) exports.extend(this, MouseEvents);
 	    return value;
@@ -21967,20 +22421,20 @@
 	  defaults: {
 	    template: template.empty
 	  },
-	  _render_me: function _render_me() {
+	  _render_me: function () {
 	    this._not_render_me = false;
 
 	    this._probably_render_me();
 
 	    this.resize();
 	  },
-	  _probably_render_me: function _probably_render_me() {
+	  _probably_render_me: function () {
 	    if (!this._not_render_me) {
 	      this._not_render_me = true;
 	      this.render();
 	    }
 	  },
-	  src_setter: function src_setter(value) {
+	  src_setter: function (value) {
 	    this._not_render_me = true;
 	    if (!this.callEvent("onBeforeLoad", [])) return "";
 	    ajax(value, bind(function (text) {
@@ -21992,7 +22446,7 @@
 	    }, this));
 	    return value;
 	  },
-	  _correct_width_scroll: function _correct_width_scroll() {
+	  _correct_width_scroll: function () {
 	    //we need to force auto height calculation after content change
 	    //dropping the last_size flag will ensure that inner logic of $setSize will be processed
 	    if (this._settings.autoheight) {
@@ -22002,7 +22456,7 @@
 
 	    if (this._settings.scroll && this._settings.scroll.indexOf("x") != -1) this._dataobj.style.width = this._dataobj.scrollWidth + "px";
 	  },
-	  content_setter: function content_setter(config) {
+	  content_setter: function (config) {
 	    if (config) {
 	      this._not_render_me = true;
 
@@ -22013,21 +22467,21 @@
 	      delay(this._correct_width_scroll, this);
 	    }
 	  },
-	  refresh: function refresh() {
+	  refresh: function () {
 	    this.render();
 	  },
-	  setHTML: function setHTML(html) {
+	  setHTML: function (html) {
 	    this._settings.template = function () {
 	      return html;
 	    };
 
 	    this.refresh();
 	  },
-	  setContent: function setContent(content) {
+	  setContent: function (content) {
 	    this._dataobj.innerHTML = "";
 	    this.content_setter(content);
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    if (base.api.$setSize.call(this, x, y)) {
 	      this._probably_render_me();
 
@@ -22040,11 +22494,11 @@
 	      return true;
 	    }
 	  },
-	  $getSize: function $getSize(x, y) {
+	  $getSize: function (x, y) {
 	    if (this._settings.autoheight && (!this._settings.type || this._settings.type == "clean")) this._settings.height = this._get_auto_height();
 	    return base.api.$getSize.call(this, x, y);
 	  },
-	  _get_auto_height: function _get_auto_height() {
+	  _get_auto_height: function () {
 	    var size;
 	    var padding = $active.layoutPadding.space;
 
@@ -22065,7 +22519,7 @@
 	  _one_time_scroll: true //scroll will appear only if set directly in config
 
 	};
-	var view$8 = exports.protoUI(api$8, Scrollable, AtomDataLoader, AtomRender, EventSystem, base.view);
+	var view$8 = exports.protoUI(api$8, Scrollable, AutoTooltip, AtomDataLoader, AtomRender, EventSystem, base.view);
 	var template$1 = {
 	  api: api$8,
 	  view: view$8
@@ -22079,23 +22533,23 @@
 	    scroll: "y",
 	    scrollSpeed: "0ms"
 	  },
-	  $init: function $init() {
+	  $init: function () {
 	    this._viewobj.className += " webix_scrollview";
 	  },
-	  body_setter: function body_setter(config) {
+	  body_setter: function (config) {
 	    config.borderless = true;
 	    state._parent_cell = this;
 	    this._body_cell = ui._view(config);
 
 	    this._dataobj.appendChild(this._body_cell._viewobj);
 	  },
-	  getChildViews: function getChildViews() {
+	  getChildViews: function () {
 	    return [this._body_cell];
 	  },
-	  getBody: function getBody() {
+	  getBody: function () {
 	    return this._body_cell;
 	  },
-	  resizeChildren: function resizeChildren() {
+	  resizeChildren: function () {
 	    if (!this._body_cell) return;
 	    this._desired_size = this._body_cell.$getSize(0, 0);
 
@@ -22103,7 +22557,7 @@
 
 	    callEvent("onResize", []);
 	  },
-	  _resizeChildren: function _resizeChildren() {
+	  _resizeChildren: function () {
 	    var cx = Math.max(this._content_width, this._desired_size[0]);
 	    var cy = Math.max(this._content_height, this._desired_size[2]);
 
@@ -22125,7 +22579,7 @@
 	      this._resizeChildren();
 	    }
 	  },
-	  $getSize: function $getSize(dx, dy) {
+	  $getSize: function (dx, dy) {
 	    var desired_size = this._desired_size = this._body_cell.$getSize(0, 0);
 
 	    var self_sizes = base.api.$getSize.call(this, dx, dy);
@@ -22141,13 +22595,13 @@
 
 	    return self_sizes;
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    var temp = env.scrollSize;
 	    env.scrollSize = this._native_scroll || temp;
 	    if (base.api.$setSize.call(this, x, y) || state._force_resize) this._resizeChildren();
 	    env.scrollSize = temp;
 	  },
-	  scroll_setter: function scroll_setter(value) {
+	  scroll_setter: function (value) {
 	    var custom = env.$customScroll;
 
 	    if (typeof value == "string" && value.indexOf("native-") === 0) {
@@ -22160,7 +22614,7 @@
 	    env.$customScroll = custom;
 	    return value;
 	  },
-	  _replace: function _replace(new_view) {
+	  _replace: function (new_view) {
 	    this._body_cell.destructor();
 
 	    this._body_cell = new_view;
@@ -22169,7 +22623,7 @@
 
 	    this.resize();
 	  },
-	  showView: function showView(id) {
+	  showView: function (id) {
 	    var topPos = $$(id).$view.offsetTop - $$(id).$view.parentNode.offsetTop;
 	    this.scrollTo(0, topPos);
 	  }
@@ -22178,22 +22632,22 @@
 
 	var api$a = {
 	  name: "iframe",
-	  $init: function $init() {
+	  $init: function () {
 	    this._dataobj = this._contentobj;
 	    this._contentobj.innerHTML = "<iframe style='width:100%; height:100%' frameborder='0' onload='var t = $$(this.parentNode.getAttribute(\"view_id\")); if (t) t.callEvent(\"onAfterLoad\",[]);' src='about:blank'></iframe>";
 	  },
-	  load: function load(value) {
+	  load: function (value) {
 	    this.src_setter(value);
 	  },
-	  src_setter: function src_setter(value) {
+	  src_setter: function (value) {
 	    if (!this.callEvent("onBeforeLoad", [])) return "";
 	    this.getIframe().src = value;
 	    return value;
 	  },
-	  getIframe: function getIframe() {
+	  getIframe: function () {
 	    return this._contentobj.getElementsByTagName("iframe")[0];
 	  },
-	  getWindow: function getWindow() {
+	  getWindow: function () {
 	    return this.getIframe().contentWindow;
 	  }
 	};
@@ -22206,19 +22660,19 @@
 	    multi: false,
 	    collapsed: false
 	  },
-	  $init: function $init() {
+	  $init: function () {
 	    this._viewobj.setAttribute("role", "tablist");
 
 	    this._viewobj.setAttribute("aria-multiselectable", "true");
 	  },
-	  _replace: function _replace(newview) {
+	  _replace: function (newview) {
 	    layout.api._replace.apply(this, arguments);
 
 	    if (newview.collapsed_setter && newview.refresh) {
 	      newview.refresh();
 	    }
 	  },
-	  _parse_cells: function _parse_cells() {
+	  _parse_cells: function () {
 	    var panel = this._settings.panelClass;
 	    var cells = this._collection;
 
@@ -22247,7 +22701,7 @@
 	      }
 	    }
 	  },
-	  _afterOpen: function _afterOpen(view) {
+	  _afterOpen: function (view) {
 	    if (this._settings.multi === false && this._skin_render_collapse !== true) {
 	      for (var i = 0; i < this._cells.length; i++) {
 	        if (view != this._cells[i] && !this._cells[i]._settings.collapsed && this._cells[i].collapse) this._cells[i].collapse();
@@ -22259,7 +22713,7 @@
 	      each(view, this._signal_hidden_cells);
 	    }
 	  },
-	  _canCollapse: function _canCollapse(view) {
+	  _canCollapse: function (view) {
 	    if (this._settings.multi === true || this._skin_render_collapse) return true; //can collapse only if you have other item to open
 
 	    for (var i = 0; i < this._cells.length; i++) {
@@ -22268,7 +22722,7 @@
 
 	    return false;
 	  },
-	  $skin: function $skin() {
+	  $skin: function () {
 	    var defaults = this.defaults;
 	    if ($active.accordionType) defaults.type = $active.accordionType;
 	  }
@@ -22291,7 +22745,7 @@
 
 	var api$d = {
 	  name: "accordionitem",
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    this._viewobj.innerHTML = "<div tabindex='0' webix_ai_id='" + config.id + "'  class='webix_accordionitem_header'><div class='webix_accordionitem_button' ></div><div class='webix_accordionitem_label' ></div></div><div class='webix_accordionitem_body'></div>";
 	    this._contentobj = this._viewobj;
 	    this._headobj = this._contentobj.childNodes[0];
@@ -22309,12 +22763,12 @@
 
 	    this.attachEvent("onKeyPress", this._onKeyPress);
 	  },
-	  _remove: function _remove() {
+	  _remove: function () {
 	    this._body_cell = {
-	      destructor: function destructor() {}
+	      destructor: function () {}
 	    };
 	  },
-	  _replace: function _replace(new_view) {
+	  _replace: function (new_view) {
 	    this._body_cell.destructor();
 
 	    this._body_cell = new_view;
@@ -22324,10 +22778,10 @@
 	    this.resize();
 	  },
 	  _id: "webix_ai_id",
-	  getChildViews: function getChildViews() {
+	  getChildViews: function () {
 	    return [this._body_cell];
 	  },
-	  body_setter: function body_setter(value) {
+	  body_setter: function (value) {
 	    if (_typeof(value) != "object") value = {
 	      template: value
 	    };
@@ -22344,15 +22798,15 @@
 
 	    return value;
 	  },
-	  header_setter: function header_setter(value) {
+	  header_setter: function (value) {
 	    if (value) value = template(value);
 	    return value;
 	  },
-	  headerAlt_setter: function headerAlt_setter(value) {
+	  headerAlt_setter: function (value) {
 	    if (value) value = template(value);
 	    return value;
 	  },
-	  $getSize: function $getSize(dx, dy) {
+	  $getSize: function (dx, dy) {
 	    var size = this._body_cell.$getSize(0, 0); //apply external border to inner content sizes
 
 
@@ -22376,10 +22830,10 @@
 
 	    if (this.getParentView()._vertical_orientation) {
 	      if (this._settings.collapsed) {
-	        self_size[2] = self_size[3] = this._getHeaderSize();
+	        self_size[2] = self_size[3] = this._getHeaderSize() + dy;
 	      } else if (this._settings.header) header = this._settings.headerHeight;
 	    } else {
-	      if (this._settings.collapsed) self_size[0] = self_size[1] = this._getHeaderSize();
+	      if (this._settings.collapsed) self_size[0] = self_size[1] = this._getHeaderSize() + dx;
 	      if (this._settings.header) header = this._settings.headerHeight;
 	    } //include header in total height calculation
 
@@ -22393,21 +22847,21 @@
 	    return self_size;
 	  },
 	  on_click: {
-	    webix_accordionitem_header: function webix_accordionitem_header(e) {
+	    webix_accordionitem_header: function (e) {
 	      this._toggle(e);
 
 	      return false;
 	    },
-	    webix_accordionitem_header_v: function webix_accordionitem_header_v(e) {
+	    webix_accordionitem_header_v: function (e) {
 	      this._toggle(e);
 
 	      return false;
 	    }
 	  },
-	  _toggle: function _toggle() {
+	  _toggle: function () {
 	    this.define("collapsed", !this._settings.collapsed);
 	  },
-	  collapsed_setter: function collapsed_setter(value) {
+	  collapsed_setter: function (value) {
 	    if (this._settings.header === false) return; //use last layout element if parent is not known yet
 
 	    var parent = this.getParentView();
@@ -22441,28 +22895,28 @@
 
 	    return value;
 	  },
-	  collapse: function collapse() {
+	  collapse: function () {
 	    this.define("collapsed", true);
 
 	    UIManager._moveChildFocus(this);
 	  },
-	  expand: function expand() {
+	  expand: function () {
 	    this.define("collapsed", false);
 	  },
-	  _show: function _show() {
+	  _show: function () {
 	    this.show();
 	  },
-	  _hide: function _hide() {
+	  _hide: function () {
 	    this.hide();
 	  },
-	  _expand: function _expand() {
+	  _expand: function () {
 	    this._bodyobj.style.display = "";
 	    removeCss(this.$view, "collapsed");
 	    removeCss(this._headobj, "collapsed");
 
 	    this._headobj.setAttribute("aria-expanded", "true");
 	  },
-	  _collapse: function _collapse() {
+	  _collapse: function () {
 	    if (this._settings.headerAlt) this._headlabel.innerHTML = this._settings.headerAlt();
 	    this._bodyobj.style.display = "none";
 	    addCss(this.$view, "collapsed");
@@ -22470,7 +22924,7 @@
 
 	    this._headobj.setAttribute("aria-expanded", "false");
 	  },
-	  refresh: function refresh() {
+	  refresh: function () {
 	    var template$$1 = this._settings[this._settings.collapsed ? "headerAlt" : "header"] || this._settings.header;
 
 	    if (template$$1) {
@@ -22490,10 +22944,10 @@
 	      addCss(this._viewobj, "webix_ie", true);
 	    }
 	  },
-	  _getHeaderSize: function _getHeaderSize() {
+	  _getHeaderSize: function () {
 	    return this._settings.collapsed ? this._settings.headerAltHeight : this._settings.headerHeight;
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    if (base.api.$setSize.call(this, x, y) || this._getHeaderSize() != this._last_set_header_size) {
 	      x = this._content_width;
 	      y = this._content_height;
@@ -22534,10 +22988,9 @@
 	      if (this._last_size_y) body.$setSize(this._content_width, this._last_size_y);
 	    }
 	  },
-	  $skin: function $skin() {
+	  $skin: function () {
 	    var defaults = this.defaults;
-	    defaults.headerAltHeight = defaults.headerHeight = $active.barHeight;
-	    defaults.headerHeight -= $active.borderWidth;
+	    defaults.headerAltHeight = defaults.headerHeight = $active.barHeight - $active.borderWidth * 2;
 	  },
 	  defaults: {
 	    header: false,
@@ -22552,7 +23005,7 @@
 	  defaults: {
 	    dir: "x"
 	  },
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    var dir = config.dir || "x";
 	    var node = toNode(config.container);
 	    var size = dir == "x" ? "width" : "height";
@@ -22593,7 +23046,7 @@
 	    node.appendChild(this._dragobj);
 	    node.appendChild(this._originobj);
 	  },
-	  _onup: function _onup() {
+	  _onup: function () {
 	    this.callEvent("onResizeEnd", [this._last_result]);
 	    eventRemove(this._moveev);
 	    eventRemove(this._upev);
@@ -22602,7 +23055,7 @@
 	    remove(this._originobj);
 	    this._viewobj = this._dragobj = this._originobj = null;
 	  },
-	  _onmove: function _onmove(e) {
+	  _onmove: function (e) {
 	    var eventPos = pos(e);
 	    this._last_result = (this._settings.dir == "x" ? eventPos.x : eventPos.y) + this._settings.start - this._settings.eventPos;
 	    this._dragobj.style[this._key_property] = this._last_result + "px";
@@ -22617,7 +23070,7 @@
 	    width: 7,
 	    height: 7
 	  },
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    assert(this.getParentView(), "Resizer can't be initialized outside a layout");
 	    this._viewobj.className += " webix_resizer";
 
@@ -22648,11 +23101,13 @@
 	    this._viewobj.innerHTML = "<div class='webix_resizer_content'></div>";
 	    if (dir == "y" && space > 0) this._viewobj.style.marginBottom = "-" + (config.height || this.defaults.height) + "px";
 
+	    this._viewobj.setAttribute("webix_disable_drag", "true");
+
 	    this._viewobj.setAttribute("tabindex", "-1");
 
 	    this._viewobj.setAttribute("aria-grabbed", "false");
 	  },
-	  _rsDown: function _rsDown(e) {
+	  _rsDown: function (e) {
 	    var cells = this._getResizerCells(); //some sibling can block resize
 
 
@@ -22673,11 +23128,11 @@
 	      this._rsStart(e, cells[0]);
 	    }
 	  },
-	  _rsUp: function _rsUp() {
+	  _rsUp: function () {
 	    this._rs_started = false;
 	    this._rs_process = false;
 	  },
-	  _rsStart: function _rsStart(e, cell) {
+	  _rsStart: function (e, cell) {
 	    var dir, cellOffset, pos$$1, posParent, start;
 	    e = e || event$1;
 	    dir = this._resizer_dir;
@@ -22699,7 +23154,7 @@
 	      height: this.$height,
 	      width: this.$width,
 	      border: 1,
-	      margin: this.getParentView()["_padding" + dir.toUpperCase()]
+	      margin: this.getParentView()._padding[dir === "x" ? "left" : "top"]
 	    });
 	    /*stops resizing on stick mouseup*/
 
@@ -22711,10 +23166,10 @@
 
 	    addCss(document.body, "webix_noselect", 1);
 	  },
-	  _getResizeDir: function _getResizeDir() {
+	  _getResizeDir: function () {
 	    return this.getParentView()._vertical_orientation ? "y" : "x";
 	  },
-	  _rsResizeHandler: function _rsResizeHandler() {
+	  _rsResizeHandler: function () {
 	    var cells, config, cDiff, diff, dir, i, limits, limitSizes, sizes, totalSize;
 
 	    if (this._rs_progress) {
@@ -22761,7 +23216,7 @@
 	      }
 	    }
 	  },
-	  _getResizerCells: function _getResizerCells() {
+	  _getResizerCells: function () {
 	    var cells, i, res;
 	    cells = this.getParentView()._cells;
 
@@ -22773,11 +23228,11 @@
 	      }
 	    }
 	  },
-	  _getRsCell: function _getRsCell(cells, i, step, dir) {
+	  _getRsCell: function (cells, i, step, dir) {
 	    var cell = cells[i + dir * step];
 	    if (cell && cell._settings.hidden) return this._getRsCell(cells, i, step + 1, dir);else if (cell && cell._settings.$noresize) return null;else return cell;
 	  },
-	  _rsEnd: function _rsEnd(result) {
+	  _rsEnd: function (result) {
 	    if (typeof result == "undefined") return;
 	    var cells, dir, diff, size;
 
@@ -22832,7 +23287,7 @@
 
 	    this._viewobj.removeAttribute("aria-dropeffect");
 	  },
-	  _rsGetLimitCellSizes: function _rsGetLimitCellSizes(cells) {
+	  _rsGetLimitCellSizes: function (cells) {
 	    var size1, size2, totalSize;
 	    totalSize = cells[0]["$" + this._resizer_dim] + cells[1]["$" + this._resizer_dim];
 
@@ -22846,7 +23301,7 @@
 
 	    return [size1, size2];
 	  },
-	  _rsGetDiffCellSizes: function _rsGetDiffCellSizes(cells, dir, diff) {
+	  _rsGetDiffCellSizes: function (cells, dir, diff) {
 	    var sizes = [];
 	    var styleDim = this._resizer_dim == "height" ? "offsetHeight" : "offsetWidth";
 
@@ -22856,7 +23311,7 @@
 
 	    return sizes;
 	  },
-	  _rsGetCellSizes: function _rsGetCellSizes(cells, dir, diff) {
+	  _rsGetCellSizes: function (cells, dir, diff) {
 	    var i, sizes, totalSize;
 	    /*if max or min dimentsions are set*/
 
@@ -22889,13 +23344,13 @@
 	    right: 0,
 	    bottom: 0
 	  },
-	  $init: function $init() {
+	  $init: function () {
 	    this._viewobj.className += " webix_view_align";
 	  },
-	  getChildViews: function getChildViews() {
+	  getChildViews: function () {
 	    return [this._body_cell];
 	  },
-	  body_setter: function body_setter(value) {
+	  body_setter: function (value) {
 	    value._inner = {
 	      top: false,
 	      left: false,
@@ -22909,7 +23364,7 @@
 
 	    return value;
 	  },
-	  align_setter: function align_setter(value) {
+	  align_setter: function (value) {
 	    if (typeof value === "string") value = value.split(",");
 	    this._x_align = this._y_align = this._p_align = "";
 
@@ -22922,10 +23377,10 @@
 
 	    return value;
 	  },
-	  getBody: function getBody() {
+	  getBody: function () {
 	    return this._body_cell;
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    base.api.$setSize.call(this, x, y);
 	    var dx, dy;
 
@@ -22943,7 +23398,7 @@
 	    if (this._x_align == "center") box.style.marginLeft = Math.ceil((x - dx) / 2) + "px";else if (this._x_align == "right") box.style.marginLeft = x - dx + "px";else box.style.marginLeft = (this._p_align ? this._settings.left : 0) + "px";
 	    if (this._y_align == "middle") box.style.marginTop = Math.ceil((y - dy) / 2) + "px";else if (this._y_align == "bottom") box.style.marginTop = y - dy + "px";else box.style.marginTop = (this._p_align ? this._settings.top : 0) + "px";
 	  },
-	  $getSize: function $getSize(dx, dy) {
+	  $getSize: function (dx, dy) {
 	    var size = this._desired_size = this._body_cell.$getSize(0, 0);
 
 	    var self_size = baseview.api.$getSize.call(this, 0, 0);
@@ -22979,20 +23434,20 @@
 	  defaults: {
 	    animate: {}
 	  },
-	  setValue: function setValue(val) {
+	  setValue: function (val) {
 	    $$(val).show();
 	  },
-	  getValue: function getValue$$1() {
+	  getValue: function () {
 	    return this.getActiveId();
 	  },
-	  $init: function $init() {
+	  $init: function () {
 	    this._active_cell = 0;
 	    this._vertical_orientation = 1;
 	    this._viewobj.style.position = "relative";
 	    this._viewobj.className += " webix_multiview";
 	    this._back_queue = [];
 	  },
-	  _ask_render: function _ask_render(cell_id, view_id) {
+	  _ask_render: function (cell_id, view_id) {
 	    var cell = $$(cell_id);
 
 	    if (!cell._render_hash) {
@@ -23006,7 +23461,7 @@
 	      cell._render_queue.push(view_id);
 	    }
 	  },
-	  _render_activation: function _render_activation(cell_id) {
+	  _render_activation: function (cell_id) {
 	    var cell = $$(cell_id);
 	    if (this._settings.keepViews) cell._viewobj.style.display = "";
 	    /*back array*/
@@ -23028,12 +23483,12 @@
 	      cell._render_hash = {};
 	    }
 	  },
-	  addView: function addView() {
+	  addView: function () {
 	    var id = baselayout.api.addView.apply(this, arguments);
 	    if (this._settings.keepViews) $$(id)._viewobj.style.display = "none";else remove($$(id)._viewobj);
 	    return id;
 	  },
-	  _beforeRemoveView: function _beforeRemoveView(index$$1) {
+	  _beforeRemoveView: function (index$$1) {
 	    //removing current view
 	    if (index$$1 == this._active_cell) {
 	      var next = Math.max(index$$1 - 1, 0);
@@ -23048,8 +23503,8 @@
 	    if (index$$1 < this._active_cell) this._active_cell--;
 	  },
 	  //necessary, as we want to ignore hide calls for elements in multiview
-	  _hide: function _hide() {},
-	  _parse_cells: function _parse_cells(collection) {
+	  _hide: function () {},
+	  _parse_cells: function (collection) {
 	    collection = collection || this._collection;
 
 	    for (var i = 0; i < collection.length; i++) {
@@ -23081,16 +23536,16 @@
 
 	    this._render_activation(this.getActiveId());
 	  },
-	  cells_setter: function cells_setter(value) {
+	  cells_setter: function (value) {
 	    assert(value && value.length, "Multiview must have at least one view in 'cells'");
 	    this._collection = value;
 	  },
-	  _getDirection: function _getDirection(next, active) {
+	  _getDirection: function (next, active) {
 	    var dir = (this._settings.animate || {}).direction;
 	    var vx = dir == "top" || dir == "bottom";
 	    return next < active ? vx ? "bottom" : "right" : vx ? "top" : "left";
 	  },
-	  _show: function _show(obj, animation_options) {
+	  _show: function (obj, animation_options) {
 	    var parent = this.getParentView();
 	    if (parent && parent.getTabbar) parent.getTabbar().setValue(obj._settings.$id || obj._settings.id);
 	    if (this._in_animation) return delay(this._show, this, [obj, animation_options], 100);
@@ -23135,7 +23590,7 @@
 	      animate(line, aniset);
 	      this._in_animation = true;
 	    } else {
-	      // browsers which don't support transform and transition
+	      // browsers which don't support transform and transition, or animate:false in config
 	      if (this._settings.keepViews) {
 	        prev._viewobj.style.display = "none";
 	      } else {
@@ -23145,7 +23600,7 @@
 	      }
 
 	      this._active_cell = _next_cell;
-	      prev.resize();
+	      this.resizeChildren();
 
 	      this._render_activation(this.getActiveId());
 	    }
@@ -23157,7 +23612,7 @@
 
 	    this.callEvent("onViewChange", [prev._settings.id, next._settings.id]);
 	  },
-	  $getSize: function $getSize(dx, dy) {
+	  $getSize: function (dx, dy) {
 	    if (!this._cells.length) return baseview.api.$getSize.call(this, 0, 0);
 	    debug_size_box_start(this, true);
 
@@ -23187,14 +23642,14 @@
 	    debug_size_box_end(this, self_size);
 	    return self_size;
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    if (!this._cells.length) return;
 	    this._layout_sizes = [x, y];
 	    baseview.api.$setSize.call(this, x, y);
 
 	    this._cells[this._active_cell].$setSize(x, y);
 	  },
-	  isVisible: function isVisible(base_id, cell_id) {
+	  isVisible: function (base_id, cell_id) {
 	    if (cell_id && cell_id != this.getActiveId()) {
 	      if (base_id) this._ask_render(cell_id, base_id);
 	      return false;
@@ -23202,10 +23657,10 @@
 
 	    return base.api.isVisible.call(this, base_id, this._settings.id);
 	  },
-	  getActiveId: function getActiveId() {
+	  getActiveId: function () {
 	    return this._cells.length ? this._cells[this._active_cell]._settings.id : null;
 	  },
-	  back: function back(step) {
+	  back: function (step) {
 	    step = step || 1;
 
 	    if (this.callEvent("onBeforeBack", [this.getActiveId(), step])) {
@@ -23225,19 +23680,19 @@
 
 	var api$i = {
 	  name: "tabview",
-	  setValue: function setValue(val) {
+	  setValue: function (val) {
 	    this._cells[0].setValue(val);
 	  },
-	  getValue: function getValue() {
+	  getValue: function () {
 	    return this._cells[0].getValue();
 	  },
-	  getTabbar: function getTabbar() {
+	  getTabbar: function () {
 	    return this._cells[0];
 	  },
-	  getMultiview: function getMultiview() {
+	  getMultiview: function () {
 	    return this._cells[1];
 	  },
-	  addView: function addView(obj) {
+	  addView: function (obj) {
 	    var nid = this.getMultiview().addView(obj.body);
 	    obj.id = nid;
 	    obj.value = obj.header;
@@ -23247,12 +23702,12 @@
 	    t.addOption(obj);
 	    return nid;
 	  },
-	  removeView: function removeView(id) {
+	  removeView: function (id) {
 	    var t = this.getTabbar();
 	    t.removeOption(id);
 	    t.refresh();
 	  },
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    this.$ready.push(this._init_tabview_handlers);
 	    var cells = config.cells;
 	    var tabs = [];
@@ -23288,7 +23743,7 @@
 	    delete config.cells;
 	    delete config.tabs;
 	  },
-	  _init_tabview_handlers: function _init_tabview_handlers() {
+	  _init_tabview_handlers: function () {
 	    this.getTabbar().attachEvent("onOptionRemove", function (id) {
 	      var view = $$(id);
 
@@ -23309,7 +23764,7 @@
 	    navigation: {},
 	    animate: true
 	  },
-	  $init: function $init() {
+	  $init: function () {
 	    this._viewobj.className += " webix_carousel";
 	    this._layout = null;
 	    this._dataobj = null;
@@ -23317,31 +23772,31 @@
 	    this.$ready.unshift(this._initLayout);
 	    this.$ready.push(this._after_init_call);
 	  },
-	  addView: function addView(view, index) {
+	  addView: function (view, index) {
 	    var t = this._layout.addView(view, index);
 
 	    this._fix_after_view_add();
 
 	    return t;
 	  },
-	  removeView: function removeView(id) {
+	  removeView: function (id) {
 	    this._layout.removeView(id);
 
 	    this._fix_after_view_add();
 	  },
-	  _replace: function _replace(new_view, target_id) {
+	  _replace: function (new_view, target_id) {
 	    this._layout._replace(new_view, target_id);
 
 	    this._fix_after_view_add();
 	  },
-	  _fix_after_view_add: function _fix_after_view_add() {
+	  _fix_after_view_add: function () {
 	    this._cells = this._layout._cells;
 
 	    this._renderPanel();
 
 	    this.setActiveIndex(Math.min(this._active_cell, this._cells.length - 1));
 	  },
-	  _initLayout: function _initLayout() {
+	  _initLayout: function () {
 	    if (this._layout && this._layout.destructor) this._layout.destructor();
 	    var layout = "";
 
@@ -23381,18 +23836,18 @@
 	    }, this));
 	    this._contentobj = this._viewobj.firstChild;
 	  },
-	  _onKeyPress: function _onKeyPress(code, e) {
+	  _onKeyPress: function (code, e) {
 	    if (this._settings.navigation.items && e.target.getAttribute("role") === "tab") this._moveActive(code, e);
 
 	    baseview.api._onKeyPress.call(this, code, e);
 	  },
-	  getChildViews: function getChildViews() {
+	  getChildViews: function () {
 	    return [this._layout];
 	  },
-	  getLayout: function getLayout() {
+	  getLayout: function () {
 	    return this._layout;
 	  },
-	  _after_init_call: function _after_init_call() {
+	  _after_init_call: function () {
 	    this._contentobj.setAttribute("touch_scroll", this._vertical_orientation ? "y" : "x");
 
 	    this._layout.attachEvent("onAfterScroll", bind(function () {
@@ -23403,7 +23858,7 @@
 	      view._viewobj.setAttribute("role", "tabpanel");
 	    });
 	  },
-	  adjustScroll: function adjustScroll(matrix) {
+	  adjustScroll: function (matrix) {
 	    var size = this._vertical_orientation ? this._content_height : this._content_width;
 	    var correction;
 
@@ -23419,7 +23874,7 @@
 	    if (this._settings.navigation) this._renderNavItems();
 	    return true;
 	  },
-	  _show: function _show(obj) {
+	  _show: function (obj) {
 	    var i, layout, _nextCell, _size, x, y;
 
 	    _nextCell = -1;
@@ -23441,13 +23896,13 @@
 	    this.callEvent("onShow", [layout._cells[this._active_cell]._settings.id]);
 	    if (this._settings.navigation) this._renderPanel();
 	  },
-	  scrollTo: function scrollTo(x, y) {
+	  scrollTo: function (x, y) {
 	    if (Touch && animate.isSupported() && this._settings.animate) Touch._set_matrix(this._contentobj, x, y, this._settings.scrollSpeed || "100ms");else {
 	      this._contentobj.style.marginLeft = x + "px";
 	      this._contentobj.style.marginTop = y + "px";
 	    }
 	  },
-	  navigation_setter: function navigation_setter(config) {
+	  navigation_setter: function (config) {
 	    this._mergeSettings(config, {
 	      type: "corner",
 	      buttons: true,
@@ -23456,21 +23911,21 @@
 
 	    return config;
 	  },
-	  showNext: function showNext() {
+	  showNext: function () {
 	    if (this._active_cell < this._layout._cells.length - 1) this.setActiveIndex(this._active_cell + 1);
 	  },
-	  showPrev: function showPrev() {
+	  showPrev: function () {
 	    if (this._active_cell > 0) this.setActiveIndex(this._active_cell - 1);
 	  },
-	  setActiveIndex: function setActiveIndex(value) {
+	  setActiveIndex: function (value) {
 	    assert(value < this._layout._cells.length, "Not existing index in collection");
 	    var id = this._layout._cells[value]._settings.id;
 	    $$(id).show();
 	  },
-	  getActiveIndex: function getActiveIndex() {
+	  getActiveIndex: function () {
 	    return this._active_cell;
 	  },
-	  $getSize: function $getSize(dx, dy) {
+	  $getSize: function (dx, dy) {
 	    var layoutSizes = this._layout.$getSize(0, 0);
 
 	    var selfSizes = base.api.$getSize.call(this, dx, dy);
@@ -23485,7 +23940,7 @@
 
 	    return selfSizes;
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    var layout = this._layout;
 	    var c = layout._cells.length;
 	    var changed = base.api.$setSize.call(this, x, y);
@@ -23500,7 +23955,7 @@
 	      this._setScroll();
 	    } else layout.$setSize(xc, yc);
 	  },
-	  _setScroll: function _setScroll() {
+	  _setScroll: function () {
 	    var layout = this._layout;
 	    var activeCell = this._active_cell || 0;
 	    var size = layout._vertical_orientation ? this._content_height : this._content_width;
@@ -23509,11 +23964,11 @@
 	    this.scrollTo(x, y);
 	    if (this._settings.navigation) this._renderPanel();
 	  },
-	  getActiveId: function getActiveId() {
+	  getActiveId: function () {
 	    var cell = this._layout._cells[this._active_cell];
 	    return cell ? cell._settings.id : null;
 	  },
-	  setActive: function setActive(value) {
+	  setActive: function (value) {
 	    $$(value).show();
 	  }
 	};
@@ -23521,7 +23976,7 @@
 
 	var api$k = {
 	  name: "proxy",
-	  body_setter: function body_setter(value) {
+	  body_setter: function (value) {
 	    state._parent_cell = this;
 	    this._body_cell = ui._view(value);
 
@@ -23529,15 +23984,15 @@
 
 	    return value;
 	  },
-	  getChildViews: function getChildViews() {
+	  getChildViews: function () {
 	    return [this._body_cell];
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    base.api.$setSize.call(this, x, y);
 
 	    this._body_cell.$setSize(this.$width, this.$height);
 	  },
-	  $getSize: function $getSize(dx, dy) {
+	  $getSize: function (dx, dy) {
 	    var selfSize = base.api.$getSize.call(this, dx, dy);
 
 	    var size = this._body_cell.$getSize(dx, dy);
@@ -23549,7 +24004,7 @@
 	    size[4] = Math.max(selfSize[4], size[4]);
 	    return size;
 	  },
-	  _replace: function _replace(n) {
+	  _replace: function (n) {
 	    this._body_cell.destructor();
 
 	    this._body_cell = n;
@@ -23565,7 +24020,7 @@
 	    layoutType: "wide",
 	    icon: "wxi-drag"
 	  },
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    this._viewobj.style.position = "relative";
 	    if (config.header && config.body) config.body = [{
 	      template: config.header,
@@ -23575,12 +24030,12 @@
 
 	    attachEvent("onAfterPortletMove", this._refreshChildScrolls);
 	  },
-	  _refreshChildScrolls: function _refreshChildScrolls(source) {
+	  _refreshChildScrolls: function (source) {
 	    each(source, function (view) {
 	      if (view._restore_scroll_state) view._restore_scroll_state();
 	    });
 	  },
-	  _init_drag_area: function _init_drag_area() {
+	  _init_drag_area: function () {
 	    var childs = this.getChildViews();
 	    if (childs.length > 1) DragControl.addDrag(childs[0].$view, this);else if (this._settings.icon) {
 	      var drag = create("div", {
@@ -23594,17 +24049,17 @@
 	      DragControl.addDrag(this.$view, this);
 	    }
 	  },
-	  body_setter: function body_setter(value) {
+	  body_setter: function (value) {
 	    return this.rows_setter(isArray(value) ? value : [value]);
 	  },
-	  markDropArea: function markDropArea(target, mode) {
+	  markDropArea: function (target, mode) {
 	    if (!target) return remove(this._markerbox);
 	    target = $$(target);
 	    if (!this._markerbox) this._markerbox = create("div", null, "&nbsp;");
 	    target.$view.appendChild(this._markerbox);
 	    this._markerbox.className = "portlet_marker" + mode;
 	  },
-	  movePortlet: function movePortlet(target, mode) {
+	  movePortlet: function (target, mode) {
 	    var parent = target.getParentView();
 	    var source = this.getParentView();
 	    var tindex = parent.index(target);
@@ -23651,7 +24106,7 @@
 	    source.resize();
 	    callEvent("onAfterPortletMove", [source, parent, this, target, mode]);
 	  },
-	  _removeEmptySource: function _removeEmptySource(view) {
+	  _removeEmptySource: function (view) {
 	    var childview;
 	    var maxcount = 0;
 
@@ -23663,7 +24118,7 @@
 
 	    if (maxcount) view.removeView(childview);
 	  },
-	  $drag: function $drag(object) {
+	  $drag: function (object) {
 	    addCss(this._viewobj, "portlet_in_drag");
 	    DragControl._drag_context = {
 	      source: object,
@@ -23671,7 +24126,7 @@
 	    };
 	    return this._viewobj.innerHTML;
 	  },
-	  $dragDestroy: function $dragDestroy(target, html) {
+	  $dragDestroy: function (target, html) {
 	    removeCss(this._viewobj, "portlet_in_drag");
 	    remove(html);
 
@@ -23681,10 +24136,10 @@
 	      this._portlet_drop_target = null;
 	    }
 	  },
-	  _getDragItemPos: function _getDragItemPos() {
+	  _getDragItemPos: function () {
 	    return offset(this.$view);
 	  },
-	  $dragPos: function $dragPos(pos$$1, e, html) {
+	  $dragPos: function (pos$$1, e, html) {
 	    html.style.left = "-10000px";
 	    var evObj = env.mouse.context(e);
 	    var top = document.body.scrollTop || document.documentElement.scrollTop || 0;
@@ -23699,7 +24154,7 @@
 	    pos$$1.y = pos$$1.y - 20;
 	    DragControl._skip = true;
 	  },
-	  _markPortletDrag: function _markPortletDrag(view, ev) {
+	  _markPortletDrag: function (view, ev) {
 	    var drop = "";
 	    var mode = "";
 
@@ -23723,7 +24178,7 @@
 	    this.markDropArea(view, drop);
 	    return drop || mode;
 	  },
-	  _getPortletTarget: function _getPortletTarget(view) {
+	  _getPortletTarget: function (view) {
 	    while (view) {
 	      if (view.movePortlet) return view;else view = view.getParentView();
 	    }
@@ -23733,19 +24188,19 @@
 
 	var api$m = {
 	  name: "abslayout",
-	  $init: function $init() {
+	  $init: function () {
 	    this.$view.className += " webix_abslayout";
 	    delete this.rows_setter;
 	    delete this.cols_setter;
 	    this._collection = [];
 	  },
-	  cells_setter: function cells_setter(cells) {
+	  cells_setter: function (cells) {
 	    this._collection = cells;
 	  },
-	  _parse_cells: function _parse_cells() {
+	  _parse_cells: function () {
 	    baselayout.api._parse_cells.call(this, this._collection);
 	  },
-	  $getSize: function $getSize() {
+	  $getSize: function () {
 	    var self_size = baseview.api.$getSize.call(this, 0, 0);
 	    var sub = null;
 
@@ -23765,7 +24220,7 @@
 
 	    return self_size;
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    this._layout_sizes = [x, y];
 	    debug_size_box_start(this);
 	    baseview.api.$setSize.call(this, x, y);
@@ -23774,7 +24229,7 @@
 
 	    debug_size_box_end(this, [x, y]);
 	  },
-	  _set_child_size: function _set_child_size(x, y) {
+	  _set_child_size: function (x, y) {
 	    for (var i = 0; i < this._cells.length; i++) {
 	      var view = this._cells[i];
 	      var conf = view._settings;
@@ -23812,24 +24267,24 @@
 	    margin: 10,
 	    padding: 10
 	  },
-	  gridRows_setter: function gridRows_setter(value) {
+	  gridRows_setter: function (value) {
 	    return this._actual_rows = value;
 	  },
-	  _parse_cells: function _parse_cells() {
+	  _parse_cells: function () {
 	    for (var i = 0; i < this._collection.length; i++) {
 	      this._collection[i]._inner = {};
 	    }
 
 	    baselayout.api._parse_cells.call(this, this._collection);
 	  },
-	  removeView: function removeView(id) {
+	  removeView: function (id) {
 	    abslayout.api.removeView.call(this, id);
 
 	    this._do_compact();
 
 	    this.callEvent("onChange", []);
 	  },
-	  _check_default_pos: function _check_default_pos(config) {
+	  _check_default_pos: function (config) {
 	    config.dx = config.dx || 1;
 	    config.dy = config.dy || 1;
 
@@ -23854,7 +24309,7 @@
 	    var exceed = config.x + config.dx - this._settings.gridColumns;
 	    if (exceed > 0) config.dx -= exceed;
 	  },
-	  _replace: function _replace(new_view) {
+	  _replace: function (new_view) {
 	    this._check_default_pos(new_view.config);
 
 	    this._cells.push(new_view);
@@ -23867,7 +24322,7 @@
 
 	    if (!this._silent) this.callEvent("onChange", []);
 	  },
-	  _isFree: function _isFree(matrix, sx, sy, dx, dy) {
+	  _isFree: function (matrix, sx, sy, dx, dy) {
 	    for (var x = sx; x < dx; x++) {
 	      for (var y = sy; y < dy; y++) {
 	        if (!matrix[x] || matrix[x][y]) return false;
@@ -23876,14 +24331,14 @@
 
 	    return true;
 	  },
-	  _markMatrix: function _markMatrix(matrix, sub, id) {
+	  _markMatrix: function (matrix, sub, id) {
 	    for (var x = 0; x < sub.dx; x++) {
 	      for (var y = 0; y < sub.dy; y++) {
 	        matrix[x + sub.x][y + sub.y] = id;
 	      }
 	    }
 	  },
-	  _canMoveRight: function _canMoveRight(matrix, obj, sub) {
+	  _canMoveRight: function (matrix, obj, sub) {
 	    var mx = this._settings.gridColumns;
 
 	    for (var x = obj.x + obj.dx; x + sub.dx <= mx; x++) {
@@ -23892,21 +24347,21 @@
 
 	    return 0;
 	  },
-	  _canMoveLeft: function _canMoveLeft(matrix, obj, sub) {
+	  _canMoveLeft: function (matrix, obj, sub) {
 	    for (var x = obj.x - sub.dx; x >= 0; x--) {
 	      if (this._isFree(matrix, x, sub.y, x + sub.dx, sub.y + sub.dy)) return sub.x - x;
 	    }
 
 	    return 0;
 	  },
-	  _canMoveTop: function _canMoveTop(matrix, obj, sub) {
+	  _canMoveTop: function (matrix, obj, sub) {
 	    for (var y = obj.y - sub.dy; y >= 0; y--) {
 	      if (this._isFree(matrix, sub.x, y, sub.x + sub.dx, y + sub.dy)) return sub.y - y;
 	    }
 
 	    return 0;
 	  },
-	  _buildMatrix: function _buildMatrix(id) {
+	  _buildMatrix: function (id) {
 	    var m = [];
 
 	    for (var x = 0; x < this._settings.gridColumns; x++) {
@@ -23922,11 +24377,11 @@
 
 	    return m;
 	  },
-	  _do_compact: function _do_compact(force) {
+	  _do_compact: function (force) {
 	    //do not correct places or grid, if autoplace disabled
 	    if (this._compact() || force) this._apply_new_grid();
 	  },
-	  _compact: function _compact() {
+	  _compact: function () {
 	    if (!this._settings.autoplace) return false;
 	    var mx = this._settings.gridColumns;
 	    var my = this._actual_rows;
@@ -23953,7 +24408,7 @@
 
 	    return compacted;
 	  },
-	  _reserveSpace: function _reserveSpace(conf, id) {
+	  _reserveSpace: function (conf, id) {
 	    //prevent x-overflow
 	    conf.x -= Math.max(0, conf.x + conf.dx - this._settings.gridColumns); //do not move other cells in non-compact mode
 
@@ -24017,7 +24472,7 @@
 	      this._reserveSpace(next[_i2], next[_i2].id);
 	    }
 	  },
-	  _apply_new_grid: function _apply_new_grid() {
+	  _apply_new_grid: function () {
 	    var rows = this._settings.gridRows;
 
 	    for (var i = 0; i < this._cells.length; i++) {
@@ -24032,7 +24487,7 @@
 
 	    this._set_child_size();
 	  },
-	  moveView: function moveView(id, obj) {
+	  moveView: function (id, obj) {
 	    obj = exports.extend($$(id).config, obj, true);
 
 	    this._reserveSpace(obj, id);
@@ -24041,7 +24496,7 @@
 
 	    this.callEvent("onChange", []);
 	  },
-	  serialize: function serialize(serializer) {
+	  serialize: function (serializer) {
 	    var state = [];
 
 	    for (var i = 0; i < this._cells.length; i++) {
@@ -24062,7 +24517,7 @@
 
 	    return state;
 	  },
-	  clearAll: function clearAll() {
+	  clearAll: function () {
 	    for (var i = 0; i < this._cells.length; i++) {
 	      this._cells[i].destructor();
 	    }
@@ -24070,7 +24525,7 @@
 	    this._cells = [];
 	    this.callEvent("onChange", []);
 	  },
-	  restore: function restore(state, factory) {
+	  restore: function (state, factory) {
 	    factory = factory || this._settings.factory;
 	    state = copy(state);
 	    this._silent = true;
@@ -24104,7 +24559,7 @@
 
 	    this._silent = false;
 	  },
-	  $getSize: function $getSize() {
+	  $getSize: function () {
 	    var self_size = baseview.api.$getSize.call(this, 0, 0);
 
 	    for (var i = 0; i < this._cells.length; i++) {
@@ -24120,7 +24575,7 @@
 	    if (height) self_size[2] = box.dy + box.y * 2;
 	    return self_size;
 	  },
-	  _getActualSize: function _getActualSize(x, y, w, h) {
+	  _getActualSize: function (x, y, w, h) {
 	    var margin = this._settings.margin;
 	    var paddingX = this._settings.paddingX || this._settings.padding;
 	    var paddingY = this._settings.paddingY || this._settings.padding;
@@ -24139,7 +24594,7 @@
 	      dy: height
 	    };
 	  },
-	  _set_child_size: function _set_child_size() {
+	  _set_child_size: function () {
 	    for (var i = 0; i < this._cells.length; i++) {
 	      var view = this._cells[i];
 	      var conf = view._settings;
@@ -24163,18 +24618,18 @@
 
 	var api$o = {
 	  name: "dashboard",
-	  $init: function $init() {
+	  $init: function () {
 	    DragControl.addDrag(this.$view, this);
 	    DragControl.addDrop(this.$view, this, true);
 	  },
-	  _isDragNode: function _isDragNode(target) {
+	  _isDragNode: function (target) {
 	    if (!target.getAttribute || target.getAttribute("webix_disable_drag") || target.getAttribute("webixignore")) return false;
 	    var css = (target.className || "").toString();
 	    if (css.indexOf("panel_drag") != -1) return target;
 	    if (target.parentNode && target != this.$view) return this._isDragNode(target.parentNode);
 	    return false;
 	  },
-	  $dragCreate: function $dragCreate(object, e) {
+	  $dragCreate: function (object, e) {
 	    if (!e.target) return;
 	    if (!this._isDragNode(e.target)) return false; // ok, it seem the dnd need to be started
 
@@ -24197,7 +24652,7 @@
 
 	    return sview.$view;
 	  },
-	  _addDragMarker: function _addDragMarker(x, y) {
+	  _addDragMarker: function (x, y) {
 	    var drag = this._dragMarker = create("div", {
 	      "class": "panel_target"
 	    });
@@ -24208,7 +24663,7 @@
 	    drag.style.height = size.dy + "px";
 	    this.$view.appendChild(this._dragMarker);
 	  },
-	  $drop: function $drop() {
+	  $drop: function () {
 	    var context = DragControl._drag_context;
 	    var obj = {
 	      x: context.dashboard.x,
@@ -24230,14 +24685,14 @@
 	      }
 	    }
 	  },
-	  $dragDestroy: function $dragDestroy(target, html) {
+	  $dragDestroy: function (target, html) {
 	    html.style.zIndex = 1;
 	    remove(this._dragMarker);
 	    this._dragMarker = null;
 
 	    this._apply_new_grid();
 	  },
-	  _getPosFromCoords: function _getPosFromCoords(x, y) {
+	  _getPosFromCoords: function (x, y) {
 	    var margin = this._settings.margin;
 	    var paddingX = this._settings.paddingX || this._settings.padding;
 	    var paddingY = this._settings.paddingY || this._settings.padding;
@@ -24259,7 +24714,7 @@
 	      ry: y * dy + margin * y + paddingY
 	    };
 	  },
-	  $dragOut: function $dragOut() {
+	  $dragOut: function () {
 	    var context = DragControl._drag_context;
 
 	    if (this._dragMarker && context.external) {
@@ -24267,7 +24722,7 @@
 	      this._dragMarker = null;
 	    }
 	  },
-	  $dragIn: function $dragIn(to, from, e) {
+	  $dragIn: function (to, from, e) {
 	    var context = DragControl._drag_context;
 
 	    if (!this._dragMarker) {
@@ -24299,7 +24754,7 @@
 
 	    return true;
 	  },
-	  $dragPos: function $dragPos(pos$$1, e, html) {
+	  $dragPos: function (pos$$1, e, html) {
 	    var context = DragControl._drag_context;
 	    html.style.left = "-10000px";
 	    var evObj = env.mouse.context(e);
@@ -24321,7 +24776,7 @@
 
 	var api$p = {
 	  name: "panel",
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    if (config.header && config.body) {
 	      var header = config.header;
 	      if (_typeof(header) !== "object") header = {
@@ -24335,7 +24790,7 @@
 	    addCss(this.$view, "panel_drag_view");
 	    this.$ready.push(this._init_drag_area);
 	  },
-	  _init_drag_area: function _init_drag_area() {
+	  _init_drag_area: function () {
 	    var childs = this.getChildViews();
 	    var parent = childs.length === 1 ? this : childs[1];
 
@@ -24347,10 +24802,10 @@
 	      parent.$view.appendChild(drag);
 	    }
 	  },
-	  body_setter: function body_setter(value) {
+	  body_setter: function (value) {
 	    return this.rows_setter(isArray(value) ? value : [value]);
 	  },
-	  $resizeEnd: function $resizeEnd(pos$$1) {
+	  $resizeEnd: function (pos$$1) {
 	    var parent = this.getParentView();
 
 	    if (parent && parent._getPosFromCoords) {
@@ -24364,7 +24819,7 @@
 	      });
 	    }
 	  },
-	  $resizeMove: function $resizeMove(pos$$1) {
+	  $resizeMove: function (pos$$1) {
 	    var parent = this.getParentView();
 
 	    if (parent && parent._getPosFromCoords) {
@@ -24378,7 +24833,7 @@
 	var view$p = exports.protoUI(api$p, layout.view, ResizeArea);
 
 	var api$q = {
-	  $init: function $init() {
+	  $init: function () {
 	    exports.extend(this, FlexLayout, true);
 	  },
 	  name: "flexlayout"
@@ -24387,11 +24842,11 @@
 
 	var api$r = {
 	  name: "datalayout",
-	  $init: function $init() {
+	  $init: function () {
 	    this.data.provideApi(this, true);
 	    this.data.attachEvent("onStoreUpdated", bind(this.render, this));
 	  },
-	  _parse_cells: function _parse_cells() {
+	  _parse_cells: function () {
 	    if (!this._origin_cells) {
 	      this._origin_cells = this._collection;
 	      this._collection = [{}];
@@ -24399,10 +24854,10 @@
 
 	    return layout.api._parse_cells.call(this, this._collection);
 	  },
-	  setValue: function setValue(obj) {
+	  setValue: function (obj) {
 	    this.parse(obj);
 	  },
-	  getValue: function getValue() {
+	  getValue: function () {
 	    var subcount = this._origin_cells.length;
 
 	    for (var i = 0; i < this._cells.length; i++) {
@@ -24414,7 +24869,7 @@
 
 	    return this.data.serialize();
 	  },
-	  _save_data: function _save_data(view, prop) {
+	  _save_data: function (view, prop) {
 	    var name = view._settings.name;
 
 	    if (name) {
@@ -24428,7 +24883,7 @@
 	      }
 	    }
 	  },
-	  _fill_data: function _fill_data(view, prop) {
+	  _fill_data: function (view, prop) {
 	    var obj,
 	        name = view._settings.name;
 
@@ -24446,7 +24901,7 @@
 	      }
 	    }
 	  },
-	  render: function render(id, obj, mode) {
+	  render: function (id, obj, mode) {
 	    var subcount = this._origin_cells.length;
 
 	    if (id && mode === "update") {
@@ -24491,7 +24946,7 @@
 	};
 
 	var api$s = {
-	  $init: function $init() {
+	  $init: function () {
 	    exports.extend(this, FlexLayout, true);
 	  },
 	  name: "flexdatalayout"
@@ -24500,26 +24955,26 @@
 
 	var api$t = {
 	  name: "popup",
-	  $init: function $init() {
+	  $init: function () {
 	    this._settings.head = false;
 	    this.$view.className += " webix_popup";
 	    attachEvent("onClick", bind(this._hide, this));
 	    this.attachEvent("onHide", this._hide_point);
 	  },
-	  $skin: function $skin() {
+	  $skin: function () {
 	    this.defaults.headHeight = $active.barHeight;
 	    this.defaults.padding = $active.popupPadding;
 	    this.defaults.point = !$active.popupNoPoint;
 	    this.defaults.borderless = $active.borderlessPopup;
 	  },
-	  close: function close() {
+	  close: function () {
 	    remove(this._point_element);
 	    window$1.api.close.call(this);
 	  },
-	  $getSize: function $getSize(x, y) {
+	  $getSize: function (x, y) {
 	    return window$1.api.$getSize.call(this, x + this._settings.padding * 2, y + this._settings.padding * 2);
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    base.api.$setSize.call(this, x, y);
 	    x = this._content_width - this._settings.padding * 2;
 	    y = this._content_height - this._settings.padding * 2;
@@ -24530,11 +24985,11 @@
 	  },
 	  //redefine to preserve inner borders
 	  //_inner_body_set:function(){}, //same as win?
-	  _inner_body_set: function _inner_body_set(value) {
+	  _inner_body_set: function (value) {
 	    if (typeof value.borderless == "undefined") value.borderless = false;
 	  },
-	  head_setter: function head_setter() {},
-	  _set_point: function _set_point(mode, left, top, fixed) {
+	  head_setter: function () {},
+	  _set_point: function (mode, left, top, fixed) {
 	    this._hide_point();
 
 	    document.body.appendChild(this._point_element = create("DIV", {
@@ -24545,7 +25000,7 @@
 	    this._point_element.style.top = top + "px";
 	    this._point_element.style.left = left + "px";
 	  },
-	  _hide_point: function _hide_point() {
+	  _hide_point: function () {
 	    this._point_element = remove(this._point_element);
 	  }
 	};
@@ -24563,7 +25018,7 @@
 	  _render_borders: true,
 	  _form_classname: "webix_toolbar",
 	  _form_vertical: false,
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    if (!config.borderless) {
 	      this._contentobj.style.borderWidth = "1px";
 	      this._settings._inner = {
@@ -24578,7 +25033,7 @@
 
 	    this._viewobj.setAttribute("role", "toolbar");
 	  },
-	  _recollect_elements: function _recollect_elements() {
+	  _recollect_elements: function () {
 	    var form = this;
 	    form.elements = {};
 	    each(this, function (view) {
@@ -24609,10 +25064,10 @@
 	      }
 	    }
 	  },
-	  _parse_cells_ext_end: function _parse_cells_ext_end() {
+	  _parse_cells_ext_end: function () {
 	    this._recollect_elements();
 	  },
-	  _parse_cells_ext: function _parse_cells_ext(collection) {
+	  _parse_cells_ext: function (collection) {
 	    var config = this._settings;
 
 	    if (config.elements && !collection) {
@@ -24624,7 +25079,7 @@
 	    if (this._settings.elementsConfig) this._rec_apply_settings(this._collection, config.elementsConfig);
 	    return collection;
 	  },
-	  _rec_apply_settings: function _rec_apply_settings(col, settings) {
+	  _rec_apply_settings: function (col, settings) {
 	    for (var i = 0; i < col.length; i++) {
 	      var element = col[i];
 	      exports.extend(element, settings);
@@ -24635,7 +25090,7 @@
 	      if (sub) this._rec_apply_settings(sub, nextsettings);
 	    }
 	  },
-	  $getSize: function $getSize(dx, dy) {
+	  $getSize: function (dx, dy) {
 	    var sizes = layout.api.$getSize.call(this, dx, dy);
 	    var parent = this.getParentView();
 	    var index = this._vertical_orientation ? 3 : 1;
@@ -24643,8 +25098,8 @@
 	    debug_size_box(this, sizes, true);
 	    return sizes;
 	  },
-	  render: function render() {},
-	  refresh: function refresh() {
+	  render: function () {},
+	  refresh: function () {
 	    this.render();
 	  }
 	};
@@ -24663,10 +25118,10 @@
 	  _default_height: -1,
 	  _form_classname: "webix_form",
 	  _form_vertical: true,
-	  $init: function $init() {
+	  $init: function () {
 	    this._viewobj.setAttribute("role", "form");
 	  },
-	  $getSize: function $getSize(dx, dy) {
+	  $getSize: function (dx, dy) {
 	    if (this._scroll_y && !this._settings.width) dx += env.scrollSize;
 	    var sizes = layout.api.$getSize.call(this, dx, dy);
 
@@ -24688,27 +25143,28 @@
 	    paddingX: 18,
 	    paddingY: 30
 	  },
-	  $init: function $init(obj) {
-	    assert(obj.body, "fieldset must have not-empty body");
-	    this._viewobj.className += " " + this.defaults.$cssName;
-	    this._viewobj.innerHTML = "<fieldset><legend" + (obj.required ? " class=\"webix_required\"" : "") + "></legend><div></div></fieldset>";
+	  $init: function (obj) {
+	    obj.body = obj.body || {};
+	    var css = this.defaults.$cssName;
+	    this._viewobj.className += " " + css;
+	    this._viewobj.innerHTML = "<fieldset><legend class='" + css + "_label" + (obj.required ? " webix_required" : "") + "'></legend><div class='" + css + "_body'></div></fieldset>";
 	  },
-	  label_setter: function label_setter(value) {
+	  label_setter: function (value) {
 	    this._viewobj.firstChild.childNodes[0].innerHTML = value;
 	    return value;
 	  },
-	  getChildViews: function getChildViews() {
+	  getChildViews: function () {
 	    return [this._body_view];
 	  },
-	  body_setter: function body_setter(config) {
+	  body_setter: function (config) {
 	    state._parent_cell = this;
 	    this._body_view = ui(config, this._viewobj.firstChild.childNodes[1]);
 	    return config;
 	  },
-	  getBody: function getBody() {
+	  getBody: function () {
 	    return this._body_view;
 	  },
-	  resizeChildren: function resizeChildren() {
+	  resizeChildren: function () {
 	    if (!this._body_view) return;
 	    var x = this.$width - this._settings.paddingX;
 	    var y = this.$height - this._settings.paddingY;
@@ -24724,7 +25180,7 @@
 
 	    this.resize();
 	  },
-	  $getSize: function $getSize(x, y) {
+	  $getSize: function (x, y) {
 	    debug_size_box_start(this, true);
 	    x += this._settings.paddingX;
 	    y += this._settings.paddingY;
@@ -24744,7 +25200,7 @@
 	    debug_size_box_end(this, s);
 	    return s;
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    if (base.api.$setSize.call(this, x, y)) {
 	      x = Math.min(this._last_body_size[1], x);
 	      y = Math.min(this._last_body_size[3], y);
@@ -24769,36 +25225,52 @@
 	    paddingY: 0,
 	    paddingX: 0
 	  },
-	  setValue: function setValue(value) {
+	  setValue: function (value) {
 	    if (this._body_view.setValue) this._body_view.setValue(value);else if (this._body_view.setValues) this._body_view.setValues(value);
 	  },
-	  focus: function focus() {
-	    if (this._body_view.focus) this._body_view.focus();
+	  focus: function () {
+	    if (this._body_view.focus) {
+	      return this._body_view.focus();
+	    }
+
+	    return false;
 	  },
-	  getValue: function getValue$$1() {
+	  getValue: function () {
 	    if (this._body_view.getValue) return this._body_view.getValue();else if (this._body_view.getValues) return this._body_view.getValues();
 	  },
-	  value_setter: function value_setter(value) {
-	    this.setValue(value);
-	  },
-	  getBody: function getBody() {
+	  getBody: function () {
 	    return this._body_view;
 	  },
-	  $skin: function $skin() {
+	  $skin: function () {
 	    this._inputPadding = $active.inputPadding;
 	    this._inputSpacing = $active.inputSpacing;
+	    this._labelTopHeight = $active.labelTopHeight || 15;
 	  },
-	  $init: function $init(obj) {
+	  $init: function (obj) {
 	    this.$ready.push(function () {
 	      var label = this._viewobj.firstChild.childNodes[0];
-	      label.style.width = this._settings.paddingX + "px";
+
+	      if (!this._settings.label || !this._settings.labelWidth) {
+	        label.style.display = "none";
+	        this._settings.paddingX = this._settings.paddingY = 0;
+	        return;
+	      }
+
+	      if (this._settings.labelPosition == "top") {
+	        label.style.lineHeight = this._labelTopHeight - this._inputPadding + "px";
+	        label.className += " " + this.defaults.$cssName + "_label_top";
+	      } else label.style.width = this._settings.paddingX + "px";
+
 	      label.style.textAlign = this._settings.labelAlign;
-	      if (!this._settings.labelWidth) label.style.display = "none";
+	      if (this._settings.value) this.setValue(this._settings.value);
 	    });
-	    var lw = isUndefined(obj.labelWidth) ? this.defaults.labelWidth : obj.labelWidth;
-	    obj.paddingX = lw - this._inputPadding * 2 + this._inputSpacing * 2;
+
+	    if (obj.labelPosition != "top") {
+	      var lw = isUndefined(obj.labelWidth) ? this.defaults.labelWidth : obj.labelWidth;
+	      obj.paddingX = lw - this._inputPadding * 2 + this._inputSpacing * 2;
+	    } else obj.paddingY = this._labelTopHeight;
 	  },
-	  setBottomText: function setBottomText(text) {
+	  setBottomText: function (text) {
 	    var config = this._settings;
 
 	    if (typeof text != "undefined") {
@@ -24846,27 +25318,27 @@
 	}
 
 	var _get_value = {
-	  radio: function radio(el) {
+	  radio: function (el) {
 	    for (var i = 0; i < el.length; i++) {
 	      if (el[i].checked) return el[i].value;
 	    }
 
 	    return "";
 	  },
-	  input: function input(el) {
+	  input: function (el) {
 	    var type = _attribute(el, "type");
 
 	    if (type === "checkbox") return el.checked;
 	    return el.value;
 	  },
-	  textarea: function textarea(el) {
+	  textarea: function (el) {
 	    return el.value;
 	  },
-	  select: function select(el) {
+	  select: function (el) {
 	    var index$$1 = el.selectedIndex;
 	    return el.options[index$$1].value;
 	  },
-	  other: function other(el) {
+	  other: function (el) {
 	    return el.innerHTML;
 	  }
 	};
@@ -24879,35 +25351,35 @@
 	}
 
 	var _set_value = {
-	  radio: function radio(el, value) {
+	  radio: function (el, value) {
 	    for (var i = 0; i < el.length; i++) {
 	      el[i].checked = el[i].value == value;
 	    }
 	  },
-	  input: function input(el, value) {
+	  input: function (el, value) {
 	    var type = _attribute(el, "type");
 
 	    if (type === "checkbox") el.checked = value ? true : false;else el.value = value;
 	  },
-	  textarea: function textarea(el, value) {
+	  textarea: function (el, value) {
 	    el.value = value;
 	  },
-	  select: function select(el, value) {
+	  select: function (el, value) {
 	    //select first option if no provided and if possible
 	    el.value = value ? value : el.firstElementChild.value || value;
 	  },
-	  other: function other(el, value) {
+	  other: function (el, value) {
 	    el.innerHTML = value;
 	  }
 	};
 	var api$y = {
 	  name: "htmlform",
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    this.elements = {};
 	    this._default_values = false;
 	    if (config.content && (config.container == config.content || !config.container && config.content == document.body)) this._copy_inner_content = true;
 	  },
-	  content_setter: function content_setter(content) {
+	  content_setter: function (content) {
 	    content = toNode(content);
 
 	    if (this._copy_inner_content) {
@@ -24922,12 +25394,12 @@
 
 	    return true;
 	  },
-	  render: function render() {
+	  render: function () {
 	    template$1.api.render.apply(this, arguments);
 
 	    this._parse_inputs();
 	  },
-	  _parse_inputs: function _parse_inputs() {
+	  _parse_inputs: function () {
 	    var inputs = this._viewobj.querySelectorAll("[name]");
 
 	    this.elements = {};
@@ -24960,14 +25432,14 @@
 
 	    return this.elements;
 	  },
-	  _mark_invalid: function _mark_invalid(id, obj) {
+	  _mark_invalid: function (id, obj) {
 	    this._clear_invalid(id, obj);
 
 	    var el = this._viewobj.querySelector("[name=\"" + id + "\"]");
 
 	    if (el) addCss(el, "invalid");
 	  },
-	  _clear_invalid: function _clear_invalid(id) {
+	  _clear_invalid: function (id) {
 	    var el = this._viewobj.querySelector("[name=\"" + id + "\"]");
 
 	    if (el) removeCss(el, "invalid");
@@ -24977,7 +25449,7 @@
 
 	var api$z = {
 	  name: "property",
-	  $init: function $init() {
+	  $init: function () {
 	    this._contentobj.className += " webix_property";
 
 	    this._contentobj.setAttribute("role", "listbox");
@@ -24997,10 +25469,10 @@
 	    editable: true
 	  },
 	  on_render: {
-	    checkbox: function checkbox(value) {
+	    checkbox: function (value) {
 	      return "<input type='checkbox' class='webix_property_check' " + (value ? "checked" : "") + ">";
 	    },
-	    color: function color(value) {
+	    color: function (value) {
 	      return "<div class=\"webix_property_col_val\"><div class='webix_property_col_ind' style=\"background-color:" + (value || "#FFFFFF") + ";\"></div><span>" + value + "</span></div>";
 	    }
 	  },
@@ -25009,7 +25481,7 @@
 	  },
 	  _id: "webix_f_id",
 	  on_click: {
-	    webix_property_check: function webix_property_check(ev) {
+	    webix_property_check: function (ev) {
 	      var id = this.locate(ev);
 	      this.getItem(id).value = !this.getItem(id).value;
 	      this.callEvent("onCheck", [id, this.getItem(id).value]);
@@ -25017,14 +25489,14 @@
 	    }
 	  },
 	  on_dblclick: {},
-	  registerType: function registerType(name, data) {
+	  registerType: function (name, data) {
 	    if (data.template) this.on_render[name] = data.template;
 	    if (data.editor) this.on_edit[name] = data.editor;
 	    if (data.click) for (var key in data.click) {
 	      this.on_click[key] = data.click[key];
 	    }
 	  },
-	  elements_setter: function elements_setter(data) {
+	  elements_setter: function (data) {
 	    this._idToLine = {};
 
 	    for (var i = 0; i < data.length; i++) {
@@ -25040,28 +25512,28 @@
 
 	    return data;
 	  },
-	  showItem: function showItem(id) {
+	  showItem: function (id) {
 	    RenderStack.showItem.call(this, id);
 	  },
-	  locate: function locate$$1() {
+	  locate: function () {
 	    return locate(arguments[0], this._id);
 	  },
-	  getItemNode: function getItemNode(id) {
+	  getItemNode: function (id) {
 	    return this._dataobj.childNodes[this._idToLine[id]];
 	  },
-	  getItem: function getItem(id) {
+	  getItem: function (id) {
 	    return this._settings.elements[this._idToLine[id]];
 	  },
-	  _get_editor_type: function _get_editor_type(id) {
+	  _get_editor_type: function (id) {
 	    var type = this.getItem(id).type;
 	    if (type == "checkbox") return "inline-checkbox";
 	    var alter_type = this.on_edit[type];
 	    return alter_type === false ? false : alter_type || type;
 	  },
-	  _get_edit_config: function _get_edit_config(id) {
+	  _get_edit_config: function (id) {
 	    return this.getItem(id);
 	  },
-	  _find_cell_next: function _find_cell_next(start, check, direction) {
+	  _find_cell_next: function (start, check, direction) {
 	    var row = this._idToLine[start.id];
 	    var order = this._settings.elements;
 
@@ -25077,13 +25549,13 @@
 
 	    return null;
 	  },
-	  updateItem: function updateItem(key, data) {
+	  updateItem: function (key, data) {
 	    data = data || {};
 	    var line = this.getItem(key);
 	    if (line) exports.extend(line, data, true);
 	    this.refresh();
 	  },
-	  _cellPosition: function _cellPosition(id) {
+	  _cellPosition: function (id) {
 	    var html = this.getItemNode(id);
 	    return {
 	      left: html.offsetLeft + this._settings.nameWidth,
@@ -25093,20 +25565,20 @@
 	      parent: this._contentobj
 	    };
 	  },
-	  _clear: function _clear() {
+	  _clear: function () {
 	    var lines = this._settings.elements;
 
 	    for (var i = 0; i < lines.length; i++) {
 	      lines[i].value = "";
 	    }
 	  },
-	  clear: function clear() {
+	  clear: function () {
 	    this._clear();
 
 	    this._props_dataset = {};
 	    this.refresh();
 	  },
-	  setValues: function setValues(data, update) {
+	  setValues: function (data, update) {
 	    if (this._settings.complexData) data = CodeParser.collapseNames(data);
 	    if (!update) this._clear();
 
@@ -25118,7 +25590,7 @@
 	    this._props_dataset = data;
 	    this.refresh();
 	  },
-	  getValues: function getValues() {
+	  getValues: function () {
 	    var data = clone(this._props_dataset || {});
 
 	    for (var i = 0; i < this._settings.elements.length; i++) {
@@ -25129,16 +25601,16 @@
 	    if (this._settings.complexData) data = CodeParser.expandNames(data);
 	    return data;
 	  },
-	  refresh: function refresh() {
+	  refresh: function () {
 	    this.render();
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    if (base.api.$setSize.call(this, x, y)) {
 	      this._data_width = this._content_width - this._settings.nameWidth;
 	      this.render();
 	    }
 	  },
-	  $getSize: function $getSize(dx, dy) {
+	  $getSize: function (dx, dy) {
 	    if (this._settings.autoheight) {
 	      var count = this._settings.elements.length;
 	      this._settings.height = Math.max(this.type.height * count, this._settings.minHeight || 0);
@@ -25146,7 +25618,7 @@
 
 	    return base.api.$getSize.call(this, dx, dy);
 	  },
-	  _toHTML: function _toHTML() {
+	  _toHTML: function () {
 	    var html = [];
 	    var els = this._settings.elements;
 	    if (els) for (var i = 0; i < els.length; i++) {
@@ -25173,7 +25645,7 @@
 	    templateStart: template(""),
 	    templateEnd: template("</div>")
 	  },
-	  $skin: function $skin() {
+	  $skin: function () {
 	    this.type.height = $active.propertyItemHeight;
 	  }
 	};
@@ -25199,7 +25671,7 @@
 	    icons: false,
 	    timepickerHeight: 30,
 	    headerHeight: 70,
-	    dayTemplate: function dayTemplate(d) {
+	    dayTemplate: function (d) {
 	      return d.getDate();
 	    },
 	    width: 260,
@@ -25208,20 +25680,20 @@
 	  dayTemplate_setter: template,
 	  calendarHeader_setter: wDate.dateToStr,
 	  calendarWeekHeader_setter: wDate.dateToStr,
-	  calendarTime_setter: function calendarTime_setter(format) {
+	  calendarTime_setter: function (format) {
 	    this._calendarTime = format;
 	    return wDate.dateToStr(format);
 	  },
-	  date_setter: function date_setter(date) {
+	  date_setter: function (date) {
 	    return this._string_to_date(date);
 	  },
-	  maxDate_setter: function maxDate_setter(date) {
+	  maxDate_setter: function (date) {
 	    return this._string_to_date(date);
 	  },
-	  minDate_setter: function minDate_setter(date) {
+	  minDate_setter: function (date) {
 	    return this._string_to_date(date);
 	  },
-	  minTime_setter: function minTime_setter(time) {
+	  minTime_setter: function (time) {
 	    if (typeof time == "string") {
 	      time = i18n.parseTimeFormatDate(time);
 	      time = [time.getHours(), time.getMinutes()];
@@ -25229,7 +25701,7 @@
 
 	    return time;
 	  },
-	  maxTime_setter: function maxTime_setter(time) {
+	  maxTime_setter: function (time) {
 	    if (typeof time == "string") {
 	      time = i18n.parseTimeFormatDate(time);
 	      time = [time.getHours(), time.getMinutes()];
@@ -25237,7 +25709,7 @@
 
 	    return time;
 	  },
-	  _ariaFocus: function _ariaFocus() {
+	  _ariaFocus: function () {
 	    var ev = "focus" + (env.isIE ? "in" : "");
 
 	    if (!env.touch) {
@@ -25259,7 +25731,7 @@
 	      });
 	    }
 	  },
-	  $init: function $init() {
+	  $init: function () {
 	    this._viewobj.className += " webix_calendar";
 
 	    this._viewobj.setAttribute("role", "region");
@@ -25278,7 +25750,7 @@
 	      if (zoom >= 0) this.$view.querySelector(".webix_cal_month_name").blur();
 	    });
 	  },
-	  type_setter: function type_setter(value) {
+	  type_setter: function (value) {
 	    if (value == "time") {
 	      this._zoom_in = true;
 	      this._zoom_level = -1;
@@ -25288,13 +25760,13 @@
 
 	    return value;
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    if (base.api.$setSize.call(this, x, y)) {
 	      //repaint calendar when size changed
 	      this.render();
 	    }
 	  },
-	  $getSize: function $getSize(dx, dy) {
+	  $getSize: function (dx, dy) {
 	    if (this._settings.cellHeight) {
 	      var state = this._getDateBoundaries(this._settings.date);
 
@@ -25303,7 +25775,7 @@
 
 	    return base.api.$getSize.call(this, dx, dy);
 	  },
-	  moveSelection: function moveSelection(mode, details, focus) {
+	  moveSelection: function (mode, details, focus) {
 	    if (this.config.master) return; //in daterange
 
 	    var start = this.getSelectedDate();
@@ -25312,7 +25784,7 @@
 
 	    this._moveSelection(date, mode, focus);
 	  },
-	  _moveSelection: function _moveSelection(date, mode, focus) {
+	  _moveSelection: function (date, mode, focus) {
 	    var css = this._zoom_logic[this._zoom_level]._keyshift(date, mode, this);
 
 	    if (focus !== false) {
@@ -25321,7 +25793,7 @@
 	      if (sel) sel.focus();
 	    }
 	  },
-	  _getDateBoundaries: function _getDateBoundaries(date, reset) {
+	  _getDateBoundaries: function (date, reset) {
 	    // addition information about rendering event:
 	    // how many days from the previous month,
 	    // next,
@@ -25343,7 +25815,7 @@
 
 	    return this._set_date_bounds;
 	  },
-	  $skin: function $skin() {
+	  $skin: function () {
 	    if ($active.calendar) {
 	      if ($active.calendar.width) this.defaults.width = $active.calendar.width;
 	      if ($active.calendar.height) this.defaults.height = $active.calendar.height;
@@ -25351,7 +25823,7 @@
 	      if ($active.calendar.timepickerHeight) this.defaults.timepickerHeight = $active.calendar.timepickerHeight;
 	    }
 	  },
-	  _getColumnConfigSizes: function _getColumnConfigSizes(date) {
+	  _getColumnConfigSizes: function (date) {
 	    var bounds = this._getDateBoundaries(date);
 
 	    var s = this._settings;
@@ -25378,16 +25850,16 @@
 
 	    return [_columnsWidth, _columnsHeight, min];
 	  },
-	  icons_setter: function icons_setter(value) {
+	  icons_setter: function (value) {
 	    if (!value) this._icons = null;else if (_typeof(value) == "object") this._icons = value;else this._icons = this._icons2;
 	  },
 	  _icons: [],
 	  _icons2: [{
-	    template: function template$$1() {
+	    template: function () {
 	      return "<span role='button' tabindex='0' class='webix_cal_icon_today webix_cal_icon'>" + i18n.calendar.today + "</span>";
 	    },
 	    on_click: {
-	      "webix_cal_icon_today": function webix_cal_icon_today() {
+	      "webix_cal_icon_today": function () {
 	        var date = new Date();
 	        if (!this._settings.timepicker) date = wDate.datePart(date);
 	        this.setValue(date);
@@ -25395,20 +25867,20 @@
 	      }
 	    }
 	  }, {
-	    template: function template$$1() {
+	    template: function () {
 	      return "<span role='button' tabindex='0' class='webix_cal_icon_clear webix_cal_icon'>" + i18n.calendar.clear + "</span>";
 	    },
 	    on_click: {
-	      "webix_cal_icon_clear": function webix_cal_icon_clear() {
+	      "webix_cal_icon_clear": function () {
 	        this.setValue("");
 	        this.callEvent("onDateClear", [this.getSelectedDate()]);
 	      }
 	    }
 	  }],
-	  refresh: function refresh() {
+	  refresh: function () {
 	    this.render();
 	  },
-	  render: function render() {
+	  render: function () {
 	    //reset zoom level
 	    this._zoom_level = 0;
 	    this._zoom_size = false;
@@ -25460,7 +25932,7 @@
 
 	    this.callEvent("onAfterRender", []);
 	  },
-	  _icons_template: function _icons_template(date) {
+	  _icons_template: function (date) {
 	    var html = "<div class='webix_cal_icons'>";
 	    var icons = this._icons;
 
@@ -25478,7 +25950,7 @@
 	    html += "</div>";
 	    return html;
 	  },
-	  _timepicker_template: function _timepicker_template(date) {
+	  _timepicker_template: function (date) {
 	    var timeFormat = this._settings.calendarTime || i18n.timeFormatStr;
 	    var clock = this._settings.timeIcon;
 	    var tpl = "";
@@ -25493,7 +25965,7 @@
 	    }
 	    return tpl;
 	  },
-	  _week_template: function _week_template(widths) {
+	  _week_template: function (widths) {
 	    var s = this._settings;
 	    var week_template = "";
 	    var correction = 0;
@@ -25516,10 +25988,10 @@
 
 	    return week_template;
 	  },
-	  blockDates_setter: function blockDates_setter(value) {
+	  blockDates_setter: function (value) {
 	    return toFunctor(value, this.$scope);
 	  },
-	  _day_css: function _day_css(day, bounds) {
+	  _day_css: function (day, bounds) {
 	    var css = "",
 	        isOutside = false;
 	    if (wDate.equal(day, this._current_time)) css += " webix_cal_today";
@@ -25535,7 +26007,7 @@
 	    css += " webix_cal_day";
 	    return css;
 	  },
-	  _body_template: function _body_template(widths, heights, bounds, sqSize) {
+	  _body_template: function (widths, heights, bounds, sqSize) {
 	    var s = this._settings;
 	    var html = "";
 	    var day = wDate.datePart(wDate.copy(bounds._start));
@@ -25581,7 +26053,7 @@
 
 	    return html;
 	  },
-	  _changeDate: function _changeDate(dir, step) {
+	  _changeDate: function (dir, step) {
 	    var now = this._settings.date;
 
 	    if (!step) {
@@ -25597,7 +26069,7 @@
 
 	    this._changeDateInternal(now, next);
 	  },
-	  _changeDateInternal: function _changeDateInternal(now, next) {
+	  _changeDateInternal: function (now, next) {
 	    if (this.callEvent("onBeforeMonthChange", [now, next])) {
 	      if (this._zoom_level) {
 	        this._update_zoom_level(next);
@@ -25610,7 +26082,7 @@
 	  },
 	  _zoom_logic: {
 	    "-2": {
-	      _isBlocked: function _isBlocked(i) {
+	      _isBlocked: function (i) {
 	        var config = this._settings,
 	            date = config.date,
 	            isBlocked = false;
@@ -25627,10 +26099,10 @@
 
 	        return i < minMinute || i >= maxMinute || isBlocked;
 	      },
-	      _setContent: function _setContent(next, i) {
+	      _setContent: function (next, i) {
 	        next.setMinutes(i);
 	      },
-	      _findActive: function _findActive(date, mode, calendar) {
+	      _findActive: function (date, mode, calendar) {
 	        if (!this._isBlocked.call(calendar, date.getMinutes())) return date;else {
 	          var step = calendar._settings.minuteStep;
 	          var newdate = wDate.add(date, mode == "right" ? step : -step, "minute", true);
@@ -25639,7 +26111,7 @@
 	      }
 	    },
 	    "-1": {
-	      _isBlocked: function _isBlocked(i) {
+	      _isBlocked: function (i) {
 	        var config = this._settings,
 	            date = config.date;
 	        var minHour = config.minTime ? config.minTime[0] : 0;
@@ -25660,10 +26132,10 @@
 	          return true;
 	        }
 	      },
-	      _setContent: function _setContent(next, i) {
+	      _setContent: function (next, i) {
 	        next.setHours(i);
 	      },
-	      _keyshift: function _keyshift(date, mode, calendar) {
+	      _keyshift: function (date, mode, calendar) {
 	        var newdate,
 	            inc,
 	            step = calendar._settings.minuteStep;
@@ -25699,7 +26171,7 @@
 
 	        return "webix_cal_block" + (mode === "left" || mode === "right" ? "_min" : "");
 	      },
-	      _findActive: function _findActive(date, mode, calendar) {
+	      _findActive: function (date, mode, calendar) {
 	        if (!this._isBlocked.call(calendar, date.getHours())) return date;else {
 	          var newdate = wDate.add(date, mode == "down" ? 1 : -1, "hour", true);
 	          if (date.getDate() === newdate.getDate()) return this._findActive(newdate, mode, calendar);
@@ -25709,7 +26181,7 @@
 	    "0": {
 	      //days
 	      _changeStep: 1,
-	      _keyshift: function _keyshift(date, mode, calendar) {
+	      _keyshift: function (date, mode, calendar) {
 	        var newdate = date;
 	        if (mode === "pgup" || mode === "pgdown") newdate = wDate.add(date, mode === "pgdown" ? 1 : -1, "month");else if (mode === "bottom") newdate = new Date(date.getFullYear(), date.getMonth() + 1, 0);else if (mode === "top") newdate = new Date(date.setDate(1));else if (mode === "left" || mode === "right") newdate = wDate.add(date, mode === "right" ? 1 : -1, "day");else if (mode === "up" || mode === "down") newdate = wDate.add(date, mode === "down" ? 1 : -1, "week");
 	        if (!calendar._checkDate(newdate)) newdate = calendar._findActive(date, mode);
@@ -25719,7 +26191,7 @@
 	    },
 	    "1": {
 	      //months
-	      _isBlocked: function _isBlocked(i, calendar) {
+	      _isBlocked: function (i, calendar) {
 	        var blocked = false,
 	            minYear,
 	            maxYear,
@@ -25735,7 +26207,7 @@
 
 	        return blocked;
 	      },
-	      _correctDate: function _correctDate(date, calendar) {
+	      _correctDate: function (date, calendar) {
 	        if (date < calendar._settings.minDate) {
 	          date = wDate.copy(calendar._settings.minDate);
 	        } else if (date > calendar._settings.maxDate) {
@@ -25744,18 +26216,18 @@
 
 	        return date;
 	      },
-	      _getTitle: function _getTitle(date) {
+	      _getTitle: function (date) {
 	        return date.getFullYear();
 	      },
-	      _getContent: function _getContent(i) {
+	      _getContent: function (i) {
 	        return i18n.calendar.monthShort[i];
 	      },
-	      _setContent: function _setContent(next, i) {
+	      _setContent: function (next, i) {
 	        if (i != next.getMonth()) next.setDate(1);
 	        next.setMonth(i);
 	      },
 	      _changeStep: 12,
-	      _keyshift: function _keyshift(date, mode, calendar) {
+	      _keyshift: function (date, mode, calendar) {
 	        var newdate = date;
 	        if (mode === "pgup" || mode === "pgdown") newdate = wDate.add(date, mode === "pgdown" ? 1 : -1, "year");else if (mode === "bottom") newdate = new Date(date.setMonth(11));else if (mode === "top") newdate = new Date(date.setMonth(0));else if (mode === "left" || mode === "right") newdate = wDate.add(date, mode === "right" ? 1 : -1, "month");else if (mode === "up" || mode === "down") newdate = wDate.add(date, mode === "down" ? 4 : -4, "month");
 	        if (!calendar._checkDate(newdate)) newdate = calendar._findActive(date, mode);
@@ -25771,7 +26243,7 @@
 	    },
 	    "2": {
 	      //years
-	      _isBlocked: function _isBlocked(i, calendar) {
+	      _isBlocked: function (i, calendar) {
 	        i += calendar._zoom_start_date;
 	        var blocked = false;
 	        var min = calendar._settings.minDate;
@@ -25783,7 +26255,7 @@
 
 	        return blocked;
 	      },
-	      _correctDate: function _correctDate(date, calendar) {
+	      _correctDate: function (date, calendar) {
 	        if (date < calendar._settings.minDate) {
 	          date = wDate.copy(calendar._settings.minDate);
 	        } else if (date > calendar._settings.maxDate) {
@@ -25792,19 +26264,19 @@
 
 	        return date;
 	      },
-	      _getTitle: function _getTitle(date, calendar) {
+	      _getTitle: function (date, calendar) {
 	        var start = date.getFullYear();
 	        calendar._zoom_start_date = start = start - start % 10 - 1;
 	        return start + " - " + (start + 10 + 1);
 	      },
-	      _getContent: function _getContent(i, calendar) {
+	      _getContent: function (i, calendar) {
 	        return calendar._zoom_start_date + i;
 	      },
-	      _setContent: function _setContent(next, i, calendar) {
+	      _setContent: function (next, i, calendar) {
 	        next.setFullYear(calendar._zoom_start_date + i);
 	      },
 	      _changeStep: 12 * 10,
-	      _keyshift: function _keyshift(date, mode, calendar) {
+	      _keyshift: function (date, mode, calendar) {
 	        var newdate = date;
 	        if (mode === "pgup" || mode === "pgdown") newdate = wDate.add(date, mode === "pgdown" ? 10 : -10, "year");else if (mode === "bottom") newdate = new Date(date.setYear(calendar._zoom_start_date + 10));else if (mode === "top") newdate = new Date(date.setYear(calendar._zoom_start_date));else if (mode === "left" || mode === "right") newdate = wDate.add(date, mode === "right" ? 1 : -1, "year");else if (mode === "up" || mode === "down") newdate = wDate.add(date, mode === "down" ? 4 : -4, "year");
 	        if (!calendar._checkDate(newdate)) newdate = calendar._findActive(date, mode);
@@ -25819,7 +26291,7 @@
 	      }
 	    }
 	  },
-	  _correctBlockedTime: function _correctBlockedTime() {
+	  _correctBlockedTime: function () {
 	    var i, isDisabledHour, isDisabledMinutes;
 	    isDisabledHour = this._zoom_logic[-1]._isBlocked.call(this, this._settings.date.getHours());
 
@@ -25845,7 +26317,7 @@
 	      }
 	    }
 	  },
-	  _update_zoom_level: function _update_zoom_level(date) {
+	  _update_zoom_level: function (date) {
 	    var config, css, height, i, index$$1, sections, selected, type, width, zlogic, temp, sqSize;
 	    var html = "";
 	    config = this._settings;
@@ -25963,18 +26435,18 @@
 	      sections[index$$1].style.height = this._reserve_box_height + "px";
 	    }
 	  },
-	  _getCalSizesString: function _getCalSizesString(width, height) {
+	  _getCalSizesString: function (width, height) {
 	    return "width:" + width + "px; height:" + height + "px; line-height:" + height + "px;";
 	  },
-	  _timeButtonsTemplate: function _timeButtonsTemplate() {
+	  _timeButtonsTemplate: function () {
 	    return "<input type='button' style='width:100%' class='webix_cal_done' value='" + i18n.calendar.done + "'>";
 	  },
-	  _timeHeaderTemplate: function _timeHeaderTemplate(width, enLocale) {
+	  _timeHeaderTemplate: function (width, enLocale) {
 	    var w1 = width * (enLocale ? 5 : 4);
 	    var w2 = width * 2;
 	    return "<div class='webix_cal_hours' style='width:" + w1 + "px'>" + i18n.calendar.hours + "</div><div class='webix_cal_minutes' style='width:" + w2 + "px'>" + i18n.calendar.minutes + "</div>";
 	  },
-	  _changeZoomLevel: function _changeZoomLevel(zoom, date) {
+	  _changeZoomLevel: function (zoom, date) {
 	    var oldzoom = this._zoom_level;
 
 	    if (this.callEvent("onBeforeZoom", [zoom, oldzoom])) {
@@ -25983,11 +26455,11 @@
 	      this.callEvent("onAfterZoom", [zoom, oldzoom]);
 	    }
 	  },
-	  _correctDate: function _correctDate(date) {
+	  _correctDate: function (date) {
 	    if (!this._checkDate(date) && this._zoom_logic[this._zoom_level]._correctDate) date = this._zoom_logic[this._zoom_level]._correctDate(date, this);
 	    return date;
 	  },
-	  _mode_selected: function _mode_selected(target) {
+	  _mode_selected: function (target) {
 	    var next = this._locate_date(target);
 
 	    var zoom = this._zoom_level - (this._fixed ? 0 : 1);
@@ -26001,7 +26473,7 @@
 	    }
 	  },
 	  // selects date and redraw calendar
-	  _selectDate: function _selectDate(date, add) {
+	  _selectDate: function (date, add) {
 	    if (this.callEvent("onBeforeDateSelect", [date])) {
 	      this.selectDate(date, true, add);
 	      this.callEvent("onDateSelect", [date]); // should be deleted in a future version
@@ -26009,7 +26481,7 @@
 	      this.callEvent("onAfterDateSelect", [date]);
 	    }
 	  },
-	  _locate_day: function _locate_day(target) {
+	  _locate_day: function (target) {
 	    var cind = index(target) - (this._settings.weekNumber ? 1 : 0);
 	    var rind = index(target.parentNode);
 	    var date = wDate.add(this._getDateBoundaries()._start, cind + rind * 7, "day", true);
@@ -26021,7 +26493,7 @@
 
 	    return date;
 	  },
-	  _locate_date: function _locate_date(target) {
+	  _locate_date: function (target) {
 	    var value = target.getAttribute("data-value") * 1;
 	    var level = target.className.indexOf("webix_cal_block_min") != -1 ? this._zoom_level - 1 : this._zoom_level;
 	    var now = this._settings.date;
@@ -26032,26 +26504,26 @@
 	    return next;
 	  },
 	  on_click: {
-	    webix_cal_prev_button: function webix_cal_prev_button() {
+	    webix_cal_prev_button: function () {
 	      this._changeDate(-1);
 	    },
-	    webix_cal_next_button: function webix_cal_next_button() {
+	    webix_cal_next_button: function () {
 	      this._changeDate(1);
 	    },
-	    webix_cal_day_disabled: function webix_cal_day_disabled() {
+	    webix_cal_day_disabled: function () {
 	      return false;
 	    },
-	    webix_cal_outside: function webix_cal_outside() {
+	    webix_cal_outside: function () {
 	      if (!this._settings.navigation) return false;
 	    },
-	    webix_cal_day: function webix_cal_day(e, id, target) {
+	    webix_cal_day: function (e, id, target) {
 	      var date = this._locate_day(target);
 
 	      var add = this._settings.multiselect === "touch" || e.ctrlKey || e.metaKey;
 
 	      this._selectDate(date, add);
 	    },
-	    webix_cal_time: function webix_cal_time() {
+	    webix_cal_time: function () {
 	      if (this._zoom_logic[this._zoom_level - 1]) {
 	        this._zoom_in = true;
 	        var zoom = this._zoom_level - 1;
@@ -26059,19 +26531,19 @@
 	        this._changeZoomLevel(zoom);
 	      }
 	    },
-	    webix_range_time_start: function webix_range_time_start() {
+	    webix_range_time_start: function () {
 	      $$(this._settings.master)._time_mode = "start";
 	    },
-	    webix_range_time_end: function webix_range_time_end() {
+	    webix_range_time_end: function () {
 	      $$(this._settings.master)._time_mode = "end";
 	    },
-	    webix_cal_done: function webix_cal_done() {
+	    webix_cal_done: function () {
 	      var date = wDate.copy(this._settings.date);
 	      date = this._correctDate(date);
 
 	      this._selectDate(date);
 	    },
-	    webix_cal_month_name: function webix_cal_month_name() {
+	    webix_cal_month_name: function () {
 	      this._zoom_in = false; //maximum zoom reached
 
 	      if (this._zoom_level == 2 || !this._settings.monthSelect) return;
@@ -26079,7 +26551,7 @@
 
 	      this._changeZoomLevel(zoom);
 	    },
-	    webix_cal_block: function webix_cal_block(e, id, trg) {
+	    webix_cal_block: function (e, id, trg) {
 	      if (this._zoom_in) {
 	        if (trg.className.indexOf("webix_cal_day_disabled") !== -1) return false;
 
@@ -26091,7 +26563,7 @@
 	      }
 	    }
 	  },
-	  _string_to_date: function _string_to_date(date, format) {
+	  _string_to_date: function (date, format) {
 	    if (!date) {
 	      return wDate.datePart(new Date());
 	    }
@@ -26102,7 +26574,7 @@
 
 	    return date;
 	  },
-	  _checkDate: function _checkDate(date) {
+	  _checkDate: function (date) {
 	    var blockedDate = this._settings.blockDates && this._settings.blockDates.call(this, date);
 
 	    var minDate = this._settings.minDate;
@@ -26110,7 +26582,7 @@
 	    var outOfRange = date < minDate || date > maxDate;
 	    return !blockedDate && !outOfRange;
 	  },
-	  _findActive: function _findActive(date, mode) {
+	  _findActive: function (date, mode) {
 	    var dir = mode === "top" || mode === "left" || mode === "pgup" || mode === "up" ? -1 : 1;
 	    var newdate = wDate.add(date, dir, "day", true);
 	    if (this._checkDate(newdate)) return newdate;else {
@@ -26119,16 +26591,16 @@
 	      if (compare) return this._findActive(newdate, mode);
 	    }
 	  },
-	  showCalendar: function showCalendar(date) {
+	  showCalendar: function (date) {
 	    date = this._string_to_date(date);
 	    this._settings.date = date;
 	    this.render();
 	    this.resize();
 	  },
-	  _selectedDay: function _selectedDay(day) {
+	  _selectedDay: function (day) {
 	    return day && this._selected_days[day.valueOf()];
 	  },
-	  getSelectedDate: function getSelectedDate() {
+	  getSelectedDate: function () {
 	    var result = [];
 
 	    for (var key in this._selected_days) {
@@ -26137,18 +26609,18 @@
 
 	    return this.config.multiselect ? result : result[0] || null;
 	  },
-	  getVisibleDate: function getVisibleDate() {
+	  getVisibleDate: function () {
 	    return wDate.copy(this._settings.date);
 	  },
-	  setValue: function setValue(date) {
+	  setValue: function (date) {
 	    this.selectDate(date, true);
 	  },
-	  getValue: function getValue$$1(format) {
+	  getValue: function (format) {
 	    var date = this.getSelectedDate();
 	    if (format) date = wDate.dateToStr(format)(date);
 	    return date;
 	  },
-	  selectDate: function selectDate(date, show, add) {
+	  selectDate: function (date, show, add) {
 	    if (!date || !add || !this.config.multiselect) this._selected_days = {};
 
 	    if (date) {
@@ -26168,7 +26640,7 @@
 	    if (show !== false) this.render();
 	    this.callEvent("onChange", [date]);
 	  },
-	  locate: function locate$$1() {
+	  locate: function () {
 	    return null;
 	  }
 	};
@@ -26187,7 +26659,7 @@
 	    maxLightness: 1,
 	    navigation: true
 	  },
-	  $init: function $init() {
+	  $init: function () {
 	    _event(this._viewobj, "click", bind(function (e) {
 	      var value = locate(e, "webix_val");
 	      this.setValue(value);
@@ -26199,10 +26671,10 @@
 
 	    this._viewobj.setAttribute("aria-readonly", "true");
 	  },
-	  _set_item_focus: function _set_item_focus() {
+	  _set_item_focus: function () {
 	    if (!this.getValue()) this.moveSelection("up");
 	  },
-	  _findIndex: function _findIndex(value) {
+	  _findIndex: function (value) {
 	    var pal = this._settings.palette;
 	    value = (value || "").toUpperCase();
 
@@ -26219,18 +26691,18 @@
 
 	    return null;
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    if (base.api.$setSize.call(this, x, y)) {
 	      this.render();
 	    }
 	  },
-	  getValue: function getValue$$1() {
+	  getValue: function () {
 	    return this._settings.value;
 	  },
-	  _getBox: function _getBox() {
+	  _getBox: function () {
 	    return this._viewobj.firstChild;
 	  },
-	  setValue: function setValue(value) {
+	  setValue: function (value) {
 	    if (value && value.toString().charAt(0) != "#") value = "#" + value;
 	    var oldvalue = this._settings.value;
 	    this._settings.value = value;
@@ -26238,7 +26710,7 @@
 	    return value;
 	  },
 	  _selectBox: null,
-	  _getSelectBox: function _getSelectBox() {
+	  _getSelectBox: function () {
 	    if (this._selectBox && this._selectBox.parentNode) {
 	      return this._selectBox;
 	    } else {
@@ -26250,7 +26722,7 @@
 	      return div;
 	    }
 	  },
-	  $setValue: function $setValue(value, oldvalue) {
+	  $setValue: function (value, oldvalue) {
 	    if (this.isVisible(this._settings.id)) {
 	      var cell,
 	          div,
@@ -26300,7 +26772,7 @@
 	      }
 	    }
 	  },
-	  _initPalette: function _initPalette(config) {
+	  _initPalette: function (config) {
 	    function numToHex(n) {
 	      return color.toHex(n, 2);
 	    }
@@ -26372,7 +26844,7 @@
 
 	    this._settings.palette = colors;
 	  },
-	  moveSelection: function moveSelection(mode, details, focus) {
+	  moveSelection: function (mode, details, focus) {
 	    var value = this.getValue(),
 	        ind,
 	        cell;
@@ -26403,7 +26875,7 @@
 	      }
 	    }
 	  },
-	  render: function render() {
+	  render: function () {
 	    if (!this.isVisible(this._settings.id)) return;
 	    if (!this._settings.palette) this._initPalette(this._settings);
 	    var palette = this._settings.palette;
@@ -26458,7 +26930,7 @@
 	    if (this._settings.value) this.$setValue(this._settings.value);else this._viewobj.lastChild.childNodes[0].childNodes[0].setAttribute("tabindex", "0");
 	    this.callEvent("onAfterRender", []);
 	  },
-	  refresh: function refresh() {
+	  refresh: function () {
 	    this.render();
 	  }
 	};
@@ -26467,14 +26939,14 @@
 	var api$C = {
 	  name: "button",
 	  touchable: true,
-	  $skin: function $skin() {
+	  $skin: function () {
 	    this.defaults.height = $active.buttonHeight || $active.inputHeight; //used in "text"
 
 	    this._labelTopHeight = $active.labelTopHeight || 15;
 	    this._borderWidth = $active.borderWidth;
 	  },
 	  defaults: {
-	    template: function template$$1(obj, common) {
+	    template: function (obj, common) {
 	      var text = common.$renderInput(obj, common);
 	      if (obj.badge) text = text.replace("</button>", "<span class='webix_badge'>" + obj.badge + "</span></button>");
 	      return "<div class='webix_el_box' style='width:" + obj.awidth + "px; height:" + obj.aheight + "px'>" + text + "</div>";
@@ -26482,11 +26954,11 @@
 	    label: "",
 	    borderless: true
 	  },
-	  $renderInput: function $renderInput(obj) {
+	  $renderInput: function (obj) {
 	    var css = "class='webixtype_" + (obj.type || "base") + "' ";
 	    return "<button type='button' " + (obj.popup ? "aria-haspopup='true'" : "") + css + ">" + template.escape(obj.label || obj.value) + "</button>";
 	  },
-	  $init: function $init() {
+	  $init: function () {
 	    this._viewobj.className += " webix_control webix_el_" + (this.$cssName || this.name);
 	    this.data = this._settings;
 	    this._dataobj = this._viewobj;
@@ -26494,7 +26966,7 @@
 	      this._calc_size(this.config);
 	    });
 	  },
-	  hotkey_setter: function hotkey_setter(key) {
+	  hotkey_setter: function (key) {
 	    var control = this;
 
 	    this._addElementHotKey(key, function (view, ev) {
@@ -26505,18 +26977,13 @@
 	      }
 	    });
 	  },
-	  _addElementHotKey: function _addElementHotKey(key, func, view) {
+	  _addElementHotKey: function (key, func, view) {
 	    var keyCode = UIManager.addHotKey(key, func, view);
 	    this.attachEvent("onDestruct", function () {
 	      UIManager.removeHotKey(keyCode, func, view);
 	    });
 	  },
-	  tooltip_setter: function tooltip_setter(value) {
-	    var box = this._getBox() || this.$view.firstChild;
-	    if (box) box.title = value;
-	    return value;
-	  },
-	  type_setter: function type_setter(value) {
+	  type_setter: function (value) {
 	    if (this._types[value]) this.$renderInput = template(this._types[value]);
 	    if (value == "prev" || value == "next") this._set_inner_size = this._set_inner_size_next;else this._set_inner_size = false;
 	    return value;
@@ -26534,7 +27001,7 @@
 	    iconTop: "<button type='button' class='webix_img_btn_top' style='width:100%;top:4px;text-align:center;'><span class='webix_icon #icon#'></span><div class='webix_img_btn_text'>#label#</div></button>",
 	    iconButtonTop: "<button type='button' class='webix_img_btn_abs webix_img_btn_abs_top webixtype_base' style='width:100%;top:0px;text-align:center;'><span class='webix_icon #icon#'></span><div class='webix_img_btn_text'>#label#</div></button>"
 	  },
-	  _findAllInputs: function _findAllInputs() {
+	  _findAllInputs: function () {
 	    var result = [];
 	    var tagNames = ["input", "select", "textarea", "button"];
 
@@ -26548,7 +27015,7 @@
 
 	    return result;
 	  },
-	  disable: function disable() {
+	  disable: function () {
 	    var i,
 	        node,
 	        elem = this._getBox();
@@ -26578,7 +27045,7 @@
 	      }
 	    }
 	  },
-	  enable: function enable() {
+	  enable: function () {
 	    baseview.api.enable.apply(this, arguments);
 
 	    var node,
@@ -26602,12 +27069,12 @@
 	      }
 	    }
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    if (base.api.$setSize.call(this, x, y)) {
 	      this.render();
 	    }
 	  },
-	  setValue: function setValue(value) {
+	  setValue: function (value) {
 	    value = this.$prepareValue(value);
 	    var oldvalue = this._settings.value;
 	    if (this.$compareValue(oldvalue, value)) return false;
@@ -26615,19 +27082,19 @@
 	    if (this._rendered_input) this.$setValue(value);
 	    this.callEvent("onChange", [value, oldvalue]);
 	  },
-	  $compareValue: function $compareValue(oldvalue, value) {
+	  $compareValue: function (oldvalue, value) {
 	    if (typeof value === "number") value = value.toString();
 	    if (typeof oldvalue === "number") oldvalue = oldvalue.toString();
 	    return oldvalue == value;
 	  },
-	  $prepareValue: function $prepareValue(value) {
+	  $prepareValue: function (value) {
 	    return this._pattern(value, false);
 	  },
-	  _pattern: function _pattern(value) {
+	  _pattern: function (value) {
 	    return value === 0 ? "0" : (value || "").toString();
 	  },
 	  //visual part of setValue
-	  $setValue: function $setValue(value) {
+	  $setValue: function (value) {
 	    //		this._settings.label = value;
 	    var node = this.getInputNode();
 
@@ -26635,41 +27102,46 @@
 	      if (node.tagName == "BUTTON") node.innerHTML = value;else node.value = value;
 	    }
 	  },
-	  getValue: function getValue$$1() {
+	  getValue: function () {
 	    //if button was rendered - returning actual value
 	    //otherwise - returning last set value
 	    var value = this._rendered_input ? this.$getValue() : this._settings.value;
 	    return typeof value == "undefined" ? "" : value;
 	  },
-	  $getValue: function $getValue() {
+	  $getValue: function () {
 	    return this._settings.value || "";
 	  },
-	  focus: function focus() {
-	    if (!this._settings.disabled && !this.queryView({
-	      disabled: true
-	    }, "parent")) {
-	      var input = this.getInputNode();
-	      if (input && input.focus) input.focus();
-	    }
+	  focus: function () {
+	    if (!UIManager.canFocus(this)) return false;
+	    var input = this.getInputNode();
+	    if (input && input.focus) input.focus();
 	  },
-	  blur: function blur() {
+	  blur: function () {
 	    var input = this.getInputNode();
 	    if (input && input.blur) input.blur();
 	  },
 	  //get input element
-	  getInputNode: function getInputNode() {
+	  getInputNode: function () {
 	    return this._dataobj.getElementsByTagName("input")[0] || this._dataobj.getElementsByTagName("button")[0];
 	  },
 	  //get top-level sub-container
-	  _getBox: function _getBox() {
+	  _getBox: function () {
 	    for (var i = 0; i < this._dataobj.childNodes.length; i++) {
 	      if (this._dataobj.childNodes[i].className.indexOf("webix_el_box") >= 0) return this._dataobj.childNodes[i];
 	    }
 
 	    return null;
 	  },
+	  _get_tooltip_data: function (t, e) {
+	    var node = e.target || e.srcElement;
+
+	    var box = this._getBox();
+
+	    if (box && box.contains(node)) return this._settings;
+	    return null;
+	  },
 	  _sqrt_2: Math.sqrt(2),
-	  _set_inner_size_next: function _set_inner_size_next() {
+	  _set_inner_size_next: function () {
 	    var cfg = this._settings;
 
 	    var arrow = this._getBox().childNodes[1];
@@ -26688,23 +27160,23 @@
 	    button.style[style] = height / 2 + 2 + "px";
 	    button.style.top = $active.inputPadding + "px";
 	  },
-	  _calc_size: function _calc_size(config) {
+	  _calc_size: function (config) {
 	    config = config || this._settings;
 	    if (config.autowidth) config.width = getTextSize(config.value || config.label || "", "webixbutton").width + (config.badge ? 16 : 0) + (config.type === "iconButton" || config.type === "icon" ? 24 : 0) + (config.type === "imageButton" || config.type === "image" ? config.height - $active.inputPadding : 0);
 	  },
-	  _calck_input_size: function _calck_input_size() {
+	  _calck_input_size: function () {
 	    //use width for both width and inputWidth settings in clever way
 	    //in form, we can define width for some element smaller than for siblings
 	    //it will use inputWidth to render the desired view
 	    this._input_width = this._settings.inputWidth || (this._content_width - this._settings.width > 2 ? this._settings.width : 0) || this._content_width;
 	    this._input_height = this._settings.inputHeight || this._inputHeight || 0;
 	  },
-	  resize: function resize() {
+	  resize: function () {
 	    this._calc_size();
 
 	    return base.api.resize.apply(this, arguments);
 	  },
-	  render: function render() {
+	  render: function () {
 	    this._calck_input_size();
 
 	    this._settings.awidth = this._input_width || this._content_width;
@@ -26751,9 +27223,7 @@
 	      }
 
 	      if (this.$render) this.$render(this.data);
-	      if (this._settings.disabled) this.disable(); // set tooltip after render
-
-	      if (this._settings.tooltip) this.define("tooltip", this._settings.tooltip);
+	      if (this._settings.disabled) this.disable();
 
 	      if (this._init_once) {
 	        this._init_once(this.data);
@@ -26762,11 +27232,11 @@
 	      }
 	    }
 	  },
-	  refresh: function refresh() {
+	  refresh: function () {
 	    this.render();
 	  },
 	  on_click: {
-	    _handle_tab_click: function _handle_tab_click(ev) {
+	    _handle_tab_click: function (ev) {
 	      var id = locate(ev, "button_id");
 
 	      if (id && this.callEvent("onBeforeTabClick", [id, ev])) {
@@ -26774,47 +27244,47 @@
 	        this.callEvent("onAfterTabClick", [id, ev]);
 	      }
 	    },
-	    webix_all_segments: function webix_all_segments(ev, button) {
+	    webix_all_segments: function (ev, button) {
 	      this.on_click._handle_tab_click.call(this, ev, button);
 	    },
-	    webix_all_tabs: function webix_all_tabs(ev, button) {
+	    webix_all_tabs: function (ev, button) {
 	      this.on_click._handle_tab_click.call(this, ev, button);
 	    },
-	    webix_inp_counter_next: function webix_inp_counter_next() {
+	    webix_inp_counter_next: function () {
 	      if (!this._settings.readonly) this.next();
 	    },
-	    webix_inp_counter_prev: function webix_inp_counter_prev() {
+	    webix_inp_counter_prev: function () {
 	      if (!this._settings.readonly) this.prev();
 	    },
-	    webix_input_icon: function webix_input_icon() {
+	    webix_input_icon: function () {
 	      this.getInputNode().focus();
 	    },
-	    webix_inp_checkbox_border: function webix_inp_checkbox_border(e) {
+	    webix_inp_checkbox_border: function (e) {
 	      if (!this._settings.disabled && (e.target || e.srcElement).tagName != "DIV" && !this._settings.readonly) this.toggle();
 	    },
-	    webix_inp_checkbox_label: function webix_inp_checkbox_label() {
+	    webix_inp_checkbox_label: function () {
 	      if (!this._settings.readonly) this.toggle();
 	    },
-	    webix_inp_radio_border: function webix_inp_radio_border(e) {
+	    webix_inp_radio_border: function (e) {
 	      var value = locate(e, "radio_id");
 	      this.setValue(value);
 	      this.focus();
 	    },
-	    webix_inp_radio_label: function webix_inp_radio_label(e, obj, node) {
+	    webix_inp_radio_label: function (e, obj, node) {
 	      node = node.parentNode.getElementsByTagName("input")[0];
 	      return this.on_click.webix_inp_radio_border.call(this, node, obj, node);
 	    },
-	    webix_tab_more_icon: function webix_tab_more_icon(ev, obj, node) {
+	    webix_tab_more_icon: function (ev, obj, node) {
 	      this.getPopup().resize();
 	      this.getPopup().show(node, null, true);
 	    },
-	    webix_tab_close: function webix_tab_close(ev) {
+	    webix_tab_close: function (ev) {
 	      var id = locate(ev, "button_id");
 	      if (id && this.callEvent("onBeforeTabClose", [id, ev])) this.removeOption(id);
 	    }
 	  },
 	  //method do not used by button, but  used by other child-views
-	  _check_options: function _check_options(opts) {
+	  _check_options: function (opts) {
 	    assert(opts, this.name + ": options not defined");
 
 	    for (var i = 0; i < opts.length; i++) {
@@ -26835,12 +27305,12 @@
 
 	    return opts;
 	  },
-	  _get_div_placeholder: function _get_div_placeholder(obj) {
+	  _get_div_placeholder: function (obj) {
 	    var placeholder = obj ? obj.placeholder : this._settings.placeholder;
 	    return placeholder ? "<span class='webix_placeholder'>" + placeholder + "</span>" : "";
 	  }
 	};
-	var view$C = exports.protoUI(api$C, base.view, AtomRender, Settings, EventSystem);
+	var view$C = exports.protoUI(api$C, base.view, AutoTooltip, AtomRender, Settings, EventSystem);
 	var button$1 = {
 	  api: api$C,
 	  view: view$C
@@ -26849,33 +27319,30 @@
 	var api$D = {
 	  name: "label",
 	  defaults: {
-	    template: "<div style='height:100%;line-height:#cheight#px'>#label#</div>"
+	    template: "<div class='webix_el_box' style='width:#awidth#px;height:#aheight#px;line-height:#cheight#px'>#label#</div>"
 	  },
-	  $skin: function $skin() {
+	  $skin: function () {
 	    this.defaults.height = $active.inputHeight;
 	  },
-	  focus: function focus() {
+	  focus: function () {
 	    return false;
 	  },
-	  _getBox: function _getBox() {
+	  _getBox: function () {
 	    return this._dataobj.firstChild;
 	  },
-	  setHTML: function setHTML(html) {
-	    this._settings.template = function () {
-	      return html;
-	    };
-
+	  setHTML: function (html) {
+	    this._settings.label = html;
 	    this.refresh();
 	  },
-	  setValue: function setValue(value) {
+	  setValue: function (value) {
 	    this._settings.label = value;
 	    button$1.api.setValue.apply(this, arguments);
 	  },
-	  $setValue: function $setValue(value) {
+	  $setValue: function (value) {
 	    this._dataobj.firstChild.innerHTML = value;
 	  },
-	  _set_inner_size: function _set_inner_size() {},
-	  _calc_size: function _calc_size(config) {
+	  _set_inner_size: function () {},
+	  _calc_size: function (config) {
 	    config = config || this._settings;
 	    if (config.autowidth) config.width = getTextSize(config.value || config.label, "webix_el_label").width;
 	  }
@@ -26896,9 +27363,10 @@
 	  39: "right"
 	};
 	var TextPattern = {
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    var pattern = this.defaults.pattern || config.pattern;
 	    var format = this.defaults.format || config.format;
+	    config.value = isUndefined(config.value) ? "" : config.value;
 
 	    if (pattern || format && !this.format_setter) {
 	      this.attachEvent("onKeyPress", function (code, e) {
@@ -26932,10 +27400,10 @@
 	        } else {
 	          format = Number$1.getConfig(format);
 	          this._custom_format = {
-	            parse: function parse(value) {
+	            parse: function (value) {
 	              return Number$1.parse(value, format);
 	            },
-	            edit: function edit(value) {
+	            edit: function (value) {
 	              return Number$1.format(value, format);
 	            }
 	          };
@@ -26943,7 +27411,7 @@
 	      }
 	    }
 	  },
-	  pattern_setter: function pattern_setter(value) {
+	  pattern_setter: function (value) {
 	    var pattern = patterns[value] || value;
 	    if (typeof pattern == "string") pattern = {
 	      mask: pattern
@@ -26954,7 +27422,7 @@
 
 	    return pattern;
 	  },
-	  _init_validation: function _init_validation() {
+	  _init_validation: function () {
 	    this.config.validate = this.config.validate || bind(function () {
 	      var value = this.getText();
 	      var raw = value.replace(this._pattern_chars, "");
@@ -26962,7 +27430,7 @@
 	      return matches.length == raw.length && value.length == this._settings.pattern.mask.length;
 	    }, this);
 	  },
-	  _after_render: function _after_render() {
+	  _after_render: function () {
 	    var ev = env.isIE8 ? "propertychange" : "input";
 	    if (!this._custom_format) _event(this.getInputNode(), ev, function () {
 	      var stamp = new Date().valueOf(); //dark ie8 magic
@@ -26983,7 +27451,7 @@
 	      bind: this
 	    });
 	  },
-	  _patternScheme: function _patternScheme(pattern) {
+	  _patternScheme: function (pattern) {
 	    var mask = pattern.mask,
 	        scheme = {},
 	        chars = "",
@@ -27005,7 +27473,7 @@
 
 	    this._init_validation();
 	  },
-	  _on_key_pressed: function _on_key_pressed(e, code) {
+	  _on_key_pressed: function (e, code) {
 	    var node = this.getInputNode();
 	    var value = node.value;
 	    var pos$$1 = getSelectionRange(node);
@@ -27026,7 +27494,7 @@
 	    this.$setValue(value);
 	    setSelectionRange(node, pos$$1);
 	  },
-	  _getCaretPos: function _getCaretPos(chr, len, pos$$1, code) {
+	  _getCaretPos: function (chr, len, pos$$1, code) {
 	    if (chr && chr.match(this._pattern_allows) || code == 8 || code == 46) {
 	      pos$$1 = chr ? pos$$1 + 1 : pos$$1;
 	      pos$$1 = this._fixCaretPos(pos$$1, code);
@@ -27038,7 +27506,7 @@
 
 	    return pos$$1;
 	  },
-	  _fixCaretPos: function _fixCaretPos(pos$$1, code) {
+	  _fixCaretPos: function (pos$$1, code) {
 	    var prev = pos$$1 - (code !== 46) * 1;
 
 	    if (this._pattern_scheme[prev] === false) {
@@ -27049,13 +27517,13 @@
 	    if (this._pattern_scheme[pos$$1] === false && code !== 8) return this._fixCaretPos(pos$$1 + 1, code) - 1;
 	    return pos$$1;
 	  },
-	  _getRawValue: function _getRawValue(value) {
+	  _getRawValue: function (value) {
 	    if (this._custom_format) return this._custom_format.parse(value);
-	    value = value || "";
+	    value = value || value === 0 ? value : "";
 	    var matches = value.toString().match(this._pattern_allows) || [];
 	    return matches.join("").replace(this._pattern_chars, "");
 	  },
-	  _matchPattern: function _matchPattern(value) {
+	  _matchPattern: function (value) {
 	    if (this._custom_format) return this._custom_format.edit(this._custom_format.parse(value));
 
 	    var raw = this._getRawValue(value),
@@ -27107,7 +27575,7 @@
 	var api$E = {
 	  name: "text",
 	  $allowsClear: true,
-	  _init_onchange: function _init_onchange() {
+	  _init_onchange: function () {
 	    if (this.$allowsClear) {
 	      //attach onChange handler only for controls which do not manage blur on their own
 	      //for example - combo
@@ -27117,21 +27585,22 @@
 	      if (this._settings.suggest) $$(this._settings.suggest).linkInput(this);
 	    }
 	  },
-	  _applyChanges: function _applyChanges() {
+	  _applyChanges: function () {
 	    var newvalue = this.getValue();
-	    if (newvalue != this._settings.value) this.setValue(newvalue, true);else if (this._custom_format) {
-	      //controls with post formating, we need to repaint value
+	    var res = this.setValue(newvalue, true); //controls with post formating, we need to repaint value
+
+	    if (this._custom_format && res === false) {
 	      this.$setValue(newvalue);
 	    }
 	  },
-	  $skin: function $skin() {
+	  $skin: function () {
 	    this.defaults.height = $active.inputHeight;
 	    this.defaults.inputPadding = $active.inputPadding;
 	    this._inputSpacing = $active.inputSpacing;
 	  },
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    if (config.labelPosition == "top") if (isUndefined(config.height) && this.defaults.height) // textarea
-	      config.height = this.defaults.height + this._labelTopHeight; //suggest reference for destructor
+	      config.height = this.defaults.height + (config.label ? this._labelTopHeight : 0); //suggest reference for destructor
 
 	    this._destroy_with_me = [];
 	    this.attachEvent("onAfterRender", this._init_onchange);
@@ -27139,7 +27608,7 @@
 	      if (this._onBlur) this._onBlur();
 	    });
 	  },
-	  $renderIcon: function $renderIcon() {
+	  $renderIcon: function () {
 	    var config = this._settings;
 
 	    if (config.icon) {
@@ -27151,7 +27620,7 @@
 
 	    return "";
 	  },
-	  relatedView_setter: function relatedView_setter(value) {
+	  relatedView_setter: function (value) {
 	    this.attachEvent("onChange", function () {
 	      var value = this.getValue();
 	      var mode = this._settings.relatedAction;
@@ -27173,12 +27642,12 @@
 	    });
 	    return value;
 	  },
-	  validateEvent_setter: function validateEvent_setter(value) {
+	  validateEvent_setter: function (value) {
 	    if (value == "blur") this.attachEvent("onBlur", this.validate);
 	    if (value == "key") this.attachEvent("onTimedKeyPress", this.validate);
 	    return value;
 	  },
-	  validate: function validate() {
+	  validate: function () {
 	    var rule = this._settings.validate;
 	    if (!rule && this._settings.required) rule = rules.isNotEmpty;
 	    var form = this.getFormView();
@@ -27191,11 +27660,11 @@
 	    if (rule && !form._validate(rule, value, data, name)) return false;
 	    return true;
 	  },
-	  bottomLabel_setter: function bottomLabel_setter(value) {
+	  bottomLabel_setter: function (value) {
 	    if (!this._settings.bottomPadding) this._settings.bottomPadding = 18;
 	    return value;
 	  },
-	  _getInvalidText: function _getInvalidText() {
+	  _getInvalidText: function () {
 	    var text = this._settings.invalidMessage;
 
 	    if (typeof text == "function") {
@@ -27204,7 +27673,7 @@
 
 	    return text;
 	  },
-	  setBottomText: function setBottomText(text, height) {
+	  setBottomText: function (text, height) {
 	    var config = this._settings;
 
 	    if (typeof text != "undefined") {
@@ -27227,7 +27696,7 @@
 	      this.resize();
 	    } else this.render();
 	  },
-	  $getSize: function $getSize() {
+	  $getSize: function () {
 	    var sizes = base.api.$getSize.apply(this, arguments);
 	    var heightInc = this.config.bottomPadding;
 
@@ -27238,7 +27707,7 @@
 
 	    return sizes;
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    var config = this._settings;
 
 	    if (base.api.$setSize.call(this, x, y)) {
@@ -27246,7 +27715,7 @@
 
 	      if (config.labelPosition == "top") {
 	        // textarea
-	        if (!config.inputHeight) this._inputHeight = this._content_height - this._labelTopHeight - (this.config.bottomPadding || 0);
+	        if (!config.inputHeight) this._inputHeight = this._content_height - (config.label ? this._labelTopHeight : 0) - (this.config.bottomPadding || 0);
 	        config.labelWidth = 0;
 	      } else if (config.bottomPadding) {
 	        config.inputHeight = this._content_height - this.config.bottomPadding;
@@ -27255,12 +27724,12 @@
 	      this.render();
 	    }
 	  },
-	  _get_input_width: function _get_input_width(config) {
+	  _get_input_width: function (config) {
 	    var width = (this._input_width || 0) - (config.label ? this._settings.labelWidth : 0) - this._inputSpacing - (config.iconWidth || 0); //prevent js error in IE
 
 	    return width < 0 ? 0 : width;
 	  },
-	  _render_div_block: function _render_div_block(obj, common) {
+	  _render_div_block: function (obj, common) {
 	    var id = "x" + uid();
 
 	    var width = common._get_input_width(obj);
@@ -27273,7 +27742,7 @@
 	    var html = "<div class='webix_inp_static' role='combobox' aria-label='" + template.escape(obj.label) + "' tabindex='0'" + (obj.readonly ? " aria-readonly='true'" : "") + (obj.invalid ? "aria-invalid='true'" : "") + " onclick='' style='line-height:" + height + "px;width: " + width + "px; text-align: " + inputAlign + ";' >" + text + "</div>";
 	    return common.$renderInput(obj, html, id);
 	  },
-	  _baseInputHTML: function _baseInputHTML(tag) {
+	  _baseInputHTML: function (tag) {
 	    var html = "<" + tag + (this._settings.placeholder ? " placeholder='" + this._settings.placeholder + "' " : " ");
 	    if (this._settings.readonly) html += "readonly='true' aria-readonly=''";
 	    if (this._settings.required) html += "aria-required='true'";
@@ -27284,16 +27753,25 @@
 	    }
 	    return html;
 	  },
-	  $renderLabel: function $renderLabel(config, id) {
-	    var labelAlign = config.labelAlign || "left";
-	    var top = this._settings.labelPosition == "top";
-	    var labelTop = top ? "display:block;" : "width: " + this._settings.labelWidth + "px;";
+	  $renderLabel: function (config, id) {
 	    var label = "";
-	    var labelHeight = top ? this._labelTopHeight - 2 * this._borderWidth : this._settings.aheight - 2 * this._settings.inputPadding;
-	    if (config.label) label = "<label style='" + labelTop + "text-align: " + labelAlign + ";line-height:" + labelHeight + "px;' onclick='' for='" + id + "' class='webix_inp_" + (top ? "top_" : "") + "label " + (config.required ? "webix_required" : "") + "'>" + (config.label || "") + "</label>";
+
+	    if (config.label) {
+	      var labelAlign = config.labelAlign || "left";
+	      var top = this._settings.labelPosition == "top";
+	      var labelTop = top ? "display:block;" : "width: " + this._settings.labelWidth + "px;";
+
+	      var labelHeight = this._getLabelHeight(top);
+
+	      label = "<label style='" + labelTop + "text-align: " + labelAlign + ";line-height:" + labelHeight + "px;' onclick='' for='" + id + "' class='webix_inp_" + (top ? "top_" : "") + "label " + (config.required ? "webix_required" : "") + "'>" + (config.label || "") + "</label>";
+	    }
+
 	    return label;
 	  },
-	  $renderInput: function $renderInput(config, div_start, id) {
+	  _getLabelHeight: function (top) {
+	    return top ? this._labelTopHeight - this._settings.inputPadding : this._settings.aheight - 2 * this._settings.inputPadding;
+	  },
+	  $renderInput: function (config, div_start, id) {
 	    var inputAlign = config.inputAlign || "left";
 	    var top = config.labelPosition == "top";
 
@@ -27328,23 +27806,23 @@
 	    return result;
 	  },
 	  defaults: {
-	    template: function template$$1(obj, common) {
+	    template: function (obj, common) {
 	      return common.$renderInput(obj);
 	    },
 	    label: "",
 	    labelWidth: 80
 	  },
-	  type_setter: function type_setter(value) {
+	  type_setter: function (value) {
 	    return value;
 	  },
 	  _set_inner_size: false,
-	  $setValue: function $setValue(value) {
+	  $setValue: function (value) {
 	    this.getInputNode().value = this._pattern(value);
 	  },
-	  $getValue: function $getValue() {
+	  $getValue: function () {
 	    return this._pattern(this.getInputNode().value, false);
 	  },
-	  suggest_setter: function suggest_setter(value) {
+	  suggest_setter: function (value) {
 	    if (value) {
 	      assert(value !== true, "suggest options can't be set as true, data need to be provided instead");
 
@@ -27388,11 +27866,11 @@
 
 	var DataCollection = exports.proto({
 	  name: "DataCollection",
-	  isVisible: function isVisible() {
+	  isVisible: function () {
 	    if (!this.data.order.length && !this.data._filter_order && !this._settings.dataFeed) return false;
 	    return true;
 	  },
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    this.data.provideApi(this, true);
 	    var id = config && config.id ? config.id : uid();
 	    this._settings.id = id;
@@ -27401,7 +27879,7 @@
 	      this.callEvent("onBindRequest", []);
 	    }, this));
 	  },
-	  refresh: function refresh() {
+	  refresh: function () {
 	    this.callEvent("onBindRequest", []);
 	  }
 	}, DataMove, CollectionBind, BindSource, ValidateCollection, DataLoader, MapCollection, EventSystem, BaseBind, Destruction, Settings);
@@ -27410,7 +27888,7 @@
 	var api$F = {
 	  name: "select",
 	  defaults: {
-	    template: function template(obj, common) {
+	    template: function (obj, common) {
 	      var options = common._check_options(obj.options);
 
 	      var id = "x" + uid();
@@ -27429,7 +27907,7 @@
 	      return common.$renderInput(obj, html, id);
 	    }
 	  },
-	  options_setter: function options_setter(value) {
+	  options_setter: function (value) {
 	    if (value) {
 	      if (typeof value == "string") {
 	        var collection = new DataCollection({
@@ -27441,7 +27919,7 @@
 	    }
 	  },
 	  //get input element
-	  getInputNode: function getInputNode() {
+	  getInputNode: function () {
 	    return this._dataobj.getElementsByTagName("select")[0];
 	  }
 	};
@@ -27452,7 +27930,7 @@
 	  defaults: {
 	    checkValue: 1,
 	    uncheckValue: 0,
-	    template: function template$$1(config, common) {
+	    template: function (config, common) {
 	      var id = "x" + uid();
 	      var rightlabel = "";
 
@@ -27478,22 +27956,22 @@
 	      return common.$renderInput(config, html, id);
 	    }
 	  },
-	  customCheckbox_setter: function customCheckbox_setter(value) {
+	  customCheckbox_setter: function (value) {
 	    if (value === true && $active.customCheckbox) {
 	      value = "<a role='presentation' onclick='javascript:void(0)'><button role='checkbox' aria-checked='false' aria-label='' type='button' aria-invalid='' class='webix_custom_checkbox'></button></a>";
 	    }
 
 	    return value;
 	  },
-	  blur: function blur() {
+	  blur: function () {
 	    var input = this.getInputNode();
 	    if (input) input.blur();
 	  },
-	  _pattern: function _pattern(value) {
+	  _pattern: function (value) {
 	    return value;
 	  },
-	  _init_onchange: function _init_onchange() {},
-	  $setValue: function $setValue(value) {
+	  _init_onchange: function () {},
+	  $setValue: function (value) {
 	    var isChecked = value == this._settings.checkValue;
 	    var input = this.$view.getElementsByTagName("input")[0];
 	    var parentNode = input ? input.parentNode : null;
@@ -27509,18 +27987,18 @@
 
 	    input.checked = isChecked;
 	  },
-	  toggle: function toggle() {
+	  toggle: function () {
 	    var value = this.getValue() != this._settings.checkValue ? this._settings.checkValue : this._settings.uncheckValue;
 	    this.setValue(value);
 	  },
-	  getValue: function getValue() {
+	  getValue: function () {
 	    var value = this._settings.value;
 	    return value == this._settings.checkValue ? this._settings.checkValue : this._settings.uncheckValue;
 	  },
-	  getInputNode: function getInputNode() {
+	  getInputNode: function () {
 	    return this.$view.getElementsByTagName(this._settings.customCheckbox ? "button" : "input")[0];
 	  },
-	  $skin: function $skin() {
+	  $skin: function () {
 	    this.defaults.customCheckbox = !!$active.customCheckbox;
 	  }
 	};
@@ -27533,7 +28011,7 @@
 	var api$H = {
 	  name: "radio",
 	  defaults: {
-	    template: function template$$1(config, common) {
+	    template: function (config, common) {
 	      var options = common._check_options(config.options);
 
 	      var html = [];
@@ -27545,6 +28023,7 @@
 	        if (i && (options[i].newline || config.vertical)) html.push("<div class='webix_line_break'></div>");
 	        var isChecked = options[i].id == config.value;
 	        var label = options[i].value || "";
+	        var tooltip = config.tooltip ? " webix_t_id='" + options[i].id + "'" : "";
 	        var customRadio = config.customRadio || "";
 
 	        if (customRadio) {
@@ -27559,18 +28038,18 @@
 	        var rd = common._baseInputHTML("input") + " name='" + (config.name || config.id) + "' type='radio' " + (isChecked ? "checked='1'" : "") + "tabindex=" + (isChecked || i === 0 && !config.value ? "0" : "-1") + " value='" + options[i].id + "' id='" + eachid + "' style='" + (customRadio ? "display:none" : "") + "' />";
 	        var input = "<div radio_id='" + options[i].id + "' class='webix_inp_radio_border webix_radio_" + (isChecked ? "1" : "0") + "' role='presentation'>" + rd + customRadio + "</div>";
 	        if (label) label = "<label for='" + eachid + "' class='webix_label_right'>" + label + "</label>";
-	        html.push("<div class='webix_radio_option' role='presentation'>" + input + label + "</div>");
+	        html.push("<div class='webix_radio_option' role='presentation'" + tooltip + ">" + input + label + "</div>");
 	      }
 
 	      html = "<div class='webix_el_group' role='radiogroup' style='margin-left:" + (config.label ? config.labelWidth : 0) + "px;'>" + html.join("") + "</div>";
 	      return common.$renderInput(config, html, id);
 	    }
 	  },
-	  refresh: function refresh() {
+	  refresh: function () {
 	    this.render();
 	    if (this._last_size && this.$getSize(0, 0)[2] != this._last_size[1]) this.resize();
 	  },
-	  $getSize: function $getSize(dx, dy) {
+	  $getSize: function (dx, dy) {
 	    var size = button$1.api.$getSize.call(this, dx, dy);
 
 	    if (this._settings.options) {
@@ -27592,10 +28071,10 @@
 
 	    return size;
 	  },
-	  _getInputNode: function _getInputNode() {
+	  _getInputNode: function () {
 	    return this._dataobj.getElementsByTagName(this._settings.customRadio ? "button" : "input");
 	  },
-	  $setValue: function $setValue(value) {
+	  $setValue: function (value) {
 	    var inp = this._dataobj.getElementsByTagName("input");
 
 	    for (var i = 0; i < inp.length; i++) {
@@ -27623,33 +28102,33 @@
 	      }
 	    }
 	  },
-	  getValue: function getValue() {
+	  getValue: function () {
 	    return this._settings.value;
 	  },
-	  focus: function focus() {
-	    this._focus();
+	  focus: function () {
+	    return this._focus();
 	  },
-	  blur: function blur() {
+	  blur: function () {
 	    this._blur();
 	  },
-	  customRadio_setter: function customRadio_setter(value) {
+	  customRadio_setter: function (value) {
 	    if (value === true && $active.customRadio) value = "<a role='presentation' onclick='javascript:void(0)'><button type='button' class='webix_custom_radio' button_id='' role='radio' aria-checked='false' aria-label='' aria-invalid='' tabindex=''></button></a>";
 	    return value;
 	  },
-	  $skin: function $skin() {
+	  $skin: function () {
 	    this.defaults.customRadio = !!$active.customRadio;
 	    if ($active.optionHeight) this.defaults.optionHeight = $active.optionHeight;
 	  }
 	};
-	var view$H = exports.protoUI(api$H, HTMLOptions, text.view);
+	var view$H = exports.protoUI(api$H, text.view, HTMLOptions);
 
 	var api$I = {
 	  name: "datepicker",
-	  $init: function $init() {
+	  $init: function () {
 	    this.$ready.push(this._init_popup);
 	  },
 	  defaults: {
-	    template: function template(obj, common) {
+	    template: function (obj, common) {
 	      if (common._settings.type == "time") {
 	        common._settings.icon = common._settings.timeIcon;
 	      } //temporary remove obj.type [[DIRTY]]
@@ -27668,19 +28147,19 @@
 	    timeIcon: "wxi-clock",
 	    separator: ", "
 	  },
-	  _onBlur: function _onBlur() {
+	  _onBlur: function () {
 	    if (this._settings.text == this.getText() || isUndefined(this._settings.text) && !this.getText()) return;
 	    var value = this.getPopup().getValue();
 	    if (value) this.setValue(value);
 	  },
-	  $skin: function $skin() {
+	  $skin: function () {
 	    this.defaults.inputPadding = $active.inputPadding;
 	    this.defaults.point = !$active.popupNoPoint;
 	  },
-	  getPopup: function getPopup() {
+	  getPopup: function () {
 	    return $$(this._settings.popup);
 	  },
-	  _init_popup: function _init_popup() {
+	  _init_popup: function () {
 	    var obj = this._settings;
 	    if (obj.suggest) obj.popup = obj.suggest;else if (!obj.popup) {
 	      var timepicker = this._settings.timepicker;
@@ -27702,12 +28181,12 @@
 
 	    this._init_once = function () {};
 	  },
-	  $render: function $render(obj) {
+	  $render: function (obj) {
 	    if (isUndefined(obj.value)) return;
 	    obj.value = this.$prepareValue(obj.value);
 	    this.$setValue(obj.value);
 	  },
-	  $prepareValue: function $prepareValue(value) {
+	  $prepareValue: function (value) {
 	    if (this._settings.multiselect) {
 	      if (typeof value === "string") value = value.split(this._settings.separator);else if (value instanceof Date) {
 	        value = [value];
@@ -27724,7 +28203,7 @@
 	      return this._prepareSingleValue(value);
 	    }
 	  },
-	  _prepareSingleValue: function _prepareSingleValue(value) {
+	  _prepareSingleValue: function (value) {
 	    var type = this._settings.type;
 	    var timeMode = type == "time"; //setValue("1980-12-25")
 
@@ -27758,20 +28237,20 @@
 
 	    return value;
 	  },
-	  _get_visible_text: function _get_visible_text(value) {
+	  _get_visible_text: function (value) {
 	    if (this._settings.multiselect) {
 	      return [].concat(value).map(function (a) {
 	        return this._get_visible_text_single(a);
 	      }.bind(this)).join(this.config.separator);
 	    } else return this._get_visible_text_single(value);
 	  },
-	  _get_visible_text_single: function _get_visible_text_single(value) {
+	  _get_visible_text_single: function (value) {
 	    var timeMode = this._settings.type == "time";
 	    var timepicker = this.config.timepicker;
 	    var formatStr = this._formatStr || (timeMode ? i18n.timeFormatStr : timepicker ? i18n.fullDateFormatStr : i18n.dateFormatStr);
 	    return formatStr(value);
 	  },
-	  _set_visible_text: function _set_visible_text() {
+	  _set_visible_text: function () {
 	    var node = this.getInputNode();
 
 	    if (node.value == undefined) {
@@ -27780,16 +28259,16 @@
 	      node.value = this._settings.text || "";
 	    }
 	  },
-	  $compareValue: function $compareValue(oldvalue, value) {
+	  $compareValue: function (oldvalue, value) {
 	    if (!oldvalue && !value) return true;
 	    return wDate.equal(oldvalue, value);
 	  },
-	  $setValue: function $setValue(value) {
+	  $setValue: function (value) {
 	    this._settings.text = value ? this._get_visible_text(value) : "";
 
 	    this._set_visible_text();
 	  },
-	  format_setter: function format_setter(value) {
+	  format_setter: function (value) {
 	    if (value) {
 	      if (typeof value === "function") this._formatStr = value;else {
 	        this._formatStr = wDate.dateToStr(value);
@@ -27799,10 +28278,10 @@
 
 	    return value;
 	  },
-	  getInputNode: function getInputNode() {
+	  getInputNode: function () {
 	    return this._settings.editable ? this._dataobj.getElementsByTagName("input")[0] : this._dataobj.getElementsByTagName("DIV")[1];
 	  },
-	  getValue: function getValue() {
+	  getValue: function () {
 	    if (this._settings.multiselect) {
 	      var value = this._settings.value;
 	      if (!value) return [];
@@ -27815,7 +28294,7 @@
 
 	    return this._get_value_single(this._settings.value);
 	  },
-	  _get_value_single: function _get_value_single(value) {
+	  _get_value_single: function (value) {
 	    var type = this._settings.type; //time mode
 
 	    var timeMode = type == "time"; //date and time mode
@@ -27844,7 +28323,7 @@
 
 	    return value || null;
 	  },
-	  getText: function getText() {
+	  getText: function () {
 	    var node = this.getInputNode();
 	    return node ? typeof node.value == "undefined" ? this.getValue() ? node.innerHTML : "" : node.value : "";
 	  }
@@ -27857,13 +28336,13 @@
 
 	var api$J = {
 	  name: "colorpicker",
-	  $init: function $init() {
+	  $init: function () {
 	    this.$ready.push(this._init_popup);
 	  },
 	  defaults: {
 	    icon: true
 	  },
-	  _init_popup: function _init_popup() {
+	  _init_popup: function () {
 	    var obj = this._settings;
 	    if (obj.suggest) obj.popup = obj.suggest;else if (!obj.popup) obj.popup = obj.suggest = this.suggest_setter({
 	      type: "colorboard",
@@ -27872,31 +28351,31 @@
 
 	    this._init_once = function () {};
 	  },
-	  $render: function $render(obj) {
+	  $render: function (obj) {
 	    if (isUndefined(obj.value)) return;
 	    obj.value = this.$prepareValue(obj.value);
 	    this.$setValue(obj.value);
 	  },
-	  getValue: function getValue() {
+	  getValue: function () {
 	    if (this._rendered_input && this._settings.editable) return this.getInputNode().value;else return this._settings.value;
 	  },
-	  $prepareValue: function $prepareValue(value) {
+	  $prepareValue: function (value) {
 	    if (value && value.charAt && value.charAt(0) != "#") value = "#" + value;
 	    return value || "";
 	  },
-	  _getColorNode: function _getColorNode() {
+	  _getColorNode: function () {
 	    return this.$view.getElementsByTagName("DIV")[this._settings.editable ? 1 : 2];
 	  },
-	  _get_visible_text: function _get_visible_text(value) {
+	  _get_visible_text: function (value) {
 	    return value;
 	  },
-	  $setValue: function $setValue(value) {
+	  $setValue: function (value) {
 	    this._getColorNode().style.backgroundColor = value;
 	    this._settings.text = value;
 	    var node = this.getInputNode();
 	    if (node.value == undefined) node.innerHTML = value;else node.value = value;
 	  },
-	  $renderIcon: function $renderIcon() {
+	  $renderIcon: function () {
 	    var config = this.config;
 	    return "<div class=\"webix_input_icon\" style=\"background-color:" + config.value + ";\"> </div>";
 	  }
@@ -27906,13 +28385,13 @@
 	var api$K = {
 	  name: "richselect",
 	  defaults: {
-	    template: function template(obj, common) {
+	    template: function (obj, common) {
 	      return common._render_div_block(obj, common);
 	    },
 	    popupWidth: 200,
 	    icon: "wxi-menu-down"
 	  },
-	  _onBlur: function _onBlur() {
+	  _onBlur: function () {
 	    if (this._settings.text == this.getText() || isUndefined(this._settings.text) && !this.getText()) return;
 	    var suggest = this.getPopup(),
 	        nodeValue = this.getInputNode().value,
@@ -27921,43 +28400,43 @@
 
 	    if (value && value != oldvalue && !(nodeValue === "" && suggest.getItemText(value) !== "")) this.setValue(value);else if (nodeValue === "") this.setValue("");else if (this._revertValue) this._revertValue();
 	  },
-	  suggest_setter: function suggest_setter(value) {
+	  suggest_setter: function (value) {
 	    return this.options_setter(value);
 	  },
-	  options_setter: function options_setter(value) {
+	  options_setter: function (value) {
 	    value = this._suggest_config ? this._suggest_config(value) : value;
 	    var suggest = this._settings.popup = this._settings.suggest = text.api.suggest_setter.call(this, value);
 	    var list = $$(suggest).getList();
 	    if (list) list.attachEvent("onAfterLoad", bind(this._reset_value, this));
 	    return suggest;
 	  },
-	  getList: function getList() {
+	  getList: function () {
 	    var suggest = $$(this._settings.suggest);
 	    assert(suggest, "Input doesn't have a list");
 	    return suggest.getList();
 	  },
-	  _pattern: function _pattern(value) {
+	  _pattern: function (value) {
 	    return value;
 	  },
-	  _reset_value: function _reset_value() {
+	  _reset_value: function () {
 	    var value = this._settings.value; //this._dataobj.firstChild - check that input is already rendered, as in IE11 it can be destroy during parent repainting
 
 	    if (!isUndefined(value) && !this.getPopup().isVisible() && !this._settings.text && this._dataobj.firstChild) this.$setValue(value);
 	  },
-	  $skin: function $skin() {
+	  $skin: function () {
 	    this.defaults.inputPadding = $active.inputPadding;
 	  },
-	  $render: function $render(obj) {
+	  $render: function (obj) {
 	    if (isUndefined(obj.value)) return;
 	    this.$setValue(obj.value);
 	  },
-	  getInputNode: function getInputNode() {
+	  getInputNode: function () {
 	    return this._dataobj.getElementsByTagName("DIV")[1];
 	  },
-	  getPopup: function getPopup() {
+	  getPopup: function () {
 	    return $$(this._settings.popup);
 	  },
-	  getText: function getText() {
+	  getText: function () {
 	    var value = this._settings.value,
 	        node = this.getInputNode();
 	    if (!node) return value ? this.getPopup().getItemText(value) : "";
@@ -27969,7 +28448,7 @@
 
 	    return node.value;
 	  },
-	  $setValue: function $setValue(value) {
+	  $setValue: function (value) {
 	    if (!this._rendered_input) return;
 	    var text$$1 = value;
 	    var popup = this.getPopup();
@@ -27979,13 +28458,15 @@
 	      //add new value
 	      var _popup = this.getPopup();
 
-	      var list = _popup.getList();
+	      var list = _popup.getList(); // add new item only when item with such id doesn't exists yet
 
-	      list.add(value);
+
+	      var exists = list.exists(value.id);
+	      if (!exists) list.add(value);
 	      text$$1 = _popup.getItemText(value.id); // in case of dynamic list, we can't add extra items
 	      // to not interfere with dynamic loading
 
-	      if (list._settings.dynamic) list.remove(value.id);
+	      if (list._settings.dynamic && !exists) list.remove(value.id);
 	      this._settings.value = value.id;
 	    }
 
@@ -27993,7 +28474,7 @@
 	    if (isUndefined(node.value)) node.innerHTML = text$$1 || this._get_div_placeholder();else node.value = text$$1 = text$$1.replace(/<[^>]*>/g, "");
 	    this._settings.text = text$$1;
 	  },
-	  getValue: function getValue() {
+	  getValue: function () {
 	    return this._settings.value || "";
 	  }
 	};
@@ -28005,20 +28486,20 @@
 
 	var api$L = {
 	  name: "combo",
-	  getInputNode: function getInputNode() {
+	  getInputNode: function () {
 	    return this._dataobj.getElementsByTagName("input")[0];
 	  },
-	  $render: function $render(obj) {
+	  $render: function (obj) {
 	    if (isUndefined(obj.value)) return;
 	    this.$setValue(obj.value);
 	  },
-	  _revertValue: function _revertValue() {
+	  _revertValue: function () {
 	    if (!this._settings.editable) {
 	      var value = this.getValue();
 	      this.$setValue(isUndefined(value) ? "" : value);
 	    }
 	  },
-	  _applyChanges: function _applyChanges() {
+	  _applyChanges: function () {
 	    var input = this.getInputNode(),
 	        value = "",
 	        suggest = this.getPopup();
@@ -28031,7 +28512,7 @@
 	    if (value != this._settings.value) this.setValue(value, true);else this.$setValue(value);
 	  },
 	  defaults: {
-	    template: function template(config, common) {
+	    template: function (config, common) {
 	      return common.$renderInput(config).replace(/(<input)\s*(?=\w)/, "$1" + " role='combobox'");
 	    },
 	    icon: "wxi-menu-down"
@@ -28042,8 +28523,8 @@
 	var api$M = {
 	  name: "counter",
 	  defaults: {
-	    template: function template$$1(config, common) {
-	      var value = config.value || 0;
+	    template: function (config, common) {
+	      var value = config.value;
 	      var id = "x" + uid();
 	      var html = "<div role='spinbutton' aria-label='" + template.escape(config.label) + "' aria-valuemin='" + config.min + "' aria-valuemax='" + config.max + "' aria-valuenow='" + config.value + "' class='webix_el_group' style='width:" + common._get_input_width(config) + "px'>";
 	      html += "<button type='button' class='webix_inp_counter_prev' tabindex='-1' aria-label='" + i18n.aria.decreaseValue + "'>-</button>";
@@ -28053,41 +28534,49 @@
 	    },
 	    min: 0,
 	    max: Infinity,
+	    value: 0,
 	    step: 1
 	  },
-	  $init: function $init() {
+	  $init: function () {
 	    _event(this.$view, "keydown", this._keyshift, {
 	      bind: this
 	    });
 	  },
-	  _keyshift: function _keyshift(e) {
+	  _keyshift: function (e) {
 	    var code = e.which || e.keyCode,
 	        c = this._settings,
-	        value = c.value || c.min;
+	        value = this.getValue();
 
 	    if (code > 32 && code < 41) {
-	      if (code === 35) value = c.min;else if (code === 36) value = c.max === Infinity ? 1000000 : c.max;else if (code === 33) this.next();else if (code === 34) this.prev();else value = value + (code === 37 || code === 40 ? -1 : 1);
+	      if (code === 36) value = c.min;else if (code === 35) value = c.max === Infinity ? 1000000 : c.max;else if (code === 33) this.next();else if (code === 34) this.prev();else value = value + (code === 37 || code === 40 ? -1 : 1);
 	      if (code > 34 && value >= c.min && value <= c.max) this.setValue(value);
 	    }
 	  },
-	  $setValue: function $setValue(value) {
+	  $setValue: function (value) {
 	    this.getInputNode().value = value;
 	  },
-	  getInputNode: function getInputNode() {
+	  $prepareValue: function (value) {
+	    value = parseFloat(value);
+	    return isNaN(value) ? 0 : value;
+	  },
+	  value_setter: function (value) {
+	    return this.$prepareValue(value);
+	  },
+	  getInputNode: function () {
 	    return this._dataobj.getElementsByTagName("input")[0];
 	  },
-	  getValue: function getValue() {
+	  getValue: function () {
 	    return button$1.api.getValue.apply(this, arguments) * 1;
 	  },
-	  next: function next(step) {
-	    step = this._settings.step;
+	  next: function (step) {
+	    step = 1 * (step || this._settings.step);
 	    this.shift(step);
 	  },
-	  prev: function prev(step) {
-	    step = -1 * this._settings.step;
+	  prev: function (step) {
+	    step = -1 * (step || this._settings.step);
 	    this.shift(step);
 	  },
-	  shift: function shift(step) {
+	  shift: function (step) {
 	    var min = this._settings.min;
 	    var max = this._settings.max;
 	    var new_value = this.getValue() + step;
@@ -28098,32 +28587,32 @@
 
 	var api$N = {
 	  name: "icon",
-	  $skin: function $skin() {
+	  $skin: function () {
 	    this.defaults.height = $active.inputHeight;
 	    this.defaults.width = $active.inputHeight;
 	  },
 	  defaults: {
-	    template: function template(obj, view) {
+	    template: function (obj, view) {
 	      var min = Math.min(obj.awidth, obj.aheight);
 	      var top = Math.round((view._content_height - obj.aheight) / 2);
 	      var inner = "<button type='button' style='height:" + min + "px;width:" + min + "px;' class='webix_icon_button'>" + "<span class='webix_icon " + obj.icon + "'></span></button>";
 	      return "<div class='webix_el_box' style='width:" + obj.awidth + "px;height:" + obj.aheight + "px;line-height:" + obj.aheight + "px;margin-top:" + top + "px'>" + inner + (obj.badge ? "<span class='webix_badge'>" + obj.badge + "</span>" : "") + "</div>";
 	    }
 	  },
-	  _set_inner_size: function _set_inner_size() {},
-	  $setValue: function $setValue() {}
+	  _set_inner_size: function () {},
+	  $setValue: function () {}
 	};
 	var view$N = exports.protoUI(api$N, button$1.view);
 
 	var api$O = {
 	  name: "search",
 	  on_click: {
-	    "webix_input_icon": function webix_input_icon(e) {
+	    "webix_input_icon": function (e) {
 	      this.getInputNode().focus();
 	      this.callEvent("onSearchIconClick", [e]);
 	    }
 	  },
-	  $skin: function $skin() {
+	  $skin: function () {
 	    this.defaults.inputPadding = $active.inputPadding;
 	  },
 	  defaults: {
@@ -28136,7 +28625,7 @@
 	var api$P = {
 	  name: "segmented",
 	  $allowsClear: false,
-	  $init: function $init() {
+	  $init: function () {
 	    this.attachEvent("onChange", function (value) {
 	      if (this._settings.multiview) this._show_view(value);
 	    });
@@ -28144,7 +28633,7 @@
 	      if (this._settings.multiview && this._settings.value) this._show_view(this._settings.value);
 	    }));
 	  },
-	  _show_view: function _show_view(value) {
+	  _show_view: function (value) {
 	    var top = this.getTopParentView();
 	    var view = null; //get from local isolate
 
@@ -28154,7 +28643,7 @@
 	    if (view && view.show) view.show();
 	  },
 	  defaults: {
-	    template: function template$$1(obj, common) {
+	    template: function (obj, common) {
 	      if (!obj.options) assert(false, "segmented: options undefined");
 	      var options = obj.options;
 
@@ -28168,26 +28657,28 @@
 	      var html = "<div style='width:" + width + "px' class='webix_all_segments' role='tablist' aria-label='" + template.escape(obj.label) + "'>";
 	      var optionWidth = obj.optionWidth || Math.floor(width / options.length);
 	      if (!obj.value) obj.value = options[0].id;
+	      var tooltip;
 
 	      for (var i = 0; i < options.length; i++) {
+	        tooltip = obj.tooltip ? " webix_t_id='" + options[i].id + "'" : "";
 	        html += "<button type='button' style='width:" + (options[i].width || optionWidth) + "px' role='tab' aria-selected='" + (obj.value == options[i].id ? "true" : "false") + "' tabindex='" + (obj.value == options[i].id ? "0" : "-1") + "'";
-	        html += "class='" + "webix_segment_" + (i == options.length - 1 ? "N" : i > 0 ? 1 : 0) + (obj.value == options[i].id ? " webix_selected " : "") + "' button_id='" + options[i].id + "' " + (options[i].tooltip ? "title='" + options[i].tooltip + "'" : "") + ">";
+	        html += "class='" + "webix_segment_" + (i == options.length - 1 ? "N" : i > 0 ? 1 : 0) + (obj.value == options[i].id ? " webix_selected " : "") + "' button_id='" + options[i].id + "'" + tooltip + ">";
 	        html += options[i].value + "</button>";
 	      }
 
 	      return common.$renderInput(obj, html + "</div>", id);
 	    }
 	  },
-	  _getInputNode: function _getInputNode() {
+	  _getInputNode: function () {
 	    return this.$view.getElementsByTagName("BUTTON");
 	  },
-	  focus: function focus() {
-	    this._focus();
+	  focus: function () {
+	    return this._focus();
 	  },
-	  blur: function blur() {
+	  blur: function () {
 	    this._blur();
 	  },
-	  $setValue: function $setValue(value) {
+	  $setValue: function (value) {
 	    var options = this._getInputNode();
 
 	    for (var i = 0; i < options.length; i++) {
@@ -28201,13 +28692,13 @@
 	    var popup = this.config.tabbarPopup;
 	    if (popup && $$(popup) && $$(popup).getBody().exists(value)) this.refresh();
 	  },
-	  getValue: function getValue$$1() {
+	  getValue: function () {
 	    return this._settings.value;
 	  },
-	  getInputNode: function getInputNode() {
+	  getInputNode: function () {
 	    return null;
 	  },
-	  optionIndex: function optionIndex(id) {
+	  optionIndex: function (id) {
 	    var pages = this._settings.options;
 
 	    for (var i = 0; i < pages.length; i++) {
@@ -28216,7 +28707,7 @@
 
 	    return -1;
 	  },
-	  addOption: function addOption(id, value, show, index$$1) {
+	  addOption: function (id, value, show, index$$1) {
 	    var obj = id;
 
 	    if (_typeof(id) != "object") {
@@ -28235,7 +28726,7 @@
 	    this.refresh();
 	    if (show) this.setValue(id);
 	  },
-	  removeOption: function removeOption(id) {
+	  removeOption: function (id) {
 	    var index$$1 = this.optionIndex(id);
 	    var options = this._settings.options;
 	    if (index$$1 >= 0) PowerArray.removeAt.call(options, index$$1); // if we remove a selected option
@@ -28244,7 +28735,7 @@
 	    this.refresh();
 	    this.callEvent("onOptionRemove", [id, this._settings.value]);
 	  },
-	  _setNextVisible: function _setNextVisible(options, index$$1) {
+	  _setNextVisible: function (options, index$$1) {
 	    var size = options.length;
 
 	    if (size) {
@@ -28263,7 +28754,7 @@
 
 	    this.setValue("");
 	  },
-	  _filterOptions: function _filterOptions(options) {
+	  _filterOptions: function (options) {
 	    var copy$$1 = [];
 
 	    for (var i = 0; i < options.length; i++) {
@@ -28272,7 +28763,7 @@
 
 	    return copy$$1;
 	  },
-	  _setOptionVisibility: function _setOptionVisibility(id, state) {
+	  _setOptionVisibility: function (id, state) {
 	    var options = this._settings.options;
 	    var index$$1 = this.optionIndex(id);
 	    var option = options[index$$1];
@@ -28290,15 +28781,15 @@
 	      }
 	    }
 	  },
-	  hideOption: function hideOption(id) {
+	  hideOption: function (id) {
 	    this._setOptionVisibility(id, false);
 	  },
-	  showOption: function showOption(id) {
+	  showOption: function (id) {
 	    this._setOptionVisibility(id, true);
 	  },
 	  _set_inner_size: false
 	};
-	var view$P = exports.protoUI(api$P, HTMLOptions, text.view);
+	var view$P = exports.protoUI(api$P, text.view, HTMLOptions);
 	var segmented = {
 	  api: api$P,
 	  view: view$P
@@ -28307,7 +28798,7 @@
 	var api$Q = {
 	  name: "textarea",
 	  defaults: {
-	    template: function template(obj, common) {
+	    template: function (obj, common) {
 	      var name = obj.name || obj.id;
 	      var id = "x" + uid();
 	      var html = common._baseInputHTML("textarea") + "style='width:" + common._get_input_width(obj) + "px;'";
@@ -28317,21 +28808,16 @@
 	    height: 0,
 	    minHeight: 60
 	  },
-	  $skin: function $skin() {
+	  $skin: function () {
 	    this.defaults.inputPadding = $active.inputPadding;
 	    this._inputSpacing = $active.inputSpacing;
 	  },
 	  _skipSubmit: true,
-	  $renderLabel: function $renderLabel(config, id) {
-	    var labelAlign = config.labelAlign || "left";
-	    var top = this._settings.labelPosition == "top";
-	    var labelTop = top ? "display:block;" : "width: " + this._settings.labelWidth + "px;";
-	    var label = "";
-	    if (config.label) label = "<label style='" + labelTop + "text-align: " + labelAlign + ";' onclick='' for='" + id + "' class='webix_inp_" + (top ? "top_" : "") + "label " + (config.required ? "webix_required" : "") + "'>" + (config.label || "") + "</label>";
-	    return label;
+	  _getLabelHeight: function (top) {
+	    return top ? this._labelTopHeight - this._settings.inputPadding : "";
 	  },
 	  //get input element
-	  getInputNode: function getInputNode() {
+	  getInputNode: function () {
 	    return this._dataobj.getElementsByTagName("textarea")[0];
 	  }
 	};
@@ -28340,12 +28826,12 @@
 	var api$R = {
 	  name: "toggle",
 	  $allowsClear: true,
-	  $init: function $init() {
+	  $init: function () {
 	    this.attachEvent("onItemClick", function () {
 	      this.toggle();
 	    });
 	  },
-	  $setValue: function $setValue(value) {
+	  $setValue: function (value) {
 	    var input = this.getInputNode();
 	    var obj = this._settings;
 	    var isPressed = value && value != "0";
@@ -28359,15 +28845,15 @@
 	    var parent = input.parentNode;
 	    if (isPressed) addCss(parent, "webix_pressed");else removeCss(parent, "webix_pressed");
 	  },
-	  toggle: function toggle() {
+	  toggle: function () {
 	    this.setValue(!this.getValue());
 	  },
-	  getValue: function getValue$$1() {
+	  getValue: function () {
 	    var value = this._settings.value;
 	    return !value || value == "0" ? 0 : 1;
 	  },
 	  defaults: {
-	    template: function template(obj, common) {
+	    template: function (obj, common) {
 	      var isPressed = obj.value && obj.value != "0";
 	      var css = isPressed ? " webix_pressed" : "";
 	      obj.label = (isPressed ? obj.onLabel : obj.offLabel) || obj.label;
@@ -28390,13 +28876,13 @@
 	    iconWidth: 25,
 	    separator: ", "
 	  },
-	  getValueHere: function getValueHere() {
+	  getValueHere: function () {
 	    return text.api.getValue.call(this);
 	  },
-	  setValueHere: function setValueHere(value) {
+	  setValueHere: function (value) {
 	    return text.api.$setValue.call(this, value);
 	  },
-	  getValue: function getValue() {
+	  getValue: function () {
 	    if (this.config.mode == "extra") return this.getValueHere();
 	    if (this._full_value) return this._full_value;
 	    var values = [this.getValueHere(this)];
@@ -28408,7 +28894,7 @@
 
 	    return values.join(this.config.separator);
 	  },
-	  $setValue: function $setValue(value) {
+	  $setValue: function (value) {
 	    value = value || "";
 	    if (this.config.mode == "extra") return this.setValueHere(value);
 	    this._full_value = value;
@@ -28434,7 +28920,7 @@
 
 	    this._full_value = "";
 	  },
-	  _subOnChange: function _subOnChange() {
+	  _subOnChange: function () {
 	    var parent = this.config.master ? $$(this.config.master) : this;
 	    var newvalue = parent.getValue();
 	    var oldvalue = parent._settings.value;
@@ -28444,7 +28930,7 @@
 	      parent.callEvent("onChange", [newvalue, oldvalue]);
 	    }
 	  },
-	  addSection: function addSection(text$$1) {
+	  addSection: function (text$$1) {
 	    var config = this.config,
 	        newConfig = {
 	      labelWidth: config.labelWidth,
@@ -28455,6 +28941,7 @@
 	      mode: "extra",
 	      value: text$$1 || "",
 	      icon: "wxi-minus-circle",
+	      tooltip: config.tooltip,
 	      suggest: config.suggest || null,
 	      master: config.id
 	    };
@@ -28467,7 +28954,7 @@
 	    this.callEvent("onSectionAdd", [newone, this._subs.length]);
 	    return newone;
 	  },
-	  removeSection: function removeSection(id) {
+	  removeSection: function (id) {
 	    var parent = this.config.master ? $$(this.config.master) : this;
 
 	    for (var i = parent._subs.length - 1; i >= 0; i--) {
@@ -28482,7 +28969,7 @@
 	    }
 	  },
 	  on_click: {
-	    "webix_input_icon": function webix_input_icon() {
+	    "webix_input_icon": function () {
 	      if (this.config.mode == "extra") {
 	        this.removeSection(this.config.id);
 	        var childs = this.getParentView().getChildViews();
@@ -28494,11 +28981,11 @@
 	      return false;
 	    }
 	  },
-	  $init: function $init() {
+	  $init: function () {
 	    this._subs = toArray([]);
 	    this.attachEvent("onKeyPress", this._onKeyPress);
 	  },
-	  $render: function $render(obj) {
+	  $render: function (obj) {
 	    this.$setValue(obj.value);
 	  }
 	};
@@ -28506,7 +28993,7 @@
 
 	var api$T = {
 	  name: "proto",
-	  $init: function $init() {
+	  $init: function () {
 	    this.data.provideApi(this, true);
 	    this._dataobj = this._dataobj || this._contentobj; //render self , each time when data is updated
 
@@ -28514,7 +29001,7 @@
 	      this.render.apply(this, arguments);
 	    }, this));
 	  },
-	  $setSize: function $setSize() {
+	  $setSize: function () {
 	    if (base.api.$setSize.apply(this, arguments)) this.render();
 	  },
 	  _id: "webix_item",
@@ -28531,7 +29018,7 @@
 	  name: "list",
 	  _listClassName: "webix_list",
 	  _itemClassName: "webix_list_item",
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    addCss(this._viewobj, this._listClassName + ((config.layout || this.defaults.layout) == "x" ? "-x" : ""));
 	    this.data.provideApi(this, true);
 	    this._auto_resize = bind(this._auto_resize, this);
@@ -28541,21 +29028,21 @@
 
 	    this._viewobj.setAttribute("role", "listbox");
 	  },
-	  dynamic_setter: function dynamic_setter(value) {
+	  dynamic_setter: function (value) {
 	    if (value) exports.extend(this, VRenderStack, true);
 	    return value;
 	  },
-	  $dragHTML: function $dragHTML(obj) {
+	  $dragHTML: function (obj, e, context) {
+	    var html;
+
 	    if (this._settings.layout == "y" && this.type.width == "auto") {
 	      this.type.width = this._content_width;
-
-	      var node = this._toHTML(obj);
-
+	      html = this._toHTML(obj);
 	      this.type.width = "auto";
-	      return node;
-	    }
+	    } else html = this._toHTML(obj);
 
-	    return this._toHTML(obj);
+	    if (isArray(context.source) && context.source.length > 1) html = this._toMultipleHTML(html, context.source.length);
+	    return html;
 	  },
 	  defaults: {
 	    select: false,
@@ -28566,7 +29053,7 @@
 	  },
 	  _id: "webix_l_id",
 	  on_click: {
-	    webix_list_item: function webix_list_item(e, id) {
+	    webix_list_item: function (e, id) {
 	      if (this._settings.select) {
 	        this._no_animation = true;
 	        if (this._settings.select == "multiselect" || this._settings.multiselect) this.select(id, false, e.ctrlKey || e.metaKey || this._settings.multiselect == "touch", e.shiftKey); //multiselection
@@ -28576,13 +29063,13 @@
 	    }
 	  },
 	  on_dblclick: {},
-	  getVisibleCount: function getVisibleCount() {
+	  getVisibleCount: function () {
 	    return Math.floor(this._content_height / this._one_height());
 	  },
-	  _auto_resize: function _auto_resize() {
+	  _auto_resize: function () {
 	    if (this._settings.autoheight || this._settings.autowidth) this.resize();
 	  },
-	  _auto_height_calc: function _auto_height_calc(count) {
+	  _auto_height_calc: function (count) {
 	    var value = this.data.$pagesize || this.count();
 
 	    this._onoff_scroll(count && count < value, "y");
@@ -28593,10 +29080,10 @@
 	    if (this.getUnits) height += this.getUnits().length * this.type.headerHeight;
 	    return Math.max(height, this._settings.minHeight || 0);
 	  },
-	  _one_height: function _one_height() {
+	  _one_height: function () {
 	    return this.type.height + (this.type.margin || 0);
 	  },
-	  _auto_width_calc: function _auto_width_calc(count) {
+	  _auto_width_calc: function (count) {
 	    var value = this.data.$pagesize || this.count();
 
 	    this._onoff_scroll(count && count < value, "x");
@@ -28604,10 +29091,10 @@
 	    if (this._settings.autowidth && value < (count || Infinity)) count = value;
 	    return this.type.width * count;
 	  },
-	  _correct_width_scroll: function _correct_width_scroll() {
+	  _correct_width_scroll: function () {
 	    if (this._settings.layout == "x") this._dataobj.style.width = this.type.width != "auto" ? this.type.width * this.count() + "px" : "auto";
 	  },
-	  $getSize: function $getSize(dx, dy) {
+	  $getSize: function (dx, dy) {
 	    if (this._settings.layout == "y") {
 	      if (this.type.width != "auto") this._settings.width = this.type.width + (this._scroll_y ? env.scrollSize : 0);
 	      if (this._settings.yCount || this._settings.autoheight) this._settings.height = this._auto_height_calc(this._settings.yCount) || 1;
@@ -28618,19 +29105,20 @@
 
 	    return base.api.$getSize.call(this, dx, dy);
 	  },
-	  $setSize: function $setSize() {
+	  $setSize: function () {
 	    base.api.$setSize.apply(this, arguments);
 	  },
 	  type: {
 	    css: "",
-	    widthSize: function widthSize(obj, common) {
+	    widthSize: function (obj, common) {
 	      return common.width + (common.width > -1 ? "px" : "");
 	    },
-	    heightSize: function heightSize(obj, common) {
+	    heightSize: function (obj, common) {
 	      return common.height + (common.height > -1 ? "px" : "");
 	    },
-	    classname: function classname(obj, common, marks) {
+	    classname: function (obj, common, marks) {
 	      var css = "webix_list_item";
+	      if (common.css) css += " " + common.css;
 
 	      if (obj.$css) {
 	        if (_typeof(obj.$css) == "object") obj.$css = createCss(obj.$css);
@@ -28640,17 +29128,17 @@
 	      if (marks && marks.$css) css += " " + marks.$css;
 	      return css;
 	    },
-	    aria: function aria(obj, common, marks) {
+	    aria: function (obj, common, marks) {
 	      return "role=\"option\"" + (marks && marks.webix_selected ? " aria-selected=\"true\" tabindex=\"0\"" : " tabindex=\"-1\"") + (obj.$count && obj.$template ? "aria-expanded=\"true\"" : "");
 	    },
-	    template: function template$$1(obj) {
+	    template: function (obj) {
 	      return (obj.icon ? "<span class='webix_list_icon webix_icon " + obj.icon + "'></span>" : "") + obj.value + (obj.badge ? "<div class='webix_badge'>" + obj.badge + "</div>" : "");
 	    },
 	    width: "auto",
 	    templateStart: template("<div webix_l_id=\"#id#\" class=\"{common.classname()}\" style=\"width:{common.widthSize()}; height:{common.heightSize()}; overflow:hidden;\" {common.aria()}>"),
 	    templateEnd: template("</div>")
 	  },
-	  $skin: function $skin() {
+	  $skin: function () {
 	    this.type.height = $active.listItemHeight;
 	  }
 	};
@@ -28666,7 +29154,7 @@
 	  defaults: {
 	    separator: ","
 	  },
-	  _suggest_config: function _suggest_config(value) {
+	  _suggest_config: function (value) {
 	    var isobj = !isArray(value) && _typeof(value) == "object" && !value.name;
 	    var suggest = {
 	      view: "checksuggest",
@@ -28684,7 +29172,7 @@
 	    });
 	    return view;
 	  },
-	  $setValue: function $setValue(value) {
+	  $setValue: function (value) {
 	    if (!this._rendered_input) return;
 	    var popup = this.getPopup();
 	    var text = "";
@@ -28701,7 +29189,7 @@
 	    var node = this.getInputNode();
 	    node.innerHTML = text || this._get_div_placeholder();
 	  },
-	  getValue: function getValue() {
+	  getValue: function () {
 	    return this._settings.value || "";
 	  }
 	};
@@ -28715,11 +29203,11 @@
 	type(list.view, {
 	  name: "checklist",
 	  templateStart: template("<div webix_l_id=\"#!id#\" {common.aria()} class=\"{common.classname()}\" style=\"width:{common.widthSize()}; height:{common.heightSize()}; overflow:hidden; white-space:nowrap;\">{common.checkbox()}"),
-	  checkbox: function checkbox(obj) {
+	  checkbox: function (obj) {
 	    var icon = obj.$checked ? "wxi-checkbox-marked" : "wxi-checkbox-blank";
 	    return "<span role='checkbox' tabindex='-1' aria-checked='" + (obj.$checked ? "true" : "false") + "' class='webix_icon " + icon + "'></span>";
 	  },
-	  aria: function aria(obj) {
+	  aria: function (obj) {
 	    return "role='option' tabindex='-1' " + (obj.$checked ? "aria-selected='true'" : "");
 	  },
 	  template: template("#value#")
@@ -28735,14 +29223,14 @@
 	    icon: false,
 	    iconWidth: 0,
 	    tagMode: true,
-	    tagTemplate: function tagTemplate(values) {
+	    tagTemplate: function (values) {
 	      return values.length ? values.length + " item(s)" : "";
 	    },
-	    template: function template$$1(obj, common) {
+	    template: function (obj, common) {
 	      return common._render_value_block(obj, common);
 	    }
 	  },
-	  $init: function $init() {
+	  $init: function () {
 	    this.$view.className += " webix_multicombo";
 	    this.attachEvent("onBeforeRender", function () {
 	      if (!this._inputHeight) this._inputHeight = $active.inputHeight;
@@ -28753,13 +29241,13 @@
 	    });
 	  },
 	  on_click: {
-	    "webix_multicombo_delete": function webix_multicombo_delete(e, view, node) {
+	    "webix_multicombo_delete": function (e, view, node) {
 	      var value;
 	      if (!this._settings.readonly && node && (value = node.parentNode.getAttribute("optvalue"))) this._removeValue(value);
 	      return false;
 	    }
 	  },
-	  _onBlur: function _onBlur() {
+	  _onBlur: function () {
 	    var value = this.getInputNode().value; //blurring caused by clicks in the suggest list cannot affect new values
 
 	    if (value && this._settings.newValues && new Date() - (this.getPopup()._click_stamp || 0) > 100) {
@@ -28769,7 +29257,7 @@
 	    if (!this._settings.keepText) this._inputValue = "";
 	    this.refresh();
 	  },
-	  _removeValue: function _removeValue(value) {
+	  _removeValue: function (value) {
 	    var values = this._settings.value;
 	    var suggest = $$(this.config.suggest);
 	    if (typeof values == "string") values = values.split(this._settings.separator);
@@ -28781,7 +29269,7 @@
 	      suggest.getBody()._cells[0].setValue(0);
 	    }
 	  },
-	  _addValue: function _addValue(newValue) {
+	  _addValue: function (newValue) {
 	    var suggest = $$(this.config.suggest);
 	    var list = suggest.getList();
 	    var item = list.getItem(newValue);
@@ -28798,7 +29286,7 @@
 	      }
 	    }
 	  },
-	  _addNewValue: function _addNewValue(value) {
+	  _addNewValue: function (value) {
 	    var suggest = $$(this.config.suggest);
 	    var list = suggest.getList();
 	    var id;
@@ -28817,7 +29305,7 @@
 
 	    this._addValue(id);
 	  },
-	  _suggest_config: function _suggest_config(value) {
+	  _suggest_config: function (value) {
 	    var isObj = !isArray(value) && _typeof(value) == "object" && !value.name,
 	        suggest = {
 	      view: "checksuggest",
@@ -28826,10 +29314,21 @@
 	      button: this.config.button
 	    },
 	        combo = this;
-	    if (this._settings.optionWidth) suggest.width = this._settings.optionWidth;
-	    if (isObj) exports.extend(suggest, value, true);
+
+	    if (isObj) {
+	      exports.extend(suggest, value, true);
+	    }
+
+	    if (!suggest.width && this._settings.optionWidth) {
+	      exports.extend(suggest, {
+	        width: this._settings.optionWidth,
+	        fitMaster: false
+	      }, true);
+	    }
+
+	    suggest.width = suggest.fitMaster || isUndefined(suggest.fitMaster) ? 0 : suggest.width;
 	    var view = ui(suggest);
-	    if (!this._settings.optionWidth) view.$customWidth = function () {
+	    if (!suggest.width) view.$customWidth = function () {
 	      this.config.width = combo._get_input_width(combo._settings);
 	    };
 	    view.attachEvent("onBeforeShow", function (node, mode, point) {
@@ -28854,7 +29353,7 @@
 
 	    return view;
 	  },
-	  _render_value_block: function _render_value_block(obj, common) {
+	  _render_value_block: function (obj, common) {
 	    var id,
 	        input,
 	        inputAlign,
@@ -28888,10 +29387,10 @@
 	    if (message) bottomLabel = "<div class='webix_inp_bottom_label' style='width:" + width + "px;margin-left:" + Math.max(padding, $active.inputPadding) + "px;'>" + message + "</div>";
 	    if (top) return label + "<div class='webix_el_box' style='width:" + this._settings.awidth + "px; '>" + html + bottomLabel + "</div>";else return "<div class='webix_el_box' style='width:" + this._settings.awidth + "px; min-height:" + this._settings.aheight + "px;'>" + label + html + bottomLabel + "</div>";
 	  },
-	  _getValueListBox: function _getValueListBox() {
+	  _getValueListBox: function () {
 	    return this._getBox().getElementsByTagName("UL")[0];
 	  },
-	  _set_inner_size: function _set_inner_size() {
+	  _set_inner_size: function () {
 	    var popup$$1 = this.getPopup();
 
 	    if (popup$$1) {
@@ -28937,7 +29436,7 @@
 
 	    this._resizeToContent();
 	  },
-	  _focusAtEnd: function _focusAtEnd(inputEl) {
+	  _focusAtEnd: function (inputEl) {
 	    inputEl = inputEl || this.getInputNode();
 
 	    if (inputEl) {
@@ -28958,7 +29457,7 @@
 	      }
 	    }
 	  },
-	  _resizeToContent: function _resizeToContent() {
+	  _resizeToContent: function () {
 	    var top = this._settings.labelPosition == "top";
 
 	    var inputDiv = this._getInputDiv();
@@ -29001,7 +29500,7 @@
 	      this.getInputNode().select();
 	    }
 	  },
-	  _getInputDiv: function _getInputDiv() {
+	  _getInputDiv: function () {
 	    var parentNode = this._getBox();
 
 	    var nodes = parentNode.childNodes;
@@ -29012,19 +29511,19 @@
 
 	    return parentNode;
 	  },
-	  getInputNode: function getInputNode() {
+	  getInputNode: function () {
 	    return this._getBox().getElementsByTagName("INPUT")[0];
 	  },
-	  $setValue: function $setValue() {
+	  $setValue: function () {
 	    if (this._rendered_input) this._set_inner_size();
 	  },
-	  getValue: function getValue(config) {
+	  getValue: function (config) {
 	    if (_typeof(config) == "object" && config.options) return this._getSelectedOptions();
 	    var value = this._settings.value;
 	    if (!value) return "";
 	    return typeof value != "string" ? value.join(this._settings.separator) : value;
 	  },
-	  getText: function getText() {
+	  getText: function () {
 	    var value = this._settings.value;
 	    if (!value) return "";
 	    if (typeof value == "string") value = value.split(this._settings.separator);
@@ -29036,7 +29535,7 @@
 
 	    return text.join(this._settings.separator);
 	  },
-	  _getSelectedOptions: function _getSelectedOptions() {
+	  _getSelectedOptions: function () {
 	    var i,
 	        item,
 	        popup$$1,
@@ -29053,7 +29552,7 @@
 
 	    return options;
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    var config = this._settings;
 
 	    if (base.api.$setSize.call(this, x, y)) {
@@ -29066,7 +29565,7 @@
 	      this.render();
 	    }
 	  },
-	  _calcInputWidth: function _calcInputWidth(value) {
+	  _calcInputWidth: function (value) {
 	    var tmp = document.createElement("span");
 	    tmp.className = "webix_multicombo_input";
 	    tmp.style.visibility = "visible";
@@ -29077,12 +29576,12 @@
 	    document.body.removeChild(tmp);
 	    return width;
 	  },
-	  _getMultiComboInputWidth: function _getMultiComboInputWidth() {
+	  _getMultiComboInputWidth: function () {
 	    var listbox = this._getValueListBox();
 
 	    return listbox.offsetWidth - listbox.firstChild.offsetWidth - 17;
 	  },
-	  _init_onchange: function _init_onchange() {
+	  _init_onchange: function () {
 	    // input focus and focus styling
 	    _event(this._getBox(), "click", function () {
 	      this.getInputNode().focus();
@@ -29149,7 +29648,11 @@
 	        var newValue = inp.value.replace(this._settings.separator, "");
 
 	        if (newValue) {
-	          if (this._settings.newValues) this._addNewValue(newValue);else {
+	          if (this._settings.newValues) {
+	            this._enter = true;
+
+	            this._addNewValue(newValue);
+	          } else {
 	            var newId = this.getPopup().getItemId(newValue);
 	            if (newId) this._addValue(newId);
 	          }
@@ -29250,28 +29753,28 @@
 	    step: 1,
 	    title: false,
 	    moveTitle: true,
-	    template: function template$$1(obj, common) {
+	    template: function (obj, common) {
 	      var id = common._handle_id = "x" + uid();
 	      var html = "";
 	      var title = "<div class='webix_slider_title" + (obj.moveTitle ? " webix_slider_move" : "") + "'" + (!obj.moveTitle && obj.vertical ? " style='line-height:" + (obj.aheight - obj.inputPadding * 2) + "px;'" : "") + "></div>";
 	      var left = "<div class='webix_slider_left'>&nbsp;</div>";
 	      var right = "<div class='webix_slider_right'></div>";
-	      var handle = "<div class='webix_slider_handle' role='slider' aria-label='" + obj.label + (obj.title ? " " + obj.title(obj) : "") + "' aria-valuemax='" + obj.max + "' aria-valuemin='" + obj.min + "' aria-valuenow='" + obj.value + "' tabindex='0' id='" + id + "'>&nbsp;</div>";
+	      var handle = "<div class='webix_slider_handle' webix_disable_drag='true' role='slider' aria-label='" + obj.label + (obj.title ? " " + obj.title(obj) : "") + "' aria-valuemax='" + obj.max + "' aria-valuemin='" + obj.min + "' aria-valuenow='" + obj.value + "' tabindex='0' id='" + id + "'>&nbsp;</div>";
 	      if (obj.vertical) html = "<div class='webix_slider_box'>" + right + left + handle + "</div>" + title;else html = title + "<div class='webix_slider_box'>" + left + right + handle + "</div>";
 	      return common.$renderInput(obj, html, id);
 	    }
 	  },
-	  type_setter: function type_setter(type) {
+	  type_setter: function (type) {
 	    this._viewobj.className += " webix_slider_" + type;
 	  },
-	  title_setter: function title_setter(value) {
+	  title_setter: function (value) {
 	    if (typeof value == "string") return template(value);
 	    return value;
 	  },
-	  _get_slider_handle: function _get_slider_handle() {
+	  _get_slider_handle: function () {
 	    return this.$view.querySelector(".webix_slider_handle");
 	  },
-	  _set_inner_size: function _set_inner_size() {
+	  _set_inner_size: function () {
 	    var handle = this._get_slider_handle();
 
 	    var config = this._settings;
@@ -29304,7 +29807,7 @@
 	      this._set_title(handle, corner1, corner2, cornerStr);
 	    }
 	  },
-	  _set_title: function _set_title(handle, corner1, corner2, cornerStr) {
+	  _set_title: function (handle, corner1, corner2, cornerStr) {
 	    var config = this._settings;
 
 	    if (this._settings.title) {
@@ -29325,10 +29828,10 @@
 	      }
 	    }
 	  },
-	  _set_value_now: function _set_value_now() {
+	  _set_value_now: function () {
 	    this._get_slider_handle().setAttribute("aria-valuenow", this._settings.value);
 	  },
-	  refresh: function refresh() {
+	  refresh: function () {
 	    var handle = this._get_slider_handle();
 
 	    if (handle) {
@@ -29339,20 +29842,20 @@
 	      this._set_inner_size();
 	    }
 	  },
-	  value_setter: function value_setter(value) {
+	  value_setter: function (value) {
 	    return this.$prepareValue(value);
 	  },
-	  $setValue: function $setValue() {
+	  $setValue: function () {
 	    this.refresh();
 	  },
-	  $getValue: function $getValue() {
+	  $getValue: function () {
 	    return this._settings.value;
 	  },
-	  $prepareValue: function $prepareValue(value) {
+	  $prepareValue: function (value) {
 	    value = parseFloat(value);
 	    return isNaN(value) ? 0 : value;
 	  },
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    if (env.touch) this.attachEvent("onTouchStart", bind(this._on_mouse_down_start, this));else _event(this._viewobj, "mousedown", bind(this._on_mouse_down_start, this));
 
 	    _event(this.$view, "keydown", bind(this._handle_move_keyboard, this));
@@ -29363,14 +29866,14 @@
 	      this._sliderPadding = $active.vSliderPadding;
 	    }
 	  },
-	  $skin: function $skin() {
+	  $skin: function () {
 	    this._sliderHandleWidth = $active.sliderHandleWidth; //8 - width of handle / 2
 
 	    this._sliderPadding = $active.sliderPadding; //10 - padding of webix_slider_box ( 20 = 10*2 )
 
 	    this._sliderBorder = $active.sliderBorder; //1px border
 	  },
-	  _handle_move_keyboard: function _handle_move_keyboard(e) {
+	  _handle_move_keyboard: function (e) {
 	    var code = e.keyCode,
 	        c = this._settings,
 	        value = c.value;
@@ -29382,7 +29885,7 @@
 	      this._activeIndex = match ? parseInt(match[1], 10) : -1;
 	      if (match) value = c.value[this._activeIndex];
 	      value = value < c.min ? c.min : value > c.max ? c.max : value;
-	      if (code === 35) value = c.min;else if (code === 36) value = c.max;else {
+	      if (code === 36) value = c.min;else if (code === 35) value = c.max;else {
 	        var inc = code === 37 || code === 40 || code === 34 ? -1 : 1;
 	        if (code === 33 || code === 34 || c.step > 1) inc = inc * c.step;
 	        value = value * 1 + inc;
@@ -29409,7 +29912,7 @@
 	      }
 	    }
 	  },
-	  _on_mouse_down_start: function _on_mouse_down_start(e) {
+	  _on_mouse_down_start: function (e) {
 	    var trg = e.target || e.srcElement;
 
 	    if (this._mouse_down_process) {
@@ -29429,14 +29932,14 @@
 	      this._start_handle_dnd(e);
 	    }
 	  },
-	  _start_handle_dnd: function _start_handle_dnd() {
+	  _start_handle_dnd: function () {
 	    if (env.touch) {
 	      this._handle_drag_events = [this.attachEvent("onTouchMove", bind(this._handle_move_process, this)), this.attachEvent("onTouchEnd", bind(this._handle_move_stop, this))];
 	    } else this._handle_drag_events = [event$1(document.body, "mousemove", bind(this._handle_move_process, this)), event$1(window, "mouseup", bind(this._handle_move_stop, this))];
 
 	    addCss(document.body, "webix_noselect");
 	  },
-	  _handle_move_stop: function _handle_move_stop() {
+	  _handle_move_stop: function () {
 	    //detach event handlers
 	    if (this._handle_drag_events) {
 	      if (env.touch) {
@@ -29460,19 +29963,19 @@
 
 	    this._activeIndex = -1;
 	  },
-	  _handle_move_process: function _handle_move_process() {
+	  _handle_move_process: function () {
 	    this._settings.value = this._get_value_from_event.apply(this, arguments);
 	    this.refresh();
 	    this.callEvent("onSliderDrag", []);
 	  },
-	  _get_value_from_event: function _get_value_from_event(event, touchContext) {
+	  _get_value_from_event: function (event, touchContext) {
 	    // this method takes 2 arguments in case of touch env
 	    var pos$$1 = 0;
 	    var ax = this._settings.vertical ? "y" : "x";
 	    if (env.touch) pos$$1 = touchContext ? touchContext[ax] : event[ax];else pos$$1 = pos(event)[ax];
 	    return this._get_value_from_pos(pos$$1);
 	  },
-	  _get_value_from_pos: function _get_value_from_pos(pos$$1) {
+	  _get_value_from_pos: function (pos$$1) {
 	    var config = this._settings;
 	    var max = config.max - config.min;
 	    var ax = config.vertical ? "y" : "x"; //top or left depending on slider type
@@ -29483,10 +29986,10 @@
 	    var size = (config.vertical ? this._content_height : this._get_input_width(config)) - 2 * this._sliderPadding;
 	    var newvalue = size ? (pos$$1 - corner) * max / size : 0;
 	    if (config.vertical) newvalue = max - newvalue;
-	    newvalue = Math.round((newvalue + config.min) / config.step) * config.step;
+	    newvalue = Math.round((newvalue + 1 * config.min) / config.step) * config.step;
 	    return Math.max(Math.min(newvalue, config.max), config.min);
 	  },
-	  _init_onchange: function _init_onchange() {} //need not ui.text logic
+	  _init_onchange: function () {} //need not ui.text logic
 
 	};
 	var view$X = exports.protoUI(api$X, text.view);
@@ -29501,12 +30004,12 @@
 	  defaults: {
 	    separator: ",",
 	    value: [20, 80],
-	    template: function template(obj, common) {
+	    template: function (obj, common) {
 	      var id = "x" + uid();
 	      common._handle_id = [id + "_0", id + "_1"];
 	      var aria = "role='slider' aria-label='" + obj.label + (obj.title ? " " + obj.title(obj) : "") + "' aria-valuemax='" + obj.max + "' aria-valuemin='" + obj.min + "' tabindex='0'";
-	      var handles = "<div class='webix_slider_handle webix_slider_handle_0' id='" + common._handle_id[0] + "' " + aria + " aria-valuenow='" + obj.value[0] + "'>&nbsp;</div>";
-	      handles += "<div class='webix_slider_handle webix_slider_handle_1' id='" + common._handle_id[1] + "' " + aria + " aria-valuenow='" + obj.value[1] + "'>&nbsp;</div>";
+	      var handles = "<div class='webix_slider_handle webix_slider_handle_0' webix_disable_drag='true' id='" + common._handle_id[0] + "' " + aria + " aria-valuenow='" + obj.value[0] + "'>&nbsp;</div>";
+	      handles += "<div class='webix_slider_handle webix_slider_handle_1' webix_disable_drag='true' id='" + common._handle_id[1] + "' " + aria + " aria-valuenow='" + obj.value[1] + "'>&nbsp;</div>";
 	      var title = "<div class='webix_slider_title" + (obj.moveTitle ? " webix_slider_move" : "") + "'" + (!obj.moveTitle && obj.vertical ? " style='line-height:" + (obj.aheight - common._sliderPadding - obj.inputPadding * 2) + "px;'" : "") + "></div>";
 	      if (obj.moveTitle) title = "<div class='webix_slider_title_box'>" + (title + title) + "</div>";
 	      var parts = "<div class='webix_slider_right'>&nbsp;</div><div class='webix_slider_left'></div>";
@@ -29515,7 +30018,7 @@
 	      return common.$renderInput(obj, html, id);
 	    }
 	  },
-	  $prepareValue: function $prepareValue(value) {
+	  $prepareValue: function (value) {
 	    if (!isArray(value)) {
 	      value = (value || "").toString().split(this._settings.separator);
 	    }
@@ -29535,11 +30038,11 @@
 
 	    return value;
 	  },
-	  _get_slider_handle: function _get_slider_handle(index$$1) {
+	  _get_slider_handle: function (index$$1) {
 	    index$$1 = index$$1 && index$$1 >= 0 ? index$$1 : 0;
 	    return this.$view.querySelector(".webix_slider_handle_" + (index$$1 || 0));
 	  },
-	  _get_left_pos: function _get_left_pos(size, index$$1) {
+	  _get_left_pos: function (size, index$$1) {
 	    var config, max, value;
 	    config = this._settings;
 	    max = config.max - config.min;
@@ -29547,17 +30050,17 @@
 	    value = Math.max(Math.min(value, config.max), config.min);
 	    return Math.ceil((size - this._sliderPadding * 2) * (value - config.min) / max);
 	  },
-	  _set_left_pos: function _set_left_pos(size, left, vertical) {
+	  _set_left_pos: function (size, left, vertical) {
 	    var pos$$1 = this._sliderPadding + left - this._sliderHandleWidth / 2 * (vertical ? -1 : 1);
 	    pos$$1 = vertical ? size - pos$$1 : pos$$1;
 	    return pos$$1 + "px";
 	  },
-	  _set_value_pos: function _set_value_pos(size, left, length, vertical) {
+	  _set_value_pos: function (size, left, length, vertical) {
 	    var pos$$1 = left + this._sliderPadding + 2 * this._sliderBorder;
 	    if (vertical) pos$$1 = size - pos$$1 - length;
 	    return pos$$1 + "px";
 	  },
-	  _set_inner_size: function _set_inner_size() {
+	  _set_inner_size: function () {
 	    var config, handle0, handle1, left0, left1, max, length, parentBox, sizeStr, size, cornerStr;
 	    handle0 = this._get_slider_handle(0);
 	    handle1 = this._get_slider_handle(1);
@@ -29587,7 +30090,7 @@
 	    }
 	  },
 	  _title_hidden: 0,
-	  _hide_title: function _hide_title(title, index$$1) {
+	  _hide_title: function (title, index$$1) {
 	    if (!isUndefined(this._title_hidden)) title[this._title_hidden].style.visibility = "visible";
 
 	    if (!isUndefined(index$$1)) {
@@ -29595,7 +30098,7 @@
 	      this._title_hidden = index$$1;
 	    }
 	  },
-	  _set_title: function _set_title(handle0, left, max, cornerStr) {
+	  _set_title: function (handle0, left, max, cornerStr) {
 	    var config = this._settings;
 
 	    if (this._settings.title) {
@@ -29621,7 +30124,7 @@
 	      }
 	    }
 	  },
-	  _set_title_n: function _set_title_n(title, value, left, max, cornerStr, index$$1) {
+	  _set_title_n: function (title, value, left, max, cornerStr, index$$1) {
 	    title.innerHTML = this._settings.title({
 	      value: value
 	    }, this);
@@ -29635,26 +30138,26 @@
 	    }
 	    return pos$$1;
 	  },
-	  _set_value_now: function _set_value_now() {
+	  _set_value_now: function () {
 	    for (var i = 0; i < 2; i++) {
 	      this._get_slider_handle(i).setAttribute("aria-valuenow", this._settings.value[i]);
 	    }
 	  },
-	  _mouse_down_process: function _mouse_down_process(e) {
+	  _mouse_down_process: function (e) {
 	    var trg = e.target || e.srcElement;
 	    var match = /webix_slider_handle_(\d)/.exec(trg.className);
 	    this._activeIndex = match ? parseInt(match[1], 10) : -1;
 	    if (match) this._set_handle_active(this._activeIndex);
 	  },
-	  $compareValue: function $compareValue(oldvalue, value) {
+	  $compareValue: function (oldvalue, value) {
 	    value = this.$prepareValue(value);
 	    return oldvalue[0] === value[0] && oldvalue[1] === value[1];
 	  },
-	  $getValue: function $getValue() {
+	  $getValue: function () {
 	    var value = this._settings.value;
 	    return this._settings.stringResult ? value.join(this._settings.separator) : value;
 	  },
-	  _set_handle_active: function _set_handle_active(index$$1) {
+	  _set_handle_active: function (index$$1) {
 	    var hActive = this._get_slider_handle(index$$1);
 
 	    var h = this._get_slider_handle(1 - index$$1);
@@ -29662,7 +30165,7 @@
 	    if (hActive.className.indexOf("webix_slider_active") == -1) hActive.className += " webix_slider_active";
 	    h.className = h.className.replace(" webix_slider_active", "");
 	  },
-	  _get_value_from_pos: function _get_value_from_pos(pos$$1) {
+	  _get_value_from_pos: function (pos$$1) {
 	    var config = this._settings;
 	    var value = config.value; //10 - padding of slider box
 
@@ -29670,7 +30173,7 @@
 	    var ax = config.vertical ? "y" : "x";
 	    var left = offset(this._get_slider_handle().parentNode)[ax];
 	    var newvalue = Math.ceil((pos$$1 - left) * max / (config.vertical ? this._content_height : this._get_input_width(config)));
-	    newvalue = Math.round((newvalue + config.min) / config.step) * config.step;
+	    newvalue = Math.round((newvalue + 1 * config.min) / config.step) * config.step;
 	    if (config.vertical) newvalue = max - newvalue;
 	    var index$$1 = null;
 	    var pos0 = offset(this._get_slider_handle(0))[ax];
@@ -29709,7 +30212,7 @@
 	var api$Z = {
 	  name: "switch",
 	  defaults: {
-	    template: function template(config, common) {
+	    template: function (config, common) {
 	      common._calck_switch_size();
 
 	      var id = config.name || "x" + uid();
@@ -29726,11 +30229,11 @@
 	      return common.$renderInput(config, html, id);
 	    }
 	  },
-	  $skin: function $skin() {
+	  $skin: function () {
 	    this._switchHeight = $active.switchHeight;
 	    this._switchWidth = $active.switchWidth;
 	  },
-	  $setValue: function $setValue(value) {
+	  $setValue: function (value) {
 	    var config = this._settings;
 	    var checked = value == config.checkValue;
 	    var box = this.$view.querySelector(".webix_switch_box");
@@ -29748,7 +30251,7 @@
 	      }
 	    }
 	  },
-	  _calck_switch_size: function _calck_switch_size() {
+	  _calck_switch_size: function () {
 	    var config = this._settings;
 
 	    if (config.onLabel || config.offLabel) {
@@ -29758,10 +30261,10 @@
 	    }
 	  },
 	  on_click: {
-	    "webix_switch_box": function webix_switch_box() {
+	    "webix_switch_box": function () {
 	      if (!this._settings.readonly) this.toggle();
 	    },
-	    "webix_label_right": function webix_label_right() {
+	    "webix_label_right": function () {
 	      if (!this._settings.readonly) this.toggle();
 	    }
 	  }
@@ -29770,23 +30273,23 @@
 
 	var api$_ = {
 	  name: "tabbar",
-	  $init: function $init() {
+	  $init: function () {
 	    this.attachEvent("onKeyPress", this._onKeyPress);
 	  },
-	  $skin: function $skin() {
-	    var skin$$1 = $active;
+	  $skin: function () {
+	    var skin = $active;
 	    var defaults = this.defaults;
-	    defaults.topOffset = skin$$1.tabTopOffset || 0;
-	    defaults.tabOffset = typeof skin$$1.tabOffset != "undefined" ? skin$$1.tabOffset : 10;
-	    defaults.bottomOffset = skin$$1.tabBottomOffset || 0;
-	    defaults.height = skin$$1.tabbarHeight;
-	    defaults.tabMargin = skin$$1.tabMargin;
-	    defaults.inputPadding = skin$$1.inputPadding;
-	    defaults.tabMinWidth = skin$$1.tabMinWidth || 100;
-	    defaults.tabMoreWidth = skin$$1.tabMoreWidth || 40;
-	    defaults.borderless = !skin$$1.tabBorder;
+	    defaults.topOffset = skin.tabTopOffset || 0;
+	    defaults.tabOffset = typeof skin.tabOffset != "undefined" ? skin.tabOffset : 10;
+	    defaults.bottomOffset = skin.tabBottomOffset || 0;
+	    defaults.height = skin.tabbarHeight;
+	    defaults.tabMargin = skin.tabMargin;
+	    defaults.inputPadding = skin.inputPadding;
+	    defaults.tabMinWidth = skin.tabMinWidth || 100;
+	    defaults.tabMoreWidth = skin.tabMoreWidth || 40;
+	    defaults.borderless = !skin.tabBorder;
 	  },
-	  _getTabbarSizes: function _getTabbarSizes() {
+	  _getTabbarSizes: function () {
 	    var config = this._settings,
 	        i,
 	        len,
@@ -29814,7 +30317,7 @@
 	      width: len ? totalWidth / len : config.tabMinWidth
 	    };
 	  },
-	  _init_popup: function _init_popup() {
+	  _init_popup: function () {
 	    var obj = this._settings;
 
 	    if (!obj.tabbarPopup) {
@@ -29852,7 +30355,7 @@
 
 	    this._init_popup = function () {};
 	  },
-	  getPopup: function getPopup() {
+	  getPopup: function () {
 	    this._init_popup();
 
 	    return $$(this._settings.tabbarPopup);
@@ -29864,7 +30367,7 @@
 	    popupTemplate: "#value#",
 	    yCount: 7,
 	    moreTemplate: "<span class=\"webix_icon wxi-dots\"></span>",
-	    template: function template$$1(obj, common) {
+	    template: function (obj, common) {
 	      var contentWidth, html, i, leafWidth, resultHTML, style, sum, tabs, verticalOffset, width;
 	      common._tabs = tabs = common._filterOptions(obj.options);
 
@@ -29953,17 +30456,19 @@
 	      return resultHTML;
 	    }
 	  },
-	  _getInputNode: function _getInputNode() {
+	  _getInputNode: function () {
 	    return this.$view.querySelectorAll(".webix_item_tab");
 	  },
-	  _getTabHTML: function _getTabHTML(tab, width) {
+	  _getTabHTML: function (tab, width) {
 	    var html,
 	        className = "",
+	        tooltip = "",
 	        config = this.config;
 	    if (tab.id == config.value) className = " webix_selected";
 	    if (tab.css) className += " " + tab.css;
+	    if (config.tooltip) tooltip = " webix_t_id='" + tab.id + "'";
 	    width = tab.width || width;
-	    html = "<div class=\"webix_item_tab" + className + "\" button_id=\"" + tab.id + "\" role=\"tab\" aria-selected=\"" + (tab.id == config.value ? "true" : "false") + "\" tabindex=\"" + (tab.id == config.value ? "0" : "-1") + "\" style=\"width:" + width + "px;\">"; // a tab title
+	    html = "<div class=\"webix_item_tab" + className + "\" button_id=\"" + tab.id + "\" role=\"tab\" aria-selected=\"" + (tab.id == config.value ? "true" : "false") + "\" tabindex=\"" + (tab.id == config.value ? "0" : "-1") + "\" style=\"width:" + width + "px;\"" + tooltip + ">"; // a tab title
 
 	    if (this._tabTemplate) {
 	      var calcHeight = this._content_height - config.inputPadding * 2 - 2;
@@ -29982,12 +30487,15 @@
 	    html += "</div>";
 	    return html;
 	  },
+	  _getBox: function () {
+	    return this._dataobj.firstChild;
+	  },
 	  _types: {
 	    image: "<div class='webix_img_btn_top' style='height:#cheight#px;background-image:url(#image#);'><div class='webix_img_btn_text'>#value#</div></div>",
 	    icon: "<div class='webix_img_btn' style='line-height:#cheight#px;height:#cheight#px;'><span class='webix_icon_btn #icon#' style='max-width:#cheight#px;max-height:#cheight#px;'></span>#value#</div>",
 	    iconTop: "<div class='webix_img_btn_top' style='height:#cheight#px;width:100%;top:0px;text-align:center;'><span class='webix_icon #icon#'></span><div class='webix_img_btn_text'>#value#</div></div>"
 	  },
-	  type_setter: function type_setter(value) {
+	  type_setter: function (value) {
 	    this._settings.tabOffset = 0;
 	    if (this._types[value]) this._tabTemplate = template(this._types[value]);
 	    return value;
@@ -30002,14 +30510,14 @@
 	    labelWidth: 80,
 	    labelPosition: "left"
 	  },
-	  $init: function $init() {
+	  $init: function () {
 	    this._viewobj.className += " webix_richtext";
 	    this.$ready.unshift(this._setLayout);
 	  },
-	  getInputNode: function getInputNode() {
+	  getInputNode: function () {
 	    return this.$view.querySelector(".webix_richtext_editor");
 	  },
-	  _button: function _button(name) {
+	  _button: function (name) {
 	    return {
 	      view: "toggle",
 	      type: "iconButton",
@@ -30022,7 +30530,7 @@
 	      click: this._add_data
 	    };
 	  },
-	  _setLayout: function _setLayout() {
+	  _setLayout: function () {
 	    var top = this;
 	    var editField = {
 	      view: "template",
@@ -30030,7 +30538,7 @@
 	      borderless: true,
 	      template: "<div class='webix_richtext_editor' contenteditable='true'>" + this.getValue() + "</div>",
 	      on: {
-	        onAfterRender: function onAfterRender() {
+	        onAfterRender: function () {
 	          top._rendered_input = true;
 
 	          _event(top.getInputNode(), "blur", function () {
@@ -30043,7 +30551,7 @@
 	        }
 	      },
 	      onClick: {
-	        webix_richtext_editor: function webix_richtext_editor() {
+	        webix_richtext_editor: function () {
 	          top._getselection();
 	        }
 	      }
@@ -30068,7 +30576,7 @@
 	      this.config.borderless = true;
 	      this.cols_setter([{
 	        template: this.config.label || " ",
-	        css: "webix_richtext_inp_label",
+	        css: "webix_richtext_inp_label" + (this.config.required ? " webix_required" : ""),
 	        borderless: true,
 	        width: this.config.labelWidth
 	      }, {
@@ -30076,7 +30584,7 @@
 	      }]);
 	    }
 	  },
-	  _getselection: function _getselection() {
+	  _getselection: function () {
 	    var top = this;
 	    var bar = top.$$("toolbar");
 	    var sel;
@@ -30108,10 +30616,10 @@
 	      }
 	    }
 	  },
-	  refresh: function refresh() {
+	  refresh: function () {
 	    if (this._rendered_input) this.getInputNode().innerHTML = this.config.value;
 	  },
-	  _execCommandOnElement: function _execCommandOnElement(el, commandName) {
+	  _execCommandOnElement: function (el, commandName) {
 	    var sel, selText;
 
 	    if (window.getSelection()) {
@@ -30145,7 +30653,7 @@
 	      }
 	    }
 	  },
-	  _add_data: function _add_data() {
+	  _add_data: function () {
 	    var top = this.getTopParentView();
 	    var editableElement = top.getInputNode();
 
@@ -30153,21 +30661,22 @@
 	      top._execCommandOnElement(editableElement, this.config.action);
 	    }
 	  },
-	  focus: function focus() {
+	  focus: function () {
+	    if (!UIManager.canFocus(this)) return false;
 	    var editableElement = this.$view.querySelector(".webix_richtext_editor");
 	    editableElement.focus();
 	  },
-	  _updateValue: function _updateValue(value) {
+	  _updateValue: function (value) {
 	    var old = this.config.value;
 	    this.config.value = value || "";
 	    if (old !== value) this.callEvent("onChange", [value, old]);
 	  },
-	  setValue: function setValue(value) {
+	  setValue: function (value) {
 	    this._updateValue(value);
 
 	    this.refresh();
 	  },
-	  getValue: function getValue() {
+	  getValue: function () {
 	    var input = this.getInputNode();
 	    if (input) this.config.value = this.getInputNode().innerHTML;
 	    var value = this.config.value;
@@ -30185,18 +30694,18 @@
 	type(list.view, {
 	  name: "uploader",
 	  template: "{common.removeIcon()}{common.percent()}<div style='float:right'>#sizetext#</div>{common.fileName()}",
-	  percent: function percent(obj) {
+	  percent: function (obj) {
 	    if (obj.status == "transfer") return "<div style='width:60px; text-align:center; float:right'>" + obj.percent + "%</div>";
 	    return "<div class='webix_upload_" + obj.status + "'><span class='" + (obj.status == "error" ? "error_icon" : "webix_icon wxi-check") + "'></span></div>";
 	  },
-	  removeIcon: function removeIcon() {
+	  removeIcon: function () {
 	    return "<div class='webix_remove_upload'><span class='cancel_icon'></span></div>";
 	  },
-	  fileName: function fileName(obj) {
+	  fileName: function (obj) {
 	    return "<div style='text-overflow:ellipsis; white-space:nowrap; overflow:hidden; padding-right:8px;'>" + obj.name + "</div>";
 	  },
 	  on_click: {
-	    "webix_remove_upload": function webix_remove_upload(ev, id) {
+	    "webix_remove_upload": function (ev, id) {
 	      $$(this.config.uploader).files.remove(id);
 	    }
 	  }
@@ -30212,15 +30721,15 @@
 	  $allowsClear: true,
 	  on_click: {
 	    //don't fire extra onItemClick events, visible button will do it
-	    "webix_hidden_upload": function webix_hidden_upload() {
+	    "webix_hidden_upload": function () {
 	      return false;
 	    }
 	  },
 	  //will be redefined by upload driver
-	  send: function send() {},
-	  fileDialog: function fileDialog() {},
-	  stopUpload: function stopUpload() {},
-	  $init: function $init() {
+	  send: function () {},
+	  fileDialog: function () {},
+	  stopUpload: function () {},
+	  $init: function () {
 	    var driver = UploadDriver.html5;
 	    this.files = new DataCollection();
 	    this._destroy_with_me = [this.files]; // browser doesn't support XMLHttpRequest2
@@ -30229,21 +30738,21 @@
 	    assert(driver, "incorrect driver");
 	    exports.extend(this, driver, true);
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    if (base.api.$setSize.call(this, x, y)) {
 	      this.render();
 	    }
 	  },
-	  apiOnly_setter: function apiOnly_setter(value) {
+	  apiOnly_setter: function (value) {
 	    delay(this.render, this);
 	    return this.$apiOnly = value;
 	  },
-	  _add_files: function _add_files(files) {
+	  _add_files: function (files) {
 	    for (var i = 0; i < files.length; i++) {
 	      this.addFile(files[i]);
 	    }
 	  },
-	  link_setter: function link_setter(value) {
+	  link_setter: function (value) {
 	    if (value) delay(function () {
 	      var view = $$(this._settings.link);
 
@@ -30259,7 +30768,7 @@
 	    }, this);
 	    return value;
 	  },
-	  addFile: function addFile(name, size, type$$1, extra) {
+	  addFile: function (name, size, type$$1, extra) {
 	    var file = null;
 
 	    if (_typeof(name) == "object") {
@@ -30293,7 +30802,7 @@
 
 	    return file_struct;
 	  },
-	  _get_active_url: function _get_active_url(item) {
+	  _get_active_url: function (item) {
 	    var url = this._settings.upload;
 	    var urldata = exports.extend(item.urlData || {}, this._settings.urlData || {});
 
@@ -30309,7 +30818,7 @@
 
 	    return url;
 	  },
-	  addDropZone: function addDropZone(id, hover_text) {
+	  addDropZone: function (id, hover_text) {
 	    var node = toNode(id);
 	    var extra_css = "";
 	    if (hover_text) extra_css = " " + createCss({
@@ -30346,7 +30855,7 @@
 	      return preventEvent(e);
 	    }, this));
 	  },
-	  _format_size: function _format_size(size) {
+	  _format_size: function (size) {
 	    var index$$1 = 0;
 
 	    while (size > 1024) {
@@ -30356,7 +30865,7 @@
 
 	    return Math.round(size * 100) / 100 + " " + i18n.fileSize[index$$1];
 	  },
-	  _complete: function _complete(id, response) {
+	  _complete: function (id, response) {
 	    var item = this.files.getItem(id);
 	    exports.extend(item, response, true);
 	    item.status = "server";
@@ -30366,7 +30875,7 @@
 	    this.files.updateItem(id);
 	    if (this.isUploaded()) this._upload_complete(response);
 	  },
-	  _upload_complete: function _upload_complete(response) {
+	  _upload_complete: function (response) {
 	    this.callEvent("onUploadComplete", [response]);
 
 	    if (this._last_assigned_upload_callback) {
@@ -30375,7 +30884,7 @@
 	      this._last_assigned_upload_callback = 0;
 	    }
 	  },
-	  isUploaded: function isUploaded() {
+	  isUploaded: function () {
 	    var order = this.files.data.order;
 
 	    for (var i = 0; i < order.length; i++) {
@@ -30384,13 +30893,13 @@
 
 	    return true;
 	  },
-	  $onUploadComplete: function $onUploadComplete() {},
-	  $updateProgress: function $updateProgress(id, percent) {
+	  $onUploadComplete: function () {},
+	  $updateProgress: function (id, percent) {
 	    var item = this.files.getItem(id);
 	    item.percent = Math.round(percent);
 	    this.files.updateItem(id);
 	  },
-	  setValue: function setValue(value) {
+	  setValue: function (value) {
 	    if (typeof value == "string" && value) value = {
 	      value: value,
 	      status: "server"
@@ -30399,7 +30908,7 @@
 	    if (value) this.files.parse(value);
 	    this.callEvent("onChange", []);
 	  },
-	  getValue: function getValue$$1() {
+	  getValue: function () {
 	    var data = [];
 	    this.files.data.each(function (obj) {
 	      if (obj.status == "server") data.push(obj.value || obj.name);
@@ -30423,16 +30932,16 @@
 	      borderless: true,
 	      navigation: true
 	    },
-	    filter: function filter(item, value) {
+	    filter: function (item, value) {
 	      if (item.value.toString().toLowerCase().indexOf(value.toLowerCase()) === 0) return true;
 	      return false;
 	    }
 	  },
 	  template_setter: template,
-	  filter_setter: function filter_setter(value) {
+	  filter_setter: function (value) {
 	    return toFunctor(value, this.$scope);
 	  },
-	  $init: function $init(obj) {
+	  $init: function (obj) {
 	    var temp = {};
 	    exports.extend(temp, copy(this.defaults.body));
 	    temp.view = obj.type || this.defaults.type;
@@ -30470,10 +30979,10 @@
 	    });
 	    this._old_text = {};
 	  },
-	  _get_extendable_cell: function _get_extendable_cell(obj) {
+	  _get_extendable_cell: function (obj) {
 	    return obj;
 	  },
-	  _preselectMasterOption: function _preselectMasterOption(data) {
+	  _preselectMasterOption: function (data) {
 	    var master,
 	        node,
 	        text = "";
@@ -30495,7 +31004,7 @@
 	    node = node || this._last_input_target;
 	    if (node) node.focus();
 	  },
-	  setMasterValue: function setMasterValue(data, refresh) {
+	  setMasterValue: function (data, refresh) {
 	    var text = data.id ? this.getItemText(data.id) : data.text || data.value;
 
 	    if (this._settings.master) {
@@ -30515,11 +31024,11 @@
 	      callEvent("onEditEnd", []);
 	    });
 	  },
-	  getMasterValue: function getMasterValue() {
+	  getMasterValue: function () {
 	    if (this._settings.master) return $$(this._settings.master).getValue();
 	    return null;
 	  },
-	  getItemId: function getItemId(text) {
+	  getItemId: function (text) {
 	    var list = this.getList();
 
 	    for (var key in list.data.pull) {
@@ -30527,7 +31036,7 @@
 	      if (this._settings.filter.call(this, obj, text)) return obj.id;
 	    }
 	  },
-	  getItemText: function getItemText(id) {
+	  getItemText: function (id) {
 	    var item = this.getList().getItem(id);
 	    if (!item) return this._old_text[id] || "";
 	    if (this._settings.template) return this._settings.template.call(this, item, this.type);
@@ -30536,7 +31045,7 @@
 	    var text = type.template.call(type, item, type);
 	    return this._old_text[id] = text;
 	  },
-	  getSuggestion: function getSuggestion(text) {
+	  getSuggestion: function (text) {
 	    var id,
 	        list = this.getList(),
 	        order = list.data.order;
@@ -30552,10 +31061,10 @@
 	    if (id && _typeof(id) == "object") id = id + "";
 	    return id;
 	  },
-	  getList: function getList() {
+	  getList: function () {
 	    return this._body_cell;
 	  },
-	  _set_on_popup_click: function _set_on_popup_click() {
+	  _set_on_popup_click: function () {
 	    var list = this.getList();
 	    var type = this._settings.type;
 
@@ -30598,11 +31107,11 @@
 	      });
 	    }
 	  },
-	  input_setter: function input_setter(value) {
+	  input_setter: function (value) {
 	    this.linkInput(value);
 	    return 0;
 	  },
-	  linkInput: function linkInput(input) {
+	  linkInput: function (input) {
 	    var node;
 
 	    if (input.getInputNode) {
@@ -30627,7 +31136,7 @@
 
 	    this._non_ui_mode = true;
 	  },
-	  _suggestions: function _suggestions(e) {
+	  _suggestions: function (e) {
 	    e = e || event;
 	    var list = this.getList();
 	    var trg = e.target || e.srcElement;
@@ -30666,7 +31175,7 @@
 	      }
 	    }, this, [], this._settings.keyPressTimeout);
 	  },
-	  _suggest_after_filter: function _suggest_after_filter() {
+	  _suggest_after_filter: function () {
 	    if (!this._resolve_popup) return true;
 	    this._resolve_popup = false;
 	    var list = this.getList(); // filtering is complete
@@ -30682,7 +31191,7 @@
 	      this._last_input_target = null;
 	    }
 	  },
-	  show: function show(node) {
+	  show: function (node) {
 	    if (!this.isVisible()) {
 	      var list = this.getList();
 
@@ -30690,11 +31199,9 @@
 	        list.filter("");
 	      }
 
-	      if (this.$customWidth && (this._settings.fitMaster || !this._settings.width || isUndefined(this._settings.fitMaster))) {
+	      if (this.$customWidth) {
 	        this.$customWidth(node);
-	      }
-
-	      if (node.tagName && this._settings.fitMaster) {
+	      } else if (node.tagName && this._settings.fitMaster) {
 	        this._settings.width = node.offsetWidth - 2; //2 - borders
 	      }
 
@@ -30706,7 +31213,7 @@
 
 	    popup.api.show.apply(this, arguments);
 	  },
-	  _show_selection: function _show_selection(list) {
+	  _show_selection: function (list) {
 	    list = list || this.getList();
 	    var value = this.getMasterValue();
 
@@ -30723,7 +31230,7 @@
 	      list.setValue(value);
 	    }
 	  },
-	  $enterKey: function $enterKey(popup$$1, list) {
+	  $enterKey: function (popup$$1, list) {
 	    var value;
 
 	    if (popup$$1.isVisible()) {
@@ -30741,10 +31248,10 @@
 	      popup$$1.hide(true);
 	    } else popup$$1.show(this._last_input_target);
 	  },
-	  _escape_key: function _escape_key(popup$$1) {
+	  _escape_key: function (popup$$1) {
 	    return popup$$1.hide(true);
 	  },
-	  _tab_key: function _tab_key(popup$$1) {
+	  _tab_key: function (popup$$1) {
 	    return popup$$1.hide(true);
 	  },
 
@@ -30752,7 +31259,7 @@
 	   *	@param e
 	   *		event object
 	   **/
-	  _navigate: function _navigate(e) {
+	  _navigate: function (e) {
 	    var list = this.getList();
 	    var code = e.keyCode;
 	    var data;
@@ -30790,7 +31297,7 @@
 
 	    return false;
 	  },
-	  getValue: function getValue$$1() {
+	  getValue: function () {
 	    var list = this.getList();
 	    var value = (list.getValue ? list.getValue() : list.getSelectedId()) || "";
 	    value = value.id || value; // check empty
@@ -30802,7 +31309,7 @@
 
 	    return value;
 	  },
-	  setValue: function setValue(value) {
+	  setValue: function (value) {
 	    var list = this.getList();
 
 	    if (value) {
@@ -30829,7 +31336,7 @@
 	    type: "layout",
 	    button: true,
 	    width: 0,
-	    filter: function filter(item, value) {
+	    filter: function (item, value) {
 	      var itemText = this.getItemText(item.id);
 	      return itemText.toString().toLowerCase().indexOf(value.toLowerCase()) > -1;
 	    },
@@ -30843,7 +31350,7 @@
 	        multiselect: "touch",
 	        select: true,
 	        on: {
-	          onItemClick: function onItemClick(id) {
+	          onItemClick: function (id) {
 	            var popup = this.getParentView().getParentView();
 	            delay(function () {
 	              popup._toggleOption(id);
@@ -30852,7 +31359,7 @@
 	        }
 	      }, {
 	        view: "button",
-	        click: function click() {
+	        click: function () {
 	          var suggest$$1 = this.getParentView().getParentView();
 	          suggest$$1.setMasterValue({
 	            id: suggest$$1.getValue()
@@ -30862,7 +31369,7 @@
 	      }]
 	    }
 	  },
-	  _toggleOption: function _toggleOption(id, ev, all) {
+	  _toggleOption: function (id, ev, all) {
 	    var value = this.getValue();
 	    var values = all || toArray(value ? this.getValue().split(this._settings.separator) : []);
 	    var master = $$(this._settings.master);
@@ -30884,10 +31391,10 @@
 	      if (checkbox && checkbox.length) checkbox[0].focus();
 	    }
 	  },
-	  _get_extendable_cell: function _get_extendable_cell(obj) {
+	  _get_extendable_cell: function (obj) {
 	    return obj.rows[0];
 	  },
-	  _set_on_popup_click: function _set_on_popup_click() {
+	  _set_on_popup_click: function () {
 	    var button = this.getButton();
 	    var text = this._settings.button ? this._settings.buttonText || i18n.combo.select : 0;
 
@@ -30906,7 +31413,7 @@
 	      return this._suggest_after_filter();
 	    }, this));
 	  },
-	  _show_selection: function _show_selection() {
+	  _show_selection: function () {
 	    var list = this.getList();
 	    var value = this.getMasterValue();
 
@@ -30920,13 +31427,13 @@
 	      }
 	    }
 	  },
-	  getButton: function getButton() {
+	  getButton: function () {
 	    return this.getBody().getChildViews()[1];
 	  },
-	  getList: function getList() {
+	  getList: function () {
 	    return this.getBody().getChildViews()[0];
 	  },
-	  setValue: function setValue(value) {
+	  setValue: function (value) {
 	    var text = [];
 	    var list = this.getList();
 	    list.unselect();
@@ -30947,7 +31454,7 @@
 	    this._settings.value = value ? value.join(this.config.separator) : "";
 	    return text;
 	  },
-	  getValue: function getValue() {
+	  getValue: function () {
 	    return this._settings.value;
 	  }
 	};
@@ -30975,7 +31482,7 @@
 	        height: 28,
 	        inputHeight: 20,
 	        on: {
-	          onItemClick: function onItemClick(e) {
+	          onItemClick: function (e) {
 	            var popup = this.getParentView().getParentView();
 	            var check = popup.getList();
 	            var values = check.data.order;
@@ -30991,12 +31498,12 @@
 
 	            check.refresh();
 	          },
-	          onChange: function onChange() {
+	          onChange: function () {
 	            var link = this.$view.querySelector("label");
 	            var locale = i18n.combo;
 	            link.textContent = this.getValue() ? locale.unselectAll : locale.selectAll;
 	          },
-	          onAfterRender: function onAfterRender() {
+	          onAfterRender: function () {
 	            var popup = this.getParentView().getParentView();
 	            this.setValue(popup._is_all_selected() * 1);
 	          }
@@ -31009,7 +31516,7 @@
 	        yCount: 5,
 	        type: "checklist",
 	        on: {
-	          onItemClick: function onItemClick(id, e) {
+	          onItemClick: function (id, e) {
 	            var item = this.getItem(id);
 	            item.$checked = item.$checked ? 0 : 1;
 	            this.refresh(id);
@@ -31025,7 +31532,7 @@
 	        }
 	      }, {
 	        view: "button",
-	        click: function click() {
+	        click: function () {
 	          var suggest = this.getParentView().getParentView();
 	          suggest.setMasterValue({
 	            id: suggest.getValue()
@@ -31035,24 +31542,24 @@
 	      }]
 	    }
 	  },
-	  _is_all_selected: function _is_all_selected() {
+	  _is_all_selected: function () {
 	    var all = (this.getValue() || "").split(this.config.separator);
 	    return all.length === this.getList().count();
 	  },
-	  _get_extendable_cell: function _get_extendable_cell(obj) {
+	  _get_extendable_cell: function (obj) {
 	    return obj.rows[1];
 	  },
-	  getButton: function getButton() {
+	  getButton: function () {
 	    return this.getBody().getChildViews()[2];
 	  },
-	  getList: function getList() {
+	  getList: function () {
 	    return this.getBody().getChildViews()[1];
 	  },
-	  $init: function $init() {
+	  $init: function () {
 	    this._valueHistory = {};
 	    this.$ready.push(this._onReady);
 	  },
-	  _onReady: function _onReady() {
+	  _onReady: function () {
 	    var list = this.getList();
 
 	    if (list.config.dataFeed) {
@@ -31068,7 +31575,7 @@
 
 	    if (this.config.master && !this.config.selectAll) this.getBody().getChildViews()[0].hide();
 	  },
-	  $enterKey: function $enterKey(popup, list) {
+	  $enterKey: function (popup, list) {
 	    if (list.count && list.count()) {
 	      if (popup.isVisible()) {
 	        var value = list.getSelectedId(false, true);
@@ -31085,11 +31592,11 @@
 	      if (popup.isVisible()) popup.hide(true);
 	    }
 	  },
-	  _show_selection: function _show_selection() {
+	  _show_selection: function () {
 	    var list = this.getList();
 	    if (list.select) list.unselect();
 	  },
-	  setValue: function setValue(value) {
+	  setValue: function (value) {
 	    var i,
 	        list = this.getList(),
 	        text = [],
@@ -31128,10 +31635,10 @@
 	    this._settings.value = value.length ? value.join(this.config.separator) : "";
 	    return text;
 	  },
-	  getValue: function getValue() {
+	  getValue: function () {
 	    return this._settings.value;
 	  },
-	  _preselectMasterOption: function _preselectMasterOption() {
+	  _preselectMasterOption: function () {
 	    var node, master;
 
 	    if (this._settings.master) {
@@ -31142,7 +31649,7 @@
 	    node = node || this._last_input_target;
 	    if (node) node.focus();
 	  },
-	  _toMultiValue: function _toMultiValue(value) {
+	  _toMultiValue: function (value) {
 	    if (value && isArray(value)) {
 	      var values = [];
 
@@ -31190,17 +31697,17 @@
 	      autowidth: true,
 	      select: true
 	    },
-	    filter: function filter(item, value) {
+	    filter: function (item, value) {
 	      var text = this.config.template(item);
 	      if (text.toString().toLowerCase().indexOf(value.toLowerCase()) === 0) return true;
 	      return false;
 	    }
 	  },
-	  $init: function $init(obj) {
+	  $init: function (obj) {
 	    if (!obj.body.columns) obj.body.autoConfig = true;
 	    if (!obj.template) obj.template = bind(this._getText, this);
 	  },
-	  _getText: function _getText(item) {
+	  _getText: function (item) {
 	    var grid = this.getBody();
 	    var value = this.config.textValue || grid.config.columns[0].id;
 	    return grid.getText(item.id, value);
@@ -31219,19 +31726,19 @@
 	      borderless: true
 	    }
 	  },
-	  getValue: function getValue() {
+	  getValue: function () {
 	    return this.getRange().getValue();
 	  },
-	  setValue: function setValue(value) {
+	  setValue: function (value) {
 	    this.getRange().setValue(copy(value));
 	  },
-	  getRange: function getRange() {
+	  getRange: function () {
 	    return this.getBody();
 	  },
-	  getButton: function getButton() {
+	  getButton: function () {
 	    return this.getBody().getChildViews()[1].getChildViews()[1];
 	  },
-	  _setValue: function _setValue(value, hide) {
+	  _setValue: function (value, hide) {
 	    var master = $$(this._settings.master);
 
 	    if (master) {
@@ -31239,7 +31746,7 @@
 	      if (hide) this.hide();
 	    } else this.setValue(value);
 	  },
-	  _set_on_popup_click: function _set_on_popup_click() {
+	  _set_on_popup_click: function () {
 	    var range = this.getRange();
 	    range.attachEvent("onAfterDateSelect", bind(function (value) {
 	      this._setValue(value);
@@ -31257,13 +31764,13 @@
 	var api$18 = {
 	  $cssName: "datepicker",
 	  name: "daterangepicker",
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    //set non-empty initial value
 	    this._settings.value = {}; // other types are not implemented
 
 	    delete config.type;
 	  },
-	  _init_popup: function _init_popup() {
+	  _init_popup: function () {
 	    var obj = this._settings;
 	    if (obj.suggest) obj.popup = obj.suggest;else if (!obj.popup) {
 	      obj.popup = obj.suggest = this.suggest_setter({
@@ -31278,30 +31785,30 @@
 
 	    this._init_once = function () {};
 	  },
-	  $prepareValue: function $prepareValue(value) {
+	  $prepareValue: function (value) {
 	    value = value || {};
 	    value.start = datepicker.api.$prepareValue.call(this, value.start ? value.start : null);
 	    value.end = datepicker.api.$prepareValue.call(this, value.end ? value.end : null);
 	    var daterange = $$(this._settings.popup).getRange();
 	    return copy(daterange._correct_value(value));
 	  },
-	  $compareValue: function $compareValue(oldvalue, value) {
+	  $compareValue: function (oldvalue, value) {
 	    var compare = datepicker.api.$compareValue;
 	    var start = compare.call(this, oldvalue.start, value.start);
 	    var end = compare.call(this, oldvalue.end, value.end);
 	    return start && end;
 	  },
-	  $setValue: function $setValue(value) {
+	  $setValue: function (value) {
 	    value = value || {};
 	    this._settings.text = (value.start ? this._get_visible_text(value.start) : "") + (value.end ? " - " + this._get_visible_text(value.end) : "");
 
 	    this._set_visible_text();
 	  },
-	  $render: function $render(obj) {
+	  $render: function (obj) {
 	    obj.value = this.$prepareValue(obj.value);
 	    this.$setValue(obj.value);
 	  },
-	  getValue: function getValue() {
+	  getValue: function () {
 	    var value = this._settings.value;
 
 	    if (this._settings.stringResult) {
@@ -31311,7 +31818,7 @@
 
 	    return value || null;
 	  },
-	  _formatValue: function _formatValue(format, value) {
+	  _formatValue: function (format, value) {
 	    if (value.start) value.start = format(value.start);
 	    if (value.end) value.end = format(value.end);
 	    return value;
@@ -31325,29 +31832,29 @@
 	    padding: 0,
 	    type: "line"
 	  },
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    config.cols = [{
 	      view: "tabbar",
 	      options: [""],
 	      optionWidth: 200,
 	      borderless: true,
 	      on: {
-	        onaftertabclick: function onaftertabclick() {
+	        onaftertabclick: function () {
 	          this.getParentView().callEvent("onExcelSheetSelect", [this.getValue()]);
 	        }
 	      }
 	    }];
 	  },
-	  getValue: function getValue() {
+	  getValue: function () {
 	    return this.getInput().getValue();
 	  },
-	  setValue: function setValue(value) {
+	  setValue: function (value) {
 	    return this.getInput().setValue(value);
 	  },
-	  getInput: function getInput() {
+	  getInput: function () {
 	    return this.getChildViews()[0];
 	  },
-	  setSheets: function setSheets(sheets) {
+	  setSheets: function (sheets) {
 	    var input = this.getInput();
 	    input.config.options = sheets;
 	    input.refresh();
@@ -31366,7 +31873,7 @@
 	    scrollVisible: 1,
 	    zoom: 1
 	  },
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    var dir = config.scroll || "x";
 	    var node = this._viewobj = toNode(config.container);
 	    node.className += " webix_vscroll_" + dir;
@@ -31378,11 +31885,11 @@
 
 	    this._last_set_size = 0;
 	  },
-	  reset: function reset() {
+	  reset: function () {
 	    this.config.scrollPos = 0;
 	    this._viewobj[this.config.scroll == "x" ? "scrollLeft" : "scrollTop"] = 0;
 	  },
-	  _check_quantum: function _check_quantum(value) {
+	  _check_quantum: function (value) {
 	    if (value > 1500000) {
 	      this._settings.zoom = value / 1000000;
 	      value = 1000000;
@@ -31392,17 +31899,17 @@
 
 	    return value;
 	  },
-	  scrollWidth_setter: function scrollWidth_setter(value) {
+	  scrollWidth_setter: function (value) {
 	    value = this._check_quantum(value);
 	    this._viewobj.firstChild.style.width = value + "px";
 	    return value;
 	  },
-	  scrollHeight_setter: function scrollHeight_setter(value) {
+	  scrollHeight_setter: function (value) {
 	    value = this._check_quantum(value);
 	    this._viewobj.firstChild.style.height = value + "px";
 	    return value;
 	  },
-	  sizeTo: function sizeTo(value, top, bottom) {
+	  sizeTo: function (value, top, bottom) {
 	    value = value - (top || 0) - (bottom || 0);
 	    var width = this._settings.scrollSize; //IEFix
 	    //IE doesn't react on scroll-click if it has not at least 1 px of visible content
@@ -31425,13 +31932,13 @@
 
 	    this._last_set_size = value;
 	  },
-	  getScroll: function getScroll() {
+	  getScroll: function () {
 	    return Math.round(this._settings.scrollPos * this._settings.zoom);
 	  },
-	  getSize: function getSize() {
+	  getSize: function () {
 	    return Math.round((this._settings.scrollWidth || this._settings.scrollHeight) * this._settings.zoom);
 	  },
-	  scrollTo: function scrollTo(value) {
+	  scrollTo: function (value) {
 	    if (value < 0) value = 0;
 	    var config = this._settings;
 	    value = value / config.zoom; //safety check for negative values
@@ -31446,11 +31953,11 @@
 	      return true;
 	    }
 	  },
-	  _onscroll: function _onscroll() {
+	  _onscroll: function () {
 	    var x = this._viewobj[this._settings.scroll == "x" ? "scrollLeft" : "scrollTop"];
 	    if (Math.floor(x) != Math.floor(this._settings.scrollPos)) this._onscroll_inner(x, false);
 	  },
-	  _onscroll_inner: function _onscroll_inner(value, api) {
+	  _onscroll_inner: function (value, api) {
 	    //size of scroll area
 	    var height = this._settings.scrollWidth || this._settings.scrollHeight; //if we scrolled to the end of the area
 
@@ -31462,7 +31969,7 @@
 	    this._settings.scrollPos = value || 0;
 	    this.callEvent("onScroll", [this.getScroll()]);
 	  },
-	  activeArea: function activeArea(area, x_mode) {
+	  activeArea: function (area, x_mode) {
 	    this._x_scroll_mode = x_mode;
 
 	    _event(area, env.isIE8 ? "mousewheel" : "wheel", this._on_wheel, {
@@ -31472,7 +31979,7 @@
 
 	    this._add_touch_events(area);
 	  },
-	  _add_touch_events: function _add_touch_events(area) {
+	  _add_touch_events: function (area) {
 	    if (!env.touch && window.navigator.pointerEnabled) {
 	      addCss(area, "webix_scroll_touch_ie", true);
 
@@ -31513,7 +32020,7 @@
 	      });
 	    }
 	  },
-	  _on_wheel: function _on_wheel(e) {
+	  _on_wheel: function (e) {
 	    var dir = 0;
 	    var step = e.deltaMode === 0 ? 30 : 1;
 	    if (env.isIE8) dir = e.detail = -e.wheelDelta / 30;
@@ -31537,7 +32044,7 @@
 	var view$1a = exports.protoUI(api$1a, EventSystem, Settings);
 
 	var Mixin = {
-	  _init_areaselect: function _init_areaselect() {
+	  _init_areaselect: function () {
 	    this._arSelCheckKeys = true;
 	    this._areaSelStorage = {};
 	    this.define("select", "area");
@@ -31581,7 +32088,7 @@
 	    });
 	  },
 	  _block_sel_flag: true,
-	  _excludeColumnFromAreas: function _excludeColumnFromAreas(index$$1) {
+	  _excludeColumnFromAreas: function (index$$1) {
 	    var areas = this._areaSelStorage;
 
 	    for (var a in areas) {
@@ -31589,7 +32096,7 @@
 
 	      if (this.getColumnIndex(area.start.column) < 0) {
 	        if (area.start.column == area.end.column) this.removeSelectArea(area.name);else {
-	          var id = this.columnId(index$$1 + 1);
+	          var id = this.columnId(index$$1);
 	          if (id) this._updateSelectArea(area.name, {
 	            row: area.start.row,
 	            column: id
@@ -31605,7 +32112,7 @@
 	      }
 	    }
 	  },
-	  _extendAreaRange: function _extendAreaRange(id, area, mode, details) {
+	  _extendAreaRange: function (id, area, mode, details) {
 	    var sci, eci, sri, eri, ci, ri, iri, ici;
 
 	    if (area) {
@@ -31660,7 +32167,7 @@
 	      }
 	    }
 	  },
-	  _extendAreaToData: function _extendAreaToData(rind, cind, mode) {
+	  _extendAreaToData: function (rind, cind, mode) {
 	    var columns = this.config.columns;
 	    var order = this.data.order;
 	    var item = this.data.pull[order[rind]];
@@ -31701,7 +32208,7 @@
 
 	    return res;
 	  },
-	  _updateSelectArea: function _updateSelectArea(name, start, end, bsUpdate) {
+	  _updateSelectArea: function (name, start, end, bsUpdate) {
 	    var area = this._areaSelStorage[name];
 	    if (!area) return false;
 	    var old = copy(area);
@@ -31719,7 +32226,7 @@
 
 	    if (bsUpdate) this.callEvent("onSelectChange", []);
 	  },
-	  areaselect_setter: function areaselect_setter(value) {
+	  areaselect_setter: function (value) {
 	    if (value) {
 	      this._init_areaselect();
 
@@ -31729,7 +32236,7 @@
 	    this.define("blockselect", value);
 	    return value;
 	  },
-	  addSelectArea: function addSelectArea(start, end, preserve, name, css, handle) {
+	  addSelectArea: function (start, end, preserve, name, css, handle) {
 	    var i0, i1, j0, j1, temp;
 	    i0 = this.getIndexById(start.row);
 	    i1 = this.getIndexById(end.row);
@@ -31787,13 +32294,13 @@
 	      this.callEvent("onSelectChange", []);
 	    }
 	  },
-	  _renderSelectAreaBox: function _renderSelectAreaBox() {
+	  _renderSelectAreaBox: function () {
 	    var box = create("DIV");
 	    box.className = "webix_area_selection_layer";
 	    box.style.top = this._render_scroll_shift + "px";
 	    return box;
 	  },
-	  refreshSelectArea: function refreshSelectArea() {
+	  refreshSelectArea: function () {
 	    var xr,
 	        yr,
 	        name,
@@ -31852,7 +32359,7 @@
 	      }
 	    }
 	  },
-	  _calcAreaSelectIndexes: function _calcAreaSelectIndexes(range, xr, yr) {
+	  _calcAreaSelectIndexes: function (range, xr, yr) {
 	    var r0, r1, c0, c1;
 	    var startIndex = this.getIndexById(range.start.row);
 	    var endIndex = this.getIndexById(range.end.row);
@@ -31885,21 +32392,21 @@
 	      c1: c1
 	    };
 	  },
-	  _getSelectAreaCellPositions: function _getSelectAreaCellPositions(i0, j0, i1, j1) {
+	  _getSelectAreaCellPositions: function (i0, j0, i1, j1) {
 	    var start = this._cellPosition(this.getIdByIndex(i0), this.columnId(j0));
 
 	    var end = this._cellPosition(this.getIdByIndex(i1), this.columnId(j1));
 
 	    return [start, end];
 	  },
-	  _setSelectAreaBorders: function _setSelectAreaBorders(left, center, right, name, css, handle) {
+	  _setSelectAreaBorders: function (left, center, right, name, css, handle) {
 	    var handleBox,
 	        handlePos,
 	        area = this._areaSelStorage[name],
 	        offset$$1 = 0;
 	    if (this._settings.topSplit) offset$$1 = this._getTopSplitOffset(area.start, true); //include split in calcs
 
-	    var renderArea = function renderArea(parentNode, start, end, skipLeft, skipRight) {
+	    var renderArea = function (parentNode, start, end, skipLeft, skipRight) {
 	      var bName,
 	          height,
 	          width,
@@ -31960,9 +32467,9 @@
 	      if (offset$$1 && handlePos.height == offset$$1) handleBox.lastChild.style.display = "none";
 	    }
 	  },
-	  _removeAreaNodes: function _removeAreaNodes(name) {
+	  _removeAreaNodes: function (name) {
 	    if (name) {
-	      var removeNodes = function removeNodes(parentNode) {
+	      var removeNodes = function (parentNode) {
 	        var nodes = parentNode.childNodes;
 
 	        for (var i = nodes.length - 1; i >= 0; i--) {
@@ -31977,7 +32484,7 @@
 	      removeNodes(this._rselect_box_right);
 	    }
 	  },
-	  removeSelectArea: function removeSelectArea(name) {
+	  removeSelectArea: function (name) {
 	    if (name && this._areaSelStorage[name]) {
 	      if (this.callEvent("onBeforeAreaRemove", [name])) {
 	        this._setTabindex(copy(this._areaSelStorage[name]), true);
@@ -32001,7 +32508,7 @@
 	      }
 	    }
 	  },
-	  _ars_down: function _ars_down(e) {
+	  _ars_down: function (e) {
 	    var src = e.target || e.srcElement;
 
 	    var css = _getClassName(src);
@@ -32034,13 +32541,13 @@
 	      return preventEvent(e);
 	    }
 	  },
-	  getSelectArea: function getSelectArea(name) {
+	  getSelectArea: function (name) {
 	    return this._areaSelStorage[name || this._lastDefArea];
 	  },
-	  getAllSelectAreas: function getAllSelectAreas() {
+	  getAllSelectAreas: function () {
 	    return this._areaSelStorage;
 	  },
-	  _span_correct_range: function _span_correct_range(range, inner_call) {
+	  _span_correct_range: function (range, inner_call) {
 	    var i,
 	        j,
 	        c0,
@@ -32114,7 +32621,7 @@
 	      this._span_correct_range(range, true);
 	    }
 	  },
-	  _setTabindex: function _setTabindex(oldv, removeOnly) {
+	  _setTabindex: function (oldv, removeOnly) {
 	    var node;
 
 	    if (oldv) {
@@ -32134,7 +32641,7 @@
 	};
 
 	var Mixin$1 = {
-	  filterByAll: function filterByAll() {
+	  filterByAll: function () {
 	    //we need to use dynamic function creating
 	    var server = false;
 	    this.data.silent(function () {
@@ -32180,7 +32687,7 @@
 	      this.callEvent("onAfterFilter", []);
 	    }
 	  },
-	  _multi_compare: function _multi_compare(key, compare) {
+	  _multi_compare: function (key, compare) {
 	    var column = this.getColumnConfig(key);
 	    var separator = column ? column.optionslist : null; //default mode
 
@@ -32195,25 +32702,24 @@
 	      }
 	    };
 	  },
-	  filterMode_setter: function filterMode_setter(mode) {
+	  filterMode_setter: function (mode) {
 	    return exports.extend(this.data._filterMode, mode, true);
 	  },
-	  getFilter: function getFilter(columnId) {
+	  getFilter: function (columnId) {
 	    var filter = this._filter_elements[columnId];
-	    assert(filter, "Filter doesn't exists for column in question");
 	    if (filter && filter[2].getInputNode) return filter[2].getInputNode(filter[0]);
 	    return null;
 	  },
-	  registerFilter: function registerFilter(node, config, obj) {
+	  registerFilter: function (node, config, obj) {
 	    this._filter_elements[config.columnId] = [node, config, obj];
 	  },
-	  collectValues: function collectValues(id) {
+	  collectValues: function (id, mode) {
 	    var values = [];
 	    var checks = {
 	      "": true
 	    };
 	    var obj = this.getColumnConfig(id);
-	    var options = obj.options || obj.collection;
+	    var options = mode && mode.visible ? null : obj.options || obj.collection;
 
 	    if (options) {
 	      if (_typeof(options) == "object" && !options.loadNext) {
@@ -32245,7 +32751,7 @@
 	    this.callEvent("onCollectValues", [id, result]);
 	    return result.values;
 	  },
-	  _collectValues: function _collectValues(id, value, values, checks) {
+	  _collectValues: function (id, value, values, checks) {
 	    this.data.each(function (obj) {
 	      var test = obj ? obj[id] : "";
 
@@ -32271,21 +32777,23 @@
 	      }));
 	    }
 	  },
-	  _runServerFilter: function _runServerFilter() {
-	    this.loadNext(0, 0, {
-	      before: function before() {
-	        if (this.editStop) this.editStop();
-	        this.clearAll(true);
-	      },
-	      success: function success() {
-	        this.callEvent("onAfterFilter", []);
-	      }
-	    }, 0, 1);
+	  _runServerFilter: function () {
+	    var _this = this;
+
+	    this.loadNext(0, 0, 0, 0, 1).then(function (data) {
+	      if (_this.editStop) _this.editStop();
+
+	      _this.clearAll(true);
+
+	      _this.parse(data);
+
+	      _this.callEvent("onAfterFilter", []);
+	    });
 	  }
 	};
 
 	var Mixin$2 = {
-	  hover_setter: function hover_setter(value) {
+	  hover_setter: function (value) {
 	    if (value && !this._hover_initialized) {
 	      this._enable_mouse_move();
 
@@ -32311,7 +32819,7 @@
 
 	    return value;
 	  },
-	  select_setter: function select_setter(value) {
+	  select_setter: function (value) {
 	    if (!this.select && value) {
 	      exports.extend(this, this._selections._commonselect, true);
 	      if (value === true) value = "row";else if (value == "multiselect") {
@@ -32324,17 +32832,17 @@
 
 	    return value;
 	  },
-	  getSelectedId: function getSelectedId(mode) {
+	  getSelectedId: function (mode) {
 	    return mode ? [] : ""; //dummy placeholder
 	  },
-	  getSelectedItem: function getSelectedItem(mode) {
+	  getSelectedItem: function (mode) {
 	    return SelectionModel.getSelectedItem.call(this, mode);
 	  },
 	  _selections: {
 	    //shared methods for all selection models
 	    _commonselect: {
 	      _select_css: " webix_cell_select",
-	      $init: function $init() {
+	      $init: function () {
 	        this._reinit_selection();
 
 	        this.on_click.webix_cell = bind(this._click_before_select, this); //temporary stab, actual handlers need to be created
@@ -32350,7 +32858,7 @@
 	        this.data.attachEvent("onIdChange", bind(this._id_changed, this));
 	        this.$ready.push(SelectionModel._set_noselect);
 	      },
-	      _id_changed: function _id_changed(oldid, newid) {
+	      _id_changed: function (oldid, newid) {
 	        for (var i = 0; i < this._selected_rows.length; i++) {
 	          if (this._selected_rows[i] == oldid) this._selected_rows[i] = newid;
 	        }
@@ -32368,10 +32876,10 @@
 	          }
 	        }
 	      },
-	      _data_updated: function _data_updated(id, obj, type) {
+	      _data_updated: function (id, obj, type) {
 	        if (type == "delete") this.unselect(id);
 	      },
-	      _data_synced: function _data_synced() {
+	      _data_synced: function () {
 	        for (var i = this._selected_areas.length - 1; i >= 0; i--) {
 	          var row = this._selected_areas[i].row;
 
@@ -32382,7 +32890,7 @@
 	          }
 	        }
 	      },
-	      _reinit_selection: function _reinit_selection() {
+	      _reinit_selection: function () {
 	        //list of selected areas
 	        this._selected_areas = []; //key-value hash of selected areas, for fast search
 
@@ -32390,7 +32898,7 @@
 
 	        this._selected_rows = [];
 	      },
-	      isSelected: function isSelected(id, column) {
+	      isSelected: function (id, column) {
 	        var key;
 	        if (!isUndefined(column)) key = this._select_key({
 	          row: id,
@@ -32398,7 +32906,7 @@
 	        });else key = _typeof(id) === "object" ? this._select_key(id) : id;
 	        return this._selected_pull[key];
 	      },
-	      getSelectedId: function getSelectedId(asArray, plain) {
+	      getSelectedId: function (asArray, plain) {
 	        var result; //if multiple selections was created - return array
 	        //in case of single selection, return value or array, when asArray parameter provided
 
@@ -32414,10 +32922,10 @@
 
 	        return result;
 	      },
-	      _id_to_string: function _id_to_string() {
+	      _id_to_string: function () {
 	        return this.row;
 	      },
-	      _select: function _select(data, preserve) {
+	      _select: function (data, preserve) {
 	        var key = this._select_key(data); //don't allow selection on unnamed columns
 
 
@@ -32442,7 +32950,7 @@
 
 	        return true;
 	      },
-	      _clear_selection: function _clear_selection() {
+	      _clear_selection: function () {
 	        if (!this._selected_areas.length) return false;
 
 	        for (var i = 0; i < this._selected_areas.length; i++) {
@@ -32467,19 +32975,19 @@
 
 	        return true;
 	      },
-	      unselectAll: function unselectAll() {
+	      unselectAll: function () {
 	        this.clearSelection();
 	      },
-	      selectAll: function selectAll() {
+	      selectAll: function () {
 	        this.selectRange();
 	      },
-	      clearSelection: function clearSelection() {
+	      clearSelection: function () {
 	        if (this._clear_selection()) {
 	          this.callEvent("onSelectChange", []);
 	          this.render();
 	        }
 	      },
-	      _unselect: function _unselect(data) {
+	      _unselect: function (data) {
 	        var key = this._select_key(data);
 
 	        if (!key && this._selected_areas.length) {
@@ -32504,13 +33012,13 @@
 
 	        this._finalize_select(0, this._post_unselect(data));
 	      },
-	      _add_item_select: function _add_item_select(id) {
+	      _add_item_select: function (id) {
 	        var item = this.getItem(id);
 	        return this.data.addMark(item.id, "webix_selected", 0, {
 	          $count: 0
 	        }, true);
 	      },
-	      _finalize_select: function _finalize_select(id) {
+	      _finalize_select: function (id) {
 	        if (id) this._selected_rows.push(id);
 
 	        if (!this._silent_selection) {
@@ -32518,7 +33026,7 @@
 	          this.callEvent("onSelectChange", []);
 	        }
 	      },
-	      _click_before_select: function _click_before_select(e, id) {
+	      _click_before_select: function (e, id) {
 	        var preserve = e.ctrlKey || e.metaKey || this._settings.multiselect == "touch";
 	        var range = e.shiftKey;
 	        if (!this._settings.multiselect && this._settings.select != "multiselect" && this._settings.select != "area") preserve = range = false;
@@ -32534,7 +33042,7 @@
 	          }, preserve);
 	        }
 	      },
-	      _mapSelection: function _mapSelection(callback, column, row) {
+	      _mapSelection: function (callback, column, row) {
 	        var cols = this._settings.columns; //selected columns only
 
 	        if (column) {
@@ -32579,10 +33087,10 @@
 	    },
 	    row: {
 	      _select_css: " webix_row_select",
-	      _select_key: function _select_key(data) {
+	      _select_key: function (data) {
 	        return data.row;
 	      },
-	      select: function select(row_id, preserve) {
+	      select: function (row_id, preserve) {
 	        //when we are using id from mouse events
 	        if (row_id) row_id = row_id.toString();
 	        assert(this.data.exists(row_id), "Incorrect id in select command: " + row_id);
@@ -32591,26 +33099,26 @@
 	          row: row_id
 	        }, preserve);
 	      },
-	      _post_select: function _post_select(data) {
+	      _post_select: function (data) {
 	        this._add_item_select(data.row).$row = true;
 	        return data.row;
 	      },
-	      unselect: function unselect(row_id) {
+	      unselect: function (row_id) {
 	        this._unselect({
 	          row: row_id
 	        });
 	      },
-	      _post_unselect: function _post_unselect(data) {
+	      _post_unselect: function (data) {
 	        this.data.removeMark(data.row, "webix_selected", 0, 1);
 	        return data.row;
 	      },
-	      mapSelection: function mapSelection(callback) {
+	      mapSelection: function (callback) {
 	        return this._mapSelection(callback, false, true);
 	      },
-	      _selectRange: function _selectRange(a, b) {
+	      _selectRange: function (a, b) {
 	        return this.selectRange(a.row, b.row);
 	      },
-	      selectRange: function selectRange(row_id, end_row_id, preserve) {
+	      selectRange: function (row_id, end_row_id, preserve) {
 	        if (isUndefined(preserve)) preserve = true;
 	        var row_start_ind = row_id ? this.getIndexById(row_id) : 0;
 	        var row_end_ind = end_row_id ? this.getIndexById(end_row_id) : this.data.order.length - 1;
@@ -32640,11 +33148,11 @@
 	      }
 	    },
 	    cell: {
-	      _select_key: function _select_key(data) {
+	      _select_key: function (data) {
 	        if (!data.column) return null;
 	        return data.row + "_" + data.column;
 	      },
-	      select: function select(row_id, column_id, preserve) {
+	      select: function (row_id, column_id, preserve) {
 	        assert(this.data.exists(row_id), "Incorrect id in select command: " + row_id);
 
 	        this._select({
@@ -32652,20 +33160,20 @@
 	          column: column_id
 	        }, preserve);
 	      },
-	      _post_select: function _post_select(data) {
+	      _post_select: function (data) {
 	        var sel = this._add_item_select(data.row);
 
 	        sel.$count++;
 	        sel[data.column] = true;
 	        return data.row;
 	      },
-	      unselect: function unselect(row_id, column_id) {
+	      unselect: function (row_id, column_id) {
 	        this._unselect({
 	          row: row_id,
 	          column: column_id
 	        });
 	      },
-	      _post_unselect: function _post_unselect(data) {
+	      _post_unselect: function (data) {
 	        var sel = this._add_item_select(data.row);
 
 	        sel.$count--;
@@ -32673,13 +33181,13 @@
 	        if (sel.$count <= 0) this.data.removeMark(data.row, "webix_selected");
 	        return data.row;
 	      },
-	      mapSelection: function mapSelection(callback) {
+	      mapSelection: function (callback) {
 	        return this._mapSelection(callback, false, false);
 	      },
-	      _selectRange: function _selectRange(a, b) {
+	      _selectRange: function (a, b) {
 	        return this.selectRange(a.row, a.column, b.row, b.column);
 	      },
-	      selectRange: function selectRange(row_id, column_id, end_row_id, end_column_id, preserve) {
+	      selectRange: function (row_id, column_id, end_row_id, end_column_id, preserve) {
 	        if (isUndefined(preserve)) preserve = true;
 	        var row_start_ind = row_id ? this.getIndexById(row_id) : 0;
 	        var row_end_ind = end_row_id ? this.getIndexById(end_row_id) : this.data.order.length - 1;
@@ -32713,39 +33221,39 @@
 	    },
 	    column: {
 	      _select_css: " webix_column_select",
-	      _select_key: function _select_key(data) {
+	      _select_key: function (data) {
 	        return data.column;
 	      },
-	      _id_to_string: function _id_to_string() {
+	      _id_to_string: function () {
 	        return this.column;
 	      },
 	      //returns box-like area, with ordered selection cells
-	      select: function select(column_id, preserve) {
+	      select: function (column_id, preserve) {
 	        this._select({
 	          column: column_id
 	        }, preserve);
 	      },
-	      _post_select: function _post_select(data) {
+	      _post_select: function (data) {
 	        this._settings.columns[this.getColumnIndex(data.column)].$selected = true;
 	        if (!this._silent_selection) this._render_header_and_footer();
 	      },
-	      unselect: function unselect(column_id) {
+	      unselect: function (column_id) {
 	        this._unselect({
 	          column: column_id
 	        });
 	      },
-	      _post_unselect: function _post_unselect(data) {
+	      _post_unselect: function (data) {
 	        this._settings.columns[this.getColumnIndex(data.column)].$selected = null;
 
 	        this._render_header_and_footer();
 	      },
-	      mapSelection: function mapSelection(callback) {
+	      mapSelection: function (callback) {
 	        return this._mapSelection(callback, true, false);
 	      },
-	      _selectRange: function _selectRange(a, b) {
+	      _selectRange: function (a, b) {
 	        return this.selectRange(a.column, b.column);
 	      },
-	      selectRange: function selectRange(column_id, end_column_id, preserve) {
+	      selectRange: function (column_id, end_column_id, preserve) {
 	        if (isUndefined(preserve)) preserve = true;
 	        var column_start_ind = column_id ? this.getColumnIndex(column_id) : 0;
 	        var column_end_ind = end_column_id ? this.getColumnIndex(end_column_id) : this._columns.length - 1;
@@ -32768,14 +33276,14 @@
 
 	        this._finalize_select();
 	      },
-	      _data_synced: function _data_synced() {//do nothing, as columns are not changed
+	      _data_synced: function () {//do nothing, as columns are not changed
 	      }
 	    },
 	    area: {
-	      _select_key: function _select_key(data) {
+	      _select_key: function (data) {
 	        return data.row + "_" + data.column;
 	      },
-	      getSelectedId: function getSelectedId(asArray) {
+	      getSelectedId: function (asArray) {
 	        var area = this.getSelectArea();
 	        var result = [];
 
@@ -32803,14 +33311,14 @@
 
 	        return asArray ? result : result[0];
 	      },
-	      unselect: function unselect() {
+	      unselect: function () {
 	        this._unselect();
 	      },
-	      _unselect: function _unselect() {
+	      _unselect: function () {
 	        this.removeSelectArea();
 	        this.callEvent("onSelectChange", []);
 	      },
-	      mapSelection: function mapSelection(callback) {
+	      mapSelection: function (callback) {
 	        var select = this.getSelectArea();
 
 	        if (select) {
@@ -32833,7 +33341,7 @@
 	          }
 	        }
 	      },
-	      select: function select(row_id, column_id, preserve) {
+	      select: function (row_id, column_id, preserve) {
 	        assert(this.data.exists(row_id), "Incorrect id in select command: " + row_id);
 
 	        this._select({
@@ -32841,15 +33349,15 @@
 	          column: column_id
 	        }, preserve);
 	      },
-	      _selectRange: function _selectRange(id, last) {
+	      _selectRange: function (id, last) {
 	        this._extendAreaRange(id, last);
 	      },
-	      _select: function _select(cell) {
+	      _select: function (cell) {
 	        //ctrl-selection is not supported yet, so ignoring the preserve flag
 	        this.addSelectArea(cell, cell, false);
 	        return true;
 	      },
-	      _data_synced: function _data_synced() {
+	      _data_synced: function () {
 	        if (this._selected_areas.length) this.refreshSelectArea();
 	      }
 	    }
@@ -32857,7 +33365,7 @@
 	};
 
 	var Mixin$3 = {
-	  blockselect_setter: function blockselect_setter(value) {
+	  blockselect_setter: function (value) {
 	    if (value && this._block_sel_flag) {
 	      _event(this._viewobj, env.mouse.move, this._bs_move, {
 	        bind: this
@@ -32884,7 +33392,7 @@
 	    return value;
 	  },
 	  _block_sel_flag: true,
-	  _childOf: function _childOf(e, tag) {
+	  _childOf: function (e, tag) {
 	    var src = e.target || e.srcElement;
 
 	    while (src) {
@@ -32895,7 +33403,7 @@
 
 	    return false;
 	  },
-	  _bs_down: function _bs_down(e) {
+	  _bs_down: function (e) {
 	    // do not listen to mousedown of subview on master
 	    if (this._settings.subview && this != $$(e.target || e.srcElement)) return;
 
@@ -32908,7 +33416,7 @@
 	      preventEvent(e);
 	    }
 	  },
-	  _bs_up: function _bs_up(e) {
+	  _bs_up: function (e) {
 	    if (this._block_panel) {
 	      this._bs_select("select", true, e);
 
@@ -32919,10 +33427,10 @@
 	    this._bs_ready = this._bs_progress = false;
 	    if (this._auto_scroll_delay) this._auto_scroll_delay = window.clearTimeout(this._auto_scroll_delay);
 	  },
-	  _update_block_selection: function _update_block_selection() {
+	  _update_block_selection: function () {
 	    if (this._bs_progress) this._bs_select(false, false);
 	  },
-	  _bs_select: function _bs_select(mode, theend, e) {
+	  _bs_select: function (mode, theend, e) {
 	    var start = null;
 	    if (!this._bs_ready[2]) this._bs_ready[2] = this._locate_cell_xy.apply(this, this._bs_ready);
 	    start = this._bs_ready[2];
@@ -32999,14 +33507,14 @@
 
 	    if (theend) this.callEvent("onAfterBlockSelect", [start, end]);
 	  },
-	  _bs_start: function _bs_start() {
+	  _bs_start: function () {
 	    this._block_panel = create("div", {
 	      "class": "webix_block_selection"
 	    }, "");
 
 	    this._body.appendChild(this._block_panel);
 	  },
-	  _bs_move: function _bs_move(e) {
+	  _bs_move: function (e) {
 	    if (this._bs_ready !== false) {
 	      if (!this._bs_progress) addCss(document.body, "webix_noselect");
 	      var pos$$1 = pos(e);
@@ -33019,7 +33527,7 @@
 	      this._bs_select(this.config.blockselect, false, e);
 	    }
 	  },
-	  _locate_cell_xy: function _locate_cell_xy(x, y) {
+	  _locate_cell_xy: function (x, y) {
 	    var inTopSplit = false,
 	        row = null,
 	        column = null;
@@ -33070,7 +33578,7 @@
 	      column: column
 	    };
 	  },
-	  _getTopSplitOffset: function _getTopSplitOffset(cell, area) {
+	  _getTopSplitOffset: function (cell, area) {
 	    var y = 0,
 	        startIndex = this.getIndexById(cell.row);
 
@@ -33089,12 +33597,12 @@
 	};
 
 	var Mixin$4 = {
-	  resizeRow_setter: function resizeRow_setter(value) {
+	  resizeRow_setter: function (value) {
 	    this._settings.scrollAlignY = false;
 	    this._settings.fixedRowHeight = false;
 	    return this.resizeColumn_setter(value);
 	  },
-	  resizeColumn_setter: function resizeColumn_setter(value) {
+	  resizeColumn_setter: function (value) {
 	    if (value && this._rs_init_flag) {
 	      _event(this._viewobj, "mousemove", this._rs_move, {
 	        bind: this
@@ -33114,7 +33622,7 @@
 	    return value;
 	  },
 	  _rs_init_flag: true,
-	  _rs_down: function _rs_down(e) {
+	  _rs_down: function (e) {
 	    // do not listen to mousedown of subview on master
 	    if (this._settings.subview && this != $$(e.target || e.srcElement)) return; //if mouse was near border
 
@@ -33123,12 +33631,12 @@
 	    addCss(document.body, "webix_noselect");
 	    denySelect();
 	  },
-	  _rs_up: function _rs_up() {
+	  _rs_up: function () {
 	    this._rs_process = false;
 	    removeCss(document.body, "webix_noselect");
 	    allowSelect();
 	  },
-	  _rs_start: function _rs_start() {
+	  _rs_start: function () {
 	    if (this._rs_progress) return;
 	    var dir = this._rs_ready[0];
 	    var node = this._rs_process[1];
@@ -33163,7 +33671,7 @@
 
 	    this._rs_down = this._rs_ready = false;
 	  },
-	  _rs_end: function _rs_end(result) {
+	  _rs_end: function (result) {
 	    if (this._rs_progress) {
 	      var dir = this._rs_progress[0];
 	      var obj = this._rs_progress[1];
@@ -33197,7 +33705,7 @@
 
 	    this._rs_progress = null;
 	  },
-	  _rs_move: function _rs_move(e) {
+	  _rs_move: function (e) {
 	    var cell = null,
 	        config = this._settings;
 	    if (this._rs_ready && this._rs_process) return this._rs_start(e);
@@ -33261,7 +33769,7 @@
 	    if (this._cursor_timer) window.clearTimeout(this._cursor_timer);
 	    this._cursor_timer = delay(this._mark_resize_ready, this, [mode], mode ? 100 : 0);
 	  },
-	  _mark_resize_ready: function _mark_resize_ready(mode) {
+	  _mark_resize_ready: function (mode) {
 	    if (this._last_cursor_mode != mode) {
 	      this._last_cursor_mode = mode;
 	      this._viewobj.style.cursor = mode || "default";
@@ -33279,7 +33787,7 @@
 	  }
 	});
 	var Mixin$5 = {
-	  $touch: function $touch() {
+	  $touch: function () {
 	    var config = this._settings;
 	    config.scrollAlignY = false;
 	    exports.extend(this, config.prerender === true ? this._touchNative : this._touch);
@@ -33296,12 +33804,12 @@
 	    this._sync_scroll(0, 0, "0ms");
 	  },
 	  _touchNative: {
-	    _scrollTo_touch: function _scrollTo_touch(x, y) {
+	    _scrollTo_touch: function (x, y) {
 	      Touch._set_matrix(this._body.childNodes[1].firstChild, -x, -y, "0ms");
 
 	      this._sync_scroll(-x, -y, "0ms");
 	    },
-	    _getScrollState_touch: function _getScrollState_touch() {
+	    _getScrollState_touch: function () {
 	      var temp = Touch._get_matrix(this._body.childNodes[1].firstChild);
 
 	      return {
@@ -33309,7 +33817,7 @@
 	        y: -temp.f
 	      };
 	    },
-	    $init: function $init() {
+	    $init: function () {
 	      this.attachEvent("onBeforeScroll", function () {
 	        Touch._scroll_node = this._body.childNodes[1].firstChild;
 
@@ -33321,17 +33829,17 @@
 	        Touch._scroll_master = null;
 	      });
 	    },
-	    _sync_scroll: function _sync_scroll(x, y, t) {
+	    _sync_scroll: function (x, y, t) {
 	      if (this._settings.leftSplit) Touch._set_matrix(this._body.childNodes[0].firstChild, 0, y, t);
 	      if (this._settings.rightSplit) Touch._set_matrix(this._body.childNodes[2].firstChild, 0, y, t);
 	      if (this._settings.header) Touch._set_matrix(this._header.childNodes[1].firstChild, x, 0, t);
 	      if (this._settings.footer) Touch._set_matrix(this._footer.childNodes[1].firstChild, x, 0, t);
 	      this.callEvent("onSyncScroll", [x, y, t]);
 	    },
-	    _sync_pos: function _sync_pos() {}
+	    _sync_pos: function () {}
 	  },
 	  _touch: {
-	    _scrollTo_touch: function _scrollTo_touch(x, y) {
+	    _scrollTo_touch: function (x, y) {
 	      delay(function () {
 	        this.callEvent("onAfterScroll", [{
 	          e: -x,
@@ -33343,7 +33851,7 @@
 	      gravity: 0,
 	      elastic: false
 	    },
-	    $init: function $init() {
+	    $init: function () {
 	      //if the result column's width < container's width,
 	      this.attachEvent("onAfterColumnHide", function () {
 	        this._scrollTo_touch(0, 0);
@@ -33396,7 +33904,7 @@
 	        return false;
 	      });
 	    },
-	    _sync_scroll: function _sync_scroll(x, y, t) {
+	    _sync_scroll: function (x, y, t) {
 	      y += this._scrollTop;
 	      x += this._scrollLeft;
 
@@ -33408,7 +33916,7 @@
 	      if (this._settings.footer) Touch._set_matrix(this._footer.childNodes[1].firstChild, x, 0, t);
 	      this.callEvent("onSyncScroll", [x, y, t]);
 	    },
-	    _sync_pos: function _sync_pos(matrix) {
+	    _sync_pos: function (matrix) {
 	      matrix.f -= this._scrollTop;
 	      matrix.e -= this._scrollLeft;
 	    }
@@ -33416,7 +33924,7 @@
 	};
 
 	var Mixin$6 = {
-	  $init: function $init() {
+	  $init: function () {
 	    this.data.attachEvent("onStoreUpdated", bind(function (id) {
 	      if (!id) this._adjustColumns();
 	    }, this));
@@ -33427,7 +33935,7 @@
 	    });
 	    this.attachEvent("onResize", this._resizeColumns);
 	  },
-	  _adjustColumns: function _adjustColumns() {
+	  _adjustColumns: function () {
 	    var resize = false;
 	    var cols = this._columns;
 
@@ -33441,7 +33949,7 @@
 	      this._resizeColumns();
 	    }
 	  },
-	  _resizeColumns: function _resizeColumns() {
+	  _resizeColumns: function () {
 	    var cols = this._settings.columns;
 	    var fill = [];
 	    var summ = 0;
@@ -33455,7 +33963,7 @@
 	    }
 	    if (summ) this._fillColumnSize(fill, summ);
 	  },
-	  _fillColumnSize: function _fillColumnSize(fill, summ) {
+	  _fillColumnSize: function (fill, summ) {
 	    var cols = this._settings.columns;
 	    if (!cols) return;
 	    var width = this._content_width - this._scrollSizeY;
@@ -33478,7 +33986,7 @@
 	      if (resize) this._updateColsSizeSettings(true);
 	    }
 	  },
-	  _getColumnConfigSize: function _getColumnConfigSize(ind, headers) {
+	  _getColumnConfigSize: function (ind, headers) {
 	    var config = this._settings.columns[ind];
 	    var max = config.minColumnWidth || 10; //get max data width
 
@@ -33516,17 +34024,17 @@
 
 	    return max + 1 + (env.isIE ? $active.layoutPadding.space : 0);
 	  },
-	  _adjustColumn: function _adjustColumn(ind, headers, ignore) {
+	  _adjustColumn: function (ind, headers, ignore) {
 	    if (ind >= 0) {
 	      var width = this._getColumnConfigSize(ind, headers);
 
 	      return this._setColumnWidth(ind, width, ignore);
 	    }
 	  },
-	  adjustColumn: function adjustColumn(id, headers) {
+	  adjustColumn: function (id, headers) {
 	    this._adjustColumn(this.getColumnIndex(id), headers);
 	  },
-	  adjustRowHeight: function adjustRowHeight(id, silent) {
+	  adjustRowHeight: function (id, silent) {
 	    var _this = this;
 
 	    if (id) {
@@ -33567,7 +34075,7 @@
 	        j++;
 	      }
 
-	      var _loop = function _loop(i) {
+	      var _loop = function (i) {
 	        //adjust size for single columns
 	        _this.adjustRowHeight(cols[i].id, true); //for each row, set height as maximum between all columns
 
@@ -33595,28 +34103,35 @@
 	};
 
 	var Mixin$7 = {
-	  math_setter: function math_setter(value) {
+	  math_setter: function (value) {
 	    if (value) this._math_init();
 	    return value;
 	  },
 	  _math_pref: "$",
-	  _math_init: function _math_init() {
+	  _math_init: function () {
 	    if (env.strict) return;
 	    this.data.attachEvent("onStoreUpdated", bind(this._parse_row_math, this));
 	    this.data.attachEvent("onStoreLoad", bind(this._parse_math, this));
 	    this.attachEvent("onStructureLoad", this._parse_math);
 	  },
-	  _parse_row_math: function _parse_row_math(id, obj, action) {
-	    if (!id || action == "delete" || action == "paint") return;
-	    if (action == "add") this._exprs_by_columns(obj);
+	  _parse_row_math: function (id, obj, action) {
+	    if (!id || action == "paint") return;
 
-	    for (var i = 0; i < this._columns.length; i++) {
-	      this._parse_cell_math(id, this._columns[i].id, action !== "add");
+	    if (action == "delete") {
+	      for (var i = 0; i < this._columns.length; i++) {
+	        this._remove_old_triggers(obj, this._columns[i].id);
+	      }
+	    } else {
+	      if (action == "add") this._exprs_by_columns(obj);
+
+	      for (var _i = 0; _i < this._columns.length; _i++) {
+	        this._parse_cell_math(id, this._columns[_i].id, action !== "add");
+	      }
+
+	      this._math_recalc = {};
 	    }
-
-	    this._math_recalc = {};
 	  },
-	  _parse_cell_math: function _parse_cell_math(row, col, _inner_call) {
+	  _parse_cell_math: function (row, col, _inner_call) {
 	    var item = this.getItem(row);
 	    var value; // if it's outer call we should use inputted value otherwise to take formula, not calculated value
 
@@ -33624,9 +34139,8 @@
 	      value = item[col];
 	      this._math_recalc = {};
 	    }
-	    if (typeof value === "undefined" || value === null) return;
 
-	    if (value.length > 0 && value.substr(0, 1) === "=") {
+	    if (value && value.length > 0 && value.toString().substr(0, 1) === "=") {
 	      // calculate math value
 	      if (!item[this._math_pref + col] || _inner_call !== true) item[this._math_pref + col] = item[col];
 	      item[col] = this._calculate(value, row, col); //this.updateItem(item);
@@ -33650,11 +34164,11 @@
 	      }
 	    }
 	  },
-	  _set_original_value: function _set_original_value(row, col) {
+	  _set_original_value: function (row, col) {
 	    var item = this.getItem(row);
 	    if (typeof item[this._math_pref + col] !== "undefined") item[col] = item[this._math_pref + col];
 	  },
-	  _parse_math: function _parse_math() {
+	  _parse_math: function () {
 	    if (!this._columns || !this.count()) return;
 
 	    this._exprs_by_columns();
@@ -33668,7 +34182,7 @@
 
 	    this._math_recalc = {};
 	  },
-	  _exprs_by_columns: function _exprs_by_columns(row) {
+	  _exprs_by_columns: function (row) {
 	    for (var i = 0; i < this._columns.length; i++) {
 	      if (this._columns[i].math) {
 	        var col = this.columnId(i);
@@ -33689,13 +34203,13 @@
 	      }
 	    }
 	  },
-	  _parse_relative_expr: function _parse_relative_expr(expr, row, col) {
+	  _parse_relative_expr: function (expr, row, col) {
 	    return template(expr)({
 	      "$r": row,
 	      "$c": col
 	    });
 	  },
-	  _get_calc_value: function _get_calc_value(row, col) {
+	  _get_calc_value: function (row, col) {
 	    var item;
 	    if (this.exists(row)) item = this.getItem(row);else return "#out_of_range";
 	    var value = item[this._math_pref + col] || item[col] || 0;
@@ -33710,7 +34224,7 @@
 	      return item[col];
 	    }
 	  },
-	  _calculate: function _calculate(value, row, col, _inner_call) {
+	  _calculate: function (value, row, col, _inner_call) {
 	    // add coord in math trace to detect self-references
 	    if (_inner_call === true) {
 	      if (this._in_math_trace(row, col)) return "#selfreference";
@@ -33755,7 +34269,7 @@
 	    if (exc !== false) return exc;
 	    return value;
 	  },
-	  _get_operations: function _get_operations(value) {
+	  _get_operations: function (value) {
 	    // gettings operations list (+-*/)
 	    var splitter = /(\+|-|\*|\/)/g;
 	    var operations = value.replace(/\[[^)]*?\]/g, "").match(splitter);
@@ -33764,7 +34278,7 @@
 
 	  /*! gets list of referencies in formula
 	   **/
-	  _get_refs: function _get_refs(value, id) {
+	  _get_refs: function (value, id) {
 	    var reg = /\[([^\]]+),([^\]]+)\]/g;
 	    var cells = value.match(reg);
 	    if (cells === null) cells = [];
@@ -33786,7 +34300,7 @@
 	    return cells;
 	  },
 	  // replace given list of references by their values
-	  _replace_refs: function _replace_refs(value, cells, clean) {
+	  _replace_refs: function (value, cells, clean) {
 	    var dell = "(",
 	        delr = ")";
 	    if (clean) dell = delr = "";
@@ -33802,7 +34316,7 @@
 
 	    return value;
 	  },
-	  _parse_args: function _parse_args(value, operations) {
+	  _parse_args: function (value, operations) {
 	    var args = [];
 
 	    for (var i = 0; i < operations.length; i++) {
@@ -33816,24 +34330,24 @@
 
 	    args.push(value); //var reg = /^(-?\d|\.|\(|\))+$/;
 
-	    for (var _i = 0; _i < args.length; _i++) {
-	      var arg = this._trim(args[_i]); //	if (reg.test(arg) === false)
+	    for (var _i2 = 0; _i2 < args.length; _i2++) {
+	      var arg = this._trim(args[_i2]); //	if (reg.test(arg) === false)
 	      //		return ''; //error
 
 
-	      args[_i] = arg;
+	      args[_i2] = arg;
 	    }
 
 	    var expr = "";
 
-	    for (var _i2 = 0; _i2 < args.length - 1; _i2++) {
-	      expr += args[_i2] + operations[_i2];
+	    for (var _i3 = 0; _i3 < args.length - 1; _i3++) {
+	      expr += args[_i3] + operations[_i3];
 	    }
 
 	    expr += args[args.length - 1];
 	    return expr;
 	  },
-	  _compute: function _compute(expr) {
+	  _compute: function (expr) {
 	    var result;
 
 	    try {
@@ -33845,30 +34359,30 @@
 
 	    return result.toString();
 	  },
-	  _split_by: function _split_by(value, splitter) {
+	  _split_by: function (value, splitter) {
 	    var pos = value.indexOf(splitter);
 	    var before = value.substr(0, pos);
 	    var after = value.substr(pos + 1);
 	    return [before, after];
 	  },
-	  _trim: function _trim(value) {
+	  _trim: function (value) {
 	    value = value.replace(/^ */g, "");
 	    value = value.replace(/ *$/g, "");
 	    return value;
 	  },
-	  _start_math_trace: function _start_math_trace() {
+	  _start_math_trace: function () {
 	    this._math_trace = [];
 	  },
-	  _to_math_trace: function _to_math_trace(row, col) {
+	  _to_math_trace: function (row, col) {
 	    this._math_trace[row + "__" + col] = true;
 	  },
-	  _from_math_trace: function _from_math_trace(row, col) {
+	  _from_math_trace: function (row, col) {
 	    if (typeof this._math_trace[row + "__" + col] !== "undefined") delete this._math_trace[row + "__" + col];
 	  },
-	  _in_math_trace: function _in_math_trace(row, col) {
+	  _in_math_trace: function (row, col) {
 	    if (typeof this._math_trace[row + "__" + col] !== "undefined") return true;else return false;
 	  },
-	  _add_trigger: function _add_trigger(depends, from) {
+	  _add_trigger: function (depends, from) {
 	    var item = this.getItem(from[0]);
 	    if (typeof item.depends === "undefined") item.depends = {};
 	    if (typeof item.depends[from[1]] === "undefined") item.depends[from[1]] = {};
@@ -33878,7 +34392,7 @@
 	    if (typeof item.triggers[depends[1]] === "undefined") item.triggers[depends[1]] = {};
 	    item.triggers[depends[1]][from[0] + "__" + from[1]] = from;
 	  },
-	  _remove_old_triggers: function _remove_old_triggers(item, col) {
+	  _remove_old_triggers: function (item, col) {
 	    if (!item) return;
 	    if (typeof item.triggers === "undefined") return;
 
@@ -33889,7 +34403,7 @@
 	    }
 	  },
 	  // check if exception syntax exists and returns exception text or false
-	  _math_exception: function _math_exception(value) {
+	  _math_exception: function (value) {
 	    var reg = /#\w+/;
 	    var match = value.match(reg);
 	    if (match !== null && match.length > 0) return match[0];
@@ -33898,7 +34412,7 @@
 	};
 
 	var Mixin$8 = {
-	  headermenu_setter: function headermenu_setter(value) {
+	  headermenu_setter: function (value) {
 	    if (value) {
 	      if (value.data) this._preconfigured_hmenu = true;
 	      value = this._init_hmenu_once(value);
@@ -33906,12 +34420,12 @@
 
 	    return value;
 	  },
-	  _init_hmenu_once: function _init_hmenu_once(value) {
+	  _init_hmenu_once: function (value) {
 	    var menuobj = {
 	      view: "contextmenu",
 	      template: "<span class='webix_icon {common.hidden()}'></span> &nbsp; #value#",
 	      type: {
-	        hidden: function hidden(obj) {
+	        hidden: function (obj) {
 	          if (obj.hidden) return "wxi-eye-slash";else return "wxi-eye";
 	        }
 	      },
@@ -33947,7 +34461,7 @@
 
 	    return menu._settings.id;
 	  },
-	  _generate_menu_columns: function _generate_menu_columns() {
+	  _generate_menu_columns: function () {
 	    var menu = $$(this._settings.headermenu);
 	    var hhash = this._hidden_column_hash;
 	    if (menu.$blockRender) return;
@@ -33981,9 +34495,9 @@
 	  }
 	};
 	datafilter.headerMenu = {
-	  getValue: function getValue() {},
-	  setValue: function setValue() {},
-	  refresh: function refresh(master, node) {
+	  getValue: function () {},
+	  setValue: function () {},
+	  refresh: function (master, node) {
 	    if (!master._settings.headermenu) {
 	      master.define("headermenu", true);
 
@@ -33994,7 +34508,7 @@
 	      $$(master.config.headermenu).show(node);
 	    };
 	  },
-	  render: function render() {
+	  render: function () {
 	    return "<span class='webix_icon wxi-columns' role='button' tabindex='0' aria-label='" + i18n.aria.headermenu + "'>";
 	  }
 	};
@@ -34006,10 +34520,10 @@
 	  /////////////////////////
 	  //    edit start       //
 	  /////////////////////////
-	  _get_editor_type: function _get_editor_type(id) {
+	  _get_editor_type: function (id) {
 	    return this.getColumnConfig(id.column).editor;
 	  },
-	  getEditor: function getEditor(row, column) {
+	  getEditor: function (row, column) {
 	    if (!row) return this._last_editor;
 
 	    if (arguments.length == 1) {
@@ -34019,7 +34533,7 @@
 
 	    return (this._editors[row] || {})[column];
 	  },
-	  _for_each_editor: function _for_each_editor(handler) {
+	  _for_each_editor: function (handler) {
 	    for (var row in this._editors) {
 	      var row_editors = this._editors[row];
 
@@ -34028,7 +34542,7 @@
 	      }
 	    }
 	  },
-	  _init_editor: function _init_editor(id, type, show) {
+	  _init_editor: function (id, type, show) {
 	    var row = id.row;
 	    var column = id.column;
 	    var col_settings = type.config = this.getColumnConfig(column); //show it over cell
@@ -34059,20 +34573,24 @@
 
 	    return node;
 	  },
-	  _bind_live_validation: function _bind_live_validation(id, that) {
+	  _bind_live_validation: function (id, that) {
 	    return function () {
 	      that.validateEditor(id);
 	    };
 	  },
-	  _set_new_value: function _set_new_value(editor, new_value, copy$$1) {
+	  _get_new_value: function (editor) {
 	    var parser = this.getColumnConfig(editor.column).editParse;
+	    var new_value = editor.getValue();
+	    return parser ? parser(new_value) : new_value;
+	  },
+	  _set_new_value: function (editor, new_value, copy$$1) {
 	    var item = copy$$1 ? {} : this.getItem(editor.row);
-	    item[editor.column] = parser ? parser(new_value) : new_value;
+	    item[editor.column] = new_value;
 	    if (this._settings.editMath) item["$" + editor.column] = null;
 	    return item;
 	  },
 	  //register editor in collection
-	  _addEditor: function _addEditor(id, type) {
+	  _addEditor: function (id, type) {
 	    var row_editors = this._editors[id.row] = this._editors[id.row] || {};
 	    row_editors.$count = (row_editors.$count || 0) + 1;
 	    type.row = id.row;
@@ -34081,7 +34599,7 @@
 	    this._in_edit_mode++;
 	    this._last_editor_scroll = this.getScrollState();
 	  },
-	  _removeEditor: function _removeEditor(editor) {
+	  _removeEditor: function (editor) {
 	    if (this._last_editor == editor) this._last_editor = 0;
 	    if (editor.destroy) editor.destroy();
 	    var row = this._editors[editor.row];
@@ -34090,7 +34608,7 @@
 	    if (!row.$count) delete this._editors[editor.row];
 	    this._in_edit_mode--;
 	  },
-	  _changeEditorId: function _changeEditorId(oldid, newid) {
+	  _changeEditorId: function (oldid, newid) {
 	    var editor = this._editors[oldid];
 
 	    if (editor) {
@@ -34098,12 +34616,12 @@
 	      delete this._editors[oldid];
 
 	      for (var key in editor) {
-	        editor[key].row = newid;
+	        if (key != "$count") editor[key].row = newid;
 	      }
 	    }
 	  },
 	  //get html cell by combined id
-	  _locate_cell: function _locate_cell(id) {
+	  _locate_cell: function (id) {
 	    var area,
 	        i,
 	        index,
@@ -34139,14 +34657,14 @@
 	  /////////////////////////
 	  //    public methods   //
 	  /////////////////////////
-	  editCell: function editCell(row, column, preserve, show) {
+	  editCell: function (row, column, preserve, show) {
 	    column = column || this._settings.columns[0].id;
 	    return EditAbility.edit.call(this, {
 	      row: row,
 	      column: column
 	    }, preserve, show);
 	  },
-	  editRow: function editRow(id) {
+	  editRow: function (id) {
 	    if (id && id.row) id = id.row;
 	    var next = false;
 	    this.eachColumn(function (column) {
@@ -34157,7 +34675,7 @@
 	      next = true;
 	    });
 	  },
-	  editColumn: function editColumn(id) {
+	  editColumn: function (id) {
 	    if (id && id.column) id = id.column;
 	    var next = false;
 	    this.eachRow(function (row) {
@@ -34168,7 +34686,7 @@
 	      next = true;
 	    });
 	  },
-	  eachRow: function eachRow(handler, all) {
+	  eachRow: function (handler, all) {
 	    var order = this.data.order;
 	    if (all) order = this.data._filter_order || order;
 
@@ -34176,7 +34694,7 @@
 	      handler.call(this, order[i]);
 	    }
 	  },
-	  eachColumn: function eachColumn(handler, all) {
+	  eachColumn: function (handler, all) {
 	    for (var i in this._columns_pull) {
 	      var column = this._columns_pull[i];
 	      handler.call(this, column.id, column);
@@ -34192,7 +34710,7 @@
 	  ////////////////////
 	  //    edit next   //
 	  ////////////////////
-	  _after_edit_next: function _after_edit_next(editor_next) {
+	  _after_edit_next: function (editor_next) {
 	    if (this.getSelectedId) {
 	      //select related cell when possible
 	      var sel = this.getSelectedId(true);
@@ -34204,7 +34722,7 @@
 	      }
 	    }
 	  },
-	  _custom_tab_handler: function _custom_tab_handler(tab, e) {
+	  _custom_tab_handler: function (tab, e) {
 	    if (this._settings.editable && !this._in_edit_mode) {
 	      //if we have focus in some custom input inside of datatable
 	      if (e.target && e.target.tagName == "INPUT") return true; //init editor related to a single selected row/column/cell
@@ -34221,7 +34739,7 @@
 
 	    return true;
 	  },
-	  _find_cell_next: function _find_cell_next(start, check, direction) {
+	  _find_cell_next: function (start, check, direction) {
 	    var row = this.getIndexById(start.row);
 	    var column = this.getColumnIndex(start.column);
 	    var order = this.data.order;
@@ -34261,7 +34779,7 @@
 	  /////////////////////////////
 	  //    scroll correction    //
 	  /////////////////////////////
-	  _correct_after_focus_y: function _correct_after_focus_y() {
+	  _correct_after_focus_y: function () {
 	    if (this._in_edit_mode) {
 	      if (this._ignore_after_focus_scroll) this._ignore_after_focus_scroll = false;else {
 	        this._y_scroll.scrollTo(this.getScrollState().y + this._body.childNodes[1].firstChild.scrollTop);
@@ -34271,12 +34789,12 @@
 	      }
 	    }
 	  },
-	  _correct_after_focus_x: function _correct_after_focus_x() {
+	  _correct_after_focus_x: function () {
 	    if (this._in_edit_mode) {
 	      this._x_scroll.scrollTo(this._body.childNodes[1].scrollLeft);
 	    }
 	  },
-	  _component_specific_edit_init: function _component_specific_edit_init() {
+	  _component_specific_edit_init: function () {
 	    this.attachEvent("onScrollY", this._update_editor_y_pos);
 	    this.attachEvent("onScrollX", this._update_editor_y_pos);
 	    this.attachEvent("onScrollY", this._refocus_inline_editor);
@@ -34295,7 +34813,7 @@
 	    this._body.childNodes[1].firstChild.onscroll = bind(this._correct_after_focus_y, this);
 	    this._body.childNodes[1].onscroll = bind(this._correct_after_focus_x, this);
 	  },
-	  _update_editor_y_pos: function _update_editor_y_pos() {
+	  _update_editor_y_pos: function () {
 	    if (this._in_edit_mode) {
 	      var old = this._last_editor_scroll;
 	      this._last_editor_scroll = this.getScrollState();
@@ -34308,7 +34826,9 @@
 	            x: -10000,
 	            y: -10000
 	          });
-	        } else if (!editor.$inline) {
+	        }
+
+	        if (!editor.linkInput && !editor.$inline) {
 	          editor.node.top -= diff;
 	          editor.node.style.top = editor.node.top + "px";
 	        }
@@ -34318,17 +34838,17 @@
 	};
 
 	var Mixin$a = {
-	  $init: function $init() {
+	  $init: function () {
 	    this._clear_hidden_state();
 
 	    this.attachEvent("onStructureLoad", this._hideInitialColumns);
 	  },
-	  _clear_hidden_state: function _clear_hidden_state() {
+	  _clear_hidden_state: function () {
 	    this._hidden_column_hash = {};
 	    this._hidden_column_order = toArray();
 	    this._hidden_split = [0, 0];
 	  },
-	  _hideInitialColumns: function _hideInitialColumns() {
+	  _hideInitialColumns: function () {
 	    var cols = this._columns;
 
 	    for (var i = 0; i < cols.length; i++) {
@@ -34342,13 +34862,13 @@
 	      }
 	    }
 	  },
-	  _getInitialSpans: function _getInitialSpans(cols, elements) {
+	  _getInitialSpans: function (cols, elements) {
 	    for (var h = 0; h < elements.length; h++) {
 	      var line = elements[h];
 	      if (line && line.colspan && !line.$colspan) line.$colspan = line.colspan;
 	    }
 	  },
-	  moveColumn: function moveColumn(id, index) {
+	  moveColumn: function (id, index) {
 	    var start_index = this.getColumnIndex(id);
 	    if (start_index == index) return; //already in place
 
@@ -34371,7 +34891,7 @@
 
 	    this._refresh_columns();
 	  },
-	  _init_horder: function _init_horder() {
+	  _init_horder: function () {
 	    var horder = this._hidden_column_order;
 	    var cols = this._settings.columns;
 
@@ -34383,10 +34903,10 @@
 	      this._hidden_split = [this._settings.leftSplit, this._rightSplit];
 	    }
 	  },
-	  isColumnVisible: function isColumnVisible(id) {
+	  isColumnVisible: function (id) {
 	    return !this._hidden_column_hash[id];
 	  },
-	  hideColumn: function hideColumn(id, opts, silent, mode) {
+	  hideColumn: function (id, opts, silent, mode) {
 	    var cols = this._settings.columns;
 	    var horder = this._hidden_column_order;
 	    var hhash = this._hidden_column_hash;
@@ -34480,7 +35000,7 @@
 	    if (column.footer) this._fixColspansHidden(column, mode !== false ? 0 : 1, "footer");
 	    if (!silent) this._refresh_columns();
 	  },
-	  _fixColspansHidden: function _fixColspansHidden(config, mod, elName) {
+	  _fixColspansHidden: function (config, mod, elName) {
 	    for (var i = config[elName].length - 1; i >= 0; i--) {
 	      var ind = this._hidden_column_order;
 	      var spanSource,
@@ -34522,7 +35042,9 @@
 	      }
 	    }
 	  },
-	  refreshColumns: function refreshColumns(columns, reset) {
+	  refreshColumns: function (columns, reset) {
+	    this._dtable_column_refresh = true;
+
 	    if (columns && columns != this.config.columns || reset) {
 	      this._clear_hidden_state();
 
@@ -34555,8 +35077,9 @@
 	    this._update_scroll();
 
 	    this.render();
+	    this._dtable_column_refresh = 0;
 	  },
-	  _refresh_columns: function _refresh_columns() {
+	  _refresh_columns: function () {
 	    this._dtable_fully_ready = 0;
 	    this.callEvent("onStructureUpdate");
 
@@ -34564,10 +35087,10 @@
 
 	    this.render();
 	  },
-	  showColumn: function showColumn(id, opts, silent) {
+	  showColumn: function (id, opts, silent) {
 	    return this.hideColumn(id, opts, silent, false);
 	  },
-	  showColumnBatch: function showColumnBatch(batch, mode) {
+	  showColumnBatch: function (batch, mode) {
 	    var preserve = typeof mode != "undefined";
 	    mode = mode !== false;
 	    this.eachColumn(function (id, col) {
@@ -34587,7 +35110,7 @@
 	};
 
 	var Mixin$b = {
-	  $init: function $init() {
+	  $init: function () {
 	    this.attachEvent("onAfterScroll", this._set_focusable_item);
 	    this.attachEvent("onFocus", function () {
 	      addCss(this.$view, "webix_dtable_focused");
@@ -34596,7 +35119,7 @@
 	      removeCss(this.$view, "webix_dtable_focused");
 	    });
 	  },
-	  _set_focusable_item: function _set_focusable_item() {
+	  _set_focusable_item: function () {
 	    var sel = this._getVisibleSelection();
 
 	    if (!sel) {
@@ -34605,7 +35128,7 @@
 	      if (node) node.setAttribute("tabindex", "0");
 	    }
 	  },
-	  _getVisibleSelection: function _getVisibleSelection() {
+	  _getVisibleSelection: function () {
 	    var sel = this.getSelectedId(true);
 
 	    for (var i = 0; i < sel.length; i++) {
@@ -34614,7 +35137,7 @@
 
 	    return null;
 	  },
-	  moveSelection: function moveSelection(mode, details, focus) {
+	  moveSelection: function (mode, details, focus) {
 	    if (this._settings.disabled) return;
 	    details = details || {}; //get existing selection as array
 
@@ -34723,21 +35246,88 @@
 	  }
 	};
 
+	var DragOrder$1 = {
+	  _add_css: function (source) {
+	    var context = DragControl._drag_context;
+	    if (!this._settings.prerender) source = [context.start];
+
+	    for (var i = 0; i < source.length; i++) {
+	      for (var j = 0; j < this._columns.length; j++) {
+	        var node = this.getItemNode({
+	          row: source[i],
+	          cind: j
+	        });
+	        if (node) addCss(node, "webix_invisible");
+	      }
+
+	      this.data.addMark(source[i], "webix_invisible", 1, 1, true);
+	    }
+	  },
+	  _remove_css: function (source) {
+	    var context = DragControl._drag_context;
+	    if (!this._settings.prerender) source = [context.start];
+
+	    for (var i = 0; i < source.length; i++) {
+	      for (var j = 0; j < this._columns.length; j++) {
+	        var node = this.getItemNode({
+	          row: source[i],
+	          cind: j
+	        });
+	        if (node) removeCss(node, "webix_invisible");
+	      }
+
+	      this.data.removeMark(source[i], "webix_invisible", 1);
+	    }
+	  },
+	  _set_drop_area: function (target) {
+	    for (var i = 0; i < this._columns.length; i++) {
+	      var column = this._columns[i];
+	      var node = this.getItemNode({
+	        row: target,
+	        cind: i
+	      });
+
+	      if (node) {
+	        node.parentNode.insertBefore(DragControl._dropHTML[i], node);
+	      } else column.node.appendChild(DragControl._dropHTML[i]);
+	    }
+	  },
+	  _init_drop_area: function () {
+	    var dropArea = [];
+	    var count = this._columns.length;
+	    var node = document.createElement("div");
+	    node.className = "webix_drop_area";
+	    node.style.height = this._settings.rowHeight + "px";
+	    node.innerHTML = this.$dropHTML();
+
+	    for (var i = 0; i < count; i++) {
+	      dropArea.push(node.cloneNode(true));
+	    }
+
+	    return dropArea;
+	  }
+	};
 	var Mixin$c = {
-	  drag_setter: function drag_setter(value) {
+	  drag_setter: function (value) {
 	    // disable drag-n-drop for frozen rows
 	    this.attachEvent("onBeforeDrag", function (context) {
 	      return this._checkDragTopSplit(context.source);
 	    });
 	    this.attachEvent("onBeforeDragIn", function (context) {
-	      return this._checkDragTopSplit(context.target);
+	      var result = this._checkDragTopSplit(context.target);
+
+	      if (!result && DragControl._dropHTML) {
+	        remove(DragControl._dropHTML);
+	        this._marked_item_id = DragControl._dropHTML = null;
+	      }
+
+	      return result;
 	    });
-	    this.attachEvent("onBeforeDropOrder", function (startId, index$$1) {
-	      return index$$1 < 0 || index$$1 >= this._settings.topSplit;
-	    });
-	    return DragItem.drag_setter.call(this, value);
+	    DragItem.drag_setter.call(this, value);
+	    if (value == "order" || value == "move") exports.extend(this, DragOrder$1, true);
+	    return value;
 	  },
-	  _checkDragTopSplit: function _checkDragTopSplit(ids) {
+	  _checkDragTopSplit: function (ids) {
 	    var i,
 	        index$$1,
 	        frozen = false;
@@ -34747,32 +35337,32 @@
 
 	      for (i = 0; !frozen && i < ids.length; i++) {
 	        index$$1 = this.getIndexById(ids[i]);
-	        frozen = index$$1 < this._settings.topSplit;
+	        frozen = index$$1 >= 0 && index$$1 < this._settings.topSplit;
 	      }
 	    }
 
 	    return !frozen;
 	  },
-	  $dragHTML: function $dragHTML(item) {
+	  _toHTML: function (obj) {
 	    var width = this._content_width - this._scrollSizeY;
-	    var html = "<div class='webix_dd_drag' style='width:" + (width - 2) + "px;'>";
+	    var html = "<div class='webix_dd_drag' style='width:" + width + "px;'>";
 	    var cols = this._settings.columns;
 
 	    for (var i = 0; i < cols.length; i++) {
-	      var value = this._getValue(item, cols[i]);
+	      var value = this._getValue(obj, cols[i]);
 
 	      html += "<div style='width:" + cols[i].width + "px;'>" + value + "</div>";
 	    }
 
 	    return html + "</div>";
 	  },
-	  getHeaderNode: function getHeaderNode(column_id, row_index) {
+	  getHeaderNode: function (column_id, row_index) {
 	    return this._getHeaderNode(column_id, row_index, this._header);
 	  },
-	  getFooterNode: function getFooterNode(column_id, row_index) {
+	  getFooterNode: function (column_id, row_index) {
 	    return this._getHeaderNode(column_id, row_index, this._footer);
 	  },
-	  _getHeaderNode: function _getHeaderNode(column_id, row_index, group) {
+	  _getHeaderNode: function (column_id, row_index, group) {
 	    if (this.isColumnVisible(column_id)) {
 	      var ind = this.getColumnIndex(column_id);
 	      var hind = this._settings.leftSplit > ind ? 0 : this._rightSplit <= ind ? 2 : 1;
@@ -34790,10 +35380,10 @@
 
 	    return null;
 	  },
-	  getItemNode: function getItemNode(id) {
+	  getItemNode: function (id) {
 	    if (id && !id.header) {
 	      var row = id.row || id;
-	      var rowindex = this.getIndexById(row);
+	      var rowindex = typeof id.rind === "number" ? id.rind : this.getIndexById(row);
 
 	      var state = this._get_y_range();
 
@@ -34804,9 +35394,10 @@
 	      var x_range = this._get_x_range();
 
 	      var colindex = this._settings.leftSplit ? 0 : x_range[0];
+	      var specific = typeof id.cind === "number";
 
-	      if (id.column) {
-	        colindex = this.getColumnIndex(id.column); //column not visible
+	      if (id.column || specific) {
+	        colindex = specific ? id.cind : this.getColumnIndex(id.column); //column not visible
 
 	        if (colindex < this._rightSplit && colindex >= this._settings.leftSplit && (colindex < x_range[0] || colindex > x_range[1])) return;
 	      }
@@ -34814,19 +35405,32 @@
 	      var column = this._settings.columns[colindex];
 
 	      if (column.attached && column.node) {
-	        var nodeIndex = rowindex < this._settings.topSplit ? rowindex : rowindex - minRow;
-	        return column.node.childNodes[nodeIndex];
+	        if (row === "$webix-drop") return DragControl._dropHTML[colindex];
+	        var nodeIndex = rowindex < this._settings.topSplit || this._settings.prerender ? rowindex : rowindex - minRow;
+	        var nodes = column.node.childNodes;
+	        var length = Math.min(nodes.length, nodeIndex + 1);
+
+	        for (var i = 0; i < length; i++) {
+	          if (nodes[i].className === "webix_drop_area") nodeIndex++;
+	        }
+
+	        return nodes[nodeIndex];
 	      }
 	    }
 	  },
-	  dragColumn_setter: function dragColumn_setter(value) {
+	  _isDraggable: function (e) {
+	    var nodeName = (e.target || e.srcElement).nodeName;
+	    return nodeName != "INPUT" && nodeName != "TEXTAREA";
+	  },
+	  dragColumn_setter: function (value) {
 	    var control; //will be defined below
 
 	    if (value == "order") {
 	      control = {
 	        $drag: bind(function (s, e) {
+	          if (!this._isDraggable(e) || this._rs_process) return false;
 	          var id = this.locate(e);
-	          if (this._rs_process || !id || !this.callEvent("onBeforeColumnDrag", [id.column, e])) return false;
+	          if (!id || !this.callEvent("onBeforeColumnDrag", [id.column, e])) return false;
 	          DragControl._drag_context = {
 	            from: control,
 	            start: id,
@@ -34885,14 +35489,15 @@
 	          var id = DragControl.getContext().start;
 	          this.callEvent("onAfterColumnDropOrder", [id.column, this._last_sort_dnd_node, a]);
 	        }, this),
-	        $drop: function $drop() {}
+	        $drop: function () {}
 	      };
 	    } else if (value) {
 	      control = {
 	        _inner_drag_only: true,
 	        $drag: bind(function (s, e) {
+	          if (!this._isDraggable(e) || this._rs_process) return false;
 	          var id = this.locate(e);
-	          if (this._rs_process || !id || !this.callEvent("onBeforeColumnDrag", [id.column, e])) return false;
+	          if (!id || !this.callEvent("onBeforeColumnDrag", [id.column, e])) return false;
 	          DragControl._drag_context = {
 	            from: control,
 	            start: id,
@@ -34960,14 +35565,14 @@
 	};
 
 	var Mixin$d = {
-	  clearValidation: function clearValidation() {
+	  clearValidation: function () {
 	    for (var i in this.data._marks) {
 	      this._clear_invalid_css(i);
 	    }
 
 	    this.data.clearMark("webix_invalid", true);
 	  },
-	  _mark_invalid: function _mark_invalid(id, details) {
+	  _mark_invalid: function (id, details) {
 	    this._clear_invalid_css(id);
 
 	    for (var key in details) {
@@ -34976,12 +35581,12 @@
 
 	    this.addCss(id, "webix_invalid");
 	  },
-	  _clear_invalid: function _clear_invalid(id) {
+	  _clear_invalid: function (id) {
 	    this._clear_invalid_css(id);
 
 	    this.removeCss(id, "webix_invalid");
 	  },
-	  _clear_invalid_css: function _clear_invalid_css(id) {
+	  _clear_invalid_css: function (id) {
 	    var mark = this.data.getMark(id, "$cellCss");
 
 	    if (mark) {
@@ -34990,13 +35595,13 @@
 	      }
 	    }
 	  },
-	  addRowCss: function addRowCss(id, css, silent) {
+	  addRowCss: function (id, css, silent) {
 	    this.addCss(id, css, silent);
 	  },
-	  removeRowCss: function removeRowCss(id, css, silent) {
+	  removeRowCss: function (id, css, silent) {
 	    this.removeCss(id, css, silent);
 	  },
-	  addCellCss: function addCellCss(id, name, css, silent) {
+	  addCellCss: function (id, name, css, silent) {
 	    var mark = this.data.getMark(id, "$cellCss");
 	    var newmark = mark || {};
 	    var style = newmark[name] || "";
@@ -35004,7 +35609,7 @@
 	    if (!mark) this.data.addMark(id, "$cellCss", false, newmark, true);
 	    if (!silent) this.refresh(id);
 	  },
-	  removeCellCss: function removeCellCss(id, name, css, silent) {
+	  removeCellCss: function (id, name, css, silent) {
 	    var mark = this.data.getMark(id, "$cellCss");
 
 	    if (mark) {
@@ -35016,13 +35621,13 @@
 	};
 
 	var Mixin$e = {
-	  _prePrint: function _prePrint(options, htmlOnly) {
+	  _prePrint: function (options, htmlOnly) {
 	    if (options.scroll && !htmlOnly) return true;
 	    options.header = isUndefined(options.header) ? this.config.header ? true : false : options.header;
 	    options.footer = isUndefined(options.footer) ? this.config.footer ? true : false : options.footer;
 	    options.xCorrection = options.xCorrection || 0; //spreadsheet
 	  },
-	  _findIndex: function _findIndex(arr, func) {
+	  _findIndex: function (arr, func) {
 	    var result = -1;
 
 	    for (var i = 0; result < 0 && i < arr.length; i++) {
@@ -35031,7 +35636,7 @@
 
 	    return result;
 	  },
-	  _getTableHeader: function _getTableHeader(base, columns, group) {
+	  _getTableHeader: function (base, columns, group) {
 	    var spans = {},
 	        start = 0;
 	    base.forEach(bind(function (tableArray, tid) {
@@ -35086,7 +35691,7 @@
 	    }, this));
 	    return base;
 	  },
-	  _getTableArray: function _getTableArray(options, base, start) {
+	  _getTableArray: function (options, base, start) {
 	    var columns = this.config.columns;
 	    var sel = this.getSelectedId(true);
 
@@ -35198,7 +35803,7 @@
 	    }
 	    return base;
 	  },
-	  _getTableHTML: function _getTableHTML(tableData, options) {
+	  _getTableHTML: function (tableData, options) {
 	    var container = create("div");
 	    tableData.forEach(bind(function (table, i) {
 	      var tableHTML = create("table", {
@@ -35242,7 +35847,7 @@
 	};
 
 	var Mixin$f = {
-	  $exportView: function $exportView(options) {
+	  $exportView: function (options) {
 	    if (this.isBranchOpen) //treetable
 	      exports.extend(options, {
 	        filterHTML: true
@@ -35257,7 +35862,7 @@
 	      return data;
 	    }
 	  },
-	  _getExportStyles: function _getExportStyles(options) {
+	  _getExportStyles: function (options) {
 	    var columns = this.config.columns,
 	        styles = [];
 	    this._style_hash = this._style_hash || {};
@@ -35322,7 +35927,7 @@
 	    }]);
 	    return styles;
 	  },
-	  _getExportHStyles: function _getExportHStyles(options, group, styles) {
+	  _getExportHStyles: function (options, group, styles) {
 	    var columns = this.config.columns,
 	        hs = []; //spans
 
@@ -35360,7 +35965,7 @@
 
 	    return styles;
 	  },
-	  _getExportCellStyle: function _getExportCellStyle(node, name) {
+	  _getExportCellStyle: function (node, name) {
 	    if (this._style_hash[name]) return this._style_hash[name];else {
 	      var base = this._getRules(node);
 
@@ -35431,7 +36036,7 @@
 	      return rules;
 	    }
 	  },
-	  _getExportDocStyle: function _getExportDocStyle(css) {
+	  _getExportDocStyle: function (css) {
 	    css = exports.extend(css || {}, {
 	      visibility: "hidden",
 	      "white-space": "nowrap",
@@ -35454,7 +36059,7 @@
 	    remove(node);
 	    return style;
 	  },
-	  _getRules: function _getRules(node) {
+	  _getRules: function (node) {
 	    var style = {};
 	    if (window.getComputedStyle) style = window.getComputedStyle(node);else style = node.currentStyle;
 	    return style;
@@ -35462,7 +36067,7 @@
 	};
 
 	var Mixin$g = {
-	  subrow_setter: function subrow_setter(value) {
+	  subrow_setter: function (value) {
 	    if (value) {
 	      this._init_subrow_once();
 
@@ -35472,21 +36077,21 @@
 
 	    return false;
 	  },
-	  subview_setter: function subview_setter(value) {
+	  subview_setter: function (value) {
 	    if (value) this._settings.subrow = this.subrow_setter("<div></div>");
 	    return value;
 	  },
 	  defaults: {
 	    subRowHeight: 35
 	  },
-	  _refresh_sub_all: function _refresh_sub_all() {
+	  _refresh_sub_all: function () {
 	    this.data.each(function (obj) {
 	      if (obj) obj.$sub = this._settings.subrow(obj, this.type);
 	    }, this);
 
 	    this._resize_sub_all();
 	  },
-	  _resize_sub_all: function _resize_sub_all(resize) {
+	  _resize_sub_all: function (resize) {
 	    if (this._settings.subRowHeight === "auto" && this._content_width) this._adjustSubRowHeight();
 
 	    if (resize && this._settings.subview) {
@@ -35496,12 +36101,12 @@
 	      }
 	    }
 	  },
-	  _refresh_sub_one: function _refresh_sub_one(id) {
+	  _refresh_sub_one: function (id) {
 	    var obj = this.getItem(id);
 	    obj.$sub = this._settings.subrow(obj, this.type);
 	    if (this._settings.subRowHeight === "auto") this._adjustSubRowHeight(obj.id, obj.$sub);
 	  },
-	  $init: function $init() {
+	  $init: function () {
 	    this._init_subrow_once = once(function () {
 	      var css = "#" + this._top_id + " .webix_cell.webix_dtable_subview { line-height:normal;}"; //if initial fixedRowHeight is true, preserve white-space for non sub cells
 
@@ -35510,7 +36115,10 @@
 	      this._subViewStorage = {};
 	      this.attachEvent("onSubViewRender", this._render_sub_view);
 	      this.data.attachEvent("onStoreUpdated", bind(function (id, data, mode) {
-	        if (!id) this._refresh_sub_all();else if (mode == "update" || mode == "add") this._refresh_sub_one(id);
+	        if (!id) this._refresh_sub_all();else if (mode == "update" || mode == "add") this._refresh_sub_one(id);else if (mode == "delete" && data.$subContent) {
+	          $$(data.$subContent).destructor();
+	          delete this._subViewStorage[data.$subContent];
+	        }
 	      }, this));
 	      this.attachEvent("onResize", function (w, h, wo) {
 	        if (wo != w) this._resize_sub_all(true);
@@ -35533,7 +36141,7 @@
 	      return false;
 	    };
 	  },
-	  openSub: function openSub(id) {
+	  openSub: function (id) {
 	    var obj = this.getItem(id);
 	    if (obj.$subopen) return;
 	    obj.$row = this._settings.subrow;
@@ -35544,7 +36152,7 @@
 	    this.refresh(id);
 	    this.callEvent("onSubViewOpen", [id]);
 	  },
-	  getSubView: function getSubView(id) {
+	  getSubView: function (id) {
 	    var obj = this.getItem(id);
 
 	    if (obj) {
@@ -35554,11 +36162,11 @@
 
 	    return null;
 	  },
-	  resizeSubView: function resizeSubView(id) {
+	  resizeSubView: function (id) {
 	    var view = this.getSubView(id);
 	    if (view) this._resizeSubView(this.getItem(id), view);
 	  },
-	  _resizeSubView: function _resizeSubView(obj, view) {
+	  _resizeSubView: function (obj, view) {
 	    var height = view.$getSize(0, 0)[2];
 	    var eheight = obj.$subHeight || this._settings.subRowHeight;
 	    var delta = Math.abs(height - (eheight || 0));
@@ -35568,17 +36176,17 @@
 	      this.refresh(obj.id);
 	    }
 	  },
-	  _checkSubWidth: function _checkSubWidth(view) {
+	  _checkSubWidth: function (view) {
 	    var width = view.$width; // if layout
 
 	    if (view._layout_sizes) {
 	      var number = view._cells.length - view._hiddencells;
-	      if (view._vertical_orientation) width -= view._paddingX * 2 + 2;else width -= view._margin * (number - 1) + view._paddingX * 2 + number * 2;
+	      if (view._vertical_orientation) width -= view._padding.left + view._padding.right + 2;else width -= view._margin * (number - 1) + view._padding.left + view._padding.right + number * 2;
 	    }
 
 	    return width > 0;
 	  },
-	  _render_sub_view: function _render_sub_view(obj, row) {
+	  _render_sub_view: function (obj, row) {
 	    var sub = this._subViewStorage[obj.$subContent],
 	        view;
 
@@ -35609,7 +36217,10 @@
 	        return this;
 	      }, this);
 	      obj.$subContent = view.config.id;
-	      this._subViewStorage[obj.$subContent] = view.$view; //special case, datatable inside of datatable
+	      this._subViewStorage[obj.$subContent] = view.$view;
+
+	      this._destroy_with_me.push(view); //special case, datatable inside of datatable
+
 
 	      view.attachEvent("onResize", bind(function (w, h, wo, ho) {
 	        if (h && h != ho) this.refresh(obj.id);
@@ -35619,17 +36230,7 @@
 
 	    this._resizeSubView(obj, view || $$(sub));
 	  },
-	  _destroy_sub_view: function _destroy_sub_view(id) {
-	    var obj = this.getItem(id);
-	    var div = this._subViewStorage[obj.$subContent];
-
-	    if (div) {
-	      delete obj.$subContent;
-	      var view = $$(div);
-	      if (view && view != this) view.destructor();
-	    }
-	  },
-	  _adjustSubRowHeight: function _adjustSubRowHeight(id, text) {
+	  _adjustSubRowHeight: function (id, text) {
 	    var d = create("DIV", {
 	      "class": "webix_measure_size webix_cell webix_dtable_subrow"
 	    }, "");
@@ -35643,7 +36244,7 @@
 	    }, this);
 	    d = remove(d);
 	  },
-	  closeSub: function closeSub(id) {
+	  closeSub: function (id) {
 	    var obj = this.getItem(id);
 	    if (!obj.$subopen) return;
 	    obj.$row = false;
@@ -35656,11 +36257,11 @@
 	};
 
 	var Mixin$h = {
-	  topSplit_setter: function topSplit_setter(value) {
+	  topSplit_setter: function (value) {
 	    if (this.data) this.data.$freeze = value;
 	    return value;
 	  },
-	  freezeRow: function freezeRow(id, mode) {
+	  freezeRow: function (id, mode) {
 	    var index,
 	        freezeLine = this._settings.topSplit,
 	        order = this.data.order,
@@ -35704,11 +36305,11 @@
 	};
 
 	var Mixin$i = {
-	  spans_setter: function spans_setter(value) {
+	  spans_setter: function (value) {
 	    if (value && !this._spans_pull) this._init_spans_once();
 	    return value;
 	  },
-	  _init_spans_once: function _init_spans_once() {
+	  _init_spans_once: function () {
 	    this._spans_pull = {};
 	    this._spans_areas = [];
 	    this.data.attachEvent("onStoreLoad", bind(function (driver, data) {
@@ -35729,7 +36330,7 @@
 	    this.attachEvent("onColumnResize", this._paint_spans);
 	    this.attachEvent("onSelectChange", this._paint_spans_selection);
 	  },
-	  addSpan: function addSpan(id, index$$1, width, height, value, css) {
+	  addSpan: function (id, index$$1, width, height, value, css) {
 	    //accept an array of objects
 	    if (_typeof(id) == "object") {
 	      for (var i = 0; i < id.length; i++) {
@@ -35744,12 +36345,12 @@
 	    if (!this._spans_pull[id]) this._spans_pull[id] = {};
 	    this._spans_pull[id][index$$1] = [width, height, value, css];
 	  },
-	  removeSpan: function removeSpan(id, index$$1) {
+	  removeSpan: function (id, index$$1) {
 	    if (!arguments.length) this._spans_pull = {};
 	    var line = this._spans_pull[id];
 	    if (line) delete line[index$$1];
 	  },
-	  getSpan: function getSpan(row, column) {
+	  getSpan: function (row, column) {
 	    if (!row) return this._spans_pull;
 	    var i,
 	        iSpan,
@@ -35766,7 +36367,7 @@
 	        iSpan = this.getIndexById(row);
 	        jSpan = this.getColumnIndex(column);
 
-	        if (!(i > iSpan + span[1] - 1 || i < iSpan || j > jSpan + span[0] - 1 || j < jSpan)) {
+	        if (jSpan >= 0 && iSpan >= 0 && !(i > iSpan + span[1] - 1 || i < iSpan || j > jSpan + span[0] - 1 || j < jSpan)) {
 	          return [row, column].concat(span);
 	        }
 	      }
@@ -35774,7 +36375,7 @@
 
 	    return null;
 	  },
-	  _paint_spans: function _paint_spans() {
+	  _paint_spans: function () {
 	    var area,
 	        i,
 	        rightNum = this._columns.length - this._settings.rightSplit;
@@ -35797,7 +36398,7 @@
 
 	    if (this._settings.topSplit && !env.touch) this._paintSpansTop();
 	  },
-	  _getSplitSizesX: function _getSplitSizesX() {
+	  _getSplitSizesX: function () {
 	    var i = 0,
 	        leftWidth = 0,
 	        centerWidth = 0,
@@ -35823,7 +36424,7 @@
 
 	    return [leftWidth, centerWidth, rightWidth];
 	  },
-	  _paintSpansTop: function _paintSpansTop() {
+	  _paintSpansTop: function () {
 	    var area,
 	        i,
 	        widths,
@@ -35855,7 +36456,7 @@
 
 	    this._paint_spans_area(this._spans_areas[4], this._settings.leftSplit, rightNum, true);
 	  },
-	  _paint_spans_area: function _paint_spans_area(area, start, end, topsplit) {
+	  _paint_spans_area: function (area, start, end, topsplit) {
 	    var top = 0;
 	    var min = this.data.$min || 0;
 	    var max = this.data.$max || this.data.order.length;
@@ -35875,7 +36476,7 @@
 	      top += this._getRowHeight(this.getItem(id));
 	    }
 	  },
-	  _paint_spans_selection: function _paint_spans_selection() {
+	  _paint_spans_selection: function () {
 	    var config = this.config.select;
 	    var cell = config == "cell" || config == "column";
 	    var selected = this.getSelectedId(true);
@@ -35907,7 +36508,7 @@
 	    this._last_selected = [].concat(selected);
 	    if (repaint) this._paint_spans();
 	  },
-	  _span_sum_width: function _span_sum_width(start, end) {
+	  _span_sum_width: function (start, end) {
 	    var summ = 0;
 
 	    for (var i = start; i < end; i++) {
@@ -35917,7 +36518,7 @@
 
 	    return summ;
 	  },
-	  _span_sum_height: function _span_sum_height(start, end) {
+	  _span_sum_height: function (start, end) {
 	    var summ = 0;
 
 	    for (var i = start; i < end; i++) {
@@ -35927,7 +36528,7 @@
 
 	    return summ;
 	  },
-	  _add_span_to_area: function _add_span_to_area(area, ind, cind, config, top, start, id, cid) {
+	  _add_span_to_area: function (area, ind, cind, config, top, start, id, cid) {
 	    var line = config[cid];
 	    var value = line[2] || this.getText(id, cid);
 	    var selected = "";
@@ -35948,7 +36549,7 @@
 	    span.style.height = this._span_sum_height(ind, ind + line[1]) + "px";
 	    area.appendChild(span);
 	  },
-	  _adjust_spans_xy: function _adjust_spans_xy() {
+	  _adjust_spans_xy: function () {
 	    if (!this._settings.prerender) {
 	      var state = this.getScrollState();
 
@@ -35957,7 +36558,7 @@
 	      }
 	    }
 	  },
-	  _checkCellMerge: function _checkCellMerge(id0, id1) {
+	  _checkCellMerge: function (id0, id1) {
 	    var span0,
 	        span1,
 	        result = false;
@@ -35970,7 +36571,7 @@
 
 	    return result;
 	  },
-	  getSpanNode: function getSpanNode(id) {
+	  getSpanNode: function (id) {
 	    var areas = this._spans_areas;
 	    var rind = this.getIndexById(id.row);
 	    var cind = this.getColumnIndex(id.column);
@@ -36007,15 +36608,15 @@
 	    datafetch: 50,
 	    navigation: true
 	  },
-	  $skin: function $skin() {
+	  $skin: function () {
 	    this.defaults.rowHeight = $active.rowHeight;
 	    this.defaults.headerRowHeight = $active.barHeight - $active.borderWidth * 2;
 	  },
 	  on_click: {
-	    webix_richfilter: function webix_richfilter() {
+	    webix_richfilter: function () {
 	      return false;
 	    },
-	    webix_table_checkbox: function webix_table_checkbox(e, id) {
+	    webix_table_checkbox: function (e, id) {
 	      id = this.locate(e);
 	      var item = this.getItem(id.row);
 	      var col = this.getColumnConfig(id.column);
@@ -36030,7 +36631,7 @@
 	      this.callEvent("onCheck", [id.row, id.column, value]);
 	      return false;
 	    },
-	    webix_table_radio: function webix_table_radio(e) {
+	    webix_table_radio: function (e) {
 	      var id = this.locate(e);
 	      var item = this.getItem(id.row);
 	      var col = this.getColumnConfig(id.column);
@@ -36045,12 +36646,12 @@
 	    }
 	  },
 	  on_dblclick: {
-	    webix_table_checkbox: function webix_table_checkbox() {
+	    webix_table_checkbox: function () {
 	      return this.on_click.webix_table_checkbox.apply(this, arguments);
 	    }
 	  },
 	  on_context: {},
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    this.on_click = exports.extend({}, this.on_click);
 	    var html = "<div class='webix_ss_header'><div class='webix_hs_left'></div><div class='webix_hs_center'></div><div class='webix_hs_right'></div></div><div class='webix_ss_body'><div class='webix_ss_left'><div class='webix_ss_center_scroll'></div></div>";
 	    html += "<div class='webix_ss_center'><div class='webix_ss_center_scroll' role='rowgroup'></div></div>";
@@ -36101,14 +36702,14 @@
 	    this.attachEvent("onScrollY", this._adjust_rows);
 	    callEvent("onDataTable", [this, config]);
 	  },
-	  _render_initial: function _render_initial() {
+	  _render_initial: function () {
 	    this._scrollSizeX = this._scrollSizeY = env.scrollSize;
 	    addStyle("#" + this._top_id + " .webix_cell { height:" + this._settings.rowHeight + "px; line-height:" + (this._settings.rowLineHeight || this._settings.rowHeight) + "px;" + (this._settings.fixedRowHeight ? "" : "white-space:normal;") + " }");
 	    addStyle("#" + this._top_id + " .webix_hcell { height:" + this._settings.headerRowHeight + "px; line-height:" + this._settings.headerRowHeight + "px;}");
 
 	    this._render_initial = function () {};
 	  },
-	  _first_render: function _first_render() {
+	  _first_render: function () {
 	    this.data.attachEvent("onStoreLoad", bind(this._refresh_any_header_content, this));
 	    this.data.attachEvent("onSyncApply", bind(this._refresh_any_header_content, this));
 	    this.data.attachEvent("onStoreUpdated", bind(function () {
@@ -36117,10 +36718,10 @@
 	    this.data.attachEvent("onStoreUpdated", bind(this._refresh_tracking_header_content, this));
 	    this.render();
 	  },
-	  refresh: function refresh() {
+	  refresh: function () {
 	    this.render();
 	  },
-	  render: function render(id, data, mode) {
+	  render: function (id, data, mode) {
 	    //pure data saving call
 	    if (mode == "save") return; //during dnd we must not repaint anything in mobile webkit
 
@@ -36194,10 +36795,10 @@
 	      return true;
 	    }
 	  },
-	  getColumnConfig: function getColumnConfig(id) {
+	  getColumnConfig: function (id) {
 	    return this._columns_pull[id] || this._hidden_column_hash[id];
 	  },
-	  _config_options_from_file: function _config_options_from_file(colls) {
+	  _config_options_from_file: function (colls) {
 	    for (var key in colls) {
 	      var column = this.getColumnConfig(key);
 	      assert(column, "Orphan collection: " + key);
@@ -36211,10 +36812,10 @@
 	    }
 	  },
 	  //xml has different configuration structure, fixing
-	  _config_table_from_file: function _config_table_from_file(config) {
+	  _config_table_from_file: function (config) {
 	    if (config.columns && this._dtable_fully_ready) this.refreshColumns(null, true);
 	  },
-	  _define_structure: function _define_structure() {
+	  _define_structure: function () {
 	    if (this._settings.columns) {
 	      this._columns = this._settings.columns;
 	      this._columns_pull = {};
@@ -36260,10 +36861,10 @@
 	      this.callEvent("onStructureLoad", []);
 	    }
 	  },
-	  _define_structure_and_render: function _define_structure_and_render() {
+	  _define_structure_and_render: function () {
 	    this._apply_headers();
 	  },
-	  _clean_config_struct: function _clean_config_struct() {
+	  _clean_config_struct: function () {
 	    //remove column technical info from the column
 	    //it allows to reuse the same config object for new grid
 	    for (var i = 0; i < this._columns.length; i++) {
@@ -36271,7 +36872,7 @@
 	      delete this._columns[i].node;
 	    }
 	  },
-	  _apply_headers: function _apply_headers() {
+	  _apply_headers: function () {
 	    this._rightSplit = this._columns.length - this._settings.rightSplit;
 	    this._dtable_width = 0;
 
@@ -36319,7 +36920,7 @@
 
 	    this._dtable_fully_ready = true;
 	  },
-	  _set_columns_positions: function _set_columns_positions() {
+	  _set_columns_positions: function () {
 	    var left = 0;
 
 	    for (var i = 0; i < this._columns.length; i++) {
@@ -36338,7 +36939,7 @@
 	      left += column.width;
 	    }
 	  },
-	  _render_header_and_footer: function _render_header_and_footer() {
+	  _render_header_and_footer: function () {
 	    if (!this._header_fix_width) this._header_fix_width = 0;
 	    this._header_height = this._footer_height = 0;
 
@@ -36368,7 +36969,7 @@
 
 	    if (this._last_sorted) this.markSorting(this._last_sorted, this._last_order);
 	  },
-	  _getHeaderHeight: function _getHeaderHeight(header, column, ind) {
+	  _getHeaderHeight: function (header, column, ind) {
 	    var width = 0;
 	    var colspan = header.colspan || 1;
 	    var css = "webix_hcell " + (header.css || "");
@@ -36379,7 +36980,7 @@
 
 	    return (header.rotate ? size.width : size.height) + 1;
 	  },
-	  _normalize_headers: function _normalize_headers(collection, heights) {
+	  _normalize_headers: function (collection, heights) {
 	    var rows = 0;
 
 	    for (var i = 0; i < this._columns.length; i++) {
@@ -36442,14 +37043,14 @@
 
 	    return rows;
 	  },
-	  _find_header_content: function _find_header_content(sec, id) {
+	  _find_header_content: function (sec, id) {
 	    var alltd = sec.getElementsByTagName("TD");
 
 	    for (var i = 0; i < alltd.length; i++) {
 	      if (alltd[i].getAttribute("active_id") == id) return alltd[i];
 	    }
 	  },
-	  getHeaderContent: function getHeaderContent(id) {
+	  getHeaderContent: function (id) {
 	    var obj = this._find_header_content(this._header, id);
 
 	    if (!obj) obj = this._find_header_content(this._footer, id);
@@ -36457,19 +37058,20 @@
 	    if (obj) {
 	      var config = this._active_headers[id];
 	      var type$$1 = datafilter[config.content];
-	      if (type$$1.getHelper) return type$$1.getHelper(obj, config);
-	      return {
+	      var _base = {
 	        type: type$$1,
-	        getValue: function getValue$$1() {
-	          return type$$1.getValue(obj);
+	        getValue: function (text) {
+	          return type$$1.getValue(obj, text);
 	        },
-	        setValue: function setValue(value) {
+	        setValue: function (value) {
 	          return type$$1.setValue(obj, value);
 	        }
 	      };
+	      if (type$$1.getHelper) exports.extend(_base, type$$1.getHelper(obj, config));
+	      return _base;
 	    }
 	  },
-	  _summ_next: function _summ_next(heights, start, i) {
+	  _summ_next: function (heights, start, i) {
 	    var summ = i ? -1 : 0;
 	    i += start;
 
@@ -36479,7 +37081,7 @@
 
 	    return summ;
 	  },
-	  _render_subheader: function _render_subheader(start, end, width, name, heights) {
+	  _render_subheader: function (start, end, width, name, heights) {
 	    if (start == end) return "";
 	    var html = "<table role='presentation' style='width:" + width + "px' cellspacing='0' cellpadding='0'>";
 	    html += "<tr class='webix_size_row'>";
@@ -36548,7 +37150,7 @@
 	    html += "</tr></table>";
 	    return html;
 	  },
-	  showItemByIndex: function showItemByIndex(row_ind, column_ind) {
+	  showItemByIndex: function (row_ind, column_ind) {
 	    var pager = this._settings.pager;
 
 	    if (pager) {
@@ -36611,7 +37213,7 @@
 
 	    this.scrollTo(scroll.x, scroll.y);
 	  },
-	  showCell: function showCell(row, column) {
+	  showCell: function (row, column) {
 	    if (!column || !row) {
 	      //if column or row not provided - take from current selection
 	      var t = this.getSelectedId(true);
@@ -36627,13 +37229,13 @@
 	    row = row ? this.getIndexById(row) : -1;
 	    this.showItemByIndex(row, column);
 	  },
-	  scrollTo: function scrollTo(x, y) {
+	  scrollTo: function (x, y) {
 	    if (!this._x_scroll) return;
 	    if (this._scrollTo_touch) return this._scrollTo_touch(x, y);
 	    if (x !== null) this._x_scroll.scrollTo(x);
 	    if (y !== null) this._y_scroll.scrollTo(y);
 	  },
-	  getScrollState: function getScrollState() {
+	  getScrollState: function () {
 	    if (this._getScrollState_touch) return this._getScrollState_touch();
 	    var diff = this._render_scroll_shift ? 0 : this._render_scroll_diff || 0;
 	    return {
@@ -36641,28 +37243,30 @@
 	      y: this._scrollTop + diff
 	    };
 	  },
-	  showItem: function showItem(id) {
+	  showItem: function (id) {
 	    this.showItemByIndex(this.getIndexById(id), -1);
 	  },
-	  _render_header_section: function _render_header_section(sec, name, heights) {
-	    sec.childNodes[0].innerHTML = this._render_subheader(0, this._settings.leftSplit, this._left_width, name, heights);
-	    sec.childNodes[1].innerHTML = this._render_subheader(this._settings.leftSplit, this._rightSplit, this._dtable_width, name, heights);
-	    sec.childNodes[1].onscroll = bind(this._scroll_with_header, this);
-	    sec.childNodes[2].innerHTML = this._render_subheader(this._rightSplit, this._columns.length, this._right_width, name, heights);
+	  _render_header_section: function (sec, name, heights) {
+	    var header = sec.childNodes;
+	    header[0].innerHTML = this._render_subheader(0, this._settings.leftSplit, this._left_width, name, heights);
+	    header[1].innerHTML = this._render_subheader(this._settings.leftSplit, this._rightSplit, this._dtable_width, name, heights);
+	    header[2].innerHTML = this._render_subheader(this._rightSplit, this._columns.length, this._right_width, name, heights);
+	    if (this._dtable_column_refresh) header[1].scrollLeft = this.getScrollState().x;
+	    header[1].onscroll = bind(this._scroll_with_header, this);
 	  },
-	  _scroll_with_header: function _scroll_with_header() {
+	  _scroll_with_header: function () {
 	    var active = this.getScrollState().x;
 	    var header = this._header.childNodes[1].scrollLeft;
 	    if (header != active) this.scrollTo(header, null);
 	  },
-	  _refresh_tracking_header_content: function _refresh_tracking_header_content() {
+	  _refresh_tracking_header_content: function () {
 	    this.refreshHeaderContent(true, true);
 	  },
-	  _refresh_any_header_content: function _refresh_any_header_content() {
+	  _refresh_any_header_content: function () {
 	    this.refreshHeaderContent(false, true);
 	  },
 	  //[DEPRECATE] - v3.0, move to private
-	  refreshHeaderContent: function refreshHeaderContent(trackedOnly, preserve, id) {
+	  refreshHeaderContent: function (trackedOnly, preserve, id) {
 	    if (this._settings.header) {
 	      if (preserve) this._refreshHeaderContent(this._header, trackedOnly, 1, id);
 
@@ -36675,10 +37279,10 @@
 	      this._refreshHeaderContent(this._footer, trackedOnly, 0, id);
 	    }
 	  },
-	  refreshFilter: function refreshFilter(id) {
+	  refreshFilter: function (id) {
 	    this.refreshHeaderContent(false, true, id);
 	  },
-	  _refreshHeaderContent: function _refreshHeaderContent(sec, cellTrackOnly, getOnly, byId) {
+	  _refreshHeaderContent: function (sec, cellTrackOnly, getOnly, byId) {
 	    if (this._has_active_headers && sec) {
 	      var alltd = sec.getElementsByTagName("TD");
 
@@ -36690,7 +37294,9 @@
 	          var content = datafilter[obj.content];
 
 	          if (getOnly) {
-	            if (content.getValue) obj.value = content.getValue(alltd[i]);
+	            if (content.getValue) {
+	              obj.value = content.getValue(alltd[i]);
+	            }
 	          } else if (!cellTrackOnly || content.trackCells) {
 	            content.refresh(this, alltd[i], obj);
 	          }
@@ -36699,7 +37305,7 @@
 	    }
 	  },
 	  headerContent: [],
-	  _set_size_scroll_area: function _set_size_scroll_area(obj, height, hdx) {
+	  _set_size_scroll_area: function (obj, height, hdx) {
 	    if (this._scrollSizeY) {
 	      obj.style.height = Math.max(height, 1) - 1 + "px";
 	      obj.style.width = (this._rightSplit ? 0 : hdx) + this._scrollSizeY - 1 + "px"; // temp. fix: Chrome [DIRTY]
@@ -36707,11 +37313,11 @@
 	      if (env.isWebKit) var w = obj.offsetWidth; //eslint-disable-line
 	    } else obj.style.display = "none";
 	  },
-	  _size_header_footer_fix: function _size_header_footer_fix() {
+	  _size_header_footer_fix: function () {
 	    if (this._settings.header) this._set_size_scroll_area(this._header_scroll, this._header_height, this._header_fix_width);
 	    if (this._settings.footer) this._set_size_scroll_area(this._footer_scroll, this._footer_height, this._header_fix_width);
 	  },
-	  _update_scroll: function _update_scroll() {
+	  _update_scroll: function () {
 	    var hasX = !(this._settings.autowidth || this._settings.scrollX === false);
 	    this._scrollSizeX = hasX ? env.scrollSize : 0;
 	    var hasY = !(this._settings.autoheight || this._settings.scrollY === false);
@@ -36728,7 +37334,7 @@
 	      this._y_scroll._settings.scrollVisible = hasY;
 	    }
 	  },
-	  _create_scrolls: function _create_scrolls() {
+	  _create_scrolls: function () {
 	    this._scrollTop = 0;
 	    this._scrollLeft = 0;
 	    var scrx, scry;
@@ -36776,17 +37382,17 @@
 
 	    this._create_scrolls = function () {};
 	  },
-	  columnId: function columnId(index$$1) {
+	  columnId: function (index$$1) {
 	    return this._columns[index$$1].id;
 	  },
-	  getColumnIndex: function getColumnIndex(id) {
+	  getColumnIndex: function (id) {
 	    for (var i = 0; i < this._columns.length; i++) {
 	      if (this._columns[i].id == id) return i;
 	    }
 
 	    return -1;
 	  },
-	  _getNodeBox: function _getNodeBox(rid, cid) {
+	  _getNodeBox: function (rid, cid) {
 	    var xs = 0,
 	        xe = 0,
 	        ye = 0,
@@ -36814,10 +37420,10 @@
 	    ye += this._getHeightByIndex(i);
 	    return [xs, xe, ys - this._scrollTop, ye, this._body.childNodes[zone]];
 	  },
-	  _id_to_string: function _id_to_string() {
+	  _id_to_string: function () {
 	    return this.row;
 	  },
-	  locate: function locate$$1(node, idOnly) {
+	  locate: function (node, idOnly) {
 	    if (this._settings.subview && this != $$(node)) return null;
 	    node = node.target || node.srcElement || node;
 
@@ -36838,6 +37444,11 @@
 	        if (pos$$1) pos$$1.header = true;
 	      }
 
+	      if (cs.indexOf("webix_drop_area") != -1) {
+	        pos$$1 = this._locate(node);
+	        if (pos$$1) pos$$1.row = pos$$1.rind = "$webix-drop";
+	      }
+
 	      if (pos$$1) {
 	        if (idOnly) return pos$$1.header ? null : pos$$1.row;
 	        pos$$1.column = this._columns[pos$$1.cind].id;
@@ -36850,24 +37461,20 @@
 
 	    return null;
 	  },
-	  _locate: function _locate(node) {
+	  _locate: function (node) {
 	    var cdiv = node.parentNode;
 	    if (!cdiv) return null;
 	    var column = (node.getAttribute("column") || cdiv.getAttribute("column")) * 1;
-	    var row = node.getAttribute("row") || 0;
+	    var rind = node.getAttribute("aria-rowindex");
+	    var row = node.getAttribute("row") || (rind ? rind - 1 : 0);
 	    var span = (node.getAttribute("colspan") || cdiv.getAttribute("colspan")) * 1;
-	    if (!row) for (var i = 0; i < cdiv.childNodes.length; i++) {
-	      if (cdiv.childNodes[i] == node) {
-	        if (i >= this._settings.topSplit) row = i + this._columns[column]._yr0 - this._settings.topSplit;else row = i;
-	      }
-	    }
 	    return {
 	      rind: row,
 	      cind: column,
 	      span: span
 	    };
 	  },
-	  _correctScrollSize: function _correctScrollSize() {
+	  _correctScrollSize: function () {
 	    var center = -this._center_width;
 
 	    for (var i = 0; i < this._columns.length; i++) {
@@ -36876,7 +37483,7 @@
 
 	    this._scrollLeft = Math.min(this._scrollLeft, Math.max(0, center));
 	  },
-	  _updateColsSizeSettings: function _updateColsSizeSettings(silent) {
+	  _updateColsSizeSettings: function (silent) {
 	    if (!this._dtable_fully_ready) return;
 
 	    this._correctScrollSize();
@@ -36889,10 +37496,10 @@
 
 	    if (!silent) this._check_rendered_cols(false, false);
 	  },
-	  setColumnWidth: function setColumnWidth(col, width, skip_update) {
+	  setColumnWidth: function (col, width, skip_update) {
 	    return this._setColumnWidth(this.getColumnIndex(col), width, skip_update);
 	  },
-	  _setColumnWidth: function _setColumnWidth(col, width, skip_update, by_user) {
+	  _setColumnWidth: function (col, width, skip_update, by_user) {
 	    if (isNaN(width) || col < 0) return;
 	    var column = this._columns[col];
 	    if (column.minWidth && width < column.minWidth) width = column.minWidth;else if (width < this._settings.minColumnWidth) width = this._settings.minColumnWidth;
@@ -36910,15 +37517,15 @@
 
 	    return false;
 	  },
-	  _getRowHeight: function _getRowHeight(row) {
+	  _getRowHeight: function (row) {
 	    return (row.$height || this._settings.rowHeight) + (row.$subopen ? row.$subHeight : 0);
 	  },
-	  _getHeightByIndex: function _getHeightByIndex(index$$1) {
+	  _getHeightByIndex: function (index$$1) {
 	    var id = this.data.order[index$$1];
 	    if (!id) return this._settings.rowHeight;
 	    return this._getRowHeight(this.data.pull[id]);
 	  },
-	  _getHeightByIndexSumm: function _getHeightByIndexSumm(index1, index2) {
+	  _getHeightByIndexSumm: function (index1, index2) {
 	    if (this._settings.fixedRowHeight) return (index2 - index1) * this._settings.rowHeight;else {
 	      var summ = 0;
 
@@ -36929,7 +37536,7 @@
 	      return summ;
 	    }
 	  },
-	  _cellPosition: function _cellPosition(row, column) {
+	  _cellPosition: function (row, column) {
 	    var top;
 
 	    if (arguments.length == 1) {
@@ -36964,7 +37571,7 @@
 	      height: item.$height || this._settings.rowHeight
 	    };
 	  },
-	  _get_total_height: function _get_total_height() {
+	  _get_total_height: function () {
 	    var pager = this._settings.pager;
 	    var start = 0;
 	    var max = this.data.order.length;
@@ -36981,7 +37588,7 @@
 
 	    return this._getHeightByIndexSumm(start, max);
 	  },
-	  setRowHeight: function setRowHeight(rowId, height) {
+	  setRowHeight: function (rowId, height) {
 	    if (isNaN(height)) return;
 	    if (height < this._settings.minColumnHeight) height = this._settings.minColumnHeight;
 	    var item = this.getItem(rowId);
@@ -36994,7 +37601,7 @@
 	      this.callEvent("onRowResize", [rowId, height, old_height]);
 	    }
 	  },
-	  _onscroll_y: function _onscroll_y(value) {
+	  _onscroll_y: function (value) {
 	    var scrollChange = this._scrollTop !== value;
 	    this._scrollTop = value;
 
@@ -37015,12 +37622,12 @@
 	      this.callEvent("onAfterScroll", []);
 	    }
 	  },
-	  _setLeftScroll: function _setLeftScroll(value) {
+	  _setLeftScroll: function (value) {
 	    this._body.childNodes[1].scrollLeft = this._scrollLeft = value;
 	    if (this._settings.header) this._header.childNodes[1].scrollLeft = value;
 	    if (this._settings.footer) this._footer.childNodes[1].scrollLeft = value;
 	  },
-	  _onscroll_x: function _onscroll_x(value) {
+	  _onscroll_x: function (value) {
 	    var scrollChange = this._scrollLeft !== value;
 
 	    this._setLeftScroll(value);
@@ -37033,7 +37640,7 @@
 	      this.callEvent("onAfterScroll", []);
 	    }
 	  },
-	  _get_x_range: function _get_x_range(full) {
+	  _get_x_range: function (full) {
 	    if (full) return [0, this._columns.length];
 	    var t = this._scrollLeft;
 	    var xind = this._settings.leftSplit;
@@ -37054,11 +37661,11 @@
 
 	    return [xind, xend];
 	  },
-	  getVisibleCount: function getVisibleCount() {
+	  getVisibleCount: function () {
 	    return Math.floor(this._dtable_offset_height / this.config.rowHeight);
 	  },
 	  //returns info about y-scroll position
-	  _get_y_range: function _get_y_range(full) {
+	  _get_y_range: function (full) {
 	    var t = this._scrollTop;
 	    var start = 0;
 	    var end = this.count(); //apply pager, if defined
@@ -37113,7 +37720,7 @@
 	    if (xend > end) xend = end;
 	    return [xind, xend, xdef];
 	  },
-	  _repaint_single_row: function _repaint_single_row(id) {
+	  _repaint_single_row: function (id) {
 	    var item = this.getItem(id);
 	    var rowindex = this.getIndexById(id);
 
@@ -37149,7 +37756,7 @@
 	      }
 	    }
 	  },
-	  _check_rendered_cols: function _check_rendered_cols(x_scroll, force) {
+	  _check_rendered_cols: function (x_scroll, force) {
 	    if (!this._columns.length) return;
 	    if (force) this._clearColumnCache();
 
@@ -37185,19 +37792,19 @@
 
 	    this._check_load_next(yr);
 	  },
-	  _delete_full_rows: function _delete_full_rows(start, end) {
+	  _delete_full_rows: function (start, end) {
 	    this._rows_cache_start = start;
 	    this._rows_cache_end = end;
 	    remove(this._rows_cache);
 	    this._rows_cache = [];
 	  },
-	  _adjust_rows: function _adjust_rows() {
+	  _adjust_rows: function () {
 	    if (this._settings.prerender && this._rows_body) {
 	      var state = this.getScrollState();
 	      this._rows_body.style.top = "-" + (state.y || 0) + "px";
 	    }
 	  },
-	  _check_and_render_full_rows: function _check_and_render_full_rows(start, end, force) {
+	  _check_and_render_full_rows: function (start, end, force) {
 	    if (this._rows_body) this._rows_body.style.top = this._render_scroll_shift + "px";
 
 	    if (!force && start == this._rows_cache_start && end == this._rows_cache_end) {
@@ -37260,7 +37867,7 @@
 	      if (this._settings.subview) this.callEvent("onSubViewRender", [item, _row]);
 	    }
 	  },
-	  _check_load_next: function _check_load_next(yr) {
+	  _check_load_next: function (yr) {
 	    var paging = this._settings.pager;
 	    var fetch = this._settings.datafetch;
 	    var direction = !this._last_valid_render_pos || yr[0] >= this._last_valid_render_pos;
@@ -37276,7 +37883,7 @@
 	      if (this._settings.loadahead) this._check_rows(yr, this._settings.loadahead, direction);
 	    }
 	  },
-	  _check_rows: function _check_rows(view, count, dir) {
+	  _check_rows: function (view, count, dir) {
 	    var start = view[1];
 	    var end = start + count;
 
@@ -37307,14 +37914,14 @@
 	      return true;
 	    }
 	  },
-	  _run_load_next: function _run_load_next(conf, direction) {
+	  _run_load_next: function (conf, direction) {
 	    var count = Math.max(conf.count, this._settings.datafetch || this._settings.loadahead || 0);
 	    var start = direction ? conf.start : conf.last - count + 1;
 	    if (this._maybe_loading_already(conf.count, conf.start)) return;
 	    this.loadNext(count, start);
 	  },
 	  // necessary for safari only
-	  _preserveScrollTarget: function _preserveScrollTarget(columnNode) {
+	  _preserveScrollTarget: function (columnNode) {
 	    if (env.isSafari) {
 	      var i,
 	          node,
@@ -37342,7 +37949,7 @@
 	      }
 	    }
 	  },
-	  _hideColumn: function _hideColumn(index$$1) {
+	  _hideColumn: function (index$$1) {
 	    var col = this._columns[index$$1]; // preserve target node for Safari wheel event
 
 	    this._preserveScrollTarget(col.node);
@@ -37350,7 +37957,7 @@
 	    remove(col.node);
 	    col.attached = false;
 	  },
-	  _clearColumnCache: function _clearColumnCache() {
+	  _clearColumnCache: function () {
 	    for (var i = 0; i < this._columns.length; i++) {
 	      this._columns[i]._yr0 = -1;
 	    }
@@ -37360,14 +37967,14 @@
 	      this._rows_cache = [];
 	    }
 	  },
-	  getText: function getText(row_id, column_id) {
+	  getText: function (row_id, column_id) {
 	    return this._getValue(this.getItem(row_id), this.getColumnConfig(column_id), 0);
 	  },
-	  getCss: function getCss(row_id, column_id) {
+	  getCss: function (row_id, column_id) {
 	    var item = this.getItem(row_id);
 	    return this._getCss(this.getColumnConfig(column_id), item[column_id], item, row_id);
 	  },
-	  _getCss: function _getCss(config, value, item, id) {
+	  _getCss: function (config, value, item, id) {
 	    var css = "webix_cell";
 
 	    if (config.cssFormat) {
@@ -37410,7 +38017,7 @@
 	    if (selected && (selected.$row || selected[config.id]) || config.$selected) css += this._select_css;
 	    return css;
 	  },
-	  _getValue: function _getValue(item, config, i) {
+	  _getValue: function (item, config, i) {
 	    if (!item) return "";
 	    var value;
 	    value = item[config.id];
@@ -37422,22 +38029,22 @@
 	  //we don't use render-stack, but still need a place for common helpers
 	  //so creating a simple "type" holder
 	  type: {
-	    checkbox: function checkbox(obj, common, value, config) {
+	    checkbox: function (obj, common, value, config) {
 	      var checked = value == config.checkValue ? "checked=\"true\"" : "";
 	      return "<input class='webix_table_checkbox' type='checkbox' " + checked + ">";
 	    },
-	    radio: function radio(obj, common, value, config) {
+	    radio: function (obj, common, value, config) {
 	      var checked = value == config.checkValue ? "checked=\"true\"" : "";
 	      return "<input class='webix_table_radio' type='radio' " + checked + ">";
 	    },
-	    editIcon: function editIcon() {
+	    editIcon: function () {
 	      return "<span class='webix_icon wxi-pencil'></span>";
 	    },
-	    trashIcon: function trashIcon() {
+	    trashIcon: function () {
 	      return "<span class='webix_icon wxi-trash'></span>";
 	    }
 	  },
-	  type_setter: function type_setter(value) {
+	  type_setter: function (value) {
 	    if (!this.types || !this.types[value]) type(this, value);else {
 	      this.type = clone(this.types[value]);
 	      if (this.type.css) this._contentobj.className += " " + this.type.css;
@@ -37445,7 +38052,7 @@
 	    if (this.type.on_click) exports.extend(this.on_click, this.type.on_click);
 	    return value;
 	  },
-	  _renderColumn: function _renderColumn(index$$1, yr, force, single$$1) {
+	  _renderColumn: function (index$$1, yr, force, single$$1) {
 	    var col = this._columns[index$$1];
 
 	    if (!col.attached) {
@@ -37500,7 +38107,7 @@
 	    col._render_scroll_shift = this._render_scroll_shift;
 	    return 1;
 	  },
-	  _render_single_cell: function _render_single_cell(i, config, yr, state, top, index$$1) {
+	  _render_single_cell: function (i, config, yr, state, top, index$$1) {
 	    var id = this.data.order[i];
 	    var item = this.data.getItem(id);
 	    var html = "";
@@ -37569,7 +38176,7 @@
 	    state.total += state.row;
 	    return html;
 	  },
-	  _set_split_sizes_y: function _set_split_sizes_y() {
+	  _set_split_sizes_y: function () {
 	    if (!this._columns.length || isNaN(this._content_height * 1)) return;
 	    debug_size_box(this, ["y-sizing"], true);
 	    var wanted_height = this._dtable_height + (this._scrollSizeX ? this._scrollSizeX : 0);
@@ -37590,7 +38197,7 @@
 
 	    this._header.style.height = this._header_height + "px";
 	  },
-	  _set_split_sizes_x: function _set_split_sizes_x() {
+	  _set_split_sizes_x: function () {
 	    if (!this._columns.length) return;
 	    var index$$1 = 0;
 	    this._left_width = 0;
@@ -37644,7 +38251,7 @@
 
 	    this._x_scroll.define("scrollWidth", this._dtable_width + this._left_width + this._right_width);
 	  },
-	  $getSize: function $getSize(dx, dy) {
+	  $getSize: function (dx, dy) {
 	    if ((this._settings.autoheight || this._settings.yCount) && this._settings.columns) {
 	      //if limit set - use it
 	      var desired = (this._settings.yCount || 0) * this._settings.rowHeight; //else try to use actual rendered size
@@ -37661,14 +38268,14 @@
 	    sizes[0] = Math.max(sizes[0] || minwidth);
 	    return sizes;
 	  },
-	  _restore_scroll_state: function _restore_scroll_state() {
+	  _restore_scroll_state: function () {
 	    if (this._x_scroll && !env.touch) {
 	      var state = this.getScrollState();
 	      this._x_scroll._last_scroll_pos = this._y_scroll._last_scroll_pos = -1;
 	      this.scrollTo(state.x, state.y);
 	    }
 	  },
-	  $setSize: function $setSize() {
+	  $setSize: function () {
 	    var oldw = this._content_width;
 	    var oldh = this._content_height;
 
@@ -37684,7 +38291,7 @@
 	      this.render();
 	    }
 	  },
-	  _on_header_click: function _on_header_click(column) {
+	  _on_header_click: function (column) {
 	    var col = this.getColumnConfig(column);
 	    if (!col.sort) return;
 	    var order = "asc";
@@ -37692,7 +38299,7 @@
 
 	    this._sort(col.id, order, col.sort);
 	  },
-	  markSorting: function markSorting(column, order) {
+	  markSorting: function (column, order) {
 	    if (!this._sort_sign) this._sort_sign = create("DIV");
 	    var parent = this._sort_sign.parentNode;
 
@@ -37720,14 +38327,14 @@
 	      this._last_sorted = this._last_order = null;
 	    }
 	  },
-	  scroll_setter: function scroll_setter(mode) {
+	  scroll_setter: function (mode) {
 	    if (typeof mode == "string") {
 	      this._settings.scrollX = mode.indexOf("x") != -1;
 	      this._settings.scrollY = mode.indexOf("y") != -1;
 	      return mode;
 	    } else return this._settings.scrollX = this._settings.scrollY = mode;
 	  },
-	  _get_header_cell: function _get_header_cell(column) {
+	  _get_header_cell: function (column) {
 	    var cells = this._header.getElementsByTagName("TD");
 
 	    var maybe = null;
@@ -37741,20 +38348,21 @@
 
 	    return maybe;
 	  },
-	  _sort: function _sort(col_id, direction, type$$1) {
+	  _sort: function (col_id, direction, type$$1) {
+	    var _this = this;
+
 	    direction = direction || "asc";
 	    this.markSorting(col_id, direction);
 
 	    if (type$$1 == "server") {
 	      this.callEvent("onBeforeSort", [col_id, direction, type$$1]);
-	      this.loadNext(0, 0, {
-	        before: function before() {
-	          this.clearAll(true);
-	        },
-	        success: function success() {
-	          this.callEvent("onAfterSort", [col_id, direction, type$$1]);
-	        }
-	      }, 0, 1);
+	      this.loadNext(0, 0, 0, 0, 1).then(function (data) {
+	        _this.clearAll(true);
+
+	        _this.parse(data);
+
+	        _this.callEvent("onAfterSort", [col_id, direction, type$$1]);
+	      });
 	    } else {
 	      if (type$$1 == "text") {
 	        this.data.each(function (obj) {
@@ -37767,7 +38375,7 @@
 	      if (typeof type$$1 == "function") this.data.sort(type$$1, direction);else this.data.sort(col_id, direction, type$$1 || "string");
 	    }
 	  },
-	  _mouseEventCall: function _mouseEventCall(css_call, e, id, trg) {
+	  _mouseEventCall: function (css_call, e, id, trg) {
 	    var functor, i, res;
 
 	    if (css_call.length) {
@@ -37779,7 +38387,7 @@
 	    }
 	  },
 	  //because we using non-standard rendering model, custom logic for mouse detection need to be used
-	  _mouseEvent: function _mouseEvent(e, hash, name, pair) {
+	  _mouseEvent: function (e, hash, name, pair) {
 	    e = e || event;
 	    var trg = e.target || e.srcElement;
 	    if (this._settings.subview && this != $$(trg)) return; //define some vars, which will be used below
@@ -37818,7 +38426,7 @@
 	              //click event occurs on column holder, we can't detect cell
 	              if (trg.getAttribute("column")) return;
 	              index$$1 = index(trg);
-	              if (index$$1 >= this._settings.topSplit) index$$1 += this._columns[column]._yr0 - this._settings.topSplit;
+	              if (index$$1 >= this._settings.topSplit && !this._settings.prerender) index$$1 += this._columns[column]._yr0 - this._settings.topSplit;
 	            }
 
 	            this._item_clicked = id = {
@@ -37854,7 +38462,54 @@
 
 	    return found; //returns true if item was located and event was triggered
 	  },
-	  showOverlay: function showOverlay(message) {
+	  _get_tooltip_data: function (t, e) {
+	    var id = this.locate(e);
+	    if (!id) return null;
+	    var tooltip = TooltipControl._tooltip;
+	    var data;
+
+	    if (id.header) {
+	      var node = e.target || e.srcElement;
+	      var pos$$1;
+	      var cind = id.cind - (id.span ? id.span - 1 : 0);
+	      var rind = -1;
+
+	      while (node && !pos$$1) {
+	        node = node.parentNode;
+	        pos$$1 = node.getAttribute("section");
+	      }
+
+	      while ((node = node.previousSibling) !== null) {
+	        rind++;
+	      }
+
+	      var config = this._columns[cind][pos$$1][rind];
+	      if (config.tooltip) tooltip.type.template = template(config.tooltip === true ? "#text#" : config.tooltip);else return null;
+	      data = config;
+	    } else {
+	      var _config = tooltip.type.column = this.getColumnConfig(id.column);
+
+	      var def = !_config.tooltip || _config.tooltip === true; //empty tooltip - ignoring
+
+	      if (!_config.tooltip && _config.tooltip !== undefined) return null;
+
+	      if (def && !this._settings.tooltip.template) {
+	        data = this.getText(id.row, id.column).toString();
+	      } else if (!def) {
+	        var area = (e.target || e.srcElement).getAttribute("webix_area");
+
+	        if (area) {
+	          tooltip.type.template = function (obj, common) {
+	            var values = obj[_config.id];
+	            return template(_config.tooltip).call(this, obj, common, values[area], area);
+	          };
+	        } else tooltip.type.template = template(_config.tooltip);
+	      } else tooltip.type.template = template(this._settings.tooltip.template);
+	    }
+
+	    return data || this.getItem(id.row);
+	  },
+	  showOverlay: function (message) {
 	    if (!this._datatable_overlay) {
 	      var t = create("DIV", {
 	        "class": "webix_overlay"
@@ -37867,13 +38522,13 @@
 
 	    this._datatable_overlay.innerHTML = message;
 	  },
-	  hideOverlay: function hideOverlay() {
+	  hideOverlay: function () {
 	    if (this._datatable_overlay) {
 	      remove(this._datatable_overlay);
 	      this._datatable_overlay = null;
 	    }
 	  },
-	  mapCells: function mapCells(startrow, startcol, numrows, numcols, callback, getOnly) {
+	  mapCells: function (startrow, startcol, numrows, numcols, callback, getOnly) {
 	    if (startrow === null && this.data.order.length > 0) startrow = this.data.order[0];
 	    if (startcol === null) startcol = this.columnId(0);
 	    if (numrows === null) numrows = this.data.order.length;
@@ -37900,10 +38555,10 @@
 	      }
 	    }
 	  },
-	  _call_onparse: function _call_onparse(driver, data) {
+	  _call_onparse: function (driver, data) {
 	    if (!this._settings.columns && driver.getConfig) this.define("columns", driver.getConfig(data));
 	  },
-	  _autoDetectConfig: function _autoDetectConfig() {
+	  _autoDetectConfig: function () {
 	    var test = this.getItem(this.getFirstId());
 	    var res = this._settings.columns = [];
 
@@ -37946,7 +38601,7 @@
 
 	var api$1c = {
 	  name: "excelviewer",
-	  $init: function $init() {
+	  $init: function () {
 	    this.$ready.push(function () {
 	      if (this._settings.toolbar) $$(this._settings.toolbar).attachEvent("onExcelSheetSelect", bind(this.showSheet, this));
 	    });
@@ -37954,7 +38609,7 @@
 	  defaults: {
 	    datatype: "excel"
 	  },
-	  $onLoad: function $onLoad(data) {
+	  $onLoad: function (data) {
 	    if (data.sheets) {
 	      this._excel_data = data;
 	      if (this._settings.toolbar) $$(this._settings.toolbar).setSheets(data.names);
@@ -37965,7 +38620,7 @@
 
 	    return false;
 	  },
-	  $exportView: function $exportView(options) {
+	  $exportView: function (options) {
 	    if (options.export_mode !== "excel" || options.dataOnly) return this;
 	    if (options.sheets === true) options.sheets = this.getSheets();else if (!options.sheets || !options.sheets.length) options.sheets = [this._activeSheet];else if (typeof options.sheets == "string") options.sheets = [options.sheets];
 	    options.dataOnly = true;
@@ -37983,7 +38638,7 @@
 	    delete options.dataOnly;
 	    return temp;
 	  },
-	  showSheet: function showSheet(name) {
+	  showSheet: function (name) {
 	    this.clearAll();
 	    var obj = this.data.driver.sheetToArray(this._excel_data.sheets[name], {
 	      spans: this._settings.spans
@@ -38040,10 +38695,10 @@
 
 	    if (paintspans || paintrows || paintstyles) this.refresh();
 	  },
-	  getSheets: function getSheets() {
+	  getSheets: function () {
 	    return this._excel_data.names;
 	  },
-	  _getSpanCss: function _getSpanCss(spans, id, cid, style) {
+	  _getSpanCss: function (spans, id, cid, style) {
 	    var found = false;
 
 	    for (var s = 0; s < spans.length; s++) {
@@ -38057,7 +38712,7 @@
 
 	    return found;
 	  },
-	  _paintStyles: function _paintStyles(styles, spans) {
+	  _paintStyles: function (styles, spans) {
 	    var count = 0;
 
 	    if (styles && styles.length) {
@@ -38089,12 +38744,12 @@
 	    return false;
 	  },
 	  //ARGB conversion
-	  _safeColor: function _safeColor(str) {
+	  _safeColor: function (str) {
 	    str = str || "000000";
 	    if (str.length === 8) str = str.substring(2);
 	    return "#" + str;
 	  },
-	  _toCellStyle: function _toCellStyle(st) {
+	  _toCellStyle: function (st) {
 	    var res = {};
 	    if (st.fill && st.fill.fgColor) res["background-color"] = this._safeColor(st.fill.fgColor.rgb);
 
@@ -38141,7 +38796,7 @@
 
 	    return res;
 	  },
-	  _paintRowHeight: function _paintRowHeight(rows) {
+	  _paintRowHeight: function (rows) {
 	    var count = 0;
 
 	    for (var i in rows) {
@@ -38160,7 +38815,7 @@
 	    this.config.fixedRowHeight = !count;
 	    return count;
 	  },
-	  _paintSpans: function _paintSpans(spans) {
+	  _paintSpans: function (spans) {
 	    var res = [];
 
 	    if (this._settings.spans && spans && spans.length) {
@@ -38187,18 +38842,18 @@
 
 	var api$1d = {
 	  name: "pdfbar",
-	  reset: function reset() {
+	  reset: function () {
 	    this.setPage(0);
 	    this.setValues(0, "auto");
 	  },
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    this.$view.className += " pdf_bar";
 	    config.cols = [{
 	      view: "button",
 	      type: "icon",
 	      icon: "wxi-angle-left",
 	      width: 35,
-	      click: function click() {
+	      click: function () {
 	        this.getParentView()._navigate("prev");
 	      }
 	    }, {
@@ -38206,10 +38861,10 @@
 	      width: 70,
 	      value: "0",
 	      on: {
-	        onBlur: function onBlur() {
+	        onBlur: function () {
 	          this.getParentView()._navigate(this.getValue());
 	        },
-	        onKeyPress: function onKeyPress(code) {
+	        onKeyPress: function (code) {
 	          if (code === 13) this.getParentView()._navigate(this.getValue());
 	        }
 	      }
@@ -38225,7 +38880,7 @@
 	      type: "icon",
 	      icon: "wxi-angle-right",
 	      width: 35,
-	      click: function click() {
+	      click: function () {
 	        this.getParentView()._navigate("next");
 	      }
 	    }, {}, {
@@ -38233,7 +38888,7 @@
 	      type: "icon",
 	      icon: "wxi-minus",
 	      width: 35,
-	      click: function click() {
+	      click: function () {
 	        this.getParentView().zoom("out");
 	      }
 	    }, {
@@ -38253,7 +38908,7 @@
 	        }
 	      },
 	      on: {
-	        onChange: function onChange() {
+	        onChange: function () {
 	          this.getParentView().setMasterScale(this.getValue());
 	        }
 	      }
@@ -38262,7 +38917,7 @@
 	      type: "icon",
 	      icon: "wxi-plus",
 	      width: 35,
-	      click: function click() {
+	      click: function () {
 	        this.getParentView().zoom("in");
 	      }
 	    }, {
@@ -38270,13 +38925,13 @@
 	      type: "icon",
 	      icon: "wxi-download",
 	      width: 35,
-	      click: function click() {
+	      click: function () {
 	        this.getParentView().download();
 	      }
 	    }];
 	    this.$ready.push(this._setScaleOptions);
 	  },
-	  _setScaleOptions: function _setScaleOptions() {
+	  _setScaleOptions: function () {
 	    var list = this.getChildViews()[6].getPopup().getBody();
 	    list.clearAll();
 	    list.parse([{
@@ -38326,11 +38981,11 @@
 	    this.getChildViews()[6].define("width", width + 20);
 	    this.getChildViews()[6].resize();
 	  },
-	  _navigate: function _navigate(num) {
+	  _navigate: function (num) {
 	    this.setMasterPage(num);
 	    this.setPage(this.$master.$pageNum);
 	  },
-	  setScale: function setScale(scale) {
+	  setScale: function (scale) {
 	    var sel = this.getChildViews()[6];
 	    sel.blockEvent();
 	    if (sel.getPopup().getList().exists(scale)) sel.setValue(scale);else {
@@ -38339,27 +38994,27 @@
 	    }
 	    sel.unblockEvent();
 	  },
-	  setMasterScale: function setMasterScale(value) {
+	  setMasterScale: function (value) {
 	    if (!this.$master) return;
 	    this.$master.setScale(value);
 	  },
-	  setMasterPage: function setMasterPage(num) {
+	  setMasterPage: function (num) {
 	    if (!this.$master) return;
 	    if (num === "prev") this.$master.prevPage();else if (num === "next") this.$master.nextPage();else if (!isNaN(parseInt(num))) this.$master.renderPage(parseInt(num));
 	  },
-	  zoom: function zoom(dir) {
+	  zoom: function (dir) {
 	    if (!this.$master) return;
 	    if (dir === "out") this.$master.zoomOut();else if (dir === "in") this.$master.zoomIn();
 	  },
-	  setPage: function setPage(num) {
+	  setPage: function (num) {
 	    this.getChildViews()[1].setValue(num);
 	  },
-	  setValues: function setValues(num, scale) {
+	  setValues: function (num, scale) {
 	    this.getChildViews()[2].data.limit = num;
 	    this.getChildViews()[2].refresh();
 	    this.setScale(scale);
 	  },
-	  download: function download$$1() {
+	  download: function () {
 	    if (!this.$master) return;
 	    this.$master.download();
 	  }
@@ -38371,7 +39026,7 @@
 	  defaults: {
 	    scale: "auto"
 	  },
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    this.$view.className += " webix_pdf";
 	    var elm_wrapper = document.createElement("DIV");
 	    elm_wrapper.className = "canvas_wrapper";
@@ -38394,7 +39049,7 @@
 	    this._vPadding = 10;
 	    this.$ready.push(this._attachHandlers);
 	  },
-	  toolbar_setter: function toolbar_setter(toolbar) {
+	  toolbar_setter: function (toolbar) {
 	    if (typeof toolbar == "string") {
 	      var ui_toolbar = $$(toolbar);
 
@@ -38412,7 +39067,7 @@
 	      return toolbar;
 	    }
 	  },
-	  _attachHandlers: function _attachHandlers() {
+	  _attachHandlers: function () {
 	    delete this._settings.datatype; // cheat(
 
 	    this.attachEvent("onScaleChange", function (scale, update) {
@@ -38480,33 +39135,7 @@
 	      });
 	    }
 	  },
-	  _getDocument: function _getDocument(data) {
-	    if (data.name) {
-	      //File structure
-	      var reader = new FileReader();
-	      reader.onload = bind(function (e) {
-	        this._getDocument({
-	          data: e.target.result
-	        });
-	      }, this);
-	      reader.readAsArrayBuffer(data);
-	    } else {
-	      /* global PDFJS */
-	      PDFJS.getDocument({
-	        data: data.data
-	      }).then(bind(function (pdfDoc_) {
-	        this.clear();
-	        this.$pdfDoc = pdfDoc_;
-	        this.$numPages = this.$pdfDoc.numPages;
-	        this.$pageNum = 1;
-
-	        this._renderPage(this.$pageNum).then(bind(function () {
-	          this.callEvent("onDocumentReady");
-	        }, this));
-	      }, this));
-	    }
-	  },
-	  $onLoad: function $onLoad(data) {
+	  $onLoad: function (data) {
 	    if (!window.PDFJS) {
 	      //for cross browser and compatibility
 	      require([env.cdn + "/extras/pdfjs/compatibility.min.js", env.cdn + "/extras/pdfjs/pdf.min.js"], function () {
@@ -38519,7 +39148,122 @@
 
 	    return true;
 	  },
-	  _getViewPort: function _getViewPort(page, scale) {
+	  _getDocument: function (data) {
+	    if (data.name) {
+	      //File structure
+	      var reader = new FileReader();
+	      reader.onload = bind(function (e) {
+	        this._getDocument({
+	          data: e.target.result
+	        });
+	      }, this);
+	      reader.readAsArrayBuffer(data);
+	    } else {
+	      this._uploadDocument({
+	        data: data.data
+	      });
+	    }
+	  },
+	  _uploadDocument: function (options) {
+	    var _this = this;
+
+	    /* global PDFJS */
+	    return PDFJS.getDocument({
+	      data: options.data,
+	      password: options.password
+	    }).then(function (pdfDoc_) {
+	      _this.clear();
+
+	      _this.$pdfDoc = pdfDoc_;
+	      _this.$numPages = _this.$pdfDoc.numPages;
+	      _this.$pageNum = 1;
+
+	      _this._renderPage(_this.$pageNum).then(function () {
+	        _this.callEvent("onDocumentReady");
+	      });
+	    }).catch(function (error) {
+	      if (error.name == "PasswordException") {
+	        _this._tryPassword(options);
+	      }
+	    });
+	  },
+	  getPopup: function () {
+	    var _this2 = this;
+
+	    if (!this._passWin) {
+	      this._passWin = ui({
+	        view: "window",
+	        position: "center",
+	        modal: true,
+	        head: i18n.PDFviewer.enterPassword,
+	        body: {
+	          view: "form",
+	          elements: [{
+	            view: "text",
+	            name: "password",
+	            type: "password",
+	            invalidMessage: i18n.PDFviewer.passwordError,
+	            required: true
+	          }, {
+	            cols: [{
+	              view: "button",
+	              value: i18n.message.cancel,
+	              hotkey: "esc",
+	              click: function () {
+	                _this2.getPopup().hide();
+	              }
+	            }, {
+	              view: "button",
+	              type: "form",
+	              value: i18n.message.ok,
+	              hotkey: "enter",
+	              click: function () {
+	                var win = _this2.getPopup();
+
+	                var form = win.getBody();
+
+	                if (form.validate()) {
+	                  _this2._uploadDocument({
+	                    data: _this2._protectedData,
+	                    password: form.getValues().password
+	                  });
+
+	                  win.hide();
+	                } else form.focus();
+	              }
+	            }]
+	          }]
+	        },
+	        on: {
+	          onHide: function () {
+	            var form = _this2.getPopup().getBody();
+
+	            form.clear();
+	            form.clearValidation();
+	            delete _this2._protectedData;
+	          }
+	        }
+	      });
+	    }
+
+	    return this._passWin;
+	  },
+	  _tryPassword: function (options) {
+	    var win = this.getPopup();
+	    var form = win.getBody();
+	    this._protectedData = options.data;
+
+	    if (options.password) {
+	      form.markInvalid("password");
+	      form.setValues({
+	        password: options.password
+	      });
+	    }
+
+	    win.show();
+	    form.focus();
+	  },
+	  _getViewPort: function (page, scale) {
 	    var viewport = page.getViewport(scale);
 	    this._canvas.height = viewport.height;
 	    this._canvas.width = viewport.width;
@@ -38527,7 +39271,7 @@
 	    this._container.style.height = viewport.height + "px";
 	    return viewport;
 	  },
-	  _renderPage: function _renderPage(num) {
+	  _renderPage: function (num) {
 	    var viewer = this;
 	    viewer._pageRendering = true; // Using promise to fetch the page
 
@@ -38564,42 +39308,42 @@
 	      });
 	    });
 	  },
-	  _queueRenderPage: function _queueRenderPage(num) {
+	  _queueRenderPage: function (num) {
 	    if (this._pageRendering) this._pageNumPending = num;else this._renderPage(num);
 	  },
-	  renderPage: function renderPage(num) {
+	  renderPage: function (num) {
 	    if (!this.$pdfDoc || num < 0 || num > this.$numPages) return;
 	    this.$pageNum = num;
 
 	    this._queueRenderPage(this.$pageNum);
 	  },
-	  prevPage: function prevPage() {
+	  prevPage: function () {
 	    if (this.$pageNum <= 1) return;
 	    this.$pageNum--;
 
 	    this._queueRenderPage(this.$pageNum);
 	  },
-	  nextPage: function nextPage() {
+	  nextPage: function () {
 	    if (this.$pageNum >= this.$numPages) return;
 	    this.$pageNum++;
 
 	    this._queueRenderPage(this.$pageNum);
 	  },
-	  zoomIn: function zoomIn() {
+	  zoomIn: function () {
 	    var newScale = this._settings.scale;
 	    newScale = (newScale * this._default_scale_delta).toFixed(2);
 	    newScale = Math.ceil(newScale * 10) / 10;
 	    newScale = Math.min(this._max_scale, newScale);
 	    this.setScale(newScale, true);
 	  },
-	  zoomOut: function zoomOut() {
+	  zoomOut: function () {
 	    var newScale = this._settings.scale;
 	    newScale = (newScale / this._default_scale_delta).toFixed(2);
 	    newScale = Math.floor(newScale * 10) / 10;
 	    newScale = Math.max(this._min_scale, newScale);
 	    this.setScale(newScale, true);
 	  },
-	  _getScale: function _getScale(value) {
+	  _getScale: function (value) {
 	    if (!isNaN(parseFloat(value))) return value;
 	    if (isNaN(parseFloat(this._settings.scale))) this._settings.scale = this._init_scale_value;
 	    var scale = 1; //default value
@@ -38634,7 +39378,7 @@
 
 	    return scale;
 	  },
-	  setScale: function setScale(value, update) {
+	  setScale: function (value, update) {
 	    if (!isNaN(parseFloat(value))) {
 	      this._setScale(value, update);
 	    } else {
@@ -38643,22 +39387,21 @@
 	      this._setScale(scale, update);
 	    }
 	  },
-	  _setScale: function _setScale(newScale, update) {
+	  _setScale: function (newScale, update) {
 	    this._settings.scale = newScale;
 	    this.renderPage(this.$pageNum);
 	    this.callEvent("onScaleChange", [newScale, update]);
 	  },
-	  download: function download$$1() {
+	  download: function () {
 	    if (!this.$pdfDoc) return;
 	    var filename = (this._settings.downloadName || "document") + ".pdf";
 	    this.$pdfDoc.getData().then(function (data) {
 	      /* global PDFJS */
 	      var blob = PDFJS.createBlob(data, "application/pdf");
-
 	      download(blob, filename);
 	    });
 	  },
-	  clear: function clear() {
+	  clear: function () {
 	    if (this.$pdfDoc) {
 	      this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
 
@@ -38681,11 +39424,11 @@
 
 	var api$1f = {
 	  name: "video",
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    if (!config.id) config.id = uid();
 	    this.$ready.push(this._init_video);
 	  },
-	  _init_video: function _init_video() {
+	  _init_video: function () {
 	    var c = this._settings;
 	    this._contentobj = create("video", {
 	      "class": "webix_view_video",
@@ -38707,7 +39450,7 @@
 
 	    this._viewobj.appendChild(this._contentobj);
 	  },
-	  getVideo: function getVideo() {
+	  getVideo: function () {
 	    return this._contentobj;
 	  },
 	  defaults: {
@@ -38729,18 +39472,18 @@
 	    scale: 3,
 	    stroke: 7
 	  },
-	  $init: function $init() {
+	  $init: function () {
 	    this.$ready.push(bind(this._setDefaultView, this));
 	    this.attachEvent("onDestruct", function () {
 	      this._circleGradient = this._gageGradientPoint = this._gage = null;
 	    });
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    if (base.api.$setSize.call(this, x, y)) {
 	      this._refresh();
 	    }
 	  },
-	  _refresh: function _refresh() {
+	  _refresh: function () {
 	    this._value = this.config.value;
 	    var curves = this.$view.querySelector(".webix_gage_curves"),
 	        gageInfo = this.$view.querySelector(".webix_gage_info"),
@@ -38762,10 +39505,10 @@
 
 	    this._animate();
 	  },
-	  _safeValue: function _safeValue(value) {
+	  _safeValue: function (value) {
 	    return Math.min(Math.max(value, this._settings.minRange), this._settings.maxRange);
 	  },
-	  _draw_line: function _draw_line(radius) {
+	  _draw_line: function (radius) {
 	    var svgCoord = this.$width,
 	        arrowSpace = 0.05,
 	        value = this.config.value;
@@ -38787,7 +39530,7 @@
 
 	    this._gageGradientPoint.setAttribute("x2", Math.round(svgCoord * (0.5 + arrowSpace / 2) + parseInt(radius)));
 	  },
-	  _animate: function _animate() {
+	  _animate: function () {
 	    var value = this.config.value;
 	    var webixGageValue = this.$view.querySelector(".webix_gage-value");
 	    var currentChartValue = this._safeValue(value) - this.config.minRange;
@@ -38804,7 +39547,7 @@
 
 	    this._gageGradientPoint.style.transform = "rotate(" + degrees + "deg)";
 	  },
-	  _setDash: function _setDash() {
+	  _setDash: function () {
 	    assert(this.config.minRange < this.config.maxRange, "Invalid Range Values");
 	    this.gradientLength = (this._safeValue(this.config.value) - this.config.minRange) / (this.config.maxRange - this.config.minRange);
 	    var template = this.config.color;
@@ -38819,7 +39562,7 @@
 	      this.defaultColor = "hsl(" + (120 - Math.round(this.gradientLength * 120)) + ", 100%, 50%)";
 	    }
 	  },
-	  _setDefaultView: function _setDefaultView() {
+	  _setDefaultView: function () {
 	    this.gradientLength = 0;
 
 	    this._setDash();
@@ -38835,7 +39578,7 @@
 	      this._gageGradientPoint.setAttribute("class", "webix_gage_gradient_point webix_gage_gradient_point_animated");
 	    }
 	  },
-	  refresh: function refresh() {
+	  refresh: function () {
 	    //for animated gages, if value changes - repaint with old value first, then set new value for nice animation
 	    var value = this.config.value;
 	    if (this.config.smoothFlow && value != this._value) this.config.value = this._value;
@@ -38849,14 +39592,14 @@
 	      if (this._viewobj.parentNode.clientHeight) this.setValue(value);
 	    }
 	  },
-	  setValue: function setValue(value) {
+	  setValue: function (value) {
 	    this.config.value = value;
 
 	    this._setDash();
 
 	    this._refresh();
 	  },
-	  getValue: function getValue() {
+	  getValue: function () {
 	    return this.config.value;
 	  }
 	};
@@ -38874,7 +39617,7 @@
 	    color: "#000",
 	    ariaLabel: "bars"
 	  },
-	  $init: function $init() {
+	  $init: function () {
 	    this.$view.className += " webix_barcode";
 
 	    if (!this.types) {
@@ -38885,7 +39628,7 @@
 	    }
 	  },
 	  type: {},
-	  render: function render() {
+	  render: function () {
 	    if (this.isVisible(this._settings.id)) {
 	      if (this.canvas) this.canvas.clearCanvas(true);
 	      this.$view.innerHTML = "";
@@ -38893,7 +39636,7 @@
 	      this._renderCanvas();
 	    }
 	  },
-	  _renderCanvas: function _renderCanvas() {
+	  _renderCanvas: function () {
 	    this.canvas = new Canvas({
 	      container: this.$view,
 	      name: this.name,
@@ -38904,7 +39647,7 @@
 
 	    this._drawBars();
 	  },
-	  _drawBars: function _drawBars() {
+	  _drawBars: function () {
 	    var code,
 	        ctx,
 	        i,
@@ -38940,7 +39683,7 @@
 	      this._addText(value, unitWidth);
 	    }
 	  },
-	  _drawBar: function _drawBar(ctx, i, unitWidth, unitNum, num) {
+	  _drawBar: function (ctx, i, unitWidth, unitNum, num) {
 	    var x0, x1, y0, y1;
 	    x1 = parseInt(i * unitWidth + this.config.paddingX, 10);
 	    x0 = parseInt(x1 - unitNum * unitWidth, 10);
@@ -38960,7 +39703,7 @@
 	    ctx.lineTo(x0, y0);
 	    ctx.fill();
 	  },
-	  _addText: function _addText(value, barWidth) {
+	  _addText: function (value, barWidth) {
 	    var i, len, x;
 	    if (this.type.template) value = this.type.template(value);
 
@@ -38990,27 +39733,27 @@
 	      this.canvas.renderTextAt(true, true, this.$width / 2, this.$height - this.config.paddingY, value);
 	    }
 	  },
-	  setValue: function setValue(value) {
+	  setValue: function (value) {
 	    this._settings.value = value;
 	    this.render();
 	    return value;
 	  },
-	  getValue: function getValue() {
+	  getValue: function () {
 	    var value = this._settings.value;
 	    return this.type.template ? this.type.template(value) : value;
 	  },
-	  type_setter: function type_setter(value) {
+	  type_setter: function (value) {
 	    if (!this.types[value]) this.customize(value);else {
 	      this.type = clone(this.types[value]);
 	      if (this.type.css) this._contentobj.className += " " + this.type.css;
 	    }
 	    return value;
 	  },
-	  _isEAN: function _isEAN() {
+	  _isEAN: function () {
 	    var type$$1 = this.config.type;
 	    return type$$1.indexOf("ean") === 0 || type$$1.indexOf("upcA") != -1;
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    if (base.api.$setSize.call(this, x, y)) {
 	      this.render();
 	    }
@@ -39021,17 +39764,17 @@
 	  name: "upcA",
 	  firstDigit: true,
 	  lastDigit: true,
-	  encode: function encode(value) {
+	  encode: function (value) {
 	    if (value.length < 12) {
 	      value = "0" + value;
 	    }
 
 	    return ean13.encode(value);
 	  },
-	  template: function template(value) {
+	  template: function (value) {
 	    return value.replace(/[^0-9]/g, "").substring(0, 11) + this.checksum(value);
 	  },
-	  checksum: function checksum(value) {
+	  checksum: function (value) {
 	    if (value.length < 12) {
 	      value = "0" + value;
 	    }
@@ -39046,7 +39789,7 @@
 	type(view$1h, {
 	  name: "ean8",
 	  encodings: [["0001101", "1110010"], ["0011001", "1100110"], ["0010011", "1101100"], ["0111101", "1000010"], ["0100011", "1011100"], ["0110001", "1001110"], ["0101111", "1010000"], ["0111011", "1000100"], ["0110111", "1001000"], ["0001011", "1110100"]],
-	  encode: function encode(value) {
+	  encode: function (value) {
 	    var code, i;
 	    value = value.replace(/[^0-9]/g, "").substring(0, 7);
 	    if (value.length != 7) return "";
@@ -39066,10 +39809,10 @@
 	    code += "101";
 	    return code;
 	  },
-	  template: function template(value) {
+	  template: function (value) {
 	    return value.replace(/[^0-9]/g, "").substring(0, 7) + this.checksum(value);
 	  },
-	  checksum: function checksum(value) {
+	  checksum: function (value) {
 	    value = value.substring(0, 7);
 	    var i,
 	        odd = true,
@@ -39091,7 +39834,7 @@
 	  name: "ean13",
 	  firstDigit: true,
 	  encodings: [["0001101", "0100111", "1110010", "000000"], ["0011001", "0110011", "1100110", "001011"], ["0010011", "0011011", "1101100", "001101"], ["0111101", "0100001", "1000010", "001110"], ["0100011", "0011101", "1011100", "010011"], ["0110001", "0111001", "1001110", "011001"], ["0101111", "0000101", "1010000", "011100"], ["0111011", "0010001", "1000100", "010101"], ["0110111", "0001001", "1001000", "010110"], ["0001011", "0010111", "1110100", "011010"]],
-	  encode: function encode(value) {
+	  encode: function (value) {
 	    var code, columnIndexes, i;
 	    value = value.replace(/[^0-9]/g, "").substring(0, 12);
 	    if (value.length != 12) return "";
@@ -39112,10 +39855,10 @@
 	    code += "101";
 	    return code;
 	  },
-	  template: function template(value) {
+	  template: function (value) {
 	    return value.replace(/[^0-9]/g, "").substring(0, 12) + this.checksum(value);
 	  },
-	  checksum: function checksum(value) {
+	  checksum: function (value) {
 	    var i,
 	        odd = false,
 	        sum = 0;
@@ -39162,7 +39905,7 @@
 	  },
 	  label_setter: template,
 	  placeholder_setter: template,
-	  $init: function $init(obj) {
+	  $init: function (obj) {
 	    var ticks = typeof obj.tickSize != "undefined" ? obj.tickSize : this.defaults.tickSize;
 
 	    if (obj) {
@@ -39170,7 +39913,7 @@
 	      if (obj.layout === "y" && !obj.width) obj.width = obj.scale === false ? 60 : ticks ? 87 + ticks : 87;
 	    }
 	  },
-	  scale_setter: function scale_setter(config) {
+	  scale_setter: function (config) {
 	    if (config) {
 	      config.step = config.step || 10;
 	      config.template = template(config.template || "#value#");
@@ -39178,17 +39921,17 @@
 
 	    return config;
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    if (base.api.$setSize.call(this, x, y)) {
 	      this._setDefaultView(this._settings.layout === "y" ? y : x);
 
 	      if (this._settings.value || this._settings.value === 0) this._animate(0, this._settings.value);
 	    }
 	  },
-	  _safeValue: function _safeValue(value) {
+	  _safeValue: function (value) {
 	    return Math.min(Math.max(value, this._settings.minRange), this._settings.maxRange) - this._settings.minRange;
 	  },
-	  _animateFrame: function _animateFrame(timestamp) {
+	  _animateFrame: function (timestamp) {
 	    this._dt = timestamp - (this._time || timestamp);
 	    this._time = timestamp;
 	    var fps;
@@ -39215,7 +39958,7 @@
 
 	    this._bulletValue.style.fill = this._getColor();
 	  },
-	  _animate: function _animate(from, to) {
+	  _animate: function (from, to) {
 	    this._prevValue = this._nowValue = from;
 	    this._settings.value = this._value = to;
 
@@ -39227,22 +39970,22 @@
 	      this._bulletValue.style.fill = this._getColor();
 	    }
 	  },
-	  _getColor: function _getColor() {
+	  _getColor: function () {
 	    var color = this._settings.color;
 	    return typeof color === "function" ? color(this._value) : color;
 	  },
-	  _setAttr: function _setAttr(tag, names, values) {
+	  _setAttr: function (tag, names, values) {
 	    for (var i = 0; i < names.length; i++) {
 	      tag.setAttribute(names[i], values[i]);
 	    }
 	  },
-	  _createNS: function _createNS(tag, names, values) {
+	  _createNS: function (tag, names, values) {
 	    var ns = "http://www.w3.org/2000/svg";
 	    var el = document.createElementNS(ns, tag);
 	    if (names) this._setAttr(el, names, values);
 	    return el;
 	  },
-	  _dom: function _dom(data) {
+	  _dom: function (data) {
 	    var top = this._createNS(data[0], data[1], data[2]);
 
 	    var child = data[3];
@@ -39251,7 +39994,7 @@
 	    }
 	    return top;
 	  },
-	  _setView: function _setView() {
+	  _setView: function () {
 	    var id = "d" + uid();
 
 	    var svg = this._createNS("svg", ["class"], ["webix_bullet_graph_svg"]);
@@ -39349,7 +40092,7 @@
 	    svg.setAttribute("viewBox", "0 0 " + this.$width + " " + this.$height + "");
 	    return svg;
 	  },
-	  _setDefaultView: function _setDefaultView(size) {
+	  _setDefaultView: function (size) {
 	    assert(this.config.minRange < this.config.maxRange, "Invalid Range Values");
 	    size = size || (this._settings.layout == "x" ? this.$width : this.$height);
 	    var _view = this.$view;
@@ -39375,17 +40118,17 @@
 	    var placeholder = this._settings.placeholder;
 	    if (placeholder) this.$view.querySelector(".webix_bullet_subheader").textContent = placeholder(this._settings);
 	  },
-	  refresh: function refresh() {
+	  refresh: function () {
 	    this._setDefaultView();
 
 	    this._animate(this._value, this._settings.value);
 	  },
-	  setValue: function setValue(value) {
+	  setValue: function (value) {
 	    if (this._settings.value != value) {
 	      this._animate(this._settings.value, value);
 	    }
 	  },
-	  getValue: function getValue() {
+	  getValue: function () {
 	    return this._settings.value;
 	  }
 	};
@@ -39401,7 +40144,7 @@
 	      resolution: "countries"
 	    }
 	  },
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    this.$view.innerHTML = "<div class='webix_map_content' style='width:100%;height:100%'></div>";
 	    this._contentobj = this.$view.firstChild;
 	    this._waitMap = Deferred.defer();
@@ -39411,10 +40154,10 @@
 	    this.data.attachEvent("onClearAll", bind(this._refreshColumns, this));
 	    this.data.attachEvent("onStoreUpdated", bind(this._drawData, this));
 	  },
-	  getMap: function getMap(waitMap) {
+	  getMap: function (waitMap) {
 	    return waitMap ? this._waitMap : this._map;
 	  },
-	  _getCallBack: function _getCallBack(prev) {
+	  _getCallBack: function (prev) {
 	    return bind(function () {
 	      if (typeof prev === "function") prev();
 	      google = google || window.google;
@@ -39422,7 +40165,7 @@
 	      this._initMap();
 	    }, this);
 	  },
-	  render: function render() {
+	  render: function () {
 	    if (typeof window.google == "undefined" || typeof window.google.charts == "undefined") {
 	      if (!script) {
 	        script = document.createElement("script");
@@ -39435,7 +40178,7 @@
 	    } else //there's a custom link to google api in document head
 	      this._getCallBack()();
 	  },
-	  _initMap: function _initMap() {
+	  _initMap: function () {
 	    if (!google.visualization || !google.visualization.GeoChart) {
 	      google.charts.load("current", {
 	        "packages": ["geochart"],
@@ -39452,7 +40195,7 @@
 	      this._waitMap.resolve(this._map);
 	    }
 	  },
-	  $onLoad: function $onLoad(obj) {
+	  $onLoad: function (obj) {
 	    if (!this._map) {
 	      this._waitMap.then(bind(function () {
 	        this.parse(obj, this._settings.datatype);
@@ -39463,7 +40206,7 @@
 
 	    return false;
 	  },
-	  _drawData: function _drawData() {
+	  _drawData: function () {
 	    if (!this._map) {
 	      if (!this._map) this._waitMap.then(bind(this._drawData, this));
 	      return;
@@ -39497,27 +40240,27 @@
 	    } else //draw clean chart
 	      this._map.draw(google.visualization.arrayToDataTable([["", ""]]), {});
 	  },
-	  setDisplayMode: function setDisplayMode(value) {
+	  setDisplayMode: function (value) {
 	    this._settings.chart.displayMode = value;
 	    this.refresh();
 	  },
-	  setRegion: function setRegion(value) {
+	  setRegion: function (value) {
 	    this._settings.chart.region = value;
 	    this.refresh();
 	  },
-	  refresh: function refresh() {
+	  refresh: function () {
 	    this._map.clearChart();
 
 	    this._drawData();
 	  },
-	  tooltip_setter: function tooltip_setter(value) {
+	  tooltip_setter: function (value) {
 	    var tooltip = this._settings.chart.tooltip;
 	    this._settings.chart.tooltip = exports.extend(tooltip || {}, {
 	      isHtml: true
 	    });
 	    return template(value);
 	  },
-	  $setSize: function $setSize(w, h) {
+	  $setSize: function (w, h) {
 	    if (base.api.$setSize.apply(this, arguments) && this._map) {
 	      exports.extend(this._settings, {
 	        width: w,
@@ -39526,12 +40269,12 @@
 	      this.refresh();
 	    }
 	  },
-	  _refreshColumns: function _refreshColumns() {
+	  _refreshColumns: function () {
 	    this._columns = null;
 
 	    this._drawData();
 	  },
-	  _getColumnType: function _getColumnType(item, key) {
+	  _getColumnType: function (item, key) {
 	    if (!item || isUndefined(item[key])) return "string";
 
 	    var type = _typeof(item[key]);
@@ -39539,7 +40282,7 @@
 	    if (type == "string" && !isNaN(item[key] * 1)) type = "number";
 	    return type;
 	  },
-	  _defineColumns: function _defineColumns() {
+	  _defineColumns: function () {
 	    var columns = this._settings.columns || [];
 	    var item = this.data.pull[this.data.order[0]]; //auto columns
 
@@ -39569,7 +40312,7 @@
 	    this._columns = columns;
 	    return columns;
 	  },
-	  _mapEvents: function _mapEvents() {
+	  _mapEvents: function () {
 	    google.visualization.events.addListener(this._map, "error", bind(function () {
 	      this.callEvent("onMapError", arguments);
 	    }, this));
@@ -39597,17 +40340,17 @@
 	var google$1, script$1;
 	var api$1k = {
 	  name: "google-map",
-	  $init: function $init() {
+	  $init: function () {
 	    this.$view.innerHTML = "<div class='webix_map_content' style='width:100%;height:100%'></div>";
 	    this._contentobj = this.$view.firstChild;
 	    this._waitMap = Deferred.defer();
 	    this.data.provideApi(this, true);
 	    this.$ready.push(this.render);
 	  },
-	  getMap: function getMap(waitMap) {
+	  getMap: function (waitMap) {
 	    return waitMap ? this._waitMap : this._map;
 	  },
-	  _getCallBack: function _getCallBack(prev) {
+	  _getCallBack: function (prev) {
 	    return bind(function () {
 	      if (typeof prev === "function") prev();
 	      google$1 = google$1 || window.google;
@@ -39615,7 +40358,7 @@
 	      this._initMap.call(this);
 	    }, this);
 	  },
-	  render: function render() {
+	  render: function () {
 	    if (typeof window.google == "undefined" || typeof window.google.maps == "undefined") {
 	      if (!script$1) {
 	        script$1 = document.createElement("script");
@@ -39633,7 +40376,7 @@
 	    } else //there's a custom link to google api in document head
 	      this._getCallBack()();
 	  },
-	  _initMap: function _initMap() {
+	  _initMap: function () {
 	    var c = this.config;
 
 	    if (this.isVisible(c.id)) {
@@ -39644,22 +40387,24 @@
 	      });
 
 	      this._waitMap.resolve(this._map);
+
+	      this._contentobj.firstChild.setAttribute("webix_disable_drag", "true");
 	    }
 	  },
-	  center_setter: function center_setter(config) {
+	  center_setter: function (config) {
 	    if (this._map) this._map.setCenter(new google$1.maps.LatLng(config[0], config[1]));
 	    return config;
 	  },
-	  mapType_setter: function mapType_setter(config) {
+	  mapType_setter: function (config) {
 	    /*ROADMAP,SATELLITE,HYBRID,TERRAIN*/
 	    if (this._map) this._map.setMapTypeId(google$1.maps.MapTypeId[config]);
 	    return config;
 	  },
-	  zoom_setter: function zoom_setter(config) {
+	  zoom_setter: function (config) {
 	    if (this._map) this._map.setZoom(config);
 	    return config;
 	  },
-	  layerType_setter: function layerType_setter(config) {
+	  layerType_setter: function (config) {
 	    if (config == "heatmap") this.config.libraries = "visualization";
 
 	    if (this._layerApi[config]) {
@@ -39679,11 +40424,11 @@
 	    mapType: "ROADMAP",
 	    layerType: "marker"
 	  },
-	  $setSize: function $setSize() {
+	  $setSize: function () {
 	    base.api.$setSize.apply(this, arguments);
 	    if (this._map) google$1.maps.event.trigger(this._map, "resize");
 	  },
-	  $onLoad: function $onLoad(data) {
+	  $onLoad: function (data) {
 	    if (!this._map) {
 	      this._waitMap.then(bind(function () {
 	        this.parse(data);
@@ -39696,7 +40441,7 @@
 	  },
 	  _layerApi: {
 	    marker: {
-	      drawData: function drawData(id, item, operation) {
+	      drawData: function (id, item, operation) {
 	        switch (operation) {
 	          case "add":
 	            item.$marker = this._getItemConfig(item);
@@ -39717,18 +40462,18 @@
 	            break;
 	        }
 	      },
-	      clearAll: function clearAll(soft) {
+	      clearAll: function (soft) {
 	        this.data.each(function (obj) {
 	          obj.$marker.setMap(null);
 	        });
 	        this.data.clearAll(soft);
 	      },
-	      showItem: function showItem(id) {
+	      showItem: function (id) {
 	        var item = this.getItem(id);
 
 	        this._map.setCenter(new google$1.maps.LatLng(item.lat, item.lng));
 	      },
-	      _getItemConfig: function _getItemConfig(item) {
+	      _getItemConfig: function (item) {
 	        var obj = {};
 
 	        for (var i in item) {
@@ -39750,7 +40495,7 @@
 	        this.callEvent("onItemRender", [item]);
 	        return marker;
 	      },
-	      _events: function _events(marker) {
+	      _events: function (marker) {
 	        var map = this;
 	        marker.addListener("click", function () {
 	          map.callEvent("onItemClick", [this.id, this]);
@@ -39765,7 +40510,7 @@
 	          });
 	        }
 	      },
-	      _onDrag: function _onDrag(marker, end) {
+	      _onDrag: function (marker, end) {
 	        var item = this.getItem(marker.id);
 	        var pos = marker.getPosition();
 	        var ev = end ? "onAfterDrop" : "onDrag";
@@ -39775,11 +40520,11 @@
 	      }
 	    },
 	    heatmap: {
-	      heatmapConfig_setter: function heatmapConfig_setter(value) {
+	      heatmapConfig_setter: function (value) {
 	        value = value || {};
 	        return value;
 	      },
-	      drawData: function drawData() {
+	      drawData: function () {
 	        if (this._heatmap) {
 	          this._heatmap.setMap(null);
 
@@ -39800,10 +40545,10 @@
 	          this.callEvent("onHeatMapRender", [this._heatmap]);
 	        }
 	      },
-	      getHeatmap: function getHeatmap() {
+	      getHeatmap: function () {
 	        return this._heatmap;
 	      },
-	      _getConfig: function _getConfig(item) {
+	      _getConfig: function (item) {
 	        var obj = {};
 
 	        for (var i in item) {
@@ -39828,7 +40573,7 @@
 	    scroll: "auto",
 	    ariaLabel: "lines"
 	  },
-	  $init: function $init() {
+	  $init: function () {
 	    this._viewobj.className += " webix_organogram"; //map API of DataStore on self
 
 	    this._html = document.createElement("DIV");
@@ -39840,7 +40585,7 @@
 	  _id: "webix_dg_id",
 	  //supports custom context menu
 	  on_click: {
-	    webix_organogram_item: function webix_organogram_item(e, id) {
+	    webix_organogram_item: function (e, id) {
 	      if (this._settings.select) {
 	        if (this._settings.select == "multiselect" || this._settings.multiselect) this.select(id, false, e.ctrlKey || e.metaKey || this._settings.multiselect == "touch", e.shiftKey); //multiselection
 	        else this.select(id);
@@ -39850,26 +40595,26 @@
 	  },
 	  on_context: {},
 	  on_dblclick: {},
-	  _afterInit: function _afterInit() {
+	  _afterInit: function () {
 	    this._dataobj.style.position = "relative";
 	    this.data.attachEvent("onStoreUpdated", bind(this.render, this));
 	  },
-	  _toHTMLItem: function _toHTMLItem(obj) {
+	  _toHTMLItem: function (obj) {
 	    var mark = this.data._marks[obj.id];
 	    this.callEvent("onItemRender", [obj]);
 	    return this.type.templateStart.call(this, obj, this.type, mark) + (obj.$template ? this.type["template" + obj.$template].call(this, obj, this.type, mark) : this.type.template.call(this, obj, this.type, mark)) + this.type.templateEnd.call(this);
 	  },
-	  _toHTML: function _toHTML(obj) {
+	  _toHTML: function (obj) {
 	    //check if related template exist
 	    var html = this._toHTMLItem(obj);
 
 	    if (this.data.branch[obj.id]) html += this._renderBranch(obj.id);
 	    return html;
 	  },
-	  _isListBlocks: function _isListBlocks() {
+	  _isListBlocks: function () {
 	    return this.type.listMarginX || this.type.listMarginY;
 	  },
-	  _renderBranch: function _renderBranch(pId, leftOffset) {
+	  _renderBranch: function (pId, leftOffset) {
 	    var i,
 	        id,
 	        html = "",
@@ -39969,7 +40714,7 @@
 
 	    return html;
 	  },
-	  _getBranchHeight: function _getBranchHeight(id) {
+	  _getBranchHeight: function (id) {
 	    var items = this.data.branch[id];
 	    var height = 0;
 
@@ -39980,7 +40725,7 @@
 
 	    return height + this.type.marginY;
 	  },
-	  _getItemHeight: function _getItemHeight(id) {
+	  _getItemHeight: function (id) {
 	    var item = this.getItem(id);
 	    var height = this.type.height;
 
@@ -39999,7 +40744,7 @@
 	    this._hDiv.innerHTML = this.type.template.call(this, item, this.type, this.data._marks[id]);
 	    return this._hDiv.scrollHeight;
 	  },
-	  _calcTotalWidth: function _calcTotalWidth() {
+	  _calcTotalWidth: function () {
 	    var tw = {};
 	    var width = this.type.width;
 	    var margin = this.type.marginX;
@@ -40020,7 +40765,7 @@
 	    this._tw = tw;
 	    return tw;
 	  },
-	  getItemNode: function getItemNode(searchId) {
+	  getItemNode: function (searchId) {
 	    if (this._htmlmap) return this._htmlmap[searchId]; //fill map if it doesn't created yet
 
 	    this._htmlmap = {};
@@ -40045,11 +40790,11 @@
 
 	    return this.getItemNode(searchId);
 	  },
-	  _toHTMLObject: function _toHTMLObject(obj) {
+	  _toHTMLObject: function (obj) {
 	    this._html.innerHTML = this._toHTMLItem(obj);
 	    return this._html.firstChild;
 	  },
-	  render: function render(id, data, type) {
+	  render: function (id, data, type) {
 	    if (!this.isVisible(this._settings.id) || this.$blockRender) return;
 
 	    if (type == "update") {
@@ -40079,7 +40824,7 @@
 
 	    return true;
 	  },
-	  _renderCanvas: function _renderCanvas() {
+	  _renderCanvas: function () {
 	    if (this.canvas) this.canvas.clearCanvas(true);
 	    this.canvas = new Canvas({
 	      container: this._dataobj,
@@ -40091,7 +40836,7 @@
 
 	    this._drawLines(0);
 	  },
-	  _drawLine: function _drawLine(ctx, x1, y1, x2, y2, color, width) {
+	  _drawLine: function (ctx, x1, y1, x2, y2, color, width) {
 	    ctx.strokeStyle = color;
 	    ctx.lineCap = "square";
 	    ctx.lineWidth = width;
@@ -40101,7 +40846,7 @@
 	    ctx.stroke();
 	    ctx.lineWidth = 1;
 	  },
-	  _drawLines: function _drawLines(id, ctx) {
+	  _drawLines: function (id, ctx) {
 	    var i, item, leaves, p, s, x12, y1, y2, start, end;
 	    if (!ctx) ctx = this.canvas.getCanvas();
 
@@ -40163,7 +40908,7 @@
 	  },
 	  //autowidth, autoheight - no inner scroll
 	  //scrollable - width, height, auto, with scroll
-	  $getSize: function $getSize(dx, dy) {
+	  $getSize: function (dx, dy) {
 	    var aW = this._settings.autowidth;
 	    var aH = this._settings.autoheight;
 
@@ -40177,7 +40922,7 @@
 
 	    return base.api.$getSize.call(this, dx, dy);
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    if (base.api.$setSize.call(this, x, y)) {
 	      this._dataobj.style.width = this.$width + "px";
 	      this._dataobj.style.height = this.$height + "px";
@@ -40194,20 +40939,21 @@
 	    listMarginX: 0,
 	    listMarginY: 0,
 	    lineColor: $active.organogramLineColor || "#90caf9",
-	    classname: function classname(obj, common, marks) {
-	      var css = "webix_organogram_item ";
+	    classname: function (obj, common, marks) {
+	      var css = "webix_organogram_item";
 
 	      if (obj.$css) {
 	        if (_typeof(obj.$css) == "object") obj.$css = createCss(obj.$css);
 	        css += " " + obj.$css;
 	      }
 
-	      if (marks && marks.list_item) css += " webix_organogram_list_item ";
+	      if (marks && marks.list_item) css += " webix_organogram_list_item";
 	      if (marks && marks.$css) css += marks.$css;
 	      css += " webix_organogram_level_" + obj.$level;
+	      if (common.css) css += " " + common.css;
 	      return css;
 	    },
-	    listClassName: function listClassName(obj) {
+	    listClassName: function (obj) {
 	      var css = "webix_organogram_list webix_organogram_list_" + obj.$level;
 
 	      if (obj.$listCss) {
@@ -40218,7 +40964,7 @@
 	      return css;
 	    },
 	    template: template("#value#"),
-	    templateStart: function templateStart(obj, type, marks) {
+	    templateStart: function (obj, type, marks) {
 	      var style = "";
 
 	      if ((!(marks && marks.list_item) || type.listMarginX || type.listMarginY) && this.$xy) {
@@ -40230,7 +40976,7 @@
 	      return "<div webix_dg_id=\"" + obj.id + "\" class=\"" + type.classname.call(this, obj, type, marks) + "\"" + (style ? "style=\"" + style + "\"" : "") + "\">";
 	    },
 	    templateEnd: template("</div>"),
-	    templateListStart: function templateListStart(obj, type, marks) {
+	    templateListStart: function (obj, type, marks) {
 	      var style = "";
 
 	      if (this.$xy) {
@@ -40247,7 +40993,7 @@
 	var view$1l = exports.protoUI(api$1l, AutoTooltip, Group, TreeAPI, DataMarks, SelectionModel, MouseEvents, Scrollable, RenderStack, TreeDataLoader, DataLoader, base.view, EventSystem);
 
 	var Pie$1 = {
-	  $render_pie: function $render_pie(ctx, data, x, y, sIndex, map) {
+	  $render_pie: function (ctx, data, x, y, sIndex, map) {
 	    this._renderPie(ctx, data, x, y, 1, map, sIndex);
 	  },
 
@@ -40259,7 +41005,7 @@
 	   *   @param: y - the height of the container
 	   *   @param: ky - value from 0 to 1 that defines an angle of inclination (0<ky<1 - 3D chart)
 	   */
-	  _renderPie: function _renderPie(ctx, data, point0, point1, ky, map, sIndex) {
+	  _renderPie: function (ctx, data, point0, point1, ky, map, sIndex) {
 	    if (!data.length) return;
 
 	    var coord = this._getPieParameters(point0, point1);
@@ -40360,15 +41106,16 @@
 	      this._drawLine(ctx, x0, y0, p.x, p.y, this._settings.lineColor.call(this, data[i]), 2);
 	    }
 
-	    if (ky == 1) {
-	      ctx.lineWidth = 2;
-	      ctx.strokeStyle = "#ffffff";
+	    ctx.globalAlpha = 1;
+
+	    if (ky == 1 && this._settings.border) {
+	      ctx.lineWidth = this._settings.borderWidth || 2;
+	      ctx.strokeStyle = this._settings.borderColor ? this._settings.borderColor.call(this) : "#ffffff";
 	      ctx.beginPath();
 	      ctx.arc(x0, y0, radius + 1, 0, 2 * Math.PI, false);
 	      ctx.stroke();
 	    }
 
-	    ctx.globalAlpha = 1;
 	    ctx.scale(1, 1 / ky);
 	  },
 
@@ -40376,7 +41123,7 @@
 	   *   returns list of values
 	   *   @param: data array
 	   */
-	  _getValues: function _getValues(data) {
+	  _getValues: function (data) {
 	    var v = [];
 
 	    for (var i = 0; i < data.length; i++) {
@@ -40390,7 +41137,7 @@
 	   *   returns total value
 	   *   @param: the array of values
 	   */
-	  _getTotalValue: function _getTotalValue(values) {
+	  _getTotalValue: function (values) {
 	    var t = 0;
 
 	    for (var i = 0; i < values.length; i++) {
@@ -40405,7 +41152,7 @@
 	   *   @param: the array of values
 	   *   @param: total value (optional)
 	   */
-	  _getRatios: function _getRatios(values, totalValue) {
+	  _getRatios: function (values, totalValue) {
 	    var value;
 	    var ratios = [];
 	    var prevSum = 0;
@@ -40425,7 +41172,7 @@
 	   *   @param: x - the width of a container
 	   *   @param: y - the height of a container
 	   */
-	  _getPieParameters: function _getPieParameters(point0, point1) {
+	  _getPieParameters: function (point0, point1) {
 	    /*var offsetX = 0;
 	     var offsetY = 0;
 	     if(this._settings.legend &&this._settings.legend.layout!="x")
@@ -40456,7 +41203,7 @@
 	   *   @param: R - pie radius
 	   *   @param: line (boolean) - if the sector needs a border
 	   */
-	  _createLowerSector: function _createLowerSector(ctx, x0, y0, a1, a2, R, line) {
+	  _createLowerSector: function (ctx, x0, y0, a1, a2, R, line) {
 	    ctx.lineWidth = 1;
 	    /*checks if the lower sector needs being displayed*/
 
@@ -40492,7 +41239,7 @@
 	  /**
 	   *   draws a serctor arc
 	   */
-	  _drawSectorLine: function _drawSectorLine(ctx, x0, y0, R, a1, a2) {
+	  _drawSectorLine: function (ctx, x0, y0, R, a1, a2) {
 	    ctx.beginPath();
 	    ctx.arc(x0, y0, R, a1, a2, false);
 	    ctx.stroke();
@@ -40505,7 +41252,7 @@
 	   *   @param: y - the vertical position of the pie center
 	   *   @param: R - pie radius
 	   */
-	  _addShadow: function _addShadow(ctx, x, y, R) {
+	  _addShadow: function (ctx, x, y, R) {
 	    ctx.globalAlpha = 0.5;
 	    var shadows = ["#c4c4c4", "#c6c6c6", "#cacaca", "#dcdcdc", "#dddddd", "#e0e0e0", "#eeeeee", "#f5f5f5", "#f8f8f8"];
 
@@ -40523,7 +41270,7 @@
 	   *   returns a gray gradient
 	   *   @param: gradient - gradient object
 	   */
-	  _getGrayGradient: function _getGrayGradient(gradient) {
+	  _getGrayGradient: function (gradient) {
 	    gradient.addColorStop(0.0, "#ffffff");
 	    gradient.addColorStop(0.7, "#7a7a7a");
 	    gradient.addColorStop(1.0, "#000000");
@@ -40539,7 +41286,7 @@
 	   *   @param: x0 - the horizontal position of a gradient center
 	   *   @param: y0 - the vertical position of a gradient center
 	   */
-	  _showRadialGradient: function _showRadialGradient(ctx, x, y, radius, x0, y0) {
+	  _showRadialGradient: function (ctx, x, y, radius, x0, y0) {
 	    //ctx.globalAlpha = 0.3;
 	    ctx.beginPath();
 	    var gradient;
@@ -40568,7 +41315,7 @@
 	   *   @param: text - label text
 	   *   @param: in_width (boolean) - if label needs being displayed inside a pie
 	   */
-	  _drawSectorLabel: function _drawSectorLabel(x0, y0, R, alpha1, alpha2, ky, text, in_width) {
+	  _drawSectorLabel: function (x0, y0, R, alpha1, alpha2, ky, text, in_width) {
 	    var t = this.canvases[0].renderText(0, 0, text, 0, 1);
 	    if (!t) return; //get existing width of text
 
@@ -40628,10 +41375,10 @@
 	    t.style.textAlign = align;
 	    t.style.whiteSpace = "nowrap";
 	  },
-	  $render_pie3D: function $render_pie3D(ctx, data, x, y, sIndex, map) {
+	  $render_pie3D: function (ctx, data, x, y, sIndex, map) {
 	    this._renderPie(ctx, data, x, y, this._settings.cant, map);
 	  },
-	  $render_donut: function $render_donut(ctx, data, point0, point1, sIndex, map) {
+	  $render_donut: function (ctx, data, point0, point1, sIndex, map) {
 	    if (!data.length) return;
 
 	    this._renderPie(ctx, data, point0, point1, 1, map, sIndex);
@@ -40660,7 +41407,7 @@
 	  *   @param: y - the height of the container
 	  *   @param: sIndex - index of drawing chart
 	  */
-	  $render_bar: function $render_bar(ctx, data, point0, point1, sIndex, map) {
+	  $render_bar: function (ctx, data, point0, point1, sIndex, map) {
 	    var barWidth,
 	        cellWidth,
 	        i,
@@ -40806,7 +41553,7 @@
 	      map.addRect(data[i].id, [x0 - point0.x, points[3] - point0.y, points[2] - point0.x, points[1] - point0.y], sIndex); //this._addMapRect(map,data[i].id,[{x:x0,y:points[3]},{x:points[2],y:points[1]}],point0,sIndex);
 	    }
 	  },
-	  _correctBarParams: function _correctBarParams(ctx, x, y, value, unit, barWidth, minValue) {
+	  _correctBarParams: function (ctx, x, y, value, unit, barWidth, minValue) {
 	    var xax = this._settings.xAxis;
 	    var axisStart = y;
 
@@ -40833,7 +41580,7 @@
 	      start: axisStart
 	    };
 	  },
-	  _drawBar: function _drawBar(ctx, point0, x0, y0, barWidth, minValue, radius, unit, value, color$$1, gradient, inner_gradient, border) {
+	  _drawBar: function (ctx, point0, x0, y0, barWidth, minValue, radius, unit, value, color$$1, gradient, inner_gradient, border) {
 	    ctx.save();
 	    ctx.fillStyle = color$$1;
 
@@ -40851,7 +41598,7 @@
 	    var y2 = p.x0 != x0 ? p.start - p.y0 : points[1];
 	    return [x1, y1, x2, y2];
 	  },
-	  _setBorderStyles: function _setBorderStyles(ctx, rawColor) {
+	  _setBorderStyles: function (ctx, rawColor) {
 	    var hsv, rgb;
 	    rgb = color.toRgb(rawColor);
 	    hsv = color.rgbToHsv(rgb[0], rgb[1], rgb[2]);
@@ -40860,7 +41607,7 @@
 	    ctx.strokeStyle = rgbColor;
 	    if (ctx.globalAlpha == 1) ctx.globalAlpha = 0.9;
 	  },
-	  _drawBarBorder: function _drawBarBorder(ctx, x0, y0, barWidth, minValue, radius, unit, value, color$$1) {
+	  _drawBarBorder: function (ctx, x0, y0, barWidth, minValue, radius, unit, value, color$$1) {
 	    var p;
 	    ctx.save();
 	    p = this._correctBarParams(ctx, x0, y0, value, unit, barWidth, minValue);
@@ -40882,7 +41629,7 @@
 
 	    ctx.restore();
 	  },
-	  _drawBarGradient: function _drawBarGradient(ctx, x0, y0, barWidth, minValue, radius, unit, value, color$$1, inner_gradient, border) {
+	  _drawBarGradient: function (ctx, x0, y0, barWidth, minValue, radius, unit, value, color$$1, inner_gradient, border) {
 	    ctx.save();
 
 	    var p = this._correctBarParams(ctx, x0, y0, value, unit, barWidth, minValue);
@@ -40908,7 +41655,7 @@
 	   *   @param: value - item value
 	   *   @param: offset - the offset from expected bar edge (necessary for drawing border)
 	   */
-	  _setBarPoints: function _setBarPoints(ctx, x0, y0, barWidth, radius, unit, value, offset, skipBottom) {
+	  _setBarPoints: function (ctx, x0, y0, barWidth, radius, unit, value, offset, skipBottom) {
 	    /*correction for displaing small values (when rounding radius is bigger than bar height)*/
 	    ctx.beginPath(); //y0 = 0.5;
 
@@ -40962,7 +41709,7 @@
 	  *   @param: height - the height of the container
 	  *   @param: sIndex - index of drawing chart
 	  */
-	  $render_line: function $render_line(ctx, data, point0, point1, sIndex, map) {
+	  $render_line: function (ctx, data, point0, point1, sIndex, map) {
 	    var config, i, items, params, x0, x1, x2, y1, y2, y0, res1, res2;
 	    params = this._calculateLineParams(ctx, data, point0, point1, sIndex);
 	    config = this._settings;
@@ -41045,7 +41792,7 @@
 	      }
 	    }
 	  },
-	  _calcOverflowX: function _calcOverflowX(x1, x2, y1, y2, y) {
+	  _calcOverflowX: function (x1, x2, y1, y2, y) {
 	    return x1 + (y - y1) * (x2 - x1) / (y2 - y1);
 	  },
 
@@ -41057,7 +41804,7 @@
 	  *   @param: obj - data object
 	  *   @param: label - (boolean) defines wherether label needs being drawn
 	  */
-	  _drawItem: function _drawItem(ctx, x0, y0, obj, label, sIndex, map) {
+	  _drawItem: function (ctx, x0, y0, obj, label, sIndex, map) {
 	    var config = this._settings.item;
 	    var R = parseInt(config.radius.call(this, obj), 10) || 0;
 	    var mapStart = this._mapStart;
@@ -41117,7 +41864,7 @@
 	      map.addRect(obj.id, [x0 - areaPos - mapStart.x, y0 - areaPos - mapStart.y, x0 + areaPos - mapStart.x, y0 + areaPos - mapStart.y], sIndex);
 	    }
 	  },
-	  _strokeChartItem: function _strokeChartItem(ctx, x0, y0, R, type) {
+	  _strokeChartItem: function (ctx, x0, y0, R, type) {
 	    var p = [];
 
 	    if (type && (type == "square" || type == "s")) {
@@ -41140,7 +41887,7 @@
 	  *   @param: y1 - the y position of chart end
 	  *   @param: params - the object with elements: minValue, maxValue, unit, valueFactor (the value multiple of 10)
 	  */
-	  _getPointY: function _getPointY(data, point0, point1, params) {
+	  _getPointY: function (data, point0, point1, params) {
 	    var minValue = params.minValue;
 	    var maxValue = params.maxValue;
 	    var unit = params.unit;
@@ -41179,7 +41926,7 @@
 
 	    return y;
 	  },
-	  _calculateLineParams: function _calculateLineParams(ctx, data, point0, point1, sIndex) {
+	  _calculateLineParams: function (ctx, data, point0, point1, sIndex) {
 	    var params = {};
 	    /*maxValue - minValue*/
 
@@ -41235,7 +41982,7 @@
 	  *   @param: y - the height of the container
 	  *   @param: sIndex - index of drawing chart
 	  */
-	  $render_barH: function $render_barH(ctx, data, point0, point1, sIndex, map) {
+	  $render_barH: function (ctx, data, point0, point1, sIndex, map) {
 	    var barOffset, barWidth, cellWidth, color, gradient, i, limits, maxValue, minValue, innerGradient, valueFactor, relValue, radius, relativeValues, startValue, totalWidth, value, unit, x0, y0, xax;
 	    /*an available width for one bar*/
 
@@ -41362,7 +42109,7 @@
 	   *   @param: value - item value
 	   *   @param: offset - the offset from expected bar edge (necessary for drawing border)
 	   */
-	  _setBarHPoints: function _setBarHPoints(ctx, x0, y0, barWidth, radius, unit, value, offset, skipLeft) {
+	  _setBarHPoints: function (ctx, x0, y0, barWidth, radius, unit, value, offset, skipLeft) {
 	    /*correction for displaing small values (when rounding radius is bigger than bar height)*/
 	    var angle_corr = 0;
 
@@ -41404,7 +42151,7 @@
 
 	    return [x3, y5];
 	  },
-	  _drawHScales: function _drawHScales(ctx, data, point0, point1, start, end, cellWidth) {
+	  _drawHScales: function (ctx, data, point0, point1, start, end, cellWidth) {
 	    var x = 0;
 
 	    if (this._settings.xAxis) {
@@ -41418,7 +42165,7 @@
 	      this._drawHYAxis(this.canvases["y"].getCanvas(), data, point0, point1, cellWidth, x);
 	    }
 	  },
-	  _drawHYAxis: function _drawHYAxis(ctx, data, point0, point1, cellWidth, yAxisX) {
+	  _drawHYAxis: function (ctx, data, point0, point1, cellWidth, yAxisX) {
 	    if (!this._settings.yAxis) return;
 	    var unitPos;
 	    var x0 = parseInt(yAxisX ? yAxisX : point0.x, 10) - 0.5;
@@ -41440,7 +42187,7 @@
 
 	    this._setYAxisTitle(point0, point1);
 	  },
-	  _drawHXAxis: function _drawHXAxis(ctx, data, point0, point1, start, end) {
+	  _drawHXAxis: function (ctx, data, point0, point1, start, end) {
 	    var step;
 	    var scaleParam = {};
 	    var axis = this._settings.xAxis;
@@ -41492,7 +42239,7 @@
 	    this.canvases["x"].renderTextAt(true, false, x0, point1.y + this._settings.padding.bottom - 3, this._settings.xAxis.title, "webix_axis_title_x", point1.x - point0.x);
 	    return yAxisStart;
 	  },
-	  _correctBarHParams: function _correctBarHParams(ctx, x, y, value, unit, barWidth, minValue) {
+	  _correctBarHParams: function (ctx, x, y, value, unit, barWidth, minValue) {
 	    var yax = this._settings.yAxis;
 	    var axisStart = x;
 
@@ -41519,7 +42266,7 @@
 	      start: axisStart
 	    };
 	  },
-	  _drawBarH: function _drawBarH(ctx, point1, x0, y0, barWidth, minValue, radius, unit, value, color, gradient, inner_gradient) {
+	  _drawBarH: function (ctx, point1, x0, y0, barWidth, minValue, radius, unit, value, color, gradient, inner_gradient) {
 	    ctx.save();
 
 	    var p = this._correctBarHParams(ctx, x0, y0, value, unit, barWidth, minValue);
@@ -41539,7 +42286,7 @@
 	    var x2 = p.y0 != y0 ? p.start : points[0];
 	    return [x1, y1, x2, y2];
 	  },
-	  _drawBarHBorder: function _drawBarHBorder(ctx, x0, y0, barWidth, minValue, radius, unit, value, color) {
+	  _drawBarHBorder: function (ctx, x0, y0, barWidth, minValue, radius, unit, value, color) {
 	    ctx.save();
 
 	    var p = this._correctBarHParams(ctx, x0, y0, value, unit, barWidth, minValue);
@@ -41555,7 +42302,7 @@
 	    ctx.stroke();
 	    ctx.restore();
 	  },
-	  _drawBarHGradient: function _drawBarHGradient(ctx, x0, y0, barWidth, minValue, radius, unit, value, color, inner_gradient) {
+	  _drawBarHGradient: function (ctx, x0, y0, barWidth, minValue, radius, unit, value, color, inner_gradient) {
 	    ctx.save();
 
 	    var p = this._correctBarHParams(ctx, x0, y0, value, unit, barWidth, minValue);
@@ -41582,7 +42329,7 @@
 	  *   @param: y - the height of the container
 	  *   @param: sIndex - index of drawing chart
 	  */
-	  $render_stackedBar: function $render_stackedBar(ctx, data, point0, point1, sIndex, map) {
+	  $render_stackedBar: function (ctx, data, point0, point1, sIndex, map) {
 	    var maxValue, minValue, xAxisY, x0, y0;
 	    /*necessary if maxValue - minValue < 0*/
 
@@ -41734,7 +42481,7 @@
 	   *   @param: offset - the offset from expected bar edge (necessary for drawing border)
 	   *   @param: minY - the minimum y position for the bars ()
 	   */
-	  _setStakedBarPoints: function _setStakedBarPoints(ctx, x0, y0, barWidth, y1, offset, minY, skipBottom) {
+	  _setStakedBarPoints: function (ctx, x0, y0, barWidth, y1, offset, minY, skipBottom) {
 	    /*start*/
 	    ctx.moveTo(x0, y0);
 	    /*maximum height limit*/
@@ -41771,7 +42518,7 @@
 	  	*   @param: sIndex - index of drawing chart
 	  	*   @param: map - map object
 	  	*/
-	  $render_stackedBarH: function $render_stackedBarH(ctx, data, point0, point1, sIndex, map) {
+	  $render_stackedBarH: function (ctx, data, point0, point1, sIndex, map) {
 	    var maxValue, minValue;
 	    /*necessary if maxValue - minValue < 0*/
 
@@ -41917,7 +42664,7 @@
 	  *   @param: height - the height of the container
 	  *   @param: sIndex - index of drawing chart
 	  */
-	  $render_spline: function $render_spline(ctx, data, point0, point1, sIndex, map) {
+	  $render_spline: function (ctx, data, point0, point1, sIndex, map) {
 	    var config, i, items, j, params, sparam, x, x0, x1, x2, y, y1, y2;
 	    params = this._calculateLineParams(ctx, data, point0, point1, sIndex);
 	    config = this._settings;
@@ -41978,7 +42725,7 @@
 	  },
 
 	  /*gets spline parameter*/
-	  _getSplineParameters: function _getSplineParameters(points) {
+	  _getSplineParameters: function (points) {
 	    var a,
 	        b,
 	        c,
@@ -42043,7 +42790,7 @@
 	  },
 
 	  /*returns the y position of the spline point */
-	  _getSplineYPoint: function _getSplineYPoint(x, xi, i, a, b, c, d) {
+	  _getSplineYPoint: function (x, xi, i, a, b, c, d) {
 	    return a[i] + (x - xi) * (b[i] + (x - xi) * (c[i] + (x - xi) * d[i]));
 	  }
 	};
@@ -42057,7 +42804,7 @@
 	  *   @param: height - the height of the container
 	  *   @param: sIndex - index of drawing chart
 	  */
-	  $render_area: function $render_area(ctx, data, point0, point1, sIndex, map) {
+	  $render_area: function (ctx, data, point0, point1, sIndex, map) {
 	    var align, config, i, mapRect, obj, params, path, res1, res2, x0, x1, y1, x2, y2, y0;
 	    params = this._calculateLineParams(ctx, data, point0, point1, sIndex);
 	    config = this._settings; //the size of map area
@@ -42154,7 +42901,7 @@
 	  *   @param: height - the height of the container
 	  *   @param: sIndex - index of drawing chart
 	  */
-	  $render_stackedArea: function $render_stackedArea(ctx, data, point0, point1, sIndex, map) {
+	  $render_stackedArea: function (ctx, data, point0, point1, sIndex, map) {
 	    var a0, a1, align, config, i, j, lastItem, mapRect, obj, params, path, x, y, yPos;
 	    params = this._calculateLineParams(ctx, data, point0, point1, sIndex);
 	    config = this._settings;
@@ -42171,11 +42918,11 @@
 
 	      x = !config.offset ? point0.x : point0.x + params.cellWidth * 0.5;
 
-	      var setOffset = function setOffset(i, y) {
+	      var setOffset = function (i, y) {
 	        return sIndex ? data[i].$startY ? y - point1.y + data[i].$startY : 0 : y;
 	      };
 
-	      var solveEquation = function solveEquation(x, p0, p1) {
+	      var solveEquation = function (x, p0, p1) {
 	        var k = (p1.y - p0.y) / (p1.x - p0.x);
 	        return k * x + p0.y - k * p0.x;
 	      };
@@ -42263,7 +43010,7 @@
 	};
 
 	var Radar = {
-	  $render_radar: function $render_radar(ctx, data, x, y, sIndex, map) {
+	  $render_radar: function (ctx, data, x, y, sIndex, map) {
 	    this._renderRadarChart(ctx, data, x, y, sIndex, map);
 	  },
 
@@ -42275,7 +43022,7 @@
 	  *   @param: y - the height of the container
 	  *   @param: ky - value from 0 to 1 that defines an angle of inclination (0<ky<1 - 3D chart)
 	  */
-	  _renderRadarChart: function _renderRadarChart(ctx, data, point0, point1, sIndex, map) {
+	  _renderRadarChart: function (ctx, data, point0, point1, sIndex, map) {
 	    if (!data.length) return;
 
 	    var coord = this._getPieParameters(point0, point1);
@@ -42302,7 +43049,7 @@
 
 	    this._drawRadarData(ctx, ratios, x0, y0, radius, data, sIndex, map);
 	  },
-	  _drawRadarData: function _drawRadarData(ctx, ratios, x, y, radius, data, sIndex, map) {
+	  _drawRadarData: function (ctx, ratios, x, y, radius, data, sIndex, map) {
 	    var alpha0, alpha1, config, i, min, max, pos0, pos1, posArr, r0, r1, relValue, startAlpha, value, value0, value1, valueFactor, unit, unitArr;
 	    config = this._settings;
 	    /*unit calculation (item_radius_pos = value*unit)*/
@@ -42350,12 +43097,12 @@
 	    if (!config.disableItems || data.length < 3) this._drawRadarItemMarkers(ctx, posArr, data, sIndex, map);
 	    posArr = null;
 	  },
-	  _drawRadarItemMarkers: function _drawRadarItemMarkers(ctx, points, data, sIndex, map) {
+	  _drawRadarItemMarkers: function (ctx, points, data, sIndex, map) {
 	    for (var i = 0; i < points.length; i++) {
 	      this._drawItem(ctx, points[i].x, points[i].y, data[i], this._settings.label.call(this, data), sIndex, map);
 	    }
 	  },
-	  _fillRadarChart: function _fillRadarChart(ctx, points, data) {
+	  _fillRadarChart: function (ctx, points, data) {
 	    var pos0, pos1;
 	    ctx.globalAlpha = this._settings.alpha.call(this, {});
 	    ctx.beginPath();
@@ -42375,7 +43122,7 @@
 	    ctx.fill();
 	    ctx.globalAlpha = 1;
 	  },
-	  _strokeRadarChart: function _strokeRadarChart(ctx, points, data) {
+	  _strokeRadarChart: function (ctx, points, data) {
 	    var pos0, pos1;
 
 	    for (var i = 0; i < points.length; i++) {
@@ -42385,7 +43132,7 @@
 	      this._drawLine(ctx, pos0.x, pos0.y, pos1.x, pos1.y, this._settings.line.color.call(this, data[i]), this._settings.line.width);
 	    }
 	  },
-	  _drawRadarAxises: function _drawRadarAxises(ratios, x, y, radius, data) {
+	  _drawRadarAxises: function (ratios, x, y, radius, data) {
 	    var configY = this._settings.yAxis;
 	    var configX = this._settings.xAxis;
 	    var start = configY.start;
@@ -42468,7 +43215,7 @@
 	      this._drawRadarScaleLabel(ctx, x, y, radius, angles[i], configX ? configX.template.call(this, data[i]) : "&nbsp;");
 	    }
 	  },
-	  _drawScaleSector: function _drawScaleSector(ctx, shape, x, y, radius, a1, a2, i, j) {
+	  _drawScaleSector: function (ctx, shape, x, y, radius, a1, a2, i, j) {
 	    var pos1, pos2;
 	    if (radius < 0) return false;
 	    pos1 = this._getPositionByAngle(a1, x, y, radius);
@@ -42499,7 +43246,7 @@
 	      ctx.stroke();
 	    }
 	  },
-	  _drawRadarScaleLabel: function _drawRadarScaleLabel(ctx, x, y, r, a, text) {
+	  _drawRadarScaleLabel: function (ctx, x, y, r, a, text) {
 	    if (!text) return false;
 	    var t = this.canvases["scale"].renderText(0, 0, text, "webix_axis_radar_title", 1);
 	    var width = t.scrollWidth;
@@ -42542,7 +43289,7 @@
 	  *   @param: sIndex - index of drawing chart
 	     *   @param: map - map object
 	  */
-	  $render_scatter: function $render_scatter(ctx, data, point0, point1, sIndex, map) {
+	  $render_scatter: function (ctx, data, point0, point1, sIndex, map) {
 	    if (!this._settings.xValue) return;
 	    var config = this._settings;
 	    var lines = !(config.disableLines || typeof config.disableLines == "undefined");
@@ -42625,7 +43372,7 @@
 	      }
 	    }
 	  },
-	  _fillScatterChart: function _fillScatterChart(ctx, points, data) {
+	  _fillScatterChart: function (ctx, points, data) {
 	    var pos0, pos1;
 	    ctx.globalAlpha = this._settings.alpha.call(this, {});
 	    ctx.beginPath();
@@ -42645,7 +43392,7 @@
 	    ctx.fill();
 	    ctx.globalAlpha = 1;
 	  },
-	  _getScatterParams: function _getScatterParams(ctx, data, point0, point1, limitsX, limitsY) {
+	  _getScatterParams: function (ctx, data, point0, point1, limitsX, limitsY) {
 	    var params = {};
 	    /*available space*/
 
@@ -42661,10 +43408,10 @@
 
 	    return params;
 	  },
-	  _drawScatterItem: function _drawScatterItem(ctx, map, item, obj, sIndex) {
+	  _drawScatterItem: function (ctx, map, item, obj, sIndex) {
 	    this._drawItem(ctx, item.x, item.y, obj, this._settings.label.call(this, obj), sIndex, map);
 	  },
-	  _calculateScatterItemPosition: function _calculateScatterItemPosition(params, point0, point1, limits, obj, axis) {
+	  _calculateScatterItemPosition: function (params, point0, point1, limits, obj, axis) {
 	    /*the real value of an object*/
 	    var value = this._settings[axis == "X" ? "xValue" : "value"].call(this, obj);
 	    /*a relative value*/
@@ -42687,7 +43434,7 @@
 	    if (value < limits.min) pos = point1[axis.toLowerCase()];
 	    return pos;
 	  },
-	  _calcScatterUnit: function _calcScatterUnit(p, min, max, size, axis) {
+	  _calcScatterUnit: function (p, min, max, size, axis) {
 	    var relativeValues = this._getRelativeValue(min, max);
 
 	    axis = axis || "";
@@ -42843,7 +43590,7 @@
 	   *   @param: height - the height of the container
 	   *   @param: sIndex - index of drawing chart
 	   */
-	  $render_splineArea: function $render_splineArea(ctx, data, point0, point1, sIndex, map) {
+	  $render_splineArea: function (ctx, data, point0, point1, sIndex, map) {
 	    var color,
 	        i,
 	        items,
@@ -42945,7 +43692,7 @@
 	var animateDuration = 400,
 	    cellWidth = 30;
 	var DynamicChart = {
-	  dynamic_setter: function dynamic_setter(value) {
+	  dynamic_setter: function (value) {
 	    if (value) init(this);
 	    return value;
 	  }
@@ -43179,7 +43926,7 @@
 
 	var api$1m = {
 	  name: "chart",
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    this._series = [this._settings];
 	    this._legend_labels = [];
 	    this._contentobj.className += " webix_chart";
@@ -43198,10 +43945,9 @@
 	      config.series = series;
 	    }
 
-	    this.attachEvent("onMouseMove", this._switchSeries);
 	    this.data.provideApi(this, true);
 	  },
-	  _after_init_call: function _after_init_call() {
+	  _after_init_call: function () {
 	    this.data.attachEvent("onStoreUpdated", bind(function () {
 	      this.render.apply(this, arguments);
 	    }, this));
@@ -43240,7 +43986,7 @@
 	  },
 	  _id: "webix_area_id",
 	  on_click: {
-	    webix_chart_legend_item: function webix_chart_legend_item(e, id, obj) {
+	    webix_chart_legend_item: function (e, id, obj) {
 	      var series = obj.getAttribute("series_id");
 
 	      if (this.callEvent("onLegendClick", [e, series, obj])) {
@@ -43262,10 +44008,10 @@
 	  },
 	  on_dblclick: {},
 	  on_mouse_move: {},
-	  locate: function locate$$1(e) {
+	  locate: function (e) {
 	    return locate(e, this._id);
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    var res = base.api.$setSize.call(this, x, y);
 
 	    if (res) {
@@ -43278,7 +44024,7 @@
 
 	    return res;
 	  },
-	  type_setter: function type_setter(val) {
+	  type_setter: function (val) {
 	    assert(this["$render_" + val], "Chart type is not supported, or extension is not loaded: " + val);
 
 	    if (typeof this._settings.offset == "undefined") {
@@ -43294,11 +44040,11 @@
 
 	    return val;
 	  },
-	  destructor: function destructor() {
+	  destructor: function () {
 	    this.removeAllSeries();
 	    Destruction.destructor.apply(this, arguments);
 	  },
-	  removeAllSeries: function removeAllSeries() {
+	  removeAllSeries: function () {
 	    this.clearCanvas();
 
 	    if (this._legendObj) {
@@ -43314,20 +44060,14 @@
 	    }
 
 	    this._contentobj.innerHTML = "";
-
-	    for (var i = 0; i < this._series.length; i++) {
-	      if (this._series[i].tooltip) this._series[i].tooltip.destructor();
-	    } //	this.callEvent("onDestruct",[]);
-
-
 	    this._series = [];
 	  },
-	  clearCanvas: function clearCanvas() {
+	  clearCanvas: function () {
 	    if (this.canvases && _typeof(this.canvases) == "object") for (var c in this.canvases) {
 	      this.canvases[c].clearCanvas();
 	    }
 	  },
-	  render: function render(id, changes, type) {
+	  render: function (id, changes, type) {
 	    var bounds, data, map, temp;
 	    if (!this.isVisible(this._settings.id)) return;
 	    data = this._getChartData();
@@ -43374,7 +44114,7 @@
 	      }
 	    }
 	  },
-	  _applyBounds: function _applyBounds(elem, bounds) {
+	  _applyBounds: function (elem, bounds) {
 	    var style = {};
 	    style.left = bounds.start.x;
 	    style.top = bounds.start.y;
@@ -43385,7 +44125,7 @@
 	      elem.style[prop] = style[prop] + "px";
 	    }
 	  },
-	  _getChartData: function _getChartData() {
+	  _getChartData: function () {
 	    var axis, axisConfig, config, data, i, newData, start, units, value, valuesHash;
 	    data = this.data.getRange();
 	    axis = this._settings.type.toLowerCase().indexOf("barh") != -1 ? "yAxis" : "xAxis";
@@ -43433,7 +44173,7 @@
 
 	    return data;
 	  },
-	  series_setter: function series_setter(config) {
+	  series_setter: function (config) {
 	    if (_typeof(config) != "object") {
 	      assert(config, "Chart :: Series must be an array or object");
 	    } else {
@@ -43450,7 +44190,7 @@
 	  },
 	  value_setter: template,
 	  xValue_setter: template,
-	  yValue_setter: function yValue_setter(config) {
+	  yValue_setter: function (config) {
 	    this.define("value", config);
 	  },
 	  alpha_setter: template,
@@ -43458,17 +44198,17 @@
 	  lineColor_setter: template,
 	  borderColor_setter: template,
 	  pieInnerText_setter: template,
-	  gradient_setter: function gradient_setter(config) {
+	  gradient_setter: function (config) {
 	    if (typeof config != "function" && config && config === true) config = "light";
 	    return config;
 	  },
 	  colormap: {
-	    "RAINBOW": function RAINBOW(obj) {
+	    "RAINBOW": function (obj) {
 	      var pos$$1 = Math.floor(this.getIndexById(obj.id) / this.count() * 1536);
 	      if (pos$$1 == 1536) pos$$1 -= 1;
 	      return this._rainbow[Math.floor(pos$$1 / 256)](pos$$1 % 256);
 	    },
-	    "default": function _default(obj) {
+	    "default": function (obj) {
 	      var count = this.count();
 	      var colorsCount = this._defColors.length;
 	      var i = this.getIndexById(obj.id);
@@ -43484,17 +44224,17 @@
 	      return this._defColors[i];
 	    }
 	  },
-	  color_setter: function color_setter(value) {
+	  color_setter: function (value) {
 	    return this.colormap[value] || template(value);
 	  },
-	  fill_setter: function fill_setter(value) {
+	  fill_setter: function (value) {
 	    return !value || value == "0" ? false : template(value);
 	  },
-	  _definePreset: function _definePreset(obj) {
+	  _definePreset: function (obj) {
 	    this.define("preset", obj.preset);
 	    delete obj.preset;
 	  },
-	  preset_setter: function preset_setter(value) {
+	  preset_setter: function (value) {
 	    var a, b, preset;
 	    this.defaults = exports.extend({}, this.defaults);
 	    preset = this.presets[value];
@@ -43521,7 +44261,7 @@
 
 	    return false;
 	  },
-	  legend_setter: function legend_setter(config) {
+	  legend_setter: function (config) {
 	    if (!config) {
 	      if (this._legendObj) {
 	        this._legendObj.innerHTML = "";
@@ -43557,7 +44297,7 @@
 	    config.template = template(config.template);
 	    return config;
 	  },
-	  item_setter: function item_setter(config) {
+	  item_setter: function (config) {
 	    if (_typeof(config) != "object") config = {
 	      color: config,
 	      borderColor: config
@@ -43571,7 +44311,7 @@
 
 	    return config;
 	  },
-	  line_setter: function line_setter(config) {
+	  line_setter: function (config) {
 	    if (_typeof(config) != "object") config = {
 	      color: config
 	    };
@@ -43579,7 +44319,7 @@
 	    config.color = template(config.color);
 	    return config;
 	  },
-	  padding_setter: function padding_setter(config) {
+	  padding_setter: function (config) {
 	    if (_typeof(config) != "object") config = {
 	      left: config,
 	      right: config,
@@ -43596,7 +44336,7 @@
 
 	    return config;
 	  },
-	  xAxis_setter: function xAxis_setter(config) {
+	  xAxis_setter: function (config) {
 	    if (!config) return false;
 	    if (_typeof(config) != "object") config = {
 	      template: config
@@ -43617,7 +44357,7 @@
 	    this._configXAxis = exports.extend({}, config);
 	    return config;
 	  },
-	  yAxis_setter: function yAxis_setter(config) {
+	  yAxis_setter: function (config) {
 	    this._mergeSettings(config, {
 	      title: "",
 	      color: "#edeff0",
@@ -43634,12 +44374,12 @@
 	    this._configYAxis = exports.extend({}, config);
 	    return config;
 	  },
-	  _converToTemplate: function _converToTemplate(arr, config) {
+	  _converToTemplate: function (arr, config) {
 	    for (var i = 0; i < arr.length; i++) {
 	      config[arr[i]] = template(config[arr[i]]);
 	    }
 	  },
-	  _createCanvas: function _createCanvas(name, style, container, index$$1, title) {
+	  _createCanvas: function (name, style, container, index$$1, title) {
 	    var params = {
 	      container: container || this._contentobj,
 	      name: name,
@@ -43651,7 +44391,7 @@
 	    };
 	    return new Canvas(params);
 	  },
-	  _drawScales: function _drawScales(data, point0, point1, start, end, cellWidth) {
+	  _drawScales: function (data, point0, point1, start, end, cellWidth) {
 	    var ctx,
 	        y = 0;
 
@@ -43668,7 +44408,7 @@
 
 	    return y;
 	  },
-	  _drawXAxis: function _drawXAxis(ctx, data, point0, point1, cellWidth, y) {
+	  _drawXAxis: function (ctx, data, point0, point1, cellWidth, y) {
 	    var i,
 	        unitPos,
 	        config = this._settings,
@@ -43705,7 +44445,7 @@
 
 	    this._drawLine(ctx, x1 + 0.5, point1.y, x1 + 0.5, point0.y + 0.5, config.xAxis.lineColor.call(this, {}), 1);
 	  },
-	  _drawYAxis: function _drawYAxis(ctx, data, point0, point1, start, end) {
+	  _drawYAxis: function (ctx, data, point0, point1, start, end) {
 	    var step;
 	    var scaleParam = {};
 	    if (!this._settings.yAxis) return;
@@ -43761,12 +44501,12 @@
 
 	    return lineX;
 	  },
-	  _setYAxisTitle: function _setYAxisTitle(point0, point1) {
+	  _setYAxisTitle: function (point0, point1) {
 	    var className = "webix_axis_title_y";
 	    var text = this.canvases["y"].renderTextAt("middle", false, 0, parseInt((point1.y - point0.y) / 2 + point0.y, 10), this._settings.yAxis.title, className);
 	    if (text) text.style.left = (env.transform ? (text.offsetHeight - text.offsetWidth) / 2 : 0) + "px";
 	  },
-	  _calculateLogScale: function _calculateLogScale(nmin, nmax) {
+	  _calculateLogScale: function (nmin, nmax) {
 	    var startPower = Math.floor(this._log10(nmin));
 	    var endPower = Math.ceil(this._log10(nmax));
 	    return {
@@ -43775,14 +44515,14 @@
 	      end: endPower
 	    };
 	  },
-	  _normStep: function _normStep(step) {
+	  _normStep: function (step) {
 	    var power = Math.floor(this._log10(step));
 	    var calculStep = Math.pow(10, power);
 	    var stepVal = step / calculStep;
 	    stepVal = stepVal > 5 ? 10 : 5;
 	    return parseInt(stepVal, 10) * calculStep;
 	  },
-	  _calculateScale: function _calculateScale(nmin, nmax) {
+	  _calculateScale: function (nmin, nmax) {
 	    this._logScaleCalc = false;
 
 	    if (this._settings.scale == "logarithmic") {
@@ -43830,7 +44570,7 @@
 	      fixNum: power < 0 ? Math.abs(power) : 0
 	    };
 	  },
-	  _getLimits: function _getLimits(orientation, value) {
+	  _getLimits: function (orientation, value) {
 	    var data = this.data._obj_array();
 
 	    var maxValue, minValue;
@@ -43856,21 +44596,21 @@
 	      min: minValue
 	    };
 	  },
-	  _log10: function _log10(n) {
+	  _log10: function (n) {
 	    var method_name = "log";
 	    return Math[method_name](n) / Math.LN10;
 	  },
-	  _drawXAxisLabel: function _drawXAxisLabel(x, y, obj, center, top) {
+	  _drawXAxisLabel: function (x, y, obj, center, top) {
 	    if (!this._settings.xAxis) return;
 	    var elem = this.canvases["x"].renderTextAt(top, center, x, y - (top ? 2 : 0), this._settings.xAxis.template(obj));
 	    if (elem) elem.className += " webix_axis_item_x";
 	  },
-	  _drawXAxisLine: function _drawXAxisLine(ctx, x, y1, y2, obj) {
+	  _drawXAxisLine: function (ctx, x, y1, y2, obj) {
 	    if (!this._settings.xAxis || !this._settings.xAxis.lines) return;
 
 	    this._drawLine(ctx, x, y1, x, y2, this._settings.xAxis.lineColor.call(this, obj), 1);
 	  },
-	  _drawLine: function _drawLine(ctx, x1, y1, x2, y2, color$$1, width) {
+	  _drawLine: function (ctx, x1, y1, x2, y2, color$$1, width) {
 	    ctx.strokeStyle = color$$1;
 	    ctx.lineWidth = width;
 	    ctx.beginPath();
@@ -43879,7 +44619,7 @@
 	    ctx.stroke();
 	    ctx.lineWidth = 1;
 	  },
-	  _getRelativeValue: function _getRelativeValue(minValue, maxValue) {
+	  _getRelativeValue: function (minValue, maxValue) {
 	    var relValue;
 	    var valueFactor = 1;
 
@@ -43909,7 +44649,7 @@
 	  *   adds series to the chart (value and color properties)
 	  *   @param: obj - obj with configuration properties
 	  */
-	  addSeries: function addSeries(obj) {
+	  addSeries: function (obj) {
 	    var temp = exports.extend({}, this._settings);
 	    this._settings = exports.extend({}, temp);
 
@@ -43919,25 +44659,7 @@
 
 	    this._settings = temp;
 	  },
-
-	  /*switch global settings to serit in question*/
-	  _switchSeries: function _switchSeries(id, e, tag) {
-	    var tip;
-	    if (!tag.getAttribute("userdata")) return;
-	    this._active_serie = this._series.length == 1 ? this._getActiveSeries(e) : tag.getAttribute("userdata");
-	    if (!this._series[this._active_serie]) return;
-
-	    for (var i = 0; i < this._series.length; i++) {
-	      tip = this._series[i].tooltip;
-	      if (tip) tip.disable();
-	    }
-
-	    if (!tag.getAttribute("disabled")) {
-	      tip = this._series[this._active_serie].tooltip;
-	      if (tip) tip.enable();
-	    }
-	  },
-	  _getActiveSeries: function _getActiveSeries(e) {
+	  _getActiveSeries: function (e) {
 	    var a, areas, i, offset$$1, pos$$1, selection, x, y;
 	    areas = this._map._areas;
 	    offset$$1 = offset(this._contentobj._htmlmap);
@@ -43957,7 +44679,7 @@
 
 	    return selection ? selection.index : 0;
 	  },
-	  hideSeries: function hideSeries(series) {
+	  hideSeries: function (series) {
 	    this.canvases[series].hideCanvas();
 	    var legend = this._settings.legend;
 
@@ -43969,7 +44691,7 @@
 
 	    this._map.hide(this._contentobj, series, true);
 	  },
-	  showSeries: function showSeries(series) {
+	  showSeries: function (series) {
 	    this.canvases[series].showCanvas();
 	    var legend = this._settings.legend;
 
@@ -43989,7 +44711,7 @@
 	  *   @param: width - the width of the container
 	  *   @param: height - the height of the container
 	  */
-	  _drawLegend: function _drawLegend(data, width) {
+	  _drawLegend: function (data, width) {
 	    /*position of the legend block*/
 	    var i,
 	        legend,
@@ -44102,7 +44824,7 @@
 	  *   @param: ctx - canvas object
 	  *   @param: obj - data object that needs being represented
 	  */
-	  _drawLegendText: function _drawLegendText(cont, value, series, disabled) {
+	  _drawLegendText: function (cont, value, series, disabled) {
 	    var style = "";
 	    if (this._settings.legend.layout == "x") style = "float:left;";
 	    /*the text of the legend item*/
@@ -44126,7 +44848,7 @@
 	  *   @param: y - the vertical position of the marker
 	  *   @param: obj - data object which color needs being used
 	  */
-	  _drawLegendMarker: function _drawLegendMarker(ctx, x, y, color$$1, height, disabled, i) {
+	  _drawLegendMarker: function (ctx, x, y, color$$1, height, disabled, i) {
 	    var p = [];
 	    var marker = this._settings.legend.marker;
 	    var values = this._settings.legend.values;
@@ -44215,7 +44937,7 @@
 	  *   @param: width - the width of the chart container
 	  *   @param: height - the height of the chart container
 	  */
-	  _getChartBounds: function _getChartBounds(width, height) {
+	  _getChartBounds: function (width, height) {
 	    var chartX0, chartY0, chartX1, chartY1;
 	    chartX0 = this._settings.padding.left;
 	    chartY0 = this._settings.padding.top;
@@ -44261,7 +44983,7 @@
 	  *   gets the maximum and minimum values for the stacked chart
 	  *   @param: data - data set
 	  */
-	  _getStackedLimits: function _getStackedLimits(data) {
+	  _getStackedLimits: function (data) {
 	    var i, j, maxValue, minValue, value;
 
 	    if (this._settings.yAxis && typeof this._settings.yAxis.end != "undefined" && typeof this._settings.yAxis.start != "undefined" && this._settings.yAxis.step) {
@@ -44298,7 +45020,7 @@
 	  },
 
 	  /*adds colors to the gradient object*/
-	  _setBarGradient: function _setBarGradient(ctx, x1, y1, x2, y2, type, rawColor, axis) {
+	  _setBarGradient: function (ctx, x1, y1, x2, y2, type, rawColor, axis) {
 	    var gradient, offset$$1, rgb, hsv, rawColor0, stops;
 
 	    if (type == "light") {
@@ -44341,7 +45063,7 @@
 	  *   @param: y - start y position
 	  *   @param: r - destination to the point
 	  */
-	  _getPositionByAngle: function _getPositionByAngle(a, x, y, r) {
+	  _getPositionByAngle: function (a, x, y, r) {
 	    a *= -1;
 	    x = x + Math.cos(a) * r;
 	    y = y - Math.sin(a) * r;
@@ -44350,12 +45072,12 @@
 	      y: y
 	    };
 	  },
-	  _gradient: function _gradient(gradient, stops) {
+	  _gradient: function (gradient, stops) {
 	    for (var i = 0; i < stops.length; i++) {
 	      gradient.addColorStop(stops[i][0], stops[i][1]);
 	    }
 	  },
-	  _path: function _path(ctx, points) {
+	  _path: function (ctx, points) {
 	    var i, method;
 
 	    for (i = 0; i < points.length; i++) {
@@ -44364,7 +45086,7 @@
 	      ctx[method].apply(ctx, points[i]);
 	    }
 	  },
-	  _addMapRect: function _addMapRect(map, id, points, bounds, sIndex) {
+	  _addMapRect: function (map, id, points, bounds, sIndex) {
 	    map.addRect(id, [points[0].x - bounds.x, points[0].y - bounds.y, points[1].x - bounds.x, points[1].y - bounds.y], sIndex);
 	  }
 	};
@@ -44376,12 +45098,12 @@
 
 	var api$1n = {
 	  name: "rangechart",
-	  $init: function $init() {
+	  $init: function () {
 	    this.attachEvent("onAfterRender", this._init_frame);
 
 	    this._set_full_range();
 	  },
-	  _init_frame: function _init_frame() {
+	  _init_frame: function () {
 	    assert(this._settings.type.indexOf("pie") === -1 && this._settings.type !== "radar" && this._settings.type !== "donut", "Not suppored chart type");
 
 	    if (!this._map._areas.length || this._frame) {
@@ -44393,20 +45115,21 @@
 	    this._setMap();
 
 	    this._item_radius = (this._map._areas[0].points[2] - this._map._areas[0].points[0]) / 2;
-	    this._rHandle = create("div", {
-	      "class": "webix_chart_resizer right",
+	    var common = {
+	      "webix_disable_drag": "true",
 	      "tabindex": "0",
 	      "role": "button",
 	      "aria-label": i18n.aria.resizeChart
-	    });
-	    this._lHandle = create("div", {
-	      "class": "webix_chart_resizer left",
-	      "tabindex": "0",
-	      "role": "button",
-	      "aria-label": i18n.aria.resizeChart
-	    });
+	    };
+	    this._rHandle = create("div", exports.extend({
+	      "class": "webix_chart_resizer right"
+	    }, common));
+	    this._lHandle = create("div", exports.extend({
+	      "class": "webix_chart_resizer left"
+	    }, common));
 	    this._frame = create("div", {
-	      "class": "webix_chart_frame"
+	      "class": "webix_chart_frame",
+	      "webix_disable_drag": "true"
 	    });
 
 	    this._viewobj.appendChild(this._lHandle);
@@ -44444,30 +45167,30 @@
 	    this.callEvent("onAfterRangeChange", [this._value]);
 	    this.data.attachEvent("onStoreUpdated", bind(this._refresh_range, this));
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    if (chart.api.$setSize.call(this, x, y)) {
 	      this._setMap();
 
 	      this._refresh_range();
 	    }
 	  },
-	  _setHandle: function _setHandle(update) {
+	  _setHandle: function (update) {
 	    if (this._rHandle && !this._handle_radius) {
 	      this._handle_radius = this._rHandle.clientWidth / 2;
 	      if (update) this._refresh_range();
 	    }
 	  },
-	  _setMap: function _setMap() {
+	  _setMap: function () {
 	    var bounds = this._getChartBounds(this._content_width, this._content_height);
 
 	    this._mapStart = bounds.start;
 	    this._mapEnd = bounds.end;
 	  },
-	  removeAllSeries: function removeAllSeries() {
+	  removeAllSeries: function () {
 	    this._frame = this._rHandle = this._lHandle = null;
 	    chart.api.removeAllSeries.apply(this, arguments);
 	  },
-	  _keyShift: function _keyShift(e) {
+	  _keyShift: function (e) {
 	    var code = e.which || e.keyCode;
 
 	    if (code === 37 || code === 39) {
@@ -44483,7 +45206,7 @@
 	      }
 	    }
 	  },
-	  _frDown: function _frDown(e) {
+	  _frDown: function (e) {
 	    if (e.target.className.indexOf("webix_chart_resizer") !== -1) this._activeHandle = e.target;else if (this._map._areas.length) {
 	      var spos = this._map._areas[this._value.sindex].points[2] - this._item_radius;
 	      var epos = this._map._areas[this._value.eindex].points[2] - this._item_radius;
@@ -44504,13 +45227,13 @@
 	      bind: this
 	    });
 	  },
-	  _frClear: function _frClear() {
+	  _frClear: function () {
 	    if (state._events[this._resizeHandlerMove]) {
 	      eventRemove(this._resizeHandlerMove);
 	      eventRemove(this._resizeHandlerUp);
 	    }
 	  },
-	  _frMove: function _frMove(e) {
+	  _frMove: function (e) {
 	    if (this._activeHandle) {
 	      var pos_x = pos(e).x - offset(this.$view).x;
 
@@ -44543,7 +45266,7 @@
 	      }
 	    }
 	  },
-	  _frUp: function _frUp(e) {
+	  _frUp: function (e) {
 	    this._frClear();
 
 	    removeCss(this._viewobj, "webix_noselect");
@@ -44591,11 +45314,11 @@
 
 	    this.callEvent("onAfterRangeChange", [this._value.start, this._value.end]);
 	  },
-	  _get_id_by_index: function _get_id_by_index(ind) {
+	  _get_id_by_index: function (ind) {
 	    if (ind >= this.data.order.length) ind = this.data.order.length - 1;
 	    return this.getItem(this.data.order[ind])[this._settings.frameId || "id"];
 	  },
-	  _get_index_by_pos: function _get_index_by_pos(pos$$1) {
+	  _get_index_by_pos: function (pos$$1) {
 	    var areas = this._map._areas;
 
 	    for (var i = 0; i < areas.length; i++) {
@@ -44604,7 +45327,7 @@
 
 	    return areas.length - 1;
 	  },
-	  _get_frame_index: function _get_frame_index(value) {
+	  _get_frame_index: function (value) {
 	    var key = this._settings.frameId || "id";
 
 	    for (var i = 0; i < this.data.order.length; i++) {
@@ -44613,7 +45336,7 @@
 
 	    return -1;
 	  },
-	  _set_full_range: function _set_full_range(value) {
+	  _set_full_range: function (value) {
 	    if (!value) value = {
 	      start: 0,
 	      end: 0,
@@ -44627,12 +45350,12 @@
 	    }
 	    this._value = value;
 	  },
-	  range_setter: function range_setter(value) {
+	  range_setter: function (value) {
 	    this._set_full_range(value);
 
 	    return this._value;
 	  },
-	  getFrameData: function getFrameData() {
+	  getFrameData: function () {
 	    var res = [];
 
 	    for (var i = this._value.sindex; i <= this._value.eindex; i++) {
@@ -44642,14 +45365,14 @@
 
 	    return res;
 	  },
-	  setFrameRange: function setFrameRange(range) {
+	  setFrameRange: function (range) {
 	    this._set_full_range(range);
 
 	    this._refresh_range();
 
 	    this.callEvent("onAfterRangeChange", [range]);
 	  },
-	  _refresh_range: function _refresh_range() {
+	  _refresh_range: function () {
 	    if (!this._map) return;
 	    var areas = this._map._areas;
 
@@ -44663,7 +45386,7 @@
 	      this._settings.range = this._value;
 	    }
 	  },
-	  getFrameRange: function getFrameRange() {
+	  getFrameRange: function () {
 	    return this._settings.range;
 	  }
 	};
@@ -44675,7 +45398,7 @@
 	    animate: {}
 	  },
 	  _listClassName: "webix_grouplist",
-	  $init: function $init() {
+	  $init: function () {
 	    exports.extend(this.data, TreeStore, true); //needed for getRange
 
 	    this.data.count = function () {
@@ -44687,18 +45410,18 @@
 
 	    this._onClear();
 	  },
-	  _onClear: function _onClear() {
+	  _onClear: function () {
 	    this._nested_cursor = [];
 	    this._nested_chain = [];
 	  },
-	  $setSize: function $setSize() {
+	  $setSize: function () {
 	    if (base.api.$setSize.apply(this, arguments)) {
 	      //critical for animations in group list
 	      this._dataobj.style.width = this._content_width;
 	    }
 	  },
 	  on_click: {
-	    webix_list_item: function webix_list_item(e, id) {
+	    webix_list_item: function (e, id) {
 	      if (this._in_animation) {
 	        return false;
 	      }
@@ -44746,13 +45469,13 @@
 	      }
 	    }
 	  },
-	  getOpenState: function getOpenState() {
+	  getOpenState: function () {
 	    return {
 	      parents: this._nested_chain,
 	      branch: this._nested_cursor
 	    };
 	  },
-	  render: function render() {
+	  render: function () {
 	    var i, lastChain; //start filtering processing=>
 
 	    this._nested_chain = copy(this._nested_chain);
@@ -44859,36 +45582,36 @@
 	      this._prev_nested_chain_length = this._nested_chain.length;
 	    }
 	  },
-	  templateBack_setter: function templateBack_setter(config) {
+	  templateBack_setter: function (config) {
 	    this.type.templateBack = template(config);
 	  },
-	  templateItem_setter: function templateItem_setter(config) {
+	  templateItem_setter: function (config) {
 	    this.type.templateItem = template(config);
 	  },
-	  templateGroup_setter: function templateGroup_setter(config) {
+	  templateGroup_setter: function (config) {
 	    this.type.templateGroup = template(config);
 	  },
 	  type: {
-	    template: function template$$1(obj, common) {
+	    template: function (obj, common) {
 	      if (obj.$count) return common.templateGroup(obj, common);
 	      return common.templateItem(obj, common);
 	    },
 	    css: "group",
-	    classname: function classname(obj, common, marks) {
-	      return "webix_list_item webix_" + (obj.$count ? "group" : "item") + (obj.$template ? "_back" : "") + (marks && marks.webix_selected ? " webix_selected " : "") + (obj.$css ? obj.$css : "");
+	    classname: function (obj, common, marks) {
+	      return "webix_list_item" + " webix_" + (obj.$count ? "group" : "item") + (obj.$template ? "_back" : "") + (marks && marks.webix_selected ? " webix_selected" : "") + (common.css ? " " + common.css : "") + (obj.$css ? " " + obj.$css : "");
 	    },
 	    templateStart: template("<div webix_l_id=\"#id#\" class=\"{common.classname()}\" style=\"width:{common.widthSize()}; height:{common.heightSize()};  overflow:hidden;\" {common.aria()}>"),
 	    templateBack: template("#value#"),
 	    templateItem: template("#value#"),
 	    templateGroup: template("#value#"),
-	    templateEnd: function templateEnd(obj) {
+	    templateEnd: function (obj) {
 	      var html = "";
 	      if (obj.$count) html += "<div class='webix_arrow_icon'></div>";
 	      html += "</div>";
 	      return html;
 	    }
 	  },
-	  showItem: function showItem(id) {
+	  showItem: function (id) {
 	    var obj, parent;
 
 	    if (id) {
@@ -44924,7 +45647,7 @@
 	  name: "unitlist",
 	  _id: "webix_item_id",
 	  uniteBy_setter: template,
-	  render: function render(id, data, type) {
+	  render: function (id, data, type) {
 	    var config = this._settings;
 	    if (!this.isVisible(config.id)) return;
 	    if (!config.uniteBy) return;
@@ -44955,7 +45678,7 @@
 	      this.callEvent("onAfterRender", []);
 	    }
 	  },
-	  getUnits: function getUnits() {
+	  getUnits: function () {
 	    var result = [];
 
 	    if (this.units) {
@@ -44966,10 +45689,10 @@
 
 	    return result;
 	  },
-	  getUnitList: function getUnitList(id) {
+	  getUnitList: function (id) {
 	    return this.units ? this.units[id] : null;
 	  },
-	  _toHTML: function _toHTML(obj) {
+	  _toHTML: function (obj) {
 	    //check if related template exist
 	    var mark = this.data._marks[obj.id];
 	    assert(!obj.$template || this.type["template" + obj.$template], "RenderStack :: Unknown template: " + obj.$template);
@@ -44981,7 +45704,7 @@
 
 	    return this.type.templateStart(obj, this.type, mark) + (obj.$template ? this.type["template" + obj.$template] : this.type.template)(obj, this.type) + this.type.templateEnd(obj, this.type);
 	  },
-	  _getUnitRange: function _getUnitRange() {
+	  _getUnitRange: function () {
 	    var data, i, u, unit;
 	    data = [];
 	    var min = this.data.$min || 0;
@@ -45006,7 +45729,7 @@
 
 	    return toArray(data);
 	  },
-	  _setUnits: function _setUnits() {
+	  _setUnits: function () {
 	    var list$$1 = this;
 	    this.units = {};
 	    this.data.each(function (obj) {
@@ -45019,22 +45742,22 @@
 	  },
 	  type: {
 	    headerHeight: 20,
-	    templateHeader: function templateHeader(value) {
+	    templateHeader: function (value) {
 	      return "<span class='webix_unit_header_inner'>" + value + "</span>";
 	    },
-	    templateStart: function templateStart(obj, type, marks) {
+	    templateStart: function (obj, type, marks) {
 	      if (obj.$unit) return type.templateStartHeader.apply(this, arguments);
 	      var className = "webix_list_item webix_list_" + type.css + "_item" + (marks && marks.webix_selected ? " webix_selected" : "") + (obj.$css ? obj.$css : "");
 	      var style = "width:" + type.widthSize(obj, type, marks) + "; height:" + type.heightSize(obj, type, marks) + "; overflow:hidden;" + (type.layout && type.layout == "x" ? "float:left;" : "");
 	      return "<div webix_item_id=\"" + obj.id + "\" class=\"" + className + "\" style=\"" + style + "\" " + type.aria(obj, type, marks) + ">";
 	    },
-	    templateStartHeader: function templateStartHeader(obj, type, marks) {
+	    templateStartHeader: function (obj, type, marks) {
 	      var className = "webix_unit_header webix_unit_" + type.css + "_header" + (obj.$selected ? "_selected" : "");
 	      var style = "width:" + type.widthSize(obj, type, marks) + "; height:" + type.headerHeight + "px; overflow:hidden;";
 	      return "<div webix_unit_id=\"" + obj.$unit + "\" class=\"" + className + "\" style=\"" + style + "\">";
 	    }
 	  },
-	  $skin: function $skin() {
+	  $skin: function () {
 	    this.type.headerHeight = $active.unitHeaderHeight;
 	  }
 	};
@@ -45051,7 +45774,7 @@
 	  defaults: {
 	    borderless: true
 	  },
-	  $init: function $init() {
+	  $init: function () {
 	    this._moved = {};
 	    this._inRight = bind(function (obj) {
 	      return this._moved[obj.id];
@@ -45062,7 +45785,7 @@
 	    this.$view.className += " webix_dbllist";
 	    this.$ready.unshift(this._setLayout);
 	  },
-	  $onLoad: function $onLoad(data, driver) {
+	  $onLoad: function (data, driver) {
 	    this._updateAndResize(function () {
 	      this.$$("left").data.driver = driver;
 	      this.$$("left").parse(data);
@@ -45074,7 +45797,7 @@
 
 	    return true;
 	  },
-	  _getButtons: function _getButtons() {
+	  _getButtons: function () {
 	    if (this._settings.buttons === false) return {
 	      width: 10
 	    };
@@ -45084,7 +45807,7 @@
 	      width: 120,
 	      template: buttons.join(""),
 	      onClick: {
-	        dbllist_button: function dbllist_button(e, id, trg) {
+	        dbllist_button: function (e, id, trg) {
 	          this.getTopParentView()._update_list(trg.getAttribute("action"));
 	        }
 	      }
@@ -45092,10 +45815,10 @@
 	    if (this._settings.buttons) buttons.template = this._settings.buttons;
 	    return buttons;
 	  },
-	  _getButton: function _getButton(action, label) {
+	  _getButton: function (action, label) {
 	    return "<button class='dbllist_button' action='" + action + "'>" + label + "</button>";
 	  },
-	  _getList: function _getList(id, action, label, bottom) {
+	  _getList: function (id, action, label, bottom) {
 	    var list = {
 	      view: "list",
 	      select: "multiselect",
@@ -45108,7 +45831,7 @@
 	        id: id
 	      },
 	      on: {
-	        onBeforeDrop: function onBeforeDrop(context) {
+	        onBeforeDrop: function (context) {
 	          var source = context.from;
 	          var target = context.to;
 	          var top = source.getTopParentView();
@@ -45120,7 +45843,7 @@
 
 	          return false;
 	        },
-	        onItemDblClick: function onItemDblClick() {
+	        onItemDblClick: function () {
 	          return this.getTopParentView()._update_list(this.config.action);
 	        }
 	      }
@@ -45143,7 +45866,7 @@
 	    };
 	    return list;
 	  },
-	  _setLayout: function _setLayout() {
+	  _setLayout: function () {
 	    var cols = [{
 	      margin: 10,
 	      type: "clean",
@@ -45151,7 +45874,7 @@
 	    }];
 	    this.cols_setter(cols);
 	  },
-	  _update_list: function _update_list(action) {
+	  _update_list: function (action) {
 	    var top = this;
 	    var id = null;
 	    var mode = false;
@@ -45172,7 +45895,7 @@
 
 	    top.select(id, mode);
 	  },
-	  select: function select(id, mode) {
+	  select: function (id, mode) {
 	    var i;
 	    if (_typeof(id) !== "object") id = [id];
 
@@ -45190,11 +45913,11 @@
 
 	    this.callEvent("onChange", []);
 	  },
-	  _updateAndResize: function _updateAndResize(handler, size) {
+	  _updateAndResize: function (handler, size) {
 	    freeze(bind(handler, this), false);
 	    if (size && (this.$$("left")._settings.autoheight || this.$$("right")._settings.autoheight)) this.resize();
 	  },
-	  _refresh: function _refresh() {
+	  _refresh: function () {
 	    var left = this.$$("left");
 	    var right = this.$$("right");
 	    if (left) this._updateAndResize(function () {
@@ -45202,13 +45925,14 @@
 	      right.filter(this._inRight);
 	    }, true);
 	  },
-	  focus: function focus() {
+	  focus: function () {
+	    if (!UIManager.canFocus(this)) return false;
 	    UIManager.setFocus(this);
 	  },
-	  value_setter: function value_setter(val) {
+	  value_setter: function (val) {
 	    this.setValue(val);
 	  },
-	  setValue: function setValue(value) {
+	  setValue: function (value) {
 	    this._moved = {};
 	    if (_typeof(value) !== "object") value = value.toString().split(",");
 
@@ -45218,7 +45942,7 @@
 
 	    this._refresh();
 	  },
-	  getValue: function getValue() {
+	  getValue: function () {
 	    var value = [];
 
 	    for (var key in this._moved) {
@@ -45233,10 +45957,10 @@
 	var api$1r = {
 	  name: "tree",
 	  defaults: {
-	    scroll: "a",
+	    scroll: "auto",
 	    navigation: true
 	  },
-	  $init: function $init() {
+	  $init: function () {
 	    this._viewobj.className += " webix_tree"; //map API of DataStore on self
 
 	    exports.extend(this.data, TreeStore, true);
@@ -45252,11 +45976,11 @@
 	  //supports custom context menu
 	  on_context: {},
 	  on_dblclick: {
-	    webix_tree_checkbox: function webix_tree_checkbox() {
+	    webix_tree_checkbox: function () {
 	      if (this.on_click.webix_tree_checkbox) return this.on_click.webix_tree_checkbox.apply(this, arguments);
 	    }
 	  },
-	  $fixEditor: function $fixEditor(editor) {
+	  $fixEditor: function (editor) {
 	    var item = this.getItemNode(editor.id).querySelector("span");
 
 	    if (item) {
@@ -45270,7 +45994,7 @@
 	  },
 	  //css class to action map, for onclick event
 	  on_click: {
-	    webix_tree_item: function webix_tree_item(e, id) {
+	    webix_tree_item: function (e, id) {
 	      if (this._settings.activeTitle) {
 	        var item = this.getItem(id);
 	        if (item.open) this.close(id);else this.open(id);
@@ -45293,14 +46017,14 @@
 	  },
 	  _paste: {
 	    // insert new item with pasted value
-	    insert: function insert(text) {
+	    insert: function (text) {
 	      var parent = this.getSelectedId() || "0";
 	      this.add({
 	        value: text
 	      }, null, parent);
 	    },
 	    // change value of each selected item
-	    modify: function modify(text) {
+	    modify: function (text) {
 	      var sel = this.getSelectedId(true);
 
 	      for (var i = 0; i < sel.length; i++) {
@@ -45309,20 +46033,36 @@
 	      }
 	    },
 	    // do nothing
-	    custom: function custom() {}
+	    custom: function () {}
 	  },
 	  _drag_order_complex: true,
-	  $dragHTML: function $dragHTML(obj) {
-	    return "<div class='borderless'>" + this.type.template(obj, this.type) + "</div>";
+	  $dragHTML: function (obj, e, context) {
+	    var html = "<div class='webix_tree_item'>" + this.type.template(obj, this.type) + "</div>";
+	    if (isArray(context.source) && context.source.length > 1) html = this._toMultipleHTML(html, context.source.length);
+	    return html;
+	  },
+	  _close_branches: function (context) {
+	    var source = context.source;
+
+	    for (var i = 0; i < source.length; i++) {
+	      this.close(source[i]);
+	    }
+	  },
+	  _set_drop_area: function (target, t) {
+	    var node = this.getItemNode(target);
+
+	    if (node) {
+	      node.parentNode.insertBefore(DragControl._dropHTML[0], node);
+	    } else t.children[0].children[0].appendChild(DragControl._dropHTML[0]);
 	  },
 	  //css class to action map, for dblclick event
 	  type: exports.extend({
 	    //normal state of item
-	    template: function template$$1(obj, common) {
+	    template: function (obj, common) {
 	      var template$$1 = common["template" + obj.level] || common.templateCommon;
 	      return template$$1.apply(this, arguments);
 	    },
-	    classname: function classname(obj, common, marks) {
+	    classname: function (obj, common, marks) {
 	      var css = "webix_tree_item";
 
 	      if (obj.$css) {
@@ -45331,9 +46071,10 @@
 	      }
 
 	      if (marks && marks.$css) css += " " + marks.$css;
+	      if (common.css) css += " " + common.css;
 	      return css;
 	    },
-	    aria: function aria(obj, common, marks) {
+	    aria: function (obj, common, marks) {
 	      return "role=\"treeitem\"" + (marks && marks.webix_selected ? " aria-selected=\"true\" tabindex=\"0\"" : " tabindex=\"-1\"") + (obj.$count ? "aria-expanded=\"" + (obj.open ? "true" : "false") + "\"" : "") + "aria-level=\"" + obj.$level + "\"";
 	    },
 	    templateCommon: template("{common.icon()} {common.folder()} <span>#value#</span>"),
@@ -45342,7 +46083,7 @@
 	    templateCopy: template("#value#")
 	  }, TreeType)
 	};
-	var view$1r = exports.protoUI(api$1r, TreeStateCheckbox, AutoTooltip, Group, TreeAPI, DragItem, TreeDataMove, SelectionModel, KeysNavigation, MouseEvents, Scrollable, TreeDataLoader, proto.view, TreeRenderStack, CopyPaste, EventSystem);
+	var view$1r = exports.protoUI(api$1r, TreeStateCheckbox, Group, TreeAPI, DragItem, TreeDataMove, SelectionModel, KeysNavigation, MouseEvents, Scrollable, TreeDataLoader, proto.view, TreeRenderStack, CopyPaste, EventSystem);
 	var tree = {
 	  api: api$1r,
 	  view: view$1r
@@ -45350,7 +46091,7 @@
 	type(view$1r, {
 	  name: "lineTree",
 	  css: "webixLineTree",
-	  icon: function icon(obj, common) {
+	  icon: function (obj, common) {
 	    var html = "";
 	    var open = "";
 
@@ -45364,7 +46105,7 @@
 
 	    return html;
 	  },
-	  _icon_src: function _icon_src(obj, common, level) {
+	  _icon_src: function (obj, common, level) {
 	    var lines = common._tree_branch_render_state;
 	    var tree = TreeRenderStack._obj;
 
@@ -45422,14 +46163,14 @@
 	  },
 	  value_setter: template,
 	  headerTemplate_setter: template,
-	  header_setter: function header_setter(value) {
+	  header_setter: function (value) {
 	    if (value && value !== true) {
 	      this.type.header = value;
 	    }
 
 	    return value;
 	  },
-	  $init: function $init() {
+	  $init: function () {
 	    this.$view.className += " webix_treemap";
 
 	    this._viewobj.setAttribute("role", "tree");
@@ -45444,13 +46185,13 @@
 	    }, this));
 	    this.attachEvent("onKeyPress", this._onKeyPress);
 	  },
-	  _toHTMLItem: function _toHTMLItem(obj) {
+	  _toHTMLItem: function (obj) {
 	    var mark = this.data._marks[obj.id];
 	    this.callEvent("onItemRender", [obj]);
 	    var template$$1 = obj.$template ? this.type["template" + obj.$template].call(this, obj, this.type, mark) : this.type.template.call(this, obj, this.type, mark);
 	    return this.type.templateStart.call(this, obj, this.type, mark) + template$$1 + this.type.templateEnd.call(this);
 	  },
-	  _renderHeader: function _renderHeader(id) {
+	  _renderHeader: function (id) {
 	    var item = this.getItem(id);
 	    var height = this._settings.headerHeight;
 	    var html = "<div class='webix_treemap_header' style='height:" + height + "px;line-height:" + height + "px;'>";
@@ -45458,7 +46199,7 @@
 	    html += "</div>";
 	    return html;
 	  },
-	  _renderBranch: function _renderBranch(pId) {
+	  _renderBranch: function (pId) {
 	    var sizes,
 	        row,
 	        value,
@@ -45578,7 +46319,7 @@
 
 	    if (row) this._renderRow(row);
 	  },
-	  _renderRow: function _renderRow(row) {
+	  _renderRow: function (row) {
 	    var i,
 	        id,
 	        x,
@@ -45609,7 +46350,7 @@
 	      if (this._settings.subRender && this.data.branch[id]) this._renderBranch(id);
 	    }
 	  },
-	  _worst: function _worst(row, add) {
+	  _worst: function (row, add) {
 	    var s = row.sum + add.$value;
 	    var a = s * s / (row.dim * row.dim * add.$value);
 
@@ -45619,15 +46360,15 @@
 
 	    return a > 1 ? a : 1 / a;
 	  },
-	  _toHTMLObject: function _toHTMLObject(obj) {
+	  _toHTMLObject: function (obj) {
 	    this._htmlElement.innerHTML = this._toHTMLItem(obj);
 	    return this._htmlElement.firstChild;
 	  },
-	  showBranch: function showBranch(id) {
+	  showBranch: function (id) {
 	    this._settings.branch = id;
 	    this.refresh();
 	  },
-	  render: function render(id, data, type) {
+	  render: function (id, data, type) {
 	    if (!this.isVisible(this._settings.id) || this.$blockRender) return;
 
 	    if (type == "update") {
@@ -45653,7 +46394,7 @@
 	  },
 	  _id: "webix_dm_id",
 	  on_click: {
-	    webix_treemap_item: function webix_treemap_item(e, id) {
+	    webix_treemap_item: function (e, id) {
 	      if (this._settings.select) {
 	        if (this._settings.select == "multiselect" || this._settings.multiselect) this.select(id, false, e.ctrlKey || e.metaKey || this._settings.multiselect == "touch", e.shiftKey);else this.select(id);
 	      }
@@ -45662,19 +46403,19 @@
 	        this.showBranch(id);
 	      }
 	    },
-	    webix_treemap_header_item: function webix_treemap_header_item(e) {
+	    webix_treemap_header_item: function (e) {
 	      var id = locate(e, "webix_dm_header_id");
 	      this.define("branch", id);
 	      this.refresh();
 	    },
-	    webix_treemap_reset: function webix_treemap_reset() {
+	    webix_treemap_reset: function () {
 	      this.define("branch", 0);
 	      this.refresh();
 	    }
 	  },
 	  on_dblclick: {},
 	  on_mouse_move: {},
-	  _getCssText: function _getCssText(style) {
+	  _getCssText: function (style) {
 	    var css = "";
 
 	    for (var property in style) {
@@ -45686,7 +46427,7 @@
 	  type: {
 	    //normal state of item
 	    template: template("#value#"),
-	    header: function header(obj, common) {
+	    header: function (obj, common) {
 	      var id = obj.id;
 	      var resetIcon = "<div role='button' tabindex='0' aria-label='" + i18n.aria.resetTreeMap + "' class='webix_treemap_reset'></div>";
 	      var arr = [];
@@ -45700,16 +46441,16 @@
 	      arr.reverse();
 	      return resetIcon + arr.join("<span class='webix_icon wxi-angle-right webix_treemap_path_icon'></span>");
 	    },
-	    headerItem: function headerItem(obj) {
+	    headerItem: function (obj) {
 	      var template$$1 = this.config.headerTemplate(obj);
 	      var html = "<a role=\"button\" tabindex=\"0\" aria-label=\"" + template$$1 + "\" webix_dm_header_id=\"" + obj.id + "\" class=\"webix_treemap_header_item\">";
 	      html += template$$1;
 	      html += "</a>";
 	      return html;
 	    },
-	    classname: function classname(obj, common, marks) {
+	    classname: function (obj, common, marks) {
 	      var css = "webix_treemap_item";
-	      if (common.css) css += common.css + " ";
+	      if (common.css) css += " " + common.css;
 
 	      if (obj.$css) {
 	        if (_typeof(obj.$css) == "object") obj.$css = createCss(obj.$css);
@@ -45736,7 +46477,7 @@
 
 	      return css;
 	    },
-	    templateStart: function templateStart(obj, type, marks) {
+	    templateStart: function (obj, type, marks) {
 	      var style = "";
 
 	      if (this.$xy) {
@@ -45750,7 +46491,7 @@
 	    templateEnd: template("</div>")
 	  }
 	};
-	var view$1s = exports.protoUI(api$1s, AutoTooltip, Group, TreeAPI, SelectionModel, KeysNavigation, MouseEvents, Scrollable, TreeDataLoader, proto.view, TreeRenderStack, CopyPaste, EventSystem);
+	var view$1s = exports.protoUI(api$1s, Group, TreeAPI, SelectionModel, KeysNavigation, MouseEvents, Scrollable, TreeDataLoader, proto.view, TreeRenderStack, CopyPaste, EventSystem);
 
 	/*
 		UI:DataView
@@ -45767,12 +46508,12 @@
 
 	var api$1t = {
 	  name: "dataview",
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    if (config.sizeToContent) //method need to be called before data-loaders
 	      //so we are using unshift to place it at start
 	      this.$ready.unshift(this._after_init_call);
 	    var type = config.type || config.item;
-	    var prerender = config.prerender || this.defaults.prerender || type && type.width == "auto";
+	    var prerender = config.prerender || this.defaults.prerender || type && type.width == "auto" || config.drag == "move" || config.drag == "order";
 	    if (!prerender && !config.autoheight) exports.extend(this, VirtualRenderStack, true);
 	    if (config.autoheight) config.scroll = false;
 
@@ -45785,7 +46526,7 @@
 
 	    this._viewobj.setAttribute("role", "listbox");
 	  },
-	  _after_init_call: function _after_init_call() {
+	  _after_init_call: function () {
 	    var test = create("DIV", 0, this.type.template({}));
 	    test.style.position = "absolute";
 	    document.body.appendChild(test);
@@ -45801,8 +46542,9 @@
 	  _id: "webix_l_id",
 	  _itemClassName: "webix_dataview_item",
 	  _tilesPadding: 0,
+	  _drag_direction: "x",
 	  on_click: {
-	    webix_dataview_item: function webix_dataview_item(e, id) {
+	    webix_dataview_item: function (e, id) {
 	      if (this._settings.select) {
 	        if (this._settings.select == "multiselect" || this._settings.multiselect) this.select(id, false, this._settings.multiselect == "touch" || e.ctrlKey || e.metaKey, e.shiftKey); //multiselection
 	        else this.select(id);
@@ -45818,37 +46560,37 @@
 	    templateLoading: template("Loading..."),
 	    width: 160,
 	    height: 50,
-	    classname: function classname(obj, common, marks) {
-	      var css = "webix_dataview_item ";
-	      if (common.css) css += common.css + " ";
+	    classname: function (obj, common, marks) {
+	      var css = "webix_dataview_item";
+	      if (common.css) css += " " + common.css;
 	      if (common.type && common.type.toString() == "tiles") css += "tiles ";
 
 	      if (obj.$css) {
 	        if (_typeof(obj.$css) == "object") obj.$css = createCss(obj.$css);
-	        css += obj.$css + " ";
+	        css += " " + obj.$css;
 	      }
 
-	      if (marks && marks.$css) css += marks.$css + " ";
+	      if (marks && marks.$css) css += " " + marks.$css;
 	      return css;
 	    },
-	    tilesStart: function tilesStart(obj, common) {
+	    tilesStart: function (obj, common) {
 	      if (common.type == "tiles") return "<div class=\"webix_dataview_inner_item\" style=\"box-sizing:border-box; overflow:hidden;\">";
 	      return "";
 	    },
-	    tilesEnd: function tilesEnd(obj, common) {
+	    tilesEnd: function (obj, common) {
 	      if (common.type == "tiles") return "</div>";
 	      return "";
 	    },
-	    aria: function aria(obj, common, marks) {
+	    aria: function (obj, common, marks) {
 	      return "role=\"option\"" + (marks && marks.webix_selected ? " aria-selected=\"true\" tabindex=\"0\"" : " tabindex=\"-1\"");
 	    },
 	    templateStart: template("<div webix_l_id=\"#id#\" class=\"{common.classname()}\" {common.aria()} style=\"width:{common.width}px; height:{common.height}px; float:left; overflow:hidden;\">{common.tilesStart()}"),
 	    templateEnd: template("{common.tilesEnd()}</div>")
 	  },
-	  _calck_autoheight: function _calck_autoheight(width) {
+	  _calck_autoheight: function (width) {
 	    return this._settings.height = this.type.height * Math.ceil(this.data.count() / Math.floor(width / this.type.width));
 	  },
-	  autoheight_setter: function autoheight_setter(mode) {
+	  autoheight_setter: function (mode) {
 	    if (mode) {
 	      this.data.attachEvent("onStoreLoad", bind(this.resize, this));
 	      this._contentobj.style.overflowY = "hidden";
@@ -45856,7 +46598,7 @@
 
 	    return mode;
 	  },
-	  $getSize: function $getSize(dx, dy) {
+	  $getSize: function (dx, dy) {
 	    if (this._settings.xCount > 0 && this.type.width != "auto" && !this._autowidth) this._settings.width = this.type.width * this._settings.xCount + (this._scroll_y ? env.scrollSize : 0);
 	    if (this._settings.yCount && this.type.height != "auto") this._settings.height = this.type.height * this._settings.yCount;
 	    var width = this._settings.width || this._content_width;
@@ -45869,7 +46611,7 @@
 
 	    return base.api.$getSize.call(this, dx, dy);
 	  },
-	  _recalk_counts: function _recalk_counts() {
+	  _recalk_counts: function () {
 	    var render = false;
 
 	    if (this._settings.yCount && this.type.height == "auto") {
@@ -45886,7 +46628,7 @@
 
 	    return render;
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    if (base.api.$setSize.call(this, x, y)) {
 	      if (this._settings.autoheight && this._calck_autoheight() != this._content_height) return delay(this.resize, this);
 	      if (this._recalk_counts() || this._render_visible_rows) this.render();
@@ -45916,24 +46658,24 @@
 	  name: "pager",
 	  on_click: {
 	    //on paging button click
-	    "webix_pager_item": function webix_pager_item(e, id) {
+	    "webix_pager_item": function (e, id) {
 	      this.select(id);
 	    }
 	  },
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    this.data = this._settings;
 	    this._dataobj = this._viewobj;
 	    this._viewobj.className += " webix_pager" + (config.autowidth ? " webix_pager_auto" : "");
 	    if (config.master === false || config.master === 0) this.$ready.push(this._remove_master);
 	  },
-	  _remove_master: function _remove_master() {
+	  _remove_master: function () {
 	    this.refresh();
 	    this.$master = {
-	      refresh: function refresh() {},
-	      select: function select() {}
+	      refresh: function () {},
+	      select: function () {}
 	    };
 	  },
-	  select: function select(id) {
+	  select: function (id) {
 	    if (this.$master && this.$master.name == "pager") return this.$master.select(id); //id - id of button, number for page buttons
 
 	    switch (id) {
@@ -45975,11 +46717,11 @@
 	  _id: "webix_p_id",
 	  template_setter: template,
 	  type: {
-	    template: function template$$1(a, b) {
+	    template: function (a, b) {
 	      return a.template.call(this, a, b);
 	    },
 	    //list of page numbers
-	    pages: function pages(obj) {
+	    pages: function (obj) {
 	      var html = ""; //skip rendering if paging is not fully initialized
 
 	      if (obj.page == -1) return ""; //current page taken as center of view, calculate bounds of group
@@ -46009,11 +46751,11 @@
 
 	      return html;
 	    },
-	    page: function page(obj) {
+	    page: function (obj) {
 	      return obj.page + 1;
 	    },
 	    //go-to-first page button
-	    first: function first() {
+	    first: function () {
 	      return this.button({
 	        id: "first",
 	        index: i18n.pager.first,
@@ -46022,7 +46764,7 @@
 	      });
 	    },
 	    //go-to-last page button
-	    last: function last() {
+	    last: function () {
 	      return this.button({
 	        id: "last",
 	        index: i18n.pager.last,
@@ -46031,7 +46773,7 @@
 	      });
 	    },
 	    //go-to-prev page button
-	    prev: function prev() {
+	    prev: function () {
 	      return this.button({
 	        id: "prev",
 	        index: i18n.pager.prev,
@@ -46040,7 +46782,7 @@
 	      });
 	    },
 	    //go-to-next page button
-	    next: function next() {
+	    next: function () {
 	      return this.button({
 	        id: "next",
 	        index: i18n.pager.next,
@@ -46050,7 +46792,7 @@
 	    },
 	    button: template("<button type='button' webix_p_id='{obj.id}' class='webix_pager_item{obj.selected}' aria-label='{obj.label}'>{obj.index}</button>")
 	  },
-	  clone: function clone$$1(pager) {
+	  clone: function (pager) {
 	    if (!pager.$view) {
 	      pager.view = "pager";
 	      pager = ui(pager);
@@ -46061,7 +46803,7 @@
 
 	    this._refresh_clone();
 	  },
-	  refresh: function refresh() {
+	  refresh: function () {
 	    var s = this._settings;
 	    if (!s.count) return; //max page number
 
@@ -46083,10 +46825,10 @@
 	      return true;
 	    }
 	  },
-	  apiOnly_setter: function apiOnly_setter(value) {
+	  apiOnly_setter: function (value) {
 	    return this.$apiOnly = value;
 	  },
-	  _refresh_clone: function _refresh_clone() {
+	  _refresh_clone: function () {
 	    if (this._clone) {
 	      this._clone._settings.count = this._settings.count;
 	      this._clone._settings.page = this._settings.page;
@@ -46094,7 +46836,7 @@
 	      this._clone.refresh();
 	    }
 	  },
-	  _animate: function _animate(old, id, config) {
+	  _animate: function (old, id, config) {
 	    if (old == id) return false;
 
 	    if (this._pgInAnimation) {
@@ -46155,9 +46897,8 @@
 	    mode: "comments",
 	    moreButton: template(i18n.comments.moreComments)
 	  },
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    this.$view.className += " webix_comments";
-	    if (!config.format) config.format = "%Y-%m-%d %H:%i:%s";
 	    config.rows = [this._configList(config)];
 	    if (!config.readonly) config.rows.push(this._configForm());
 	    this._destroy_with_me = [];
@@ -46168,7 +46909,10 @@
 
 	    this.$ready.push(this._afterInit);
 	  },
-	  _afterInit: function _afterInit() {
+	  $exportView: function () {
+	    return this._list;
+	  },
+	  _afterInit: function () {
 	    var _this = this;
 
 	    // store UI blocks
@@ -46197,7 +46941,7 @@
 	    }; //tune input zone
 
 
-	    attachEvent("onClick", function (e) {
+	    this._clickHandler = attachEvent("onClick", function (e) {
 	      var view = $$(e);
 
 	      if (view == _this._input) {
@@ -46206,15 +46950,18 @@
 	        delay(function () {
 	          _this._input.focus();
 	        });
-	      } else if (view !== _this._sendButton && view !== _this._listMenu && (!e || e.target.className.indexOf("webix_comments_menu") === -1)) {
+	      } else if (view !== _this._sendButton && view !== _this._listMenu && (!e || (e.target.className || "").toString().indexOf("webix_comments_menu") === -1)) {
 	        _this._changeTextarea();
 	      }
 	    });
+	    this.attachEvent("onDestruct", function () {
+	      detachEvent(this._clickHandler);
+	    });
 	  },
-	  $onLoad: function $onLoad(data, driver) {
+	  $onLoad: function (data, driver) {
 	    this._fillList(data, driver);
 	  },
-	  _fillList: function _fillList(data, driver) {
+	  _fillList: function (data, driver) {
 	    var _this2 = this;
 
 	    var list$$1 = this._list || this.queryView({
@@ -46266,28 +47013,23 @@
 	        if (this._settings.mode == "chat") list$$1.showItem(list$$1.getLastId());
 	      }
 	  },
-	  $skin: function $skin() {
+	  $skin: function () {
 	    this._inputHeight = $active.inputHeight + 6;
 	  },
-	  format_setter: function format_setter(value) {
-	    this._strToDate = wDate.strToDate(value);
-	    this._dateToStr = wDate.dateToStr(value);
-	    return value;
-	  },
-	  getUsers: function getUsers() {
+	  getUsers: function () {
 	    return this._users;
 	  },
-	  getMenu: function getMenu() {
+	  getMenu: function () {
 	    return this._listMenu;
 	  },
-	  setCurrentUser: function setCurrentUser(id) {
+	  setCurrentUser: function (id) {
 	    this.config.currentUser = id;
 
 	    this._form.clear();
 
 	    this._list.refresh();
 	  },
-	  edit: function edit(id) {
+	  edit: function (id) {
 	    if (this.callEvent("onBeforeEditStart", [id])) {
 	      this._changeTextarea(true);
 
@@ -46305,7 +47047,7 @@
 	      this.callEvent("onAfterEditStart", [id]);
 	    }
 	  },
-	  _saveComment: function _saveComment(clear) {
+	  _saveComment: function (clear) {
 	    var values = this._form.getValues();
 
 	    if (values.text) {
@@ -46322,14 +47064,14 @@
 	      if (clear) this._input.getInputNode().value = "";
 	    }
 	  },
-	  _removeComment: function _removeComment(id) {
+	  _removeComment: function (id) {
 	    if (this._form.getValues().id == id) {
 	      this._form.clear();
 	    }
 
 	    this.remove(id);
 	  },
-	  _changeTextarea: function _changeTextarea(increase) {
+	  _changeTextarea: function (increase) {
 	    //this behaviour is only for desktop, otherwise we will never see the button on mobile
 	    if (env.touch) return;
 	    var text = this._input;
@@ -46352,11 +47094,11 @@
 
 	    text.resize();
 	  },
-	  _toggleButton: function _toggleButton(value) {
-	    if (!value) value = this._input.getInputNode().value;
+	  _toggleButton: function (value) {
+	    if (!value) value = this._input.getValue();
 	    if (value && !this._sendButton.isEnabled()) this._sendButton.enable();else if (!value && this._sendButton.isEnabled()) this._sendButton.disable();
 	  },
-	  _initMenu: function _initMenu() {
+	  _initMenu: function () {
 	    var _this3 = this;
 
 	    this._listMenu = ui({
@@ -46365,30 +47107,32 @@
 	      point: false,
 	      data: [{
 	        id: "edit",
-	        value: "<span class = 'webix_icon wxi-pencil'></span>" + i18n.comments["edit"]
+	        icon: "wxi-pencil",
+	        value: i18n.comments["edit"]
 	      }, {
 	        id: "remove",
-	        value: "<span class = 'webix_icon wxi-trash'></span>" + i18n.comments["remove"]
+	        icon: "wxi-trash",
+	        value: i18n.comments["remove"]
 	      }],
 	      on: {
-	        onShow: function onShow() {
+	        onShow: function () {
 	          var ctx = _this3._listMenu.getContext();
 
 	          _this3._list.addCss(ctx.id, "active_menu");
 	        },
-	        onHide: function onHide() {
+	        onHide: function () {
 	          var ctx = _this3._listMenu.getContext();
 
 	          _this3._list.removeCss(ctx.id, "active_menu");
 	        },
-	        onItemClick: function onItemClick(id) {
+	        onItemClick: function (id) {
 	          var ctx = _this3._listMenu.getContext();
 
 	          if (_this3.callEvent("onBeforeMenuAction", [id, ctx.id])) {
 	            if (id == "edit") _this3.edit(ctx.id);else if (id == "remove") {
 	              if (i18n.comments.confirmMessage) confirm({
 	                text: i18n.comments.confirmMessage,
-	                callback: function callback(res) {
+	                callback: function (res) {
 	                  if (res) _this3._removeComment(ctx.id);
 	                }
 	              });else _this3._removeComment(ctx.id);
@@ -46400,7 +47144,7 @@
 
 	    this._destroy_with_me.push(this._listMenu);
 	  },
-	  _configForm: function _configForm() {
+	  _configForm: function () {
 	    var _this4 = this;
 
 	    var locale = i18n.comments;
@@ -46416,13 +47160,13 @@
 	        placeholder: locale["placeholder"],
 	        keyPressTimeout: 100,
 	        on: {
-	          onTimedKeyPress: function onTimedKeyPress() {
+	          onTimedKeyPress: function () {
 	            _this4._toggleButton();
 	          },
-	          onChange: function onChange(newv) {
+	          onChange: function (newv) {
 	            _this4._toggleButton(newv);
 	          },
-	          onKeyPress: function onKeyPress(code, ev) {
+	          onKeyPress: function (code, ev) {
 	            if (code == 13) {
 	              var action = _this4._settings.sendAction,
 	                  shift = ev.shiftKey;
@@ -46444,40 +47188,49 @@
 	          type: "form",
 	          value: locale["send"],
 	          autowidth: true,
-	          click: function click() {
+	          click: function () {
 	            _this4._saveComment();
 	          }
 	        }]
 	      }]
 	    };
 	  },
-	  _configList: function _configList(config) {
+	  _configList: function (config) {
 	    var _this5 = this;
 
 	    var css = "webix_comments_";
 	    var type = {
 	      height: "auto",
-	      templateStatus: function templateStatus(obj) {
+	      templateStatus: function (obj) {
 	        return "<span class = '" + css + "status " + obj.status + "'></span>";
 	      },
-	      templateUser: function templateUser(obj) {
+	      templateUser: function (obj) {
 	        var users = _this5.getUsers();
 
 	        var user = users && users.exists(obj.user_id) ? users.getItem(obj.user_id) : {};
 	        var name = "<span class = '" + css + "name'>" + (user.value || "") + "</span>";
 	        return name;
 	      },
-	      templateMenu: function templateMenu() {
+	      templateMenu: function () {
 	        return "<span class='webix_icon wxi-dots " + css + "menu'></span>";
 	      },
-	      templateDate: function templateDate(obj) {
+	      templateDate: function (obj) {
 	        var format = wDate.dateToStr("%d %M, %H:%i");
 	        return obj.date ? "<span class='" + css + "date'>" + format(obj.date) + "</span>" : "";
 	      },
-	      templateText: function templateText(obj) {
-	        return "<div class = '" + css + "message'>" + obj.text + "</div>";
+	      templateLinks: function (obj) {
+	        var text = obj.text.replace(/(https?:\/\/[^\s]+)/g, function (match) {
+	          match = template.escape(match);
+	          var html = "<a target='_blank' href='" + match + "'>";
+	          if (match.match(/.(jpg|jpeg|png|gif)$/)) html += "<img class='webix_comments_image' src='" + match + "'/>";else html += match;
+	          return html + "</a>";
+	        });
+	        return text;
 	      },
-	      templateAvatar: function templateAvatar(obj, common) {
+	      templateText: function (obj, common) {
+	        return "<div class = '" + css + "message'>" + common.templateLinks(obj) + "</div>";
+	      },
+	      templateAvatar: function (obj, common) {
 	        var avatar = "<div class='" + css + "avatar'>";
 
 	        var users = _this5.getUsers();
@@ -46492,47 +47245,42 @@
 	        avatar += "</div></div>";
 	        return avatar;
 	      },
-	      template: function template$$1(obj, common) {
+	      template: function (obj, common) {
 	        var message$$1;
 
 	        if (obj.id == "$more") {
 	          message$$1 = "<div class='webix_comments_more'>" + _this5._settings.moreButton(obj) + "</div>";
 	        } else {
 	          var avatar = common.templateAvatar(obj, common);
-	          var user = common.templateUser(obj);
-	          var date = common.templateDate(obj);
+	          var user = common.templateUser(obj, common);
+	          var date = common.templateDate(obj, common);
 	          var menu = common.templateMenu(obj, common);
-	          var text = common.templateText(obj);
+	          var text = common.templateText(obj, common);
 	          message$$1 = avatar + user + menu + date + text;
 	        }
 
 	        return message$$1;
 	      },
-	      classname: function classname(obj, common, marks) {
+	      classname: function (obj, common, marks) {
 	        var css = list.api.type.classname(obj, common, marks);
 	        if (obj.user_id && obj.user_id == _this5._settings.currentUser || !_this5._users.count()) css += " webix_comments_current";
 	        return css;
 	      }
 	    };
 	    type = exports.extend(type, config.listItem || {}, true);
+	    var scheme = {
+	      $init: function (obj) {
+	        if (obj.date) obj.date = i18n.parseFormatDate(obj.date);
+	      }
+	    };
+	    scheme = exports.extend(scheme, config.scheme || {}, true);
 	    var listConfig = {
 	      view: "list",
 	      navigation: false,
 	      type: type,
-	      scheme: {
-	        $init: function $init(obj) {
-	          if (obj.date) obj.date = _this5._strToDate(obj.date);
-	        },
-	        $save: function $save(obj) {
-	          if (obj.date) obj.date = _this5._dateToStr(obj.date);
-	        },
-	        $serialize: function $serialize(obj) {
-	          if (obj.date) obj.date = _this5._dateToStr(obj.date);
-	          return obj;
-	        }
-	      },
+	      scheme: scheme,
 	      onClick: {
-	        "webix_comments_menu": function webix_comments_menu(ev, id) {
+	        "webix_comments_menu": function (ev, id) {
 	          if (_this5._listMenu.isVisible()) _this5._listMenu.hide();else {
 	            _this5._listMenu.setContext({
 	              obj: _this5,
@@ -46546,16 +47294,16 @@
 	            });
 	          }
 	        },
-	        "webix_comments_more": function webix_comments_more() {
+	        "webix_comments_more": function () {
 	          if (_this5.config.url && _this5.callEvent("onDataRequest", [])) {
 	            _this5._moreCall = true;
 
 	            var more = _this5._list.getItem("$more").value;
 
 	            var pos$$1 = _this5._settings.mode == "chat" ? more : _this5._list.getIndexById("$more");
-	            var url = proxy$b.$parse(_this5.config.url);
+	            var url = proxy$a.$parse(_this5.config.url);
 	            var callback = {
-	              error: function error() {
+	              error: function () {
 	                _this5._moreCall = false;
 	              }
 	            };
@@ -46578,7 +47326,7 @@
 	    if (config.save) listConfig.save = config.save;
 	    return listConfig;
 	  },
-	  _initUsers: function _initUsers(value) {
+	  _initUsers: function (value) {
 	    var _this6 = this;
 
 	    if (value && value.getItem) {
@@ -46603,7 +47351,7 @@
 	var api$1w = {
 	  name: "menu",
 	  _listClassName: "webix_menu",
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    this.data._scheme_init = bind(function (obj) {
 	      if (obj.disabled) this.data.addMark(obj.id, "webix_disabled", true, 1, true);
 	    }, this);
@@ -46669,7 +47417,7 @@
 
 	    this._destroy_with_me = [];
 	  },
-	  sizeToContent: function sizeToContent() {
+	  sizeToContent: function () {
 	    if (this._settings.layout == "y") {
 	      var texts = [];
 	      var isSubmenu = false;
@@ -46682,7 +47430,7 @@
 	      this.resize();
 	    } else assert(false, "sizeToContent will work for vertical menu only");
 	  },
-	  getTopMenu: function getTopMenu() {
+	  getTopMenu: function () {
 	    var parent = this;
 
 	    while (parent._parent_menu) {
@@ -46691,7 +47439,7 @@
 
 	    return parent;
 	  },
-	  _auto_height_calc: function _auto_height_calc(count) {
+	  _auto_height_calc: function (count) {
 	    if (this._settings.autoheight) count = this.count();
 	    var value = this.count(),
 	        height = 0;
@@ -46711,15 +47459,15 @@
 	  },
 	  on_mouse_move: {},
 	  type: {
-	    _submenu: function _submenu(obj) {
+	    _submenu: function (obj) {
 	      return obj.submenu || obj.data || obj.item;
 	    },
 	    css: "menu",
 	    width: "auto",
-	    aria: function aria(obj, common, marks) {
+	    aria: function (obj, common, marks) {
 	      return "role=\"menuitem\"" + (marks && marks.webix_selected ? " aria-selected=\"true\" tabindex=\"0\"" : "tabindex=\"-1\"") + (common._submenu(obj) ? "aria-haspopup=\"true\"" : "") + (marks && marks.webix_disabled ? " aria-disabled=\"true\"" : "");
 	    },
-	    templateStart: function templateStart(obj, common, mark) {
+	    templateStart: function (obj, common, mark) {
 	      if (obj.$template === "Separator" || obj.$template === "Spacer") {
 	        return "<div webix_l_id=\"#id#\" role=\"separator\" tabindex=\"-1\" class=\"webix_context_" + obj.$template.toLowerCase() + "\">";
 	      }
@@ -46727,13 +47475,13 @@
 	      var link = (obj.href ? " href='" + obj.href + "' " : "") + (obj.target ? " target='" + obj.target + "' " : "");
 	      return list.api.type.templateStart(obj, common, mark).replace(/^<div/, "<a " + link) + (common._submenu(obj) && common.subsign ? "<div class='webix_submenu_icon'></div>" : "");
 	    },
-	    templateEnd: function templateEnd(obj) {
+	    templateEnd: function (obj) {
 	      return obj.$template === "Separator" || obj.$template === "Spacer" ? "</div>" : "</a>";
 	    },
 	    templateSeparator: template("<div class='sep_line'></div>"),
 	    templateSpacer: template("<div></div>")
 	  },
-	  getMenu: function getMenu(id) {
+	  getMenu: function (id) {
 	    if (!this.data.pull[id]) {
 	      for (var subid in this.data.pull) {
 	        var obj = this.getItem(subid);
@@ -46746,15 +47494,15 @@
 	      }
 	    } else return this;
 	  },
-	  getSubMenu: function getSubMenu(id) {
+	  getSubMenu: function (id) {
 	    var menu = this.getMenu(id);
 	    var obj = menu.getItem(id);
 	    return obj.submenu ? menu._get_submenu(obj) : null;
 	  },
-	  getMenuItem: function getMenuItem(id) {
+	  getMenuItem: function (id) {
 	    return this.getMenu(id).getItem(id);
 	  },
-	  _get_submenu: function _get_submenu(data) {
+	  _get_submenu: function (data) {
 	    var sub = $$(data.submenu);
 
 	    if (!sub) {
@@ -46764,12 +47512,12 @@
 
 	    return sub;
 	  },
-	  _mouse_move_menu: function _mouse_move_menu(id, e, target) {
+	  _mouse_move_menu: function (id, e, target) {
 	    if (!this._menu_was_activated()) return;
 
 	    this._mouse_move_activation(id, target);
 	  },
-	  _menu_was_activated: function _menu_was_activated() {
+	  _menu_was_activated: function () {
 	    var top = this.getTopMenu();
 
 	    if (top._settings.openAction == "click") {
@@ -46781,7 +47529,7 @@
 
 	    return true;
 	  },
-	  _mouse_move_activation: function _mouse_move_activation(id, target) {
+	  _mouse_move_activation: function (id, target) {
 	    var data = this.getItem(id);
 	    if (!data) return; //clear flag of submenu usage
 
@@ -46800,13 +47548,13 @@
 	      this._open_sub_menu = data.submenu;
 	    }
 	  },
-	  disableItem: function disableItem(id) {
+	  disableItem: function (id) {
 	    this.getMenu(id).addCss(id, "webix_disabled");
 	  },
-	  enableItem: function enableItem(id) {
+	  enableItem: function (id) {
 	    this.getMenu(id).removeCss(id, "webix_disabled");
 	  },
-	  _set_item_hidden: function _set_item_hidden(id, state) {
+	  _set_item_hidden: function (id, state) {
 	    var menu = this.data;
 
 	    if (menu._hidden_items[id] != state) {
@@ -46817,11 +47565,11 @@
 	      this.resize();
 	    }
 	  },
-	  hideItem: function hideItem(id) {
+	  hideItem: function (id) {
 	    var menu = this.getMenu(id);
 	    if (menu) menu._set_item_hidden(id, true);
 	  },
-	  showItem: function showItem(id) {
+	  showItem: function (id) {
 	    var menu = this.getMenu(id);
 
 	    if (menu) {
@@ -46830,7 +47578,7 @@
 	      return list.api.showItem.call(menu, id);
 	    }
 	  },
-	  _hide_sub_menu: function _hide_sub_menu(mode) {
+	  _hide_sub_menu: function (mode) {
 	    if (this._open_sub_menu) {
 	      //recursive sub-closing
 	      var sub = $$(this._open_sub_menu);
@@ -46843,7 +47591,7 @@
 	      }
 	    }
 	  },
-	  _create_sub_menu: function _create_sub_menu(data) {
+	  _create_sub_menu: function (data) {
 	    var listConfig = {
 	      view: "submenu",
 	      data: this.type._submenu(data)
@@ -46861,7 +47609,7 @@
 	    menu._parent_menu = this;
 	    return menu._settings.id;
 	  },
-	  _skip_item: function _skip_item(id, prev, mode) {
+	  _skip_item: function (id, prev, mode) {
 	    var item = this.getItem(id);
 
 	    if (item.$template == "Separator" || item.$template == "Spacer" || this.data.getMark(id, "webix_disabled")) {
@@ -46870,7 +47618,7 @@
 	      return id ? this._skip_item(id, prev, mode) : prev;
 	    } else return id;
 	  },
-	  $skin: function $skin() {
+	  $skin: function () {
 	    list.api.$skin.call(this);
 	    this.type.height = $active.menuHeight;
 	  },
@@ -46889,7 +47637,7 @@
 
 	var api$1x = {
 	  name: "submenu",
-	  $init: function $init() {
+	  $init: function () {
 	    this._body_cell = clone(this._dummy_cell_interface);
 	    this._body_cell._view = this;
 	    this.attachEvent("onMouseOut", function (e) {
@@ -46906,13 +47654,13 @@
 
 	    this._dataobj.setAttribute("role", "menu");
 	  },
-	  $skin: function $skin() {
+	  $skin: function () {
 	    menu.api.$skin.call(this);
 	    popup.api.$skin.call(this);
 	    this.type.height = $active.menuHeight;
 	  },
 	  _dummy_cell_interface: {
-	    $getSize: function $getSize(dx, dy) {
+	    $getSize: function (dx, dy) {
 	      //we saving height and width, as list can hardcode new values
 	      var h = this._view._settings.height * 1;
 	      var w = this._view._settings.width * 1;
@@ -46922,16 +47670,16 @@
 	      this._view._settings.width = w;
 	      return size;
 	    },
-	    $setSize: function $setSize(x, y) {
+	    $setSize: function (x, y) {
 	      if (this._view._settings.scroll) this._view._bodyobj.style.height = y + "px";
 	    },
-	    destructor: function destructor() {
+	    destructor: function () {
 	      this._view = null;
 	    }
 	  },
 	  //ignore body element
-	  body_setter: function body_setter() {},
-	  getChildViews: function getChildViews() {
+	  body_setter: function () {},
+	  getChildViews: function () {
 	    return [];
 	  },
 	  defaults: {
@@ -46959,24 +47707,24 @@
 	    width: 200,
 	    borderless: true
 	  },
-	  $init: function $init() {
+	  $init: function () {
 	    this.$view.className += " webix_sidemenu";
 	  },
-	  $skin: function $skin() {
+	  $skin: function () {
 	    this.defaults.padding = 0;
 	  },
-	  position_setter: function position_setter(value) {
+	  position_setter: function (value) {
 	    var prevPosition = this._settings.position;
 	    if (prevPosition) removeCss(this.$view, " webix_sidemenu_" + prevPosition);
 	    addCss(this.$view, " webix_sidemenu_" + value);
 	    return value;
 	  },
-	  $getSize: function $getSize() {
+	  $getSize: function () {
 	    var sizes = window$1.api.$getSize.apply(this, arguments);
 	    this._desired_sizes = sizes;
 	    return sizes;
 	  },
-	  $setSize: function $setSize(x, y) {
+	  $setSize: function (x, y) {
 	    base.api.$setSize.call(this, x, y);
 	    x = this._content_width - this._settings.padding * 2;
 	    y = this._content_height - this._settings.padding * 2;
@@ -46986,7 +47734,7 @@
 
 	    this._body_cell.$setSize(x, y);
 	  },
-	  show: function show() {
+	  show: function () {
 	    if (!this.callEvent("onBeforeShow", arguments)) return false;
 	    this._settings.hidden = false;
 	    this._viewobj.style.zIndex = this._settings.zIndex || zIndex();
@@ -47015,7 +47763,7 @@
 	    if (-1 == state._popups.find(this)) state._popups.push(this);
 	    this.callEvent("onShow", []);
 	  },
-	  _setPosition: function _setPosition(x) {
+	  _setPosition: function (x) {
 	    var width,
 	        height,
 	        maxWidth,
@@ -47074,71 +47822,71 @@
 	      this.setPosition(state$$1.left, state$$1.top);
 	    }
 	  },
-	  _isAnimationSupported: function _isAnimationSupported() {
+	  _isAnimationSupported: function () {
 	    return animate.isSupported() && this._settings.animate && !(env.isIE && navigator.appVersion.indexOf("MSIE 9") != -1);
 	  },
-	  hidden_setter: function hidden_setter(value) {
+	  hidden_setter: function (value) {
 	    if (value) this.hide(true);else this.show();
 	    return !!value;
 	  },
 	  _animate: {
 	    left: {
-	      beforeShow: function beforeShow(state$$1) {
+	      beforeShow: function (state$$1) {
 	        this.$view.style.left = -state$$1.width + "px";
 	        this.$view.style.top = state$$1.top + "px";
 	      },
-	      show: function show(state$$1) {
+	      show: function (state$$1) {
 	        this.$view.style.left = state$$1.left ? state$$1.left + "px" : "0px";
 	      },
-	      hide: function hide(state$$1) {
+	      hide: function (state$$1) {
 	        this.$view.style.left = -state$$1.width + "px";
 	      }
 	    },
 	    right: {
-	      beforeShow: function beforeShow(state$$1) {
+	      beforeShow: function (state$$1) {
 	        this.$view.style.left = "auto";
 	        this.$view.style.right = -state$$1.width + "px";
 	        this.$view.style.top = state$$1.top + "px";
 	      },
-	      show: function show(state$$1) {
+	      show: function (state$$1) {
 	        this.$view.style.right = state$$1.right ? state$$1.right + "px" : "0px";
 	      },
-	      hide: function hide(state$$1) {
+	      hide: function (state$$1) {
 	        this.$view.style.right = -state$$1.width + "px";
 	      }
 	    },
 	    top: {
-	      beforeShow: function beforeShow(state$$1) {
+	      beforeShow: function (state$$1) {
 	        this.setPosition(state$$1.left, state$$1.top);
 	        this.$view.style.height = "0px";
 	        this._bodyobj.style.height = "0px";
 	      },
-	      show: function show(state$$1) {
+	      show: function (state$$1) {
 	        this.$view.style.height = state$$1.height + "px";
 	        this._bodyobj.style.height = state$$1.height + "px";
 	      },
-	      hide: function hide() {
+	      hide: function () {
 	        this.$view.style.height = "0px";
 	        this._bodyobj.style.height = "0px";
 	      }
 	    },
 	    bottom: {
-	      beforeShow: function beforeShow(state$$1) {
+	      beforeShow: function (state$$1) {
 	        this.$view.style.left = state$$1.left + "px";
 	        this.$view.style.top = "auto";
 	        var bottom = state$$1.bottom != undefined ? state$$1.bottom : state$$1.maxHeight - state$$1.top - state$$1.height;
 	        this.$view.style.bottom = bottom + "px";
 	        this.$view.style.height = "0px";
 	      },
-	      show: function show(state$$1) {
+	      show: function (state$$1) {
 	        this.$view.style.height = state$$1.height + "px";
 	      },
-	      hide: function hide() {
+	      hide: function () {
 	        this.$view.style.height = "0px";
 	      }
 	    }
 	  },
-	  hide: function hide(force) {
+	  hide: function (force) {
 	    if (this.$destructed) return;
 	    if (this._settings.modal) this._modal_set(false);
 	    var maxWidth = document.documentElement.offsetWidth;
@@ -47175,7 +47923,6 @@
 	var api$1z = {
 	  name: "sidebar",
 	  defaults: {
-	    titleHeight: $active.sidebarTitleHeight || 40,
 	    type: "sideBar",
 	    activeTitle: true,
 	    select: true,
@@ -47186,7 +47933,10 @@
 	    width: 250,
 	    mouseEventDelay: 10
 	  },
-	  $init: function $init() {
+	  $skin: function () {
+	    this.defaults.titleHeight = $active.sidebarTitleHeight;
+	  },
+	  $init: function () {
 	    this.$ready.push(this._initSidebar);
 	    this.$ready.push(this._initContextMenu);
 
@@ -47197,7 +47947,7 @@
 	  },
 	  on_context: {},
 	  on_mouse_move: {},
-	  _initSidebar: function _initSidebar() {
+	  _initSidebar: function () {
 	    this._fullWidth = this.config.width;
 	    this.attachEvent("onBeforeOpen", function (id) {
 	      if (!this.config.multipleOpen) {
@@ -47232,7 +47982,7 @@
 	    });
 	    if (this.config.collapsed) this.collapse();
 	  },
-	  _showPopup: function _showPopup(id, node) {
+	  _showPopup: function (id, node) {
 	    if (this.config.collapsed) {
 	      var popup = this.getPopup();
 
@@ -47248,10 +47998,10 @@
 	      }
 	    }
 	  },
-	  _updateTitle: function _updateTitle(id) {
+	  _updateTitle: function (id) {
 	    var popup = this.getPopup();
 	    var title = popup.getBody().getChildViews()[0];
-	    if (!title) return;
+	    if (!title || title.masterId == id) return;
 	    var selectedId = this.getSelectedId();
 	    title.masterId = id;
 	    title.parse(this.getItem(id));
@@ -47268,23 +48018,29 @@
 	      removeCss(title.$view, "webix_selected");
 	    }
 	  },
-	  _updateList: function _updateList(id) {
+	  _updateList: function (id) {
 	    var popup = this.getPopup();
 	    var list = popup.getBody().getChildViews()[1];
-	    if (!list) return;
+	    if (!list || list.masterId == id) return;
+	    if (this.exists(list.masterId) && this.getItem(list.masterId).menu) this.updateItem(list.masterId, {
+	      menu: list.data.serialize()
+	    });
 	    list.clearCss("webix_sidebar_selected");
 	    list.masterId = id;
 	    var selectedId = this.getSelectedId();
-	    var data = this.getItem(id).menu ? copy(this.getItem(id).menu) : [].concat(copy(this.data.getBranch(id)));
+	    var data = copy(this.getItem(id).menu || []);
 	    list.unselect();
 
 	    if (data.length) {
 	      list.show();
 	      list.data.importData(data);
 	      if (list.exists(selectedId)) list.select(selectedId);else if (selectedId) this._markMenu(list, selectedId);
-	    } else list.hide();
+	    } else {
+	      list.hide();
+	      list.data.clearAll();
+	    }
 	  },
-	  _initContextMenu: function _initContextMenu() {
+	  _initContextMenu: function () {
 	    var master = this,
 	        config = master.config,
 	        popup;
@@ -47297,7 +48053,7 @@
 	      var dirClassName = config.position == "left" ? "webix_sidebar_popup_left" : "webix_sidebar_popup_right";
 	      var subMenuPos = config.position == "left" ? "right" : "left";
 
-	      var menuTemplate = function menuTemplate(obj) {
+	      var menuTemplate = function (obj) {
 	        var icon = "wxi-angle-" + (config.position == "left" ? "right" : "left");
 	        var arrow = obj.submenu || obj.data || obj.item ? "<div class=\"webix_icon " + icon + "\"></div>" : "";
 	        return arrow + obj.value;
@@ -47318,7 +48074,7 @@
 	            template: "#value#",
 	            height: this.config.titleHeight + 2,
 	            onClick: {
-	              webix_template: function webix_template() {
+	              webix_template: function () {
 	                var id = this.masterId;
 	                if (!master.getItem(id).$count) master.select(id);
 	              }
@@ -47346,16 +48102,16 @@
 	              },
 	              css: "webix_sidebar_popup_list " + dirClassName + " " + config.css,
 	              on: {
-	                onShow: function onShow() {
+	                onShow: function () {
 	                  this.clearCss("webix_sidebar_selected");
 	                  this.unselectAll();
 	                  var sel = master.getSelectedId();
 	                  if (sel && this.exists(sel)) this.select(sel);else if (sel) master._markMenu(this, sel);
 	                },
-	                onBeforeSelect: function onBeforeSelect(id) {
+	                onBeforeSelect: function (id) {
 	                  if (this.getSubMenu(id)) return false;
 	                },
-	                onAfterSelect: function onAfterSelect(id) {
+	                onAfterSelect: function (id) {
 	                  var menu = master.getPopup().queryView({
 	                    view: "menu"
 	                  });
@@ -47378,10 +48134,10 @@
 	              }
 	            },
 	            on: {
-	              onBeforeSelect: function onBeforeSelect(id) {
+	              onBeforeSelect: function (id) {
 	                if (this.getSubMenu(id)) return false;
 	              },
-	              onMenuItemClick: function onMenuItemClick(id) {
+	              onMenuItemClick: function (id) {
 	                if (!this.getSubMenu(id)) master.select(id);
 	              }
 	            }
@@ -47397,7 +48153,8 @@
 	        }
 
 	        if (master.config.collapsed && master.getItem(id).$level == 1) {
-	          addCss(this.$view, "webix_selected", true);
+	          var title = popup.getBody().getChildViews()[0];
+	          if (title) addCss(title.$view, "webix_selected", true);
 	        }
 	      };
 
@@ -47424,22 +48181,22 @@
 	      bind: this
 	    });
 	  },
-	  _markMenu: function _markMenu(view, sel, topOnly) {
+	  _markMenu: function (view, sel, topOnly) {
 	    var css = "webix_sidebar_selected";
 	    view.data.each(function (obj) {
 	      if (this._isChild(sel, obj.id) && (!topOnly || this.getParentId(obj.id) == "0")) view.addCss(obj.id, css);else if (view.hasCss(obj.id, css)) view.removeCss(obj.id, css);
 	    }, this);
 	  },
-	  _isChild: function _isChild(cid, pid) {
+	  _isChild: function (cid, pid) {
 	    var parent = this.getParentId(cid);
 	    if (pid == parent) return true;
 	    if (parent) return this._isChild(parent, pid);
 	    return false;
 	  },
-	  getPopup: function getPopup() {
+	  getPopup: function () {
 	    return $$(this.config.popupId);
 	  },
-	  position_setter: function position_setter(value) {
+	  position_setter: function (value) {
 	    var newPos = value;
 	    var oldPos = value == "left" ? "right" : "left";
 	    removeCss(this.$view, "webix_sidebar_" + oldPos);
@@ -47454,17 +48211,17 @@
 
 	    return value;
 	  },
-	  collapse: function collapse() {
+	  collapse: function () {
 	    this.define("collapsed", true);
 	  },
-	  expand: function expand() {
+	  expand: function () {
 	    this.define("collapsed", false);
 	  },
-	  toggle: function toggle() {
+	  toggle: function () {
 	    var collapsed = !this.config.collapsed;
 	    this.define("collapsed", collapsed);
 	  },
-	  collapsed_setter: function collapsed_setter(value) {
+	  collapsed_setter: function (value) {
 	    var width;
 
 	    if (!value) {
@@ -47481,17 +48238,28 @@
 	    this.define("width", width);
 	    this.resize();
 	    return value;
+	  },
+	  getState: function () {
+	    var state = {
+	      collapsed: this.config.collapsed
+	    };
+	    exports.extend(state, TreeAPI.getState.call(this));
+	    return state;
+	  },
+	  setState: function (state) {
+	    TreeAPI.setState.call(this, state);
+	    this.define("collapsed", state.collapsed);
 	  }
 	};
 	type(tree.view, {
 	  name: "sideBar",
 	  height: "auto",
 	  css: "webix_sidebar",
-	  template: function template(obj, common) {
+	  template: function (obj, common) {
 	    if (common.collapsed) return common.icon(obj, common);
 	    return common.arrow(obj, common) + common.icon(obj, common) + "<span>" + obj.value + "</span>";
 	  },
-	  arrow: function arrow(obj) {
+	  arrow: function (obj) {
 	    var html = "";
 
 	    for (var i = 1; i <= obj.$level; i++) {
@@ -47504,7 +48272,7 @@
 
 	    return html;
 	  },
-	  icon: function icon(obj) {
+	  icon: function (obj) {
 	    var style = "";
 
 	    if (obj.$level > 2) {
@@ -47525,7 +48293,7 @@
 	var api$1B = {
 	  name: "contextmenu",
 	  _hide_on_item_click: true,
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    if (config.submenuConfig) exports.extend(config, config.submenuConfig);
 	  }
 	};
@@ -47533,7 +48301,7 @@
 
 	var api$1C = {
 	  name: "treetable",
-	  $init: function $init() {
+	  $init: function () {
 	    exports.extend(this.data, TreeStore, true);
 	    exports.extend(this.type, TreeType);
 	    exports.extend(this, TreeDataMove, true);
@@ -47553,28 +48321,35 @@
 	    this._viewobj.setAttribute("role", "treegrid");
 	  },
 	  _drag_order_complex: false,
-	  _unwrap_id: function _unwrap_id(original) {
+	  _unwrap_id: function (original) {
 	    return function (e, id) {
 	      id = id.row;
 	      return original.call(this, e, id);
 	    };
 	  },
-	  getState: function getState() {
+	  _close_branches: function (context) {
+	    var source = !this._settings.prerender ? [context.start] : context.source;
+
+	    for (var i = 0; i < source.length; i++) {
+	      this.close(source[i]);
+	    }
+	  },
+	  getState: function () {
 	    var state = DataState.getState.call(this);
 	    exports.extend(state, TreeAPI.getState.call(this));
 	    return state;
 	  },
-	  setState: function setState(state) {
+	  setState: function (state) {
 	    if (TreeAPI.setState.call(this, state)) {
 	      //run grid-state only when tree component was fully loaded 
 	      DataState.setState.call(this, state);
 	    }
 	  },
-	  clipboard_setter: function clipboard_setter(value) {
+	  clipboard_setter: function (value) {
 	    exports.extend(this._paste, TreeTablePaste);
 	    return TablePaste.clipboard_setter.call(this, value);
 	  },
-	  _run_load_next: function _run_load_next(conf, direction) {
+	  _run_load_next: function (conf, direction) {
 	    for (var i = 0; i < conf.start; i++) {
 	      var id = this.data.order[i];
 	      if (id && this.getItem(id).$level != 1) conf.start--;
@@ -47590,7 +48365,7 @@
 	/* eslint no-inner-declarations: 0 */
 
 	{
-	  var get_inspector_config = function get_inspector_config(view) {
+	  var get_inspector_config = function (view) {
 	    var values = {};
 	    var options = [];
 	    view = $$(view);
@@ -47626,7 +48401,7 @@
 	    };
 	  };
 
-	  var create_inspector = function create_inspector() {
+	  var create_inspector = function () {
 	    if (!$$("webix_debug_inspector_win")) ui({
 	      id: "webix_debug_inspector_win",
 	      view: "window",
@@ -47652,7 +48427,7 @@
 	              width: 100,
 	              value: "Hide",
 	              type: "custom",
-	              click: function click() {
+	              click: function () {
 	                show_inspector();
 	              }
 	            }]
@@ -47663,7 +48438,7 @@
 	            scroll: "y",
 	            elements: [],
 	            on: {
-	              onaftereditstop: function onaftereditstop(state, editor) {
+	              onaftereditstop: function (state, editor) {
 	                if (state.old == state.value) return;
 	                var value = state.value;
 
@@ -47686,7 +48461,7 @@
 	    });
 	  };
 
-	  var show_inspector = function show_inspector(view, ev) {
+	  var show_inspector = function (view, ev) {
 	    create_inspector();
 	    var win = $$("webix_debug_inspector_win");
 
@@ -47712,12 +48487,12 @@
 	    } else win.hide();
 	  };
 
-	  var infi = function infi(value) {
+	  var infi = function (value) {
 	    if (value >= 100000) return "Any";
 	    return value;
 	  };
 
-	  var log_level = function log_level(data, prefix, now) {
+	  var log_level = function (data, prefix, now) {
 	    window.console.log((data == now ? ">>" : "  ") + prefix + data.name + " / " + data.config.id);
 	    prefix += "  ";
 	    if (data._cells) for (var i = 0; i < data._cells.length; i++) {
@@ -47727,7 +48502,15 @@
 	    if (data._body_cell) log_level(data._body_cell, prefix, now);
 	  };
 
-	  attachEvent("onLoadError", function (text, xml, xhttp, owner) {
+	  attachEvent("onLoadError", function (xhttp, owner) {
+	    var text; //xhttp can be of blob or arraybuffer type, or just empty in case of no data
+
+	    try {
+	      text = xhttp.responseText;
+	    } catch (e) {
+	      text = "";
+	    }
+
 	    text = text || "[EMPTY DATA]";
 	    var error_text = "Data loading error, check console for details";
 	    if (text.indexOf("<?php") === 0) error_text = "PHP support missed";else if (text.indexOf("WEBIX_ERROR:") === 0) error_text = text.replace("WEBIX_ERROR:", "");
@@ -47742,7 +48525,7 @@
 	      logger.log("Data loading error");
 	      logger.log("Object:", owner);
 	      logger.log("Response:", text);
-	      logger.log("XHTTP:", xhttp);
+	      if (xhttp) logger.log("XHTTP:", xhttp);
 	    }
 	  });
 	  ready(function () {
@@ -47767,7 +48550,7 @@
 	    view: "contextmenu",
 	    id: "webix:debugmenu",
 	    on: {
-	      onBeforeShow: function onBeforeShow(e) {
+	      onBeforeShow: function (e) {
 	        if (!e.ctrlKey) return false;
 	        var view = locate(e, "view_id");
 	        if (!view) return false;
@@ -47777,7 +48560,7 @@
 	          unblockEvent();
 	        });
 	      },
-	      onShow: function onShow() {
+	      onShow: function () {
 	        var view = $$(this.config.lastTarget);
 	        var info = "<span style='color:#888'>" + view._settings.id + "<sup style='float:right'>[" + view.name + "]</sup></span>";
 	        document.getElementById("webix_debug_cmx").innerHTML = info;
@@ -47802,7 +48585,7 @@
 	        value: "Dump"
 	      }]
 	    }],
-	    click: function click(id, ev) {
+	    click: function (id, ev) {
 	      //mixing two object result in confusion
 	      var obj = $$(this.config.lastTarget);
 
@@ -47850,10 +48633,10 @@
 
 	var DataRecord = exports.proto({
 	  name: "DataRecord",
-	  isVisible: function isVisible() {
+	  isVisible: function () {
 	    return true;
 	  },
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    this.data = config || {};
 	    var id = config && config.id ? config.id : uid();
 	    this._settings = {
@@ -47861,24 +48644,24 @@
 	    };
 	    ui.views[id] = this;
 	  },
-	  getValues: function getValues() {
+	  getValues: function () {
 	    return this.data;
 	  },
-	  setValues: function setValues(data, update) {
+	  setValues: function (data, update) {
 	    this.data = update ? exports.extend(this.data, data, true) : data;
 	    this.callEvent("onChange", [data]);
 	  },
-	  refresh: function refresh() {
+	  refresh: function () {
 	    this.callEvent("onBindRequest");
 	  }
 	}, EventSystem, BaseBind, AtomDataLoader, Settings);
 
 	var DataValue = exports.proto({
 	  name: "DataValue",
-	  isVisible: function isVisible() {
+	  isVisible: function () {
 	    return true;
 	  },
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    if (!config || isUndefined(config.value)) this.data = config || "";
 	    var id = config && config.id ? config.id : uid();
 	    this._settings = {
@@ -47886,21 +48669,21 @@
 	    };
 	    ui.views[id] = this;
 	  },
-	  setValue: function setValue(value) {
+	  setValue: function (value) {
 	    this.data = value;
 	    this.callEvent("onChange", [value]);
 	  },
-	  getValue: function getValue() {
+	  getValue: function () {
 	    return this.data;
 	  },
-	  refresh: function refresh() {
+	  refresh: function () {
 	    this.callEvent("onBindRequest");
 	  }
 	}, EventSystem, BaseBind);
 
 	var TreeCollection = exports.proto({
 	  name: "TreeCollection",
-	  $init: function $init() {
+	  $init: function () {
 	    exports.extend(this.data, TreeStore, true);
 	    this.data.provideApi(this, true);
 	    exports.extend(this, TreeDataMove, true);
@@ -47966,6 +48749,7 @@
 	exports.Settings = Settings;
 	exports.Sparklines = Sparklines;
 	exports.TablePaste = TablePaste;
+	exports.TooltipControl = TooltipControl;
 	exports.Touch = Touch;
 	exports.TreeAPI = TreeAPI;
 	exports.TreeClick = TreeClick;
@@ -47985,8 +48769,8 @@
 	exports.Values = Values;
 	exports.VirtualRenderStack = VirtualRenderStack;
 	exports.VRenderStack = VRenderStack;
-	exports.html = html;
-	exports.skin = skin$6;
+	exports.html = html$1;
+	exports.skin = skin$5;
 	exports.debug = debug;
 	exports.i18n = i18n;
 	exports.ready = ready;
@@ -48037,9 +48821,9 @@
 	exports.hasEvent = hasEvent;
 	exports.stringify = stringify;
 	exports.toPNG = toPNG;
-	exports.toExcel = toExcel;
 	exports.toCSV = toCSV;
 	exports.toPDF = toPDF;
+	exports.toExcel = toExcel;
 	exports.alert = alert;
 	exports.confirm = confirm;
 	exports.modalbox = modalbox;
@@ -48052,7 +48836,7 @@
 	exports.DataProcessor = DataProcessor;
 	exports.remote = remote;
 	exports.require = require;
-	exports.proxy = proxy$b;
+	exports.proxy = proxy$a;
 	exports.send = send;
 	exports.ui = ui;
 	exports.$$ = $$;

@@ -1,6 +1,6 @@
 /**
  * @license
- * Webix Kanban v.6.1.2
+ * Webix Kanban v.6.2.0
  * This software is covered by Webix Commercial License.
  * Usage without proper license is prohibited.
  * (c) XB Software Ltd.
@@ -29,18 +29,29 @@
   webix.protoUI({
     name: "kanbanheader",
     $kanban: true,
-    $skin: function $skin() {
+    $skin: function () {
       this.defaults.height = webix.skin.$active.barHeight;
+      this._template_types.sub.height = webix.skin.$active.barHeight - 12;
+    },
+    $init: function (config) {
+      var subtype = this._template_types[config.type];
+      if (subtype) webix.extend(config, subtype);
     },
     defaults: {
-      icon: "webix_kanban_icon kbi-plus-circle",
+      css: "webix_kanban_header",
       borderless: true,
-      template: function template(obj) {
-        return "<div class='webix_kanban_header' style='height:100%; line-height:" + obj.height + "px'>" + "<span class='webix_kanban_add_icon webix_icon " + obj.icon + "'></span><span class='webix_strong'>" + obj.label + "</span></div>";
+      template: function () {
+        var icon = this.icon || (this.link ? "webix_kanban_icon kbi-plus-circle" : "");
+        return (icon ? "<span class='webix_icon " + (this.link ? "webix_kanban_add_icon " : "") + icon + "'></span>" : "") + "<span class='webix_strong' style='line-height:" + this.height + "px'>" + (this.label || "") + "</span>";
+      }
+    },
+    _template_types: {
+      "sub": {
+        css: "webix_kanban_sub_header"
       }
     },
     on_click: {
-      webix_kanban_add_icon: function webix_kanban_add_icon() {
+      "webix_kanban_add_icon": function () {
         var obj = {
           text: ""
         };
@@ -55,10 +66,10 @@
         }
       }
     },
-    getKanban: function getKanban() {
+    getKanban: function () {
       return webix.$$(this.config.master);
     }
-  }, webix.ui.label);
+  }, webix.MouseEvents, webix.ui.template);
 
   var images = {
     jpg: true,
@@ -111,33 +122,33 @@
     icons: [{
       id: "attachments",
       icon: "webix_kanban_icon kbi-file",
-      show: function show(obj) {
+      show: function (obj) {
         return obj.attachments ? obj.attachments.length : false;
       },
       template: "#attachments.length#"
     }, {
       id: "comments",
       icon: "webix_kanban_icon kbi-comment",
-      show: function show(obj, kanban) {
+      show: function (obj, kanban) {
         return !!kanban.config.comments;
       },
-      template: function template(obj) {
+      template: function (obj) {
         return obj.comments ? obj.comments.length || "" : "";
       }
     }, {
       id: "editor",
       icon: "webix_kanban_icon kbi-pencil",
-      show: function show(obj, kanban) {
-        return !kanban.config.cardActions;
+      show: function (obj, kanban) {
+        return kanban.config.editor && !kanban.config.cardActions;
       }
     }, {
       id: "menu",
       icon: "webix_kanban_icon kbi-cogs",
-      show: function show(obj, kanban) {
+      show: function (obj, kanban) {
         return !!kanban.config.cardActions;
       }
     }],
-    templateTags: function templateTags(obj, common, kanban) {
+    templateTags: function (obj, common, kanban) {
       var res = [];
 
       if (obj.tags) {
@@ -152,7 +163,7 @@
 
       return "<div  class='webix_kanban_tags'>" + (res.length ? res.join("") : "&nbsp;") + "</div>";
     },
-    templateIcons: function templateIcons(obj, common, kanban) {
+    templateIcons: function (obj, common, kanban) {
       var icons = [];
       var icon = null;
       var html = "";
@@ -175,39 +186,34 @@
 
       return "<div  class='webix_kanban_footer_icons'>" + icons.join(" ") + "</div>";
     },
-    templateAvatar: function templateAvatar(obj, common, kanban) {
+    templateAvatar: function (obj, common, kanban) {
       var users = kanban._users;
       var user = obj.user_id && users.exists(obj.user_id) ? users.getItem(obj.user_id) : {};
       if (user.image) return "<img class='webix_kanban_avatar' src='" + user.image + "' title='" + (user.value || "") + "'>";
       return "<span class='webix_icon webix_kanban_icon kbi-account' title='" + (user.value || "") + "'></span>";
     },
-    templateBody: function templateBody(obj) {
+    templateBody: function (obj) {
       return obj.text;
     },
-    templateAttachments: function templateAttachments(obj) {
-      var html = "";
-
-      if (webix.isArray(obj.attachments)) {
+    templateAttachments: function (obj) {
+      if (obj.attachments) {
         for (var i in obj.attachments) {
           var v = obj.attachments[i];
 
-          var _type = typeof v.link === "string" && v.link ? v.link.split(".").pop() : "";
+          var _type = v.link.split(".").pop();
 
-          if (isImage(_type)) {
-            html += "<img class='webix_kanban_attachment' src='" + v.link + "'/>";
-            break;
-          }
+          if (isImage(_type)) return "<img class='webix_kanban_attachment' src='" + v.link + "'/>";
         }
       }
 
-      return html;
+      return "";
     },
-    templateFooter: function templateFooter(obj, common, kanban) {
+    templateFooter: function (obj, common, kanban) {
       var tags = common.templateTags(obj, common, kanban);
       return (tags ? tags : "&nbsp;") + common.templateIcons(obj, common, kanban);
     },
     templateStart: webix.template("<div webix_l_id='#id#' class='{common.classname()} webix_kanban_list_item' style='width:{common.width}px; height:{common.height}px;'>"),
-    template: function template(obj, common) {
+    template: function (obj, common) {
       var kanban = webix.$$(common.master);
       var color = kanban._colors.exists(obj.color) ? kanban._colors.getItem(obj.color).color : obj.color;
       var avatar = "<div class='webix_kanban_user_avatar' webix_icon_id='$avatar'>" + common.templateAvatar(obj, common, kanban) + "</div>";
@@ -220,12 +226,12 @@
   webix.KanbanView = {
     $kanban: true,
     on_context: {},
-    $skin: function $skin() {// prevent default list's item skin height
+    $skin: function () {// prevent default list's item skin height
     },
-    getKanban: function getKanban() {
+    getKanban: function () {
       return webix.$$(this.config.master);
     },
-    _kanban_event: function _kanban_event(s, t, i) {
+    _kanban_event: function (s, t, i) {
       this.attachEvent(s, function () {
         for (var _len = arguments.length, rest = new Array(_len), _key = 0; _key < _len; _key++) {
           rest[_key] = arguments[_key];
@@ -235,14 +241,16 @@
         return this.getKanban().callEvent(t, rest);
       });
     },
-    _fixOrder: function _fixOrder() {
+    _fixOrder: function () {
       this.data.each(function (a, i) {
         return a.$index = i + 1;
       });
     },
-    move: function move(sid, tindex, tobj, details) {
-      // normally only one item is dragged
+    move: function (sid, tindex, tobj, details) {
+      tobj = tobj || this;
+      details = details || {}; // normally only one item is dragged
       // still, it possible to enable multi-selection through API
+
       if (webix.isArray(sid)) {
         return webix.DataMove.move.call(this, sid, tindex, tobj, details);
       }
@@ -281,7 +289,7 @@
       if (statusChange) kanban.callEvent("onAfterStatusChange", [sid, tobj.config.status, tobj]);
       return sid;
     },
-    _setHandlers: function _setHandlers() {
+    _setHandlers: function () {
       this.attachEvent("onAfterSelect", function () {
         this.eachOtherList(function (list) {
           list.unselect();
@@ -313,7 +321,7 @@
       this.on_click.webix_kanban_user_avatar = this._handle_icons;
       this.on_click.webix_kanban_footer_icon = this._handle_icons;
     },
-    _handle_icons: function _handle_icons(e, id, node) {
+    _handle_icons: function (e, id, node) {
       var icon = node.getAttribute("webix_icon_id");
       var all = this.type.icons; //per-icon click handlers
 
@@ -328,9 +336,8 @@
       }
 
       if (icon === "$avatar") this.getKanban().callEvent("onAvatarClick", [id, e, node, this]);else this.getKanban().callEvent("onListIconClick", [icon, id, e, node, this]);
-      return false;
     },
-    $dragCreate: function $dragCreate(a, e) {
+    $dragCreate: function (a, e) {
       var text = webix.DragControl.$drag(a, e);
       if (!text) return false;
       var drag_container = document.createElement("DIV");
@@ -339,11 +346,10 @@
       document.body.appendChild(drag_container);
       return drag_container;
     },
-    $dragPos: function $dragPos(pos) {
-      pos.x = pos.x - 4;
-      pos.y = pos.y - 4;
+    $dropHTML: function () {
+      return "<div class='webix_kanban_drop_inner'></div>";
     },
-    eachOtherList: function eachOtherList(code) {
+    eachOtherList: function (code) {
       var self = this.config.id;
       var master = this.getKanban();
       master.eachList(function (view) {
@@ -351,16 +357,19 @@
       });
     },
     defaults: {
-      drag: true,
+      drag: "move",
       select: true
     }
   };
 
   webix.protoUI({
     name: "kanbanlist",
-    $init: function $init() {
+    $init: function () {
       this.$view.className += " webix_kanban_list";
       this.$ready.push(webix.bind(this._setHandlers, this));
+    },
+    defaults: {
+      scroll: "auto"
     },
     type: type
   }, webix.ui.list, webix.KanbanView);
@@ -369,7 +378,7 @@
   dtype.width = 200;
   webix.protoUI({
     name: "kanbandataview",
-    $init: function $init() {
+    $init: function () {
       this.$view.className += " webix_kanban_list";
       this.$ready.push(webix.bind(this._setHandlers, this));
     },
@@ -381,11 +390,11 @@
 
   webix.protoUI({
     name: "kanbanuploader",
-    $init: function $init() {
+    $init: function () {
       var _this = this;
 
       this.files.data.scheme({
-        $init: function $init(obj) {
+        $init: function (obj) {
           if (typeof obj.link === "string" && obj.link) {
             obj.name = obj.name || obj.link.split("/").pop();
             obj.type = obj.type || obj.name.split(".").pop();
@@ -404,7 +413,7 @@
     defaults: {
       icon: "webix_kanban_icon kbi-upload"
     },
-    getValue: function getValue() {
+    getValue: function () {
       var data = [];
       this.files.data.each(function (obj) {
         if (obj.status === "server") data.push({
@@ -415,7 +424,7 @@
       });
       return data;
     },
-    _format_size: function _format_size(size) {
+    _format_size: function (size) {
       var index = 0;
 
       while (size > 1024) {
@@ -430,17 +439,17 @@
     name: "uploader",
     height: 91,
     width: 161,
-    template: function template(obj, common) {
+    template: function (obj, common) {
       return "<a".concat(obj.status === "server" ? " href=\"".concat(obj.link, "\" download=\"").concat(obj.name, "\"") : "", "></a>\n\t\t\t\t").concat(common.body(obj), "\n\t\t\t\t").concat(common.title(obj, common), "\n\t\t\t\t").concat(common.removeIcon(obj));
     },
-    body: function body(obj) {
+    body: function (obj) {
       if (obj.status === "server" && isImage(obj.type)) return "<div class=\"webix_kanban_uploader_body\"><img src=\"".concat(obj.link, "\"></div>");
       return "<div class='webix_kanban_uploader_body'>\n\t\t\t\t\t<span class='webix_icon webix_kanban_icon kbi-file".concat(getIconName(obj.type), "'></span>\n\t\t\t\t</div>");
     },
-    title: function title(obj, common) {
+    title: function (obj, common) {
       return "<div class=\"webix_kanban_uploader_title\" title=\"".concat(obj.name, "\">\n\t\t\t\t\t").concat(common.progress(obj), "\n\t\t\t\t\t<div class=\"webix_kanban_uploader_label\">").concat(obj.name, "</div>\n\t\t\t\t</div>");
     },
-    progress: function progress(obj) {
+    progress: function (obj) {
       switch (obj.status) {
         case "client":
           return "<span class='webix_kanban_uploader_progress'>" + obj.sizetext + "</span>";
@@ -455,11 +464,11 @@
           return "<span class='webix_kanban_uploader_progress_error'>ERROR</span>";
       }
     },
-    removeIcon: function removeIcon() {
+    removeIcon: function () {
       return "<div class='webix_kanban_remove_upload'><span class='webix_icon wxi-close'></span></div>";
     },
     on_click: {
-      "webix_kanban_remove_upload": function webix_kanban_remove_upload(ev, id) {
+      "webix_kanban_remove_upload": function (ev, id) {
         webix.$$(this.config.uploader).files.remove(id);
         return webix.html.preventEvent(ev);
       }
@@ -501,7 +510,7 @@
       modal: true,
       move: true
     },
-    $init: function $init(config) {
+    $init: function (config) {
       var _this = this;
 
       var kanban = webix.$$(config.master);
@@ -516,11 +525,12 @@
         }, {
           view: "icon",
           icon: "wxi-close",
-          click: function click() {
+          click: function () {
             return _this._close();
           }
         }]
       };
+      var c = kanban.config.editor;
       var form = {
         view: "form",
         borderless: true,
@@ -529,7 +539,7 @@
           labelPosition: "top"
         }
       };
-      form["elements"] = webix.isArray(kanban.config.editor) ? kanban.config.editor : [{
+      var elements = [{
         view: "textarea",
         label: webix.i18n.kanban.editor.text,
         name: "text",
@@ -578,6 +588,15 @@
           }
         }]
       }];
+      if (webix.isArray(c)) form.elements = c;else if (_typeof(c) === "object") {
+        form = webix.extend(form, c, true);
+        form.view = "form";
+        form.elements = form.elements || form.rows || (form.cols ? [{
+          cols: form.cols
+        }] : elements);
+        delete form.rows;
+        delete form.cols;
+      } else form.elements = elements;
       if (kanban.config.attachments) form.elements.push({
         margin: 0,
         rows: [{
@@ -601,7 +620,7 @@
           type: "uploader",
           css: "webix_kanban_dataview_uploader",
           on: {
-            onItemDblClick: function onItemDblClick(id, e, node) {
+            onItemDblClick: function (id, e, node) {
               var link = node.getElementsByTagName("a")[0];
               link.click();
             }
@@ -620,10 +639,16 @@
             autowidth: true,
             hidden: true,
             localId: "$kanban_remove",
-            click: function click() {
-              var values = _this.getValues();
+            click: function () {
+              var values = _this.getValues({
+                hidden: false
+              });
 
-              _this.getKanban()._removeCard(values.id).then(function () {
+              var kanban = _this.getKanban();
+
+              if (!kanban.callEvent("onBeforeEditorAction", ["remove", _this, values])) return;
+
+              kanban._removeCard(values.id).then(function () {
                 return _this._close();
               });
             }
@@ -632,12 +657,14 @@
             label: webix.i18n.kanban.save,
             type: "form",
             autowidth: true,
-            click: function click() {
+            click: function () {
               var values = _this.getValues({
                 hidden: false
               });
 
               var kanban = _this.getKanban();
+
+              if (!kanban.callEvent("onBeforeEditorAction", ["save", _this, values])) return;
 
               _this._fixStatus(values, kanban);
 
@@ -655,7 +682,7 @@
       };
       this.$ready.push(this._afterInit);
     },
-    _afterInit: function _afterInit() {
+    _afterInit: function () {
       this._form = this.queryView({
         view: "form"
       });
@@ -687,17 +714,17 @@
         }
       });
     },
-    _fixStatus: function _fixStatus(values, kanban) {
+    _fixStatus: function (values, kanban) {
       values.$list = Number(values.$list) || 0;
       if (kanban._sublists[values.$list]) kanban.setListStatus(values, kanban._sublists[values.$list]);
     },
-    getForm: function getForm() {
+    getForm: function () {
       return this._form;
     },
-    getKanban: function getKanban() {
+    getKanban: function () {
       return webix.$$(this.config.master);
     },
-    setValues: function setValues(values) {
+    setValues: function (values) {
       if (_typeof(values) !== "object" || !values) values = {};
       var kanban = this.getKanban();
 
@@ -709,10 +736,10 @@
 
       this._form.setValues(values);
     },
-    getValues: function getValues(details) {
+    getValues: function (details) {
       return this._form.getValues(details);
     },
-    _prepareEditor: function _prepareEditor(kanban, id) {
+    _prepareEditor: function (kanban, id) {
       if (id && kanban.exists(id)) {
         this._removeBtn.show();
 
@@ -725,7 +752,7 @@
 
       this._header.refresh();
     },
-    _close: function _close() {
+    _close: function () {
       this.hide();
 
       this._form.clear();
@@ -743,12 +770,12 @@
       yCount: 4,
       autoheight: false,
       select: true,
-      template: function template(obj) {
+      template: function (obj) {
         if (obj.image) return "<img class='webix_kanban_list_avatar' src='" + obj.image + "'>" + obj.value;
         return "<span class='webix_icon webix_kanban_icon kbi-account webix_kanban_list_avatar'></span>" + obj.value;
       }
     },
-    $init: function $init() {
+    $init: function () {
       this.$ready.push(function () {
         var _this = this;
 
@@ -773,14 +800,14 @@
         this.type.master = this.config.masterId;
       });
     },
-    getKanban: function getKanban() {
+    getKanban: function () {
       return webix.$$(this.config.masterId);
     }
   }, webix.ui.contextmenu);
 
   webix.protoUI({
     name: "kanbanmenu",
-    $init: function $init() {
+    $init: function () {
       this.$ready.push(function () {
         this.attachEvent("onItemClick", function (id) {
           var cid = this.getContext().id;
@@ -805,26 +832,37 @@
         });
       });
     },
-    getKanban: function getKanban() {
+    getKanban: function () {
       return webix.$$(this.config.masterId);
     }
   }, webix.ui.contextmenu);
 
   webix.protoUI({
     name: "kanbanchat",
-    $init: function $init(config) {
+    $init: function (config) {
       config.padding = 0;
       this.$ready.push(function () {
-        this.attachEvent("onHide", this._save);
+        var _this = this;
+
+        this.attachEvent("onHide", this._hide_chat);
+        var list = this.queryView({
+          view: "list"
+        });
+        list.data.attachEvent("onStoreUpdated", function (id, obj, mode) {
+          if (mode && mode !== "paint") _this._save();
+        });
       });
     },
-    _save: function _save() {
+    _save: function () {
       var context = this.getContext();
       var comments = this.getBody();
       var kanban = this.getKanban();
       if (context && kanban.exists(context.id)) kanban.updateItem(context.id, {
         comments: comments.serialize()
       });
+    },
+    _hide_chat: function () {
+      var comments = this.getBody();
       comments.queryView({
         view: "form"
       }).clear();
@@ -832,7 +870,7 @@
         view: "list"
       }).clearAll();
     },
-    getKanban: function getKanban() {
+    getKanban: function () {
       return webix.$$(this.config.masterId);
     }
   }, webix.ui.context);
@@ -873,16 +911,16 @@
     defaults: {
       delimiter: ","
     },
-    $skin: function $skin() {
+    $skin: function () {
       this.defaults.type = "space";
     },
-    $init: function $init(config) {
+    $init: function (config) {
       var _this = this;
 
       this.$view.className += " webix_kanban";
       this.data.provideApi(this, true);
       this.data.scheme({
-        $change: function $change(obj) {
+        $change: function (obj) {
           if (typeof obj.tags === "string") obj.tags = _this._strToArr(obj.tags);
         }
       });
@@ -922,23 +960,26 @@
 
       this.serialize = this._serialize;
     },
-    _strToArr: function _strToArr(value) {
+    _strToArr: function (value) {
       if (value) {
         return value.split(this.config.delimiter);
       }
 
       return [];
     },
-    getTags: function getTags() {
+    getTags: function () {
       return this._tags;
     },
-    getUsers: function getUsers() {
+    getUsers: function () {
       return this._users;
     },
-    getColors: function getColors() {
+    getColors: function () {
       return this._colors;
     },
-    cardActions_setter: function cardActions_setter(value) {
+    getStatuses: function () {
+      return this._statuses.serialize();
+    },
+    cardActions_setter: function (value) {
       if (value === true) value = ["edit", "copy", "remove"];
 
       if (webix.isArray(value)) {
@@ -950,7 +991,7 @@
         });
       }
     },
-    showEditor: function showEditor(obj) {
+    showEditor: function (obj) {
       var editor = this.getEditor();
 
       if (this.callEvent("onBeforeEditorShow", [editor, obj]) && editor) {
@@ -959,7 +1000,7 @@
         this.callEvent("onAfterEditorShow", [editor, obj]);
       }
     },
-    copy: function copy(id) {
+    copy: function (id) {
       if (this.callEvent("onBeforeCopy", [id])) {
         var item = webix.copy(this.getItem(id));
         delete item.id;
@@ -970,7 +1011,7 @@
         this.callEvent("onAfterCopy", [id]);
       }
     },
-    _removeCard: function _removeCard(id) {
+    _removeCard: function (id) {
       var _this3 = this;
 
       var promise = webix.promise.defer();
@@ -978,7 +1019,7 @@
       if (webix.i18n.kanban.confirm) {
         webix.confirm({
           text: webix.i18n.kanban.confirm,
-          callback: function callback(result) {
+          callback: function (result) {
             if (result) {
               _this3.remove(id);
 
@@ -993,7 +1034,7 @@
 
       return promise;
     },
-    _data_unification: function _data_unification(value) {
+    _data_unification: function (value) {
       if (value && value.getItem) return value;else {
         var data = new webix.DataCollection();
 
@@ -1003,19 +1044,19 @@
         return data;
       }
     },
-    getEditor: function getEditor() {
+    getEditor: function () {
       return webix.$$(this._editor);
     },
-    getUserList: function getUserList() {
+    getUserList: function () {
       return webix.$$(this._userList);
     },
-    getMenu: function getMenu() {
+    getMenu: function () {
       return webix.$$(this._menu);
     },
-    getComments: function getComments() {
+    getComments: function () {
       return webix.$$(this._comments);
     },
-    _initEditor: function _initEditor() {
+    _initEditor: function () {
       var _this4 = this;
 
       if (this.config.editor) {
@@ -1035,7 +1076,7 @@
         });
       }
     },
-    _initUserList: function _initUserList() {
+    _initUserList: function () {
       var _this5 = this;
 
       if (this.config.userList) {
@@ -1061,7 +1102,7 @@
         });
       }
     },
-    _initMenu: function _initMenu() {
+    _initMenu: function () {
       var _this6 = this;
 
       if (this.config.cardActions) {
@@ -1087,7 +1128,7 @@
         });
       }
     },
-    _initComments: function _initComments() {
+    _initComments: function () {
       var _this7 = this;
 
       if (this.config.comments) {
@@ -1131,14 +1172,14 @@
         });
       }
     },
-    _serialize: function _serialize() {
+    _serialize: function () {
       var d = [];
       this.eachList(function (l) {
         d = d.concat(l.serialize());
       });
       return d;
     },
-    _applyOrder: function _applyOrder(id, data, mode) {
+    _applyOrder: function (id, data, mode) {
       if (!id) {
         this._syncData();
 
@@ -1163,7 +1204,7 @@
         }
       }
     },
-    setListStatus: function setListStatus(obj, list) {
+    setListStatus: function (obj, list) {
       for (var i = 0; i < this._sublists.length; i++) {
         if (this._sublists[i] === list) {
           defaultSetter(obj, list);
@@ -1171,12 +1212,12 @@
         }
       }
     },
-    reconstruct: function reconstruct() {
+    reconstruct: function () {
       this._prepareLists();
 
       this._syncData();
     },
-    _prepareLists: function _prepareLists() {
+    _prepareLists: function () {
       this._sublists = [];
       this._subfilters = [];
       var statuses = [];
@@ -1210,7 +1251,7 @@
 
       this._statuses.parse(statuses);
     },
-    _syncData: function _syncData() {
+    _syncData: function () {
       var i,
           sets = [];
 
@@ -1235,7 +1276,7 @@
         this._sublists[i].data.importData(data);
       }
     },
-    _assignList: function _assignList(data) {
+    _assignList: function (data) {
       for (var i = 0; i < this._sublists.length; i++) {
         if (this._subfilters[i](data)) {
           return data.$list = i;
@@ -1244,21 +1285,21 @@
 
       return -1;
     },
-    getSelectedId: function getSelectedId() {
+    getSelectedId: function () {
       var selected = null;
       this.eachList(function (list) {
         selected = list.getSelectedId() || selected;
       });
       return selected;
     },
-    select: function select(id) {
+    select: function (id) {
       this.getOwnerList(id).select(id);
     },
-    getOwnerList: function getOwnerList(id) {
+    getOwnerList: function (id) {
       var item = this.getItem(id);
       return item ? this._sublists[item.$list] : null;
     },
-    eachList: function eachList(code) {
+    eachList: function (code) {
       for (var i = 0; i < this._sublists.length; i++) {
         code.call(this, this._sublists[i], this._sublists[i].config.status);
       }

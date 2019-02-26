@@ -1,6 +1,6 @@
 /**
  * @license
- * Webix QueryBuilder v.6.1.1
+ * Webix QueryBuilder v.6.2.0
  * This software is covered by Webix Commercial License.
  * Usage without proper license is prohibited.
  * (c) XB Software Ltd.
@@ -137,6 +137,36 @@
 	};
 
 	var locale$4 = {
+	  or: "ou",
+	  and: "et",
+	  delete_rule: "Supprimer la règle",
+	  add_rule: "Ajouter une règle",
+	  add_group: "Ajouter un groupe",
+	  less: "moins",
+	  less_or_equal: "inférieur ou égal",
+	  greater: "plus grand",
+	  greater_or_equal: "supérieur ou égal",
+	  between: "entre",
+	  not_between: "pas entre",
+	  begins_with: "commence par",
+	  not_begins_with: "ne commence par",
+	  contains: "contient",
+	  not_contains: "ne contient",
+	  ends_with: "se termine par",
+	  not_ends_with: "pas se termine par",
+	  is_empty: "est vide",
+	  is_not_empty: "Il n'est pas vide",
+	  equal: "égal",
+	  not_equal: "pas égal",
+	  is_null: "est nulle",
+	  is_not_null: "Il est non nul",
+	  default_option: "---",
+	  cancel: "Annuler",
+	  filter: "Filtre",
+	  sort: "Trier"
+	};
+
+	var locale$5 = {
 	  or: "o",
 	  and: "e",
 	  delete_rule: "Elimina la regola",
@@ -166,7 +196,7 @@
 	  sort: "Ordinare"
 	};
 
-	var locale$5 = {
+	var locale$6 = {
 	  or: "または",
 	  and: "そして",
 	  delete_rule: "ルールを削除する",
@@ -196,7 +226,7 @@
 	  sort: "ソート"
 	};
 
-	var locale$6 = {
+	var locale$7 = {
 	  or: "ou",
 	  and: "e",
 	  delete_rule: "Excluir regra",
@@ -226,7 +256,7 @@
 	  sort: "Ordenar"
 	};
 
-	var locale$7 = {
+	var locale$8 = {
 	  or: "или",
 	  and: "и",
 	  delete_rule: "Удалить правило",
@@ -256,7 +286,7 @@
 	  sort: "Сортировать"
 	};
 
-	var locale$8 = {
+	var locale$9 = {
 	  or: "要么",
 	  and: "和",
 	  delete_rule: "删除规则",
@@ -286,7 +316,7 @@
 	  sort: "分类"
 	};
 
-	function setLocale(name, locale$$1) {
+	function setLocale(locale$$1, name) {
 	  var lang = webix.i18n.locales[name];
 	  if (lang) lang.querybuilder = locale$$1;
 	}
@@ -295,12 +325,12 @@
 	setLocale(locale$1, "de-DE");
 	setLocale(locale$2, "en-US");
 	setLocale(locale$3, "es-ES");
-	setLocale(locale$2, "fr-FR");
-	setLocale(locale$4, "it-IT");
-	setLocale(locale$5, "ja-JP");
-	setLocale(locale$6, "pt-BR");
-	setLocale(locale$7, "ru-RU");
-	setLocale(locale$8, "zh-CN");
+	setLocale(locale$4, "fr-FR");
+	setLocale(locale$5, "it-IT");
+	setLocale(locale$6, "ja-JP");
+	setLocale(locale$7, "pt-BR");
+	setLocale(locale$8, "ru-RU");
+	setLocale(locale$9, "zh-CN");
 	webix.i18n.querybuilder = locale$2;
 
 	function _toConsumableArray(arr) {
@@ -328,13 +358,13 @@
 	  defaults: {
 	    padding: 0,
 	    margin: 10,
-	    borderless: true,
-	    value: {}
+	    borderless: true
 	  },
-	  $init: function $init(config) {
+	  $init: function (config) {
 	    var _this = this;
 
 	    var locale = webix.i18n.querybuilder;
+	    this.config.value = {};
 	    this.$view.className += " webix_qb_line";
 
 	    var keyoptions = _toConsumableArray(config.fields);
@@ -352,7 +382,7 @@
 	      inputWidth: 26,
 	      name: "close",
 	      label: "<span class=\"webix_icon wxi-trash\" title=\"".concat(locale.delete_rule, "\"></span>"),
-	      click: function click() {
+	      click: function () {
 	        _this._getParentQuery()._deleteRow(_this);
 	      }
 	    }];
@@ -368,7 +398,7 @@
 	      config.cols = elements;
 	    }
 	  },
-	  _selectConfig: function _selectConfig(config, css, name, options, hidden) {
+	  _selectConfig: function (config, css, name, options, hidden) {
 	    var _this2 = this;
 
 	    var select = {
@@ -381,14 +411,14 @@
 	      css: css,
 	      name: name,
 	      on: {
-	        onChange: function onChange() {
+	        onChange: function () {
 	          return _this2._onChange(name);
 	        }
 	      }
 	    };
 	    return select;
 	  },
-	  _inputConfig: function _inputConfig(config, type, value, hidden) {
+	  _inputConfig: function (config, type, value, hidden) {
 	    var _this3 = this;
 
 	    var input;
@@ -398,14 +428,14 @@
 	        view: type
 	      };
 	    } else {
-	      input = type;
+	      input = webix.copy(type);
 	    }
 
 	    input.name = "value";
 	    input.maxWidth = config.inputMaxWidth;
 	    input.value = value;
 	    input.on = {
-	      onChange: function onChange() {
+	      onChange: function () {
 	        return _this3._onChange("value");
 	      }
 	    };
@@ -425,12 +455,12 @@
 
 	    return input;
 	  },
-	  getValue: function getValue() {
+	  getValue: function () {
 	    var state = this.config.value;
 	    if (state.rule && (state.value !== "" || state.rule === "equal" || state.rule === "not_equal" || !this.elements.value)) return this.config.value;
 	    return null;
 	  },
-	  setValue: function setValue(value) {
+	  setValue: function (value) {
 	    this.config.value = value;
 	    this._silent = true;
 
@@ -445,7 +475,7 @@
 
 	    this._silent = false;
 	  },
-	  _onChange: function _onChange(key) {
+	  _onChange: function (key) {
 	    var select = this.elements[key];
 	    var value = this.config.value;
 	    value[key] = select.getValue();
@@ -458,7 +488,7 @@
 	      this._getTopQuery().callEvent("onKeySelect", [this]);
 	    }
 	  },
-	  _adjustVisible: function _adjustVisible(type, data) {
+	  _adjustVisible: function (type, data) {
 	    var field = this.elements.key.getList().getItem(data.key);
 	    var rule = this.elements.rule;
 	    var value = this.elements.value;
@@ -469,14 +499,14 @@
 	      this._updateValueField(data, field, rule, value);
 	    }
 	  },
-	  _fillRules: function _fillRules(field, rule) {
+	  _fillRules: function (field, rule) {
 	    var filters = this.config.filters;
 	    filters.filter(function (a) {
 	      return a.type[field.type] || a.type["any"];
 	    });
 	    rule.getList().data.importData(filters.data);
 	  },
-	  _updateRuleField: function _updateRuleField(data, field, rule, value) {
+	  _updateRuleField: function (data, field, rule, value) {
 	    var oldrule = rule.getValue();
 	    var filter = oldrule ? rule.getList().getItem(oldrule).type : "";
 	    if (!this._silent && !filter[field.type]) data.rule = data.value = "";
@@ -494,7 +524,7 @@
 	      if (value) value.hide();
 	    }
 	  },
-	  _updateValueField: function _updateValueField(data, field, rule, value) {
+	  _updateValueField: function (data, field, rule, value) {
 	    if (data.rule) {
 	      var filter = rule.getList().getItem(data.rule);
 	      var editor = filter.type[field.type] || filter.type["any"];
@@ -515,15 +545,15 @@
 	      if (value) value.hide();
 	    }
 	  },
-	  _getParentQuery: function _getParentQuery() {
+	  _getParentQuery: function () {
 	    return this.queryView({
 	      view: "querybuilder"
 	    }, "parent");
 	  },
-	  _getTopQuery: function _getTopQuery() {
+	  _getTopQuery: function () {
 	    return this._getParentQuery()._getTopQuery();
 	  },
-	  getFilterHelper: function getFilterHelper() {
+	  getFilterHelper: function () {
 	    var data = this.config.value;
 	    if (!this.getValue()) return null;
 	    var filter = this.elements.rule.getList().getItem(data.rule);
@@ -534,7 +564,7 @@
 	}, webix.ui.form, webix.EventSystem);
 
 	var sort = {
-	  _init_sorting: function _init_sorting() {
+	  _init_sorting: function () {
 	    var _this = this;
 
 	    if (!this.config.sorting) return;
@@ -553,7 +583,7 @@
 	      width: 300,
 	      labelWidth: 57,
 	      on: {
-	        onChange: function onChange() {
+	        onChange: function () {
 	          _this._callChangeMethod();
 	        }
 	      }
@@ -571,7 +601,7 @@
 	      value: "asc",
 	      width: 80,
 	      on: {
-	        onChange: function onChange() {
+	        onChange: function () {
 	          if (_this._getSortingValues().sortBy) {
 	            _this._callChangeMethod();
 	          }
@@ -584,13 +614,13 @@
 	      this._sortorder.destructor();
 	    });
 	  },
-	  _getSortingValues: function _getSortingValues() {
+	  _getSortingValues: function () {
 	    return {
 	      sortBy: this._sortby.getValue(),
 	      sortAs: this._sortorder.getValue()
 	    };
 	  },
-	  _setSortingValues: function _setSortingValues(value) {
+	  _setSortingValues: function (value) {
 	    if (value.fields) {
 	      var list = this._sortby.getList();
 
@@ -602,7 +632,10 @@
 
 	    this._sortorder.setValue(value.sortAs);
 	  },
-	  getSortingHelper: function getSortingHelper() {
+	  getSortingElements: function () {
+	    return [this._sortby, this._sortorder];
+	  },
+	  getSortingHelper: function () {
 	    var _this2 = this;
 
 	    var state = this._getSortingValues();
@@ -614,7 +647,7 @@
 	      var type = item.type;
 	      if (type === "number") type = "int";
 	      return {
-	        by: function by(obj) {
+	        by: function (obj) {
 	          return obj[id];
 	        },
 	        as: webix.DataStore.prototype.sorting.as[type]
@@ -636,8 +669,8 @@
 	  }
 	};
 
-	var locale$9 = webix.i18n.querybuilder;
 	var text = {
+	  "any": "text",
 	  "number": "text",
 	  "date": "datepicker"
 	};
@@ -648,150 +681,154 @@
 	var str = {
 	  "string": "text"
 	};
-	var filters = [{
-	  id: "less",
-	  name: locale$9.less,
-	  fn: function fn(a, b) {
-	    return a < b;
-	  },
-	  type: text
-	}, {
-	  id: "less_or_equal",
-	  name: locale$9.less_or_equal,
-	  fn: function fn(a, b) {
-	    return a <= b;
-	  },
-	  type: text
-	}, {
-	  id: "greater",
-	  name: locale$9.greater,
-	  fn: function fn(a, b) {
-	    return a > b;
-	  },
-	  type: text
-	}, {
-	  id: "greater_or_equal",
-	  name: locale$9.greater_or_equal,
-	  fn: function fn(a, b) {
-	    return a >= b;
-	  },
-	  type: text
-	}, {
-	  id: "between",
-	  name: locale$9.between,
-	  fn: function fn(a, b, c) {
-	    return (!b || a > b) && (!c || a < c);
-	  },
-	  type: range
-	}, {
-	  id: "not_between",
-	  name: locale$9.not_between,
-	  fn: function fn(a, b, c) {
-	    return !b || a <= b || !c || a >= c;
-	  },
-	  type: range
-	}, {
-	  id: "begins_with",
-	  name: locale$9.begins_with,
-	  fn: function fn(a, b) {
-	    return a.lastIndexOf(b, 0) === 0;
-	  },
-	  type: str
-	}, {
-	  id: "not_begins_with",
-	  name: locale$9.not_begins_with,
-	  fn: function fn(a, b) {
-	    return a.lastIndexOf(b, 0) !== 0;
-	  },
-	  type: str
-	}, {
-	  id: "contains",
-	  name: locale$9.contains,
-	  fn: function fn(a, b) {
-	    return a.indexOf(b) !== -1;
-	  },
-	  type: str
-	}, {
-	  id: "not_contains",
-	  name: locale$9.not_contains,
-	  fn: function fn(a, b) {
-	    return b.indexOf(a) === -1;
-	  },
-	  type: str
-	}, {
-	  id: "ends_with",
-	  name: locale$9.ends_with,
-	  fn: function fn(a, b) {
-	    return a.indexOf(b, a.length - b.length) !== -1;
-	  },
-	  type: str
-	}, {
-	  id: "not_ends_with",
-	  name: locale$9.not_ends_with,
-	  fn: function fn(a, b) {
-	    return a.indexOf(b, a.length - b.length) === -1;
-	  },
-	  type: str
-	}, {
-	  id: "is_empty",
-	  name: locale$9.is_empty,
-	  fn: function fn(a) {
-	    return a.length === 0;
-	  },
-	  type: {
-	    "string": "none"
-	  }
-	}, {
-	  id: "is_not_empty",
-	  name: locale$9.is_not_empty,
-	  fn: function fn(a) {
-	    return a.length > 0;
-	  },
-	  type: {
-	    "string": "none"
-	  }
-	}, {
-	  id: "equal",
-	  name: locale$9.equal,
-	  fn: function fn(a, b) {
-	    return a === b;
-	  },
-	  type: {
-	    any: "text",
-	    "date": "datepicker"
-	  }
-	}, {
-	  id: "not_equal",
-	  name: locale$9.not_equal,
-	  fn: function fn(a, b) {
-	    return a !== b;
-	  },
-	  type: {
-	    any: "text",
-	    "date": "datepicker"
-	  }
-	}, {
-	  id: "is_null",
-	  name: locale$9.is_null,
-	  fn: function fn(a) {
-	    return a === null;
-	  },
-	  type: {
-	    "any": "none"
-	  }
-	}, {
-	  id: "is_not_null",
-	  name: locale$9.is_not_null,
-	  fn: function fn(a) {
-	    return a !== null;
-	  },
-	  type: {
-	    "any": "none"
-	  }
-	}];
+
+	function filters() {
+	  var locale = webix.i18n.querybuilder;
+	  return [{
+	    id: "less",
+	    name: locale.less,
+	    fn: function (a, b) {
+	      return a < b;
+	    },
+	    type: text
+	  }, {
+	    id: "less_or_equal",
+	    name: locale.less_or_equal,
+	    fn: function (a, b) {
+	      return a <= b;
+	    },
+	    type: text
+	  }, {
+	    id: "greater",
+	    name: locale.greater,
+	    fn: function (a, b) {
+	      return a > b;
+	    },
+	    type: text
+	  }, {
+	    id: "greater_or_equal",
+	    name: locale.greater_or_equal,
+	    fn: function (a, b) {
+	      return a >= b;
+	    },
+	    type: text
+	  }, {
+	    id: "between",
+	    name: locale.between,
+	    fn: function (a, b, c) {
+	      return (!b || a > b) && (!c || a < c);
+	    },
+	    type: range
+	  }, {
+	    id: "not_between",
+	    name: locale.not_between,
+	    fn: function (a, b, c) {
+	      return !b || a <= b || !c || a >= c;
+	    },
+	    type: range
+	  }, {
+	    id: "begins_with",
+	    name: locale.begins_with,
+	    fn: function (a, b) {
+	      return a.lastIndexOf(b, 0) === 0;
+	    },
+	    type: str
+	  }, {
+	    id: "not_begins_with",
+	    name: locale.not_begins_with,
+	    fn: function (a, b) {
+	      return a.lastIndexOf(b, 0) !== 0;
+	    },
+	    type: str
+	  }, {
+	    id: "contains",
+	    name: locale.contains,
+	    fn: function (a, b) {
+	      return a.indexOf(b) !== -1;
+	    },
+	    type: str
+	  }, {
+	    id: "not_contains",
+	    name: locale.not_contains,
+	    fn: function (a, b) {
+	      return b.indexOf(a) === -1;
+	    },
+	    type: str
+	  }, {
+	    id: "ends_with",
+	    name: locale.ends_with,
+	    fn: function (a, b) {
+	      return a.indexOf(b, a.length - b.length) !== -1;
+	    },
+	    type: str
+	  }, {
+	    id: "not_ends_with",
+	    name: locale.not_ends_with,
+	    fn: function (a, b) {
+	      return a.indexOf(b, a.length - b.length) === -1;
+	    },
+	    type: str
+	  }, {
+	    id: "is_empty",
+	    name: locale.is_empty,
+	    fn: function (a) {
+	      return a.length === 0;
+	    },
+	    type: {
+	      "string": "none"
+	    }
+	  }, {
+	    id: "is_not_empty",
+	    name: locale.is_not_empty,
+	    fn: function (a) {
+	      return a.length > 0;
+	    },
+	    type: {
+	      "string": "none"
+	    }
+	  }, {
+	    id: "equal",
+	    name: locale.equal,
+	    fn: function (a, b) {
+	      return a === b;
+	    },
+	    type: {
+	      any: "text",
+	      "date": "datepicker"
+	    }
+	  }, {
+	    id: "not_equal",
+	    name: locale.not_equal,
+	    fn: function (a, b) {
+	      return a !== b;
+	    },
+	    type: {
+	      any: "text",
+	      "date": "datepicker"
+	    }
+	  }, {
+	    id: "is_null",
+	    name: locale.is_null,
+	    fn: function (a) {
+	      return a === null;
+	    },
+	    type: {
+	      "any": "none"
+	    }
+	  }, {
+	    id: "is_not_null",
+	    name: locale.is_not_null,
+	    fn: function (a) {
+	      return a !== null;
+	    },
+	    type: {
+	      "any": "none"
+	    }
+	  }];
+	}
 
 	var sql = {
-	  $init: function $init() {
+	  $init: function () {
 	    this.config.sqlDateFormat = this.config.sqlDateFormat || webix.Date.dateToStr("%Y-%m-%d %H:%i:%s", false);
 	  },
 	  sqlOperators: {
@@ -862,7 +899,7 @@
 	      no_val: true
 	    }
 	  },
-	  toSQL: function toSQL(config) {
+	  toSQL: function (config) {
 	    config = config || this.getValue();
 	    var values = [];
 
@@ -876,14 +913,14 @@
 	      values: values
 	    };
 	  },
-	  _placeValues: function _placeValues(code, values) {
+	  _placeValues: function (code, values) {
 	    var index = 0;
 	    return code.replace(/\?/g, function () {
 	      var value = values[index++];
 	      if (typeof value === "string") return "\"".concat(value, "\"");else return value;
 	    });
 	  },
-	  _getSqlString: function _getSqlString(config, values, nested) {
+	  _getSqlString: function (config, values, nested) {
 	    var _this = this;
 
 	    if (!config) {
@@ -904,7 +941,7 @@
 
 	    return this._convertValueToSql(config, values);
 	  },
-	  _convertValueToSql: function _convertValueToSql(el, values) {
+	  _convertValueToSql: function (el, values) {
 	    var format = this.config.sqlDateFormat;
 	    var value = el.value;
 	    var match = this.sqlOperators[el.rule];
@@ -950,15 +987,15 @@
 	    maxLevel: 999,
 	    inputMaxWidth: 210
 	  },
-	  $init: function $init(config) {
-	    config.filters = config.filters || filters;
+	  $init: function (config) {
+	    config.filters = config.filters || filters();
 	    if (config.filters && !config.filters.add) config.filters = new webix.DataCollection({
 	      data: config.filters
 	    });
 	    this.$view.className += " webix_qb_wrap";
 	    this.$ready.unshift(this._setLayout);
 	  },
-	  _setLayout: function _setLayout() {
+	  _setLayout: function () {
 	    var _this = this;
 
 	    var levelIndicator = this.config.maxLevel > 1 ? true : false;
@@ -966,15 +1003,15 @@
 	    var cols = [{
 	      $id: "buttons",
 	      borderless: true,
-	      template: function template() {
+	      template: function () {
 	        var and = _this.config.glue === "and";
 	        return "\n<div class=\"webix_qb_buttons\">\n<button class=\"webix_qb_and".concat(and ? " webix_active" : "", "\">").concat(locale.and, "</button>\n<button class=\"webix_qb_or ").concat(!and ? " webix_active" : "", "\">").concat(locale.or, "</button>\n</div>");
 	      },
 	      onClick: {
-	        webix_qb_and: function webix_qb_and() {
+	        webix_qb_and: function () {
 	          return _this._updateGlue("and");
 	        },
-	        webix_qb_or: function webix_qb_or() {
+	        webix_qb_or: function () {
 	          return _this._updateGlue("or");
 	        }
 	      },
@@ -986,10 +1023,10 @@
 	        borderless: true,
 	        template: "\n<div class=\"webix_qb_add\">\n".concat(levelIndicator ? "<button class=\"webix_qb_add_group\">+ ".concat(locale.add_group, "</button>") : "", "\n<button class=\"webix_qb_add_rule\">+ ").concat(locale.add_rule, "</button>\n</div>"),
 	        onClick: {
-	          webix_qb_add_rule: function webix_qb_add_rule() {
+	          webix_qb_add_rule: function () {
 	            return _this._addRule();
 	          },
-	          webix_qb_add_group: function webix_qb_add_group() {
+	          webix_qb_add_group: function () {
 	            return _this._addGroup(true);
 	          }
 	        },
@@ -1010,7 +1047,7 @@
 	      this.cols_setter(cols);
 	    }
 	  },
-	  _updateGlue: function _updateGlue(mode) {
+	  _updateGlue: function (mode) {
 	    this.config.glue = mode;
 	    this.queryView({
 	      $id: "buttons"
@@ -1018,14 +1055,14 @@
 
 	    this._callChangeMethod();
 	  },
-	  _addRow: function _addRow(ui) {
+	  _addRow: function (ui) {
 	    var layout = this.queryView({
 	      $id: "rows"
 	    });
 	    var kids = layout.getChildViews();
 	    return webix.$$(layout.addView(ui, kids.length - 1));
 	  },
-	  _deleteRow: function _deleteRow(el) {
+	  _deleteRow: function (el) {
 	    var layout = this.queryView({
 	      $id: "rows"
 	    });
@@ -1041,7 +1078,7 @@
 	      }
 	    }
 	  },
-	  _addRule: function _addRule() {
+	  _addRule: function () {
 	    var line = this._addRow({
 	      view: "querybuilderline",
 	      inputMaxWidth: this.config.inputMaxWidth,
@@ -1052,12 +1089,12 @@
 
 	    return line;
 	  },
-	  _addGroup: function _addGroup(withRow) {
+	  _addGroup: function (withRow) {
 	    var newView = this._addRow({
 	      view: "querybuilder",
 	      inputMaxWidth: this.config.inputMaxWidth,
 	      fields: this.config.fields,
-	      filtes: this.config.filters,
+	      filters: this.config.filters,
 	      columnMode: this.config.columnMode,
 	      maxLevel: this.config.maxLevel - 1
 	    });
@@ -1068,12 +1105,12 @@
 
 	    return newView;
 	  },
-	  _getParentQuery: function _getParentQuery() {
+	  _getParentQuery: function () {
 	    return this.queryView({
 	      view: this.config.view
 	    }, "parent");
 	  },
-	  _getTopQuery: function _getTopQuery() {
+	  _getTopQuery: function () {
 	    var parent,
 	        now = this;
 
@@ -1083,17 +1120,17 @@
 
 	    return now;
 	  },
-	  _callChangeMethod: function _callChangeMethod() {
+	  _callChangeMethod: function () {
 	    this._getTopQuery().callEvent("onChange", []);
 	  },
-	  $getSize: function $getSize(dx, dy) {
+	  $getSize: function (dx, dy) {
 	    if (this.config.sorting && !this.config.filtering) {
 	      dy = dy + 50;
 	    }
 
 	    return webix.ui.layout.prototype.$getSize.call(this, dx, dy);
 	  },
-	  _setRules: function _setRules(rules) {
+	  _setRules: function (rules) {
 	    var _this2 = this;
 
 	    if (rules) {
@@ -1110,7 +1147,7 @@
 	      });
 	    }
 	  },
-	  eachLine: function eachLine(cb) {
+	  eachLine: function (cb) {
 	    var cells = this.queryView(function (a) {
 	      return !!a.getFilterHelper;
 	    }, "all");
@@ -1119,7 +1156,7 @@
 	      cb(cells[i]);
 	    }
 	  },
-	  getValue: function getValue() {
+	  getValue: function () {
 	    var rules = [];
 	    this.eachLine(function (a) {
 	      var line = a.getValue();
@@ -1135,7 +1172,7 @@
 	      return null;
 	    }
 	  },
-	  setValue: function setValue(value) {
+	  setValue: function (value) {
 	    if (value.fields) {
 	      this.config.fields = value.fields;
 	    }
@@ -1164,13 +1201,13 @@
 
 	    this._callChangeMethod();
 	  },
-	  focus: function focus() {
+	  focus: function () {
 	    var line = this.queryView({
 	      view: "querybuilderline"
 	    });
 	    if (line) line.focus();
 	  },
-	  getFilterHelper: function getFilterHelper() {
+	  getFilterHelper: function () {
 	    var childsArr = [];
 	    var glue = this.config.glue;
 	    this.eachLine(function (a) {
@@ -1217,15 +1254,15 @@
 	}
 
 	webix.ui.datafilter.queryBuilder = webix.extend({
-	  getValue: function getValue(node) {
+	  getValue: function (node) {
 	    var master = webix.$$(node._comp_id);
 	    return master.getValue();
 	  },
-	  setValue: function setValue(node, value) {
+	  setValue: function (node, value) {
 	    var master = webix.$$(node._comp_id);
 	    master.setValue(value);
 	  },
-	  refresh: function refresh(master, node, value) {
+	  refresh: function (master, node, value) {
 	    var _this = this;
 
 	    master.registerFilter(node, value, this);
@@ -1236,7 +1273,7 @@
 	      return _this._filterShow(node, qb);
 	    });
 	  },
-	  render: function render(master, config) {
+	  render: function (master, config) {
 	    var locale = webix.i18n.querybuilder;
 	    config.css = "webix_ss_filter";
 	    var filter;
@@ -1301,7 +1338,7 @@
 	    });
 	    return "<div class=\"webix_qb_filter\"><i class=\"webix_qb_filter_icon\" aria-hidden=\"true\"></i></div>" + (config.label || "");
 	  },
-	  _filterShow: function _filterShow(node, qb) {
+	  _filterShow: function (node, qb) {
 	    qb.show(node.querySelector(".webix_qb_filter"));
 	  }
 	}, webix.EventSystem);
