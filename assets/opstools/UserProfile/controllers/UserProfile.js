@@ -73,6 +73,7 @@ steal(
                             var $info = self.element.find('.user-info');
                             var $select = self.element.find('#slang select');
                             var $email = self.element.find("input[name='email']");
+                            var $sendEmailNotifications = self.element.find("input[name='sendEmailNotifications']");
                             
                             AD.comm.service.get({
                                 url: '/site/user/data'
@@ -101,6 +102,7 @@ steal(
                                 
                                 $info.find("[name='username']").text(data.user.username);
                                 $email.val(data.user.email);
+                                $sendEmailNotifications[0].checked = data.user.sendEmailNotifications;
                                 
                                 // Language selection
                                 $select.empty();
@@ -206,6 +208,19 @@ steal(
                             }
                         },
 
+                        // Changing sendEmailNotifications
+                        "input[name='sendEmailNotifications'] click": function($el, ev) {
+                            var checked = ($el[0].checked) ? 1 : 0;
+                            AD.comm.service.post({
+                                url: '/site/user/data',
+                                params: {
+                                    sendEmailNotifications: checked
+                                }
+                            })
+                            .fail(function(err) {
+                                webix.message(err.message);
+                            });
+                        },                        
 
                     });
 
