@@ -375,7 +375,7 @@ steal(
                                                     {
                                                         view: 'button', 
                                                         type: 'iconButtonTop',
-                                                        icon: 'save',
+                                                        icon: 'fa-save',
                                                         on: {
                                                             onItemClick: function(id, ev) {
                                                                 var form = _this.dom.addUserWindow.getBody();
@@ -403,7 +403,7 @@ steal(
                                                     { 
                                                         view: 'button', 
                                                         type: 'iconButtonTop',
-                                                        icon: 'close',
+                                                        icon: 'fa-close',
                                                         on: {
                                                             onItemClick: function(id, ev) {
                                                                 _this.dom.addUserWindow.getBody().clear();
@@ -442,7 +442,7 @@ steal(
                                                     {
                                                         view: 'button', 
                                                         type: 'iconButtonTop',
-                                                        icon: 'save',
+                                                        icon: 'fa-save',
                                                         on: {
                                                             onItemClick: function(id, ev) {
                                                                 var form = _this.dom.editUserWindow.getBody();
@@ -471,7 +471,7 @@ steal(
                                                     { 
                                                         view: 'button', 
                                                         type: 'iconButtonTop',
-                                                        icon: 'close',
+                                                        icon: 'fa-close',
                                                         on: {
                                                             onItemClick: function(id, ev) {
                                                                 _this.dom.editUserWindow.getBody().clear();
