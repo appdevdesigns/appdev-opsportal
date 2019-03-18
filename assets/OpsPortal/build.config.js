@@ -260,13 +260,13 @@ module.exports = {
     "js/webix/webix.css": {
       "sideBundle": true
     },
-    "js/webix/skins/compact.min.css": {
+    "js/webix/skins/material.min.css": {
         "deps": [],
         "sideBundle": true
     },
     "js/webix/webix": {
       "deps": [
-            "js/webix/skins/compact.min.css"
+            "js/webix/skins/material.min.css"
       ],
       "format": "global",
       "sideBundle": true
