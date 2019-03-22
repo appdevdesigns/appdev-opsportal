@@ -369,10 +369,6 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
 	border:0;
 }
 
-.webix_view.webix_form {
-	background-color: transparent;
-}
-
 
 .tab-content {
 	border-bottom:1px solid #ddd;
