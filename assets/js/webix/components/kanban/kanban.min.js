@@ -1,6 +1,6 @@
 /**
  * @license
- * Webix Kanban v.6.2.0
+ * Webix Kanban v.6.2.6
  * This software is covered by Webix Commercial License.
  * Usage without proper license is prohibited.
  * (c) XB Software Ltd.

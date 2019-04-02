@@ -1,6 +1,6 @@
 /**
  * @license
- * Webix UI v.6.2.0
+ * Webix UI v.6.2.6
  * This software is covered by Webix Commercial License.
  * Usage without proper license is prohibited.
  * (c) XB Software Ltd.
@@ -1386,7 +1386,6 @@
 	  parseDates: false
 	};
 
-	var _xhr_aborted = toArray();
 	function ajax(url, params, call) {
 	  //if parameters was provided - made fast call
 	  if (arguments.length !== 0) {
@@ -1425,7 +1424,11 @@
 	    var defer = Deferred.defer();
 	    var x = this.getXHR();
 	    var headers = this._header || {};
-	    if (!callEvent("onBeforeAjax", [mode, url, params, x, headers, null, defer])) return; //add content-type to POST|PUT|DELETE
+
+	    if (!callEvent("onBeforeAjax", [mode, url, params, x, headers, null, defer])) {
+	      return defer.reject(x);
+	    } //add content-type to POST|PUT|DELETE
+
 
 	    var json_mode = false;
 
@@ -1478,33 +1481,24 @@
 	    x.onreadystatechange = function () {
 	      if (!x.readyState || x.readyState == 4) {
 	        ajax.count++;
+	        var is_error = x.status >= 400 || x.status === 0;
+	        var text, data;
 
-	        if (!x.aborted) {
-	          //IE8 and IE9, handling .abort call
-	          if (_xhr_aborted.find(x) != -1) return _xhr_aborted.remove(x);
-	          var is_error = x.status >= 400 || x.status === 0;
-	          var text, data;
-
-	          if (x.responseType == "blob" || x.responseType == "arraybuffer") {
-	            text = "";
-	            data = x.response;
-	          } else {
-	            text = x.responseText || "";
-	            data = self._data(x);
-	          }
-
-	          if (is_error) {
-	            callEvent("onAjaxError", [x]);
-	            defer.reject(x);
-	            if (call) ajax.$callback(self.master || window, call, text, data, x, is_error);
-	          } else {
-	            defer.resolve(data);
-	            if (call) ajax.$callback(self.master || window, call, text, data, x, is_error);
-	          }
+	        if (x.responseType == "blob" || x.responseType == "arraybuffer") {
+	          text = "";
+	          data = x.response;
 	        } else {
-	          //anti-leak
-	          self.master = null;
-	          call = self = master = null;
+	          text = x.responseText || "";
+	          data = self._data(x);
+	        }
+
+	        if (is_error) {
+	          callEvent("onAjaxError", [x]);
+	          defer.reject(x);
+	          if (call) ajax.$callback(self.master || window, call, text, data, x, is_error);
+	        } else {
+	          defer.resolve(data);
+	          if (call) ajax.$callback(self.master || window, call, text, data, x, is_error);
 	        }
 	      }
 	    };
@@ -1512,21 +1506,12 @@
 	    if (this._timeout) x.timeout = this._timeout; //IE can use sync mode sometimes, fix it
 
 	    if (!this._sync) setTimeout(function () {
-	      if (!x.aborted) {
-	        //abort handling in IE9
-	        if (_xhr_aborted.find(x) != -1) _xhr_aborted.remove(x);else {
-	          x.send(params || null);
-	        }
-	      }
+	      x.send(params || null);
 	    }, 1);else x.send(params || null);
 
-	    if (this.master && this.master._ajax_queue && !this._sync) {
-	      this.master._ajax_queue.push(x);
-
+	    if (this.master && !this._sync) {
 	      defer.then(function (data) {
-	        self.master._ajax_queue.remove(x); //anti-leak
-
-
+	        //anti-leak
 	        self.master = null;
 	        call = self = master = null;
 	        return data;
@@ -1602,7 +1587,6 @@
 
 	ajax.$callback = function (owner, call, text, data, x, is_error) {
 	  if (owner.$destructed) return;
-	  if (x === -1 && data && typeof data.json == "function") data = data.json();
 	  if (is_error) callEvent("onAjaxError", [x]);
 
 	  if (call) {
@@ -1614,16 +1598,24 @@
 
 	var CodeParser = {
 	  //converts a complex object into an object with primitives properties
-	  collapseNames: function (base, prefix, data) {
+	  collapseNames: function (base, prefix, data, filter) {
 	    data = data || {};
 	    prefix = prefix || "";
+
+	    filter = filter || function () {
+	      return true;
+	    };
+
 	    if (!base || _typeof(base) != "object") return null;
 
 	    for (var prop in base) {
-	      if (base[prop] && _typeof(base[prop]) == "object" && !isDate(base[prop]) && !isArray(base[prop])) {
-	        CodeParser.collapseNames(base[prop], prefix + prop + ".", data);
+	      var value = base[prop];
+	      var name = prefix + prop;
+
+	      if (value && _typeof(value) == "object" && !isDate(value) && !isArray(value) && filter(name, value)) {
+	        CodeParser.collapseNames(value, name + ".", data, filter);
 	      } else {
-	        data[prefix + prop] = base[prop];
+	        data[name] = value;
 	      }
 	    }
 
@@ -3547,15 +3539,22 @@
 	      result = Deferred.resolve(result);
 	    }
 
+	    var gen = this._data_generation;
+
 	    if (result && result.then) {
 	      result.then(function (data) {
-	        if (_this.$destructed) return;
+	        // component destroyed, or clearAll was issued
+	        if (_this.$destructed || gen && _this._data_generation !== gen) // by returning rejection we are preventing the further executing chain
+	          // if user have used list.load(data).then(do_something)
+	          // the do_something will not be executed
+	          // the error handler may be triggered though
+	          return Deferred.reject();
 
 	        _this._onLoad(data);
 
 	        if (call) ajax.$callback(_this, call, "", data, -1);
 	      }, function (x) {
-	        _this._onLoadError(x);
+	        return _this._onLoadError(x, gen);
 	      });
 	    }
 
@@ -3564,17 +3563,21 @@
 	  //loads data from object
 	  parse: function (data, type) {
 	    if (data && typeof data.then == "function") {
+	      var generation = this._data_generation; // component destroyed, or clearAll was issued
+
 	      return data.then(bind(function (data) {
+	        if (this.$destructed || generation && this._data_generation !== generation) return Deferred.reject();
 	        this.parse(data, type);
 	      }, this));
 	    } //loading data from other component
 
 
-	    if (data && data.sync && this.sync) return this._syncData(data);
-	    if (!this.callEvent("onBeforeLoad", [])) return Deferred.reject();
-	    this.data.driver = DataDriver[type || "json"];
+	    if (data && data.sync && this.sync) this._syncData(data);else if (!this.callEvent("onBeforeLoad", [])) return Deferred.reject();else {
+	      this.data.driver = DataDriver[type || "json"];
 
-	    this._onLoad(data);
+	      this._onLoad(data);
+	    }
+	    return Deferred.resolve();
 	  },
 	  _syncData: function (data) {
 	    if (this.data) this.data.attachEvent("onSyncApply", bind(function () {
@@ -3613,13 +3616,18 @@
 
 	    data = this.data.driver.toObject(data);
 	    if (data && data.then) data.then(function (data) {
-	      _this2._onLoadContinue(data);
+	      return _this2._onLoadContinue(data);
 	    });else this._onLoadContinue(data);
 	  },
-	  _onLoadError: function (xhttp) {
-	    this.callEvent("onAfterLoad", []);
-	    this.callEvent("onLoadError", arguments);
+	  _onLoadError: function (xhttp, generation) {
+	    //ignore error for dead components
+	    if (!this.$destructed && (!generation || this._data_generation === generation)) {
+	      this.callEvent("onAfterLoad", []);
+	      this.callEvent("onLoadError", arguments);
+	    }
+
 	    callEvent("onLoadError", [xhttp, this]);
+	    return Deferred.reject(xhttp);
 	  },
 	  _check_data_feed: function (data) {
 	    if (!this._settings.dataFeed || this._ignore_feed || !data) return true;
@@ -3757,6 +3765,8 @@
 	  _tooltip_exist: 0,
 	  delay: 400,
 	  addTooltip: function (target, config) {
+	    var _this = this;
+
 	    var node, ctrl;
 	    target = toNode(target);
 	    assert(target, "Target isn't defined");
@@ -3791,7 +3801,10 @@
 	        bind: this
 	      });
 	      this._drag_event = attachEvent("onDragMode", function () {
-	        if (TooltipControl._tooltip_exist) TooltipControl._hide_tooltip();
+	        _this._hide_tooltip();
+	      });
+	      this._click_event = attachEvent("onClick", function () {
+	        _this._hide_tooltip();
 	      });
 	    }
 	  },
@@ -3802,8 +3815,8 @@
 	    var node = e.target || e.srcElement;
 	    var text;
 
-	    while (node && node.tagName != "HTML") {
-	      if (node.webix_tooltip) {
+	    while (node instanceof Element && node.tagName != "HTML") {
+	      if (this._tooltip_masters[node.webix_tooltip]) {
 	        if (this._last && this._last != node) {
 	          this.$tooltipOut(this._last, node, e);
 	          this._last = null;
@@ -3816,7 +3829,7 @@
 	      }
 
 	      text = text || node.getAttribute("webix_tooltip");
-	      node = node.parentNode;
+	      node = node.parentElement;
 	    }
 
 	    if (this._last) this._last = this.$tooltipOut(this._last, null, e);
@@ -3836,14 +3849,22 @@
 	    if (target instanceof Element) node = target;else node = target.$view;
 
 	    if (node.webix_tooltip) {
+	      if (this._last == node) {
+	        this._hide_tooltip();
+
+	        this._last = null;
+	      }
+
 	      delete node.webix_tooltip;
 	      this._tooltip_exist--;
 	    }
 
 	    if (!this._tooltip_exist && this._tooltip) {
+	      // detach events first
 	      this._webix_tooltip_mm = eventRemove(this._webix_tooltip_mm);
 	      this._webix_tooltip_ml = eventRemove(this._webix_tooltip_ml);
 	      this._drag_event = detachEvent(this._drag_event);
+	      this._click_event = detachEvent(this._click_event); // then destroy the tooltip
 
 	      this._tooltip.destructor();
 
@@ -5212,10 +5233,10 @@
 	    dy: 0,
 	    dx: 20
 	  },
-	  $init: function (container) {
-	    if (typeof container == "string") {
-	      container = {
-	        template: container
+	  $init: function (config) {
+	    if (typeof config == "string") {
+	      config = {
+	        template: config
 	      };
 	    } //create  container for future tooltip
 
@@ -5226,17 +5247,8 @@
 	    });
 	    this._contentobj.className = "webix_tooltip";
 	    insertBefore(this._contentobj, document.body.firstChild, document.body);
-	    this._hideHandler = attachEvent("onClick", bind(function (e) {
-	      if (this._visible && $$(e) != this) this.hide();
-	    }, this)); //detach global event handler on destruction
-
-	    this.attachEvent("onDestruct", function () {
-	      detachEvent(this._hideHandler);
-	    });
 	  },
 	  adjust: function () {},
-	  //show tooptip
-	  //pos - object, pos.x - left, pox.y - top
 	  isVisible: function () {
 	    return this._visible;
 	  },
@@ -5254,6 +5266,8 @@
 	    this._viewobj.className = "webix_tooltip " + value;
 	    return value;
 	  },
+	  //show tooltip
+	  //pos - object, pos.x - left, pox.y - top
 	  show: function (data, pos$$1) {
 	    if (this._disabled) return;
 	    this._visible = true;
@@ -5280,10 +5294,12 @@
 	  },
 	  //hide tooltip
 	  hide: function () {
-	    this.data = null; //nulify, to be sure that on next show it will be fresh-rendered
+	    if (this._visible) {
+	      this.data = null; //nulify, to be sure that on next show it will be fresh-rendered
 
-	    this._contentobj.style.display = "none";
-	    this._visible = false;
+	      this._contentobj.style.display = "none";
+	      this._visible = false;
+	    }
 	  },
 	  disable: function () {
 	    this._disabled = true;
@@ -5310,15 +5326,22 @@
 	        template: value
 	      };
 	      if (_typeof(value) !== "object") value = {};
-	      TooltipControl.addTooltip(this);
-	      this.attachEvent("onDestruct", function () {
-	        TooltipControl.removeTooltip(this);
-	      });
-	      this.attachEvent("onAfterScroll", function () {
-	        if (TooltipControl._tooltip_exist) TooltipControl._hide_tooltip();
-	      });
+
+	      this._init_tooltip_once();
+
 	      return value;
 	    }
+	  },
+	  _init_tooltip_once: function () {
+	    TooltipControl.addTooltip(this);
+	    this.attachEvent("onDestruct", function () {
+	      TooltipControl.removeTooltip(this);
+	    });
+	    this.attachEvent("onAfterScroll", function () {
+	      if (TooltipControl._tooltip_exist) TooltipControl._hide_tooltip();
+	    });
+
+	    this._init_tooltip_once = function () {};
 	  },
 	  $tooltipIn: function (t) {
 	    var tooltip = TooltipControl._tooltip;
@@ -5334,7 +5357,6 @@
 	  $tooltipOut: function () {
 	    TooltipControl._hide_tooltip();
 
-	    delete TooltipControl._tooltip.type.column;
 	    return null;
 	  },
 	  $tooltipMove: function (t, e, text) {
@@ -5346,7 +5368,7 @@
 	  _show_tooltip: function (t, e, text) {
 	    var data = text || this._get_tooltip_data(t, e);
 
-	    if (!data) return;
+	    if (!data || !this.isVisible()) return;
 
 	    TooltipControl._tooltip.show(data, pos(e));
 	  },
@@ -8293,6 +8315,7 @@
 	      "class": "webix_c_scroll_" + mode
 	    }, "<div></div>");
 	    scroll.style[dim] = Math.max(py * py / dy - 7, 40) + "px";
+	    scroll.style[dim == "height" ? "top" : "left"] = "0px";
 	    node.style.position = "relative";
 	    node.appendChild(scroll);
 	    node._webix_event_sc1 = event$1(scroll, "mousedown", CustomScroll._scroll_drag(node));
@@ -8359,7 +8382,7 @@
 	  _setDataHandler: function (view) {
 	    if (view.data && view.data.attachEvent) view.data.attachEvent("onStoreUpdated", function () {
 	      var node = CustomScroll._last_active_node;
-	      if (node && view.$view.contains(node)) CustomScroll.resize();
+	      if (node && view.$view.contains(node)) CustomScroll.resize();else CustomScroll._mouse_out_timed.call(view.$view);
 	    });
 	  }
 	};
@@ -8565,7 +8588,9 @@
 
 	      var all = rules$$1.$all;
 	      var data = obj;
-	      if (this._settings.complexData) data = CodeParser.collapseNames(obj);
+	      if (this._settings.complexData) data = CodeParser.collapseNames(obj, "", {}, function (v) {
+	        return !rules$$1[v];
+	      });
 	      if (all) for (var _key in obj) {
 	        if (hidden[_key]) continue;
 
@@ -9929,10 +9954,9 @@
 	var DataLoader = exports.proto({
 	  $init: function (config) {
 	    //prepare data store
-	    config = config || ""; //list of all active ajax requests
-
-	    this._ajax_queue = toArray();
+	    config = config || "";
 	    this._feed_last = {};
+	    this._data_generation = 1;
 	    this.data = new DataStore();
 	    this.data.attachEvent("onClearAll", bind(this._call_onclearall, this));
 	    this.data.attachEvent("onServerConfig", bind(this._call_on_config, this));
@@ -9940,15 +9964,20 @@
 	    this.data.feed = this._feed;
 	    this.data.owner = config.id;
 	  },
-	  _feed: function (from, count, callback) {
+	  _feed: function (from, count, callback, defer) {
 	    //allow only single request at same time
-	    if (this._load_count) return this._load_count = [from, count, callback]; //save last ignored request
-	    else this._load_count = true;
+	    if (this._load_count) {
+	      defer = Deferred.defer();
+	      this._load_count = [from, count, callback, defer]; //save last ignored request
+
+	      return defer;
+	    } else this._load_count = true;
+
 	    this._feed_last.from = from;
 	    this._feed_last.count = count;
-	    return this._feed_common.call(this, from, count, callback);
+	    return this._feed_common.call(this, from, count, callback, false, false, defer);
 	  },
-	  _feed_common: function (from, count, callback, url, details) {
+	  _feed_common: function (from, count, callback, url, details, defer) {
 	    var _this = this;
 
 	    var state = null;
@@ -9968,10 +9997,9 @@
 	      }
 
 	      return this.load(url, 0, details).then(function (data) {
-	        _this._feed_callback();
-
-	        if (callback) ajax.$callback(_this, callback, data);
-	        return data;
+	        return _this._feed_on_load(data, callback, defer);
+	      }, function () {
+	        return _this._feed_callback();
 	      });
 	    } else {
 	      // GET
@@ -9997,15 +10025,25 @@
 	      if (this._feed_last.url !== url) {
 	        this._feed_last.url = url;
 	        return this.load(url).then(function (data) {
-	          _this._feed_callback();
-
-	          if (callback) ajax.$callback(_this, callback, data);
-	          return data;
+	          return _this._feed_on_load(data, callback, defer);
+	        }, function () {
+	          return _this._feed_callback();
 	        });
 	      } else {
 	        this._load_count = false;
+	        return Deferred.reject();
 	      }
 	    }
+	  },
+	  _feed_on_load: function (data, callback, defer) {
+	    var _this2 = this;
+
+	    delay(function () {
+	      return _this2._feed_callback();
+	    }, "", "", 100);
+	    if (callback) ajax.$callback(this, callback, data);
+	    if (defer) defer.resolve(data);
+	    return data;
 	  },
 	  _feed_callback: function () {
 	    //after loading check if we have some ignored requests
@@ -10027,16 +10065,18 @@
 
 	    if (config.datathrottle && !now) {
 	      if (this._throttle_request) window.clearTimeout(this._throttle_request);
+	      var defer = Deferred.defer();
 	      this._throttle_request = delay(function () {
-	        this.loadNext(count, start, callback, url, true);
+	        defer.resolve(this.loadNext(count, start, callback, url, true));
 	      }, this, 0, config.datathrottle);
-	      return;
+	      return defer;
 	    }
 
 	    if (!start && start !== 0) start = this.count();
 	    if (!count) count = config.datafetch || this.count();
 	    this.data.url = this.data.url || url;
 	    if (this.callEvent("onDataRequest", [start, count, callback, url]) && this.data.url) return this.data.feed.call(this, start, count, callback);
+	    return Deferred.reject();
 	  },
 	  _maybe_loading_already: function (count, from) {
 	    var last = this._feed_last;
@@ -10072,7 +10112,7 @@
 	  dataFeed_setter: function (value) {
 	    value = proxy$a.$parse(value);
 	    this.data.attachEvent("onBeforeFilter", bind(function (text, filtervalue) {
-	      var _this2 = this;
+	      var _this3 = this;
 
 	      //complex filtering, can't be routed to dataFeed
 	      if (typeof text == "function") return true; //we have dataFeed and some text
@@ -10098,9 +10138,9 @@
 	                url.load(this, {
 	                  filter: filter
 	                }).then(function (data) {
-	                  _this2._onLoad(data);
+	                  return _this3._onLoad(data);
 	                }, function (x) {
-	                  _this2._onLoadError(x);
+	                  return _this3._onLoadError(x);
 	                });
 	              }
 	            }
@@ -10120,22 +10160,11 @@
 	    }
 	  },
 	  _call_onclearall: function (soft) {
-	    for (var i = 0; i < this._ajax_queue.length; i++) {
-	      var xhr = this._ajax_queue[i]; //IE9 and IE8 deny extending of ActiveX wrappers
-
-	      try {
-	        xhr.aborted = true;
-	      } catch (e) {
-	        _xhr_aborted.push(xhr);
-	      }
-
-	      xhr.abort();
-	    }
+	    this._data_generation++;
 
 	    if (!soft) {
 	      this._load_count = false;
 	      this._feed_last = {};
-	      this._ajax_queue = toArray();
 	      this.waitData = Deferred.defer();
 	    }
 	  },
@@ -11521,6 +11550,7 @@
 	    node.top = pos$$1.top; //later will be used during y-scrolling
 
 	    if (inline) pos$$1.parent.appendChild(node);
+	    return pos$$1;
 	  },
 	  _for_each_editor: function (handler) {
 	    for (var editor in this._editors) {
@@ -13003,14 +13033,22 @@
 
 	var ProgressBar = {
 	  $init: function () {
+	    var _this = this;
+
 	    if (isUndefined(this._progress) && this.attachEvent) {
-	      this.attachEvent("onBeforeLoad", this.showProgress);
-	      this.attachEvent("onAfterLoad", this.hideProgress);
+	      this.attachEvent("onBeforeLoad", function () {
+	        return _this.showProgress();
+	      });
+	      this.attachEvent("onAfterLoad", function () {
+	        return _this.hideProgress();
+	      });
 	      this._progress = null;
 	    }
 	  },
 	  showProgress: function (config) {
 	    // { position: 0 - 1, delay: 2000ms by default, css : name of css class to use }
+	    var width;
+
 	    if (!this._progress) {
 	      config = exports.extend({
 	        position: 0,
@@ -13050,50 +13088,55 @@
 	        }
 	      }
 
-	      this._progress_delay = 1;
+	      this._progress_animate = config.type != "icon";
 	    }
 
-	    if (config && config.type != "icon") delay(function () {
-	      if (this._progress) {
-	        var position = config.position || 1; //check for css-transition support
+	    if (!config) return;
 
-	        if (this._progress.style[env.transitionDuration] !== undefined || !config.delay) {
-	          this._progress.firstChild.style.width = position * 100 + "%";
-	          if (config.delay) this._progress.firstChild.style[env.transitionDuration] = config.delay + "ms";
-	        } else {
-	          //if animation is not supported fallback to timeouts [IE9]
-	          var count = 0,
-	              start = 0,
-	              step = position / config.delay * 30,
-	              view = this;
+	    if (this._progress_animate) {
+	      var position = config.position || 1; //check for css-transition support
 
-	          if (this._progressTimer) {
-	            //reset the existing progress
-	            window.clearInterval(this._progressTimer);
-	            start = this._progress.firstChild.offsetWidth / this._progress.offsetWidth * 100;
-	          }
+	      if (this._progress.style[env.transitionDuration] !== undefined || !config.delay) {
+	        if (config.delay) {
+	          // force reflow
+	          width = this._viewobj.firstChild.offsetWidth;
+	          this._progress.firstChild.style[env.transitionDuration] = config.delay + "ms";
+	        } // animate to new value
 
-	          this._progressTimer = window.setInterval(function () {
-	            if (count * 30 == config.delay) {
-	              window.clearInterval(view._progressTimer);
-	            } else {
-	              if (view._progress && view._progress.firstChild) view._progress.firstChild.style.width = start + count * step * position * 100 + "%";
-	              count++;
-	            }
-	          }, 30);
+
+	        this._progress.firstChild.style.width = position * 100 + "%";
+	      } else {
+	        //if animation is not supported fallback to timeouts [IE9]
+	        var count = 0,
+	            start = 0,
+	            step = position / config.delay * 30,
+	            view = this;
+
+	        if (this._progressTimer) {
+	          //reset the existing progress
+	          window.clearInterval(this._progressTimer);
+	          start = this._progress.firstChild.offsetWidth / this._progress.offsetWidth * 100;
 	        }
 
-	        if (config.hide) delay(this.hideProgress, this, [1], config.delay);
+	        this._progressTimer = window.setInterval(function () {
+	          if (count * 30 == config.delay) {
+	            window.clearInterval(view._progressTimer);
+	          } else {
+	            if (view._progress && view._progress.firstChild) view._progress.firstChild.style.width = start + count * step * position * 100 + "%";
+	            count++;
+	          }
+	        }, 30);
 	      }
+	    }
 
-	      this._progress_delay = 0;
-	    }, this);else if (config && config.type == "icon" && config.hide) delay(this.hideProgress, this, [1], config.delay);
+	    if (this._progress_hide) clearTimeout(this._progress_hide);
+	    if (config.hide) this._progress_hide = delay(this.hideProgress, this, [1], config.delay); // necessary to prevent code optimization
+
+	    return width;
 	  },
 	  hideProgress: function (now) {
-	    if (this._progress_delay) now = true;
-
 	    if (this._progress) {
-	      if (now) {
+	      if (now || !this._progress_animate) {
 	        if (this._progressTimer) window.clearInterval(this._progressTimer);
 	        remove(this._progress);
 	        this._progress = null;
@@ -14938,14 +14981,14 @@
 	    var details = count === 0 ? {
 	      parent: encodeURIComponent(id)
 	    } : null;
-
-	    DataLoader.prototype._feed_common.call(this, id, count, callback, url, details);
+	    return DataLoader.prototype._feed_common.call(this, id, count, callback, url, details);
 	  },
 	  //load next set of data rows
 	  loadBranch: function (id, callback, url) {
 	    id = id || 0;
 	    this.data.url = url || this.data.url;
-	    if (this.callEvent("onDataRequest", [id, callback, this.data.url]) && this.data.url) this.data.feed.call(this, id, 0, callback, url);
+	    if (this.callEvent("onDataRequest", [id, callback, this.data.url]) && this.data.url) return this.data.feed.call(this, id, 0, callback, url);
+	    return Deferred.reject();
 	  },
 	  _sync_hierarchy: function (id, data, mode) {
 	    if (!mode || mode == "add" || mode == "delete" || mode == "branch") {
@@ -16441,7 +16484,11 @@
 	    return false;
 	  },
 	  setValues: function (data, update) {
-	    if (this._settings.complexData) data = CodeParser.collapseNames(data);
+	    var _this = this;
+
+	    if (this._settings.complexData) data = CodeParser.collapseNames(data, "", {}, function (v) {
+	      return isUndefined(_this._values[v]);
+	    });
 
 	    this._inner_setValues(data, update);
 	  },
@@ -17001,7 +17048,7 @@
 	  }
 	};
 
-	var version$1 = "6.2.0";
+	var version$1 = "6.2.6";
 	var name$1 = "core";
 
 	var errorMessage = "non-existing view for export";
@@ -17355,7 +17402,7 @@
 	            data: getExportData(view, viewOptions, scheme),
 	            viewOptions: viewOptions
 	          });
-	          if (options.autowidth) options.width = Math.max(options.width || 0, getAutowidth(scheme));
+	          if (options.autowidth) getAutowidth(scheme, options);
 	        }
 	      }
 
@@ -17440,14 +17487,15 @@
 	  });
 	}
 
-	function getAutowidth(scheme) {
+	function getAutowidth(scheme, options) {
+	  var prop = options.orientation && options.orientation == "landscape" ? "height" : "width";
 	  var width = 80; //paddings
 
 	  for (var i = 0; i < scheme.length; i++) {
 	    width += scheme[i].width;
 	  }
 
-	  return width;
+	  options[prop] = Math.max(options[prop] || 0, width);
 	}
 
 	function addPDFDoc(options) {
@@ -17968,7 +18016,8 @@
 
 	function _boxStructure(config, ok, cancel) {
 	  var box = document.createElement("DIV");
-	  box.className = " webix_modal_box webix_" + config.type;
+	  var css = config.css ? " " + config.css : "";
+	  box.className = "webix_modal_box webix_" + config.type + css;
 	  box.setAttribute("webixbox", 1);
 	  box.setAttribute("role", "alertdialog");
 	  box.setAttribute("aria-label", config.title || "");
@@ -20149,15 +20198,13 @@
 
 	      if (typeof target_id == "number") {
 	        if (target_id < 0 || target_id > this._cells.length) target_id = this._cells.length;
-	        var prev_node = (this._cells[target_id] || {})._viewobj;
 	        PowerArray.insertAt.call(this._cells, new_view, target_id);
-	        if (!new_view._settings.hidden) insertBefore(new_view._viewobj, prev_node, this._dataobj);
+	        if (!new_view._settings.hidden) this._insertBeforeView(new_view, this._cells[target_id]);
 	      } else {
 	        source = $$(target_id);
 	        target_id = PowerArray.find.call(this._cells, source);
 	        assert(target_id != -1, "Attempt to replace the non-existing view");
-	        var parent = source._viewobj.parentNode;
-	        if (parent && !new_view._settings.hidden) parent.insertBefore(new_view._viewobj, source._viewobj);
+	        if (!new_view._settings.hidden) this._insertBeforeView(new_view, source);
 	        source.destructor();
 	        this._cells[target_id] = new_view;
 	      }
@@ -20273,18 +20320,30 @@
 
 	    return -1;
 	  },
-	  _show: function (obj, settings, silent) {
-	    if (!obj._settings.hidden) return;
-	    obj._settings.hidden = false; //index of sibling cell, next to which new item will appear
+	  _insertBeforeView: function (view, before) {
+	    if (before) {
+	      if (before._settings.hidden || view === before) {
+	        //index of sibling cell, next to which new item will appear
+	        var index$$1 = this.index(before) + 1; //locate nearest visible cell
 
-	    var index$$1 = this.index(obj) + 1; //locate nearest visible cell
+	        while (this._cells[index$$1] && this._cells[index$$1]._settings.hidden) {
+	          index$$1++;
+	        }
 
-	    while (this._cells[index$$1] && this._cells[index$$1]._settings.hidden) {
-	      index$$1++;
+	        before = this._cells[index$$1] ? this._cells[index$$1]._viewobj : null;
+	      } else {
+	        before = before._viewobj;
+	      }
 	    }
 
-	    var view = this._cells[index$$1] ? this._cells[index$$1]._viewobj : null;
-	    insertBefore(obj._viewobj, view, this._dataobj || this._viewobj);
+	    insertBefore(view._viewobj, before, this._dataobj || this._viewobj);
+	  },
+	  _show: function (obj, settings, silent) {
+	    if (!obj._settings.hidden) return;
+
+	    this._insertBeforeView(obj, obj);
+
+	    obj._settings.hidden = false;
 	    this._hiddencells--;
 
 	    if (!silent) {
@@ -22371,6 +22430,7 @@
 	    var subtype = this._template_types[config.type];
 
 	    if (subtype) {
+	      if (subtype.css && config.css) this._viewobj.className += " " + subtype.css;
 	      exports.extend(config, subtype); //will reset borders for "section"
 
 	      if (config.borderless) {
@@ -24010,6 +24070,8 @@
 	    this._body_cell = n;
 
 	    this._viewobj.appendChild(n._viewobj);
+
+	    this.resize();
 	  }
 	};
 	var view$k = exports.protoUI(api$k, base.view);
@@ -24956,9 +25018,13 @@
 	var api$t = {
 	  name: "popup",
 	  $init: function () {
+	    var _this = this;
+
 	    this._settings.head = false;
 	    this.$view.className += " webix_popup";
-	    attachEvent("onClick", bind(this._hide, this));
+	    attachEvent("onClick", function (e) {
+	      return _this._hide(e);
+	    });
 	    this.attachEvent("onHide", this._hide_point);
 	  },
 	  $skin: function () {
@@ -25127,7 +25193,7 @@
 
 	    if (this._settings.scroll || !this._settings.autoheight) {
 	      sizes[2] = this._settings.height || this._settings.minHeight || 0;
-	      sizes[3] += 100000;
+	      sizes[3] = this._settings.height || 100000;
 	    }
 
 	    return sizes;
@@ -25365,8 +25431,9 @@
 	    el.value = value;
 	  },
 	  select: function (el, value) {
-	    //select first option if no provided and if possible
-	    el.value = value ? value : el.firstElementChild.value || value;
+	    el.value = value; //incorrect option applied, select first option
+
+	    if (el.selectedIndex === -1) el.value = el.firstElementChild.value;
 	  },
 	  other: function (el, value) {
 	    el.innerHTML = value;
@@ -25443,6 +25510,14 @@
 	    var el = this._viewobj.querySelector("[name=\"" + id + "\"]");
 
 	    if (el) removeCss(el, "invalid");
+	  },
+	  focus: function (name) {
+	    if (!name && this.$view.contains(document.activeElement)) {
+	      // focus already inside of form, leaving
+	      return false;
+	    }
+
+	    Values.focus.apply(this, arguments);
 	  }
 	};
 	var view$y = exports.protoUI(api$y, template$1.view, Values);
@@ -25579,7 +25654,11 @@
 	    this.refresh();
 	  },
 	  setValues: function (data, update) {
-	    if (this._settings.complexData) data = CodeParser.collapseNames(data);
+	    var _this = this;
+
+	    if (this._settings.complexData) data = CodeParser.collapseNames(data, "", {}, function (v) {
+	      return isUndefined(_this._idToLine[v]);
+	    });
 	    if (!update) this._clear();
 
 	    for (var key in data) {
@@ -27197,6 +27276,7 @@
 	        switch (this._settings.align) {
 	          case "right":
 	            handle.style.cssFloat = "right";
+	            handle.style.textAlign = "right";
 	            break;
 
 	          case "center":
@@ -27344,7 +27424,7 @@
 	  _set_inner_size: function () {},
 	  _calc_size: function (config) {
 	    config = config || this._settings;
-	    if (config.autowidth) config.width = getTextSize(config.value || config.label, "webix_el_label").width;
+	    if (config.autowidth) config.width = getTextSize(config.value || config.label, "webix_el_box").width;
 	  }
 	};
 	var view$D = exports.protoUI(api$D, button$1.view);
@@ -28476,6 +28556,10 @@
 	  },
 	  getValue: function () {
 	    return this._settings.value || "";
+	  },
+	  _ignoreLabelClick: function (ev) {
+	    this.focus();
+	    preventEvent(ev);
 	  }
 	};
 	var view$K = exports.protoUI(api$K, text.view);
@@ -28511,11 +28595,24 @@
 
 	    if (value != this._settings.value) this.setValue(value, true);else this.$setValue(value);
 	  },
+	  $compareValue: function (value) {
+	    var result = richselect.api.$compareValue.apply(this, arguments);
+	    if (result && value != this.getText()) this._revertValue();
+	    return result;
+	  },
 	  defaults: {
 	    template: function (config, common) {
 	      return common.$renderInput(config).replace(/(<input)\s*(?=\w)/, "$1" + " role='combobox'");
 	    },
 	    icon: "wxi-menu-down"
+	  },
+	  on_click: {
+	    "webix_inp_label": function (e) {
+	      this._ignoreLabelClick(e);
+	    },
+	    "webix_inp_top_label": function (e) {
+	      this._ignoreLabelClick(e);
+	    }
 	  }
 	};
 	var view$L = exports.protoUI(api$L, richselect.view);
@@ -29245,6 +29342,12 @@
 	      var value;
 	      if (!this._settings.readonly && node && (value = node.parentNode.getAttribute("optvalue"))) this._removeValue(value);
 	      return false;
+	    },
+	    "webix_inp_label": function (e) {
+	      this._ignoreLabelClick(e);
+	    },
+	    "webix_inp_top_label": function (e) {
+	      this._ignoreLabelClick(e);
 	    }
 	  },
 	  _onBlur: function () {
@@ -30540,6 +30643,7 @@
 	      on: {
 	        onAfterRender: function () {
 	          top._rendered_input = true;
+	          top.refresh();
 
 	          _event(top.getInputNode(), "blur", function () {
 	            top._updateValue(this.innerHTML);
@@ -30617,7 +30721,7 @@
 	    }
 	  },
 	  refresh: function () {
-	    if (this._rendered_input) this.getInputNode().innerHTML = this.config.value;
+	    if (this._rendered_input) this.getInputNode().innerHTML = this.config.value || "";
 	  },
 	  _execCommandOnElement: function (el, commandName) {
 	    var sel, selText;
@@ -34562,7 +34666,7 @@
 
 	    this._addEditor(id, type);
 
-	    if (!type.$inline) this._sizeToCell(id, node, true);
+	    if (!type.$inline) type._editor_pos = this._sizeToCell(id, node, true);
 	    if (type.afterRender) type.afterRender();
 
 	    if (this._settings.liveValidation) {
@@ -34822,13 +34926,22 @@
 	      this._for_each_editor(function (editor) {
 	        if (editor.getPopup) {
 	          var node = this.getItemNode(editor);
-	          if (node) editor.getPopup().show(node);else editor.getPopup().show({
+	          var isHidden = false;
+
+	          if (this._settings.prerender) {
+	            var pos = editor._editor_pos;
+	            var ydiff = pos.top - this._scrollTop;
+	            var xdiff = pos.left - this._scrollLeft;
+	            isHidden = ydiff < 0 || ydiff + pos.height > this._dtable_offset_height || xdiff < 0 || xdiff + pos.width > this.$width - this._scrollSizeX;
+	          }
+
+	          if (!node || isHidden) editor.getPopup().show({
 	            x: -10000,
 	            y: -10000
-	          });
+	          });else editor.getPopup().show(node);
 	        }
 
-	        if (!editor.linkInput && !editor.$inline) {
+	        if (!this._settings.prerender && !editor.linkInput && !editor.$inline) {
 	          editor.node.top -= diff;
 	          editor.node.style.top = editor.node.top + "px";
 	        }
@@ -38507,7 +38620,13 @@
 	      } else tooltip.type.template = template(this._settings.tooltip.template);
 	    }
 
-	    return data || this.getItem(id.row);
+	    return data !== undefined ? data : this.getItem(id.row);
+	  },
+	  $tooltipOut: function () {
+	    TooltipControl._hide_tooltip();
+
+	    delete TooltipControl._tooltip.type.column;
+	    return null;
 	  },
 	  showOverlay: function (message) {
 	    if (!this._datatable_overlay) {
@@ -39047,6 +39166,7 @@
 	    this._max_auto_scale = 1.25;
 	    this._hPadding = 40;
 	    this._vPadding = 10;
+	    this._destroy_with_me = [];
 	    this.$ready.push(this._attachHandlers);
 	  },
 	  toolbar_setter: function (toolbar) {
@@ -39070,8 +39190,11 @@
 	  _attachHandlers: function () {
 	    delete this._settings.datatype; // cheat(
 
-	    this.attachEvent("onScaleChange", function (scale, update) {
-	      if (update && this._settings.toolbar && $$(this._settings.toolbar).setScale) $$(this._settings.toolbar).setScale(scale);
+	    this.attachEvent("onScaleChange", function (scale) {
+	      if (this._settings.toolbar && $$(this._settings.toolbar).setScale) $$(this._settings.toolbar).setScale(scale);
+	    });
+	    this.attachEvent("onPageRender", function (page) {
+	      if (this._settings.toolbar && $$(this._settings.toolbar).setPage) $$(this._settings.toolbar).setPage(page);
 	    });
 
 	    if (env.touch) {
@@ -39244,6 +39367,8 @@
 	          }
 	        }
 	      });
+
+	      this._destroy_with_me.push(this._passWin);
 	    }
 
 	    return this._passWin;
@@ -39334,14 +39459,14 @@
 	    newScale = (newScale * this._default_scale_delta).toFixed(2);
 	    newScale = Math.ceil(newScale * 10) / 10;
 	    newScale = Math.min(this._max_scale, newScale);
-	    this.setScale(newScale, true);
+	    this.setScale(newScale);
 	  },
 	  zoomOut: function () {
 	    var newScale = this._settings.scale;
 	    newScale = (newScale / this._default_scale_delta).toFixed(2);
 	    newScale = Math.floor(newScale * 10) / 10;
 	    newScale = Math.max(this._min_scale, newScale);
-	    this.setScale(newScale, true);
+	    this.setScale(newScale);
 	  },
 	  _getScale: function (value) {
 	    if (!isNaN(parseFloat(value))) return value;
@@ -39378,19 +39503,19 @@
 
 	    return scale;
 	  },
-	  setScale: function (value, update) {
+	  setScale: function (value) {
 	    if (!isNaN(parseFloat(value))) {
-	      this._setScale(value, update);
+	      this._setScale(value);
 	    } else {
 	      var scale = this._getScale(value);
 
-	      this._setScale(scale, update);
+	      this._setScale(scale);
 	    }
 	  },
-	  _setScale: function (newScale, update) {
+	  _setScale: function (newScale) {
 	    this._settings.scale = newScale;
 	    this.renderPage(this.$pageNum);
-	    this.callEvent("onScaleChange", [newScale, update]);
+	    this.callEvent("onScaleChange", [newScale]);
 	  },
 	  download: function () {
 	    if (!this.$pdfDoc) return;
@@ -44174,7 +44299,7 @@
 	    return data;
 	  },
 	  series_setter: function (config) {
-	    if (_typeof(config) != "object") {
+	    if (!config || _typeof(config) != "object") {
 	      assert(config, "Chart :: Series must be an array or object");
 	    } else {
 	      this._parseSettings(!config.length ? config : config[0]);
@@ -44653,11 +44778,33 @@
 	    var temp = exports.extend({}, this._settings);
 	    this._settings = exports.extend({}, temp);
 
-	    this._parseSettings(obj, {});
+	    this._parseSettings(obj);
 
 	    this._series.push(this._settings);
 
 	    this._settings = temp;
+	  },
+	  $tooltipIn: function (t) {
+	    return t;
+	  },
+	  _get_tooltip_data: function (t, e) {
+	    var id = this.locate(e);
+	    if (!id) return null;
+
+	    var active = this._getActiveSeries(e);
+
+	    var def = exports.extend({
+	      dx: 20,
+	      dy: 0,
+	      template: "{obj.value}",
+	      css: ""
+	    }, this._series[active].tooltip || {
+	      template: ""
+	    }, true);
+
+	    TooltipControl._tooltip.define(def);
+
+	    return this.getItem(id);
 	  },
 	  _getActiveSeries: function (e) {
 	    var a, areas, i, offset$$1, pos$$1, selection, x, y;
@@ -45786,12 +45933,17 @@
 	    this.$ready.unshift(this._setLayout);
 	  },
 	  $onLoad: function (data, driver) {
+	    var left = this.$$("left");
+	    var right = this.$$("right");
+
 	    this._updateAndResize(function () {
-	      this.$$("left").data.driver = driver;
-	      this.$$("left").parse(data);
-	      this.$$("right").data.driver = driver;
-	      this.$$("right").parse(data);
+	      left.data.driver = driver;
+	      left.parse(data);
+	      right.data.driver = driver;
+	      right.parse(data);
 	    });
+
+	    this._data_ready = true;
 
 	    this._refresh();
 
@@ -45934,19 +46086,23 @@
 	  },
 	  setValue: function (value) {
 	    this._moved = {};
-	    if (_typeof(value) !== "object") value = value.toString().split(",");
 
-	    for (var i = 0; i < value.length; i++) {
-	      this._moved[value[i]] = true;
+	    if (value) {
+	      if (_typeof(value) !== "object") value = value.toString().split(",");
+
+	      for (var i = 0; i < value.length; i++) {
+	        this._moved[value[i]] = true;
+	      }
 	    }
 
 	    this._refresh();
 	  },
 	  getValue: function () {
 	    var value = [];
+	    var list = this.$$("left");
 
 	    for (var key in this._moved) {
-	      value.push(key);
+	      if (!this._data_ready || list.data.pull[key]) value.push(key);
 	    }
 
 	    return value.join(",");
@@ -46563,7 +46719,7 @@
 	    classname: function (obj, common, marks) {
 	      var css = "webix_dataview_item";
 	      if (common.css) css += " " + common.css;
-	      if (common.type && common.type.toString() == "tiles") css += "tiles ";
+	      if (common.type && common.type.toString() == "tiles") css += " tiles ";
 
 	      if (obj.$css) {
 	        if (_typeof(obj.$css) == "object") obj.$css = createCss(obj.$css);
@@ -47937,6 +48093,7 @@
 	    this.defaults.titleHeight = $active.sidebarTitleHeight;
 	  },
 	  $init: function () {
+	    this.$view.className += " webix_sidebar";
 	    this.$ready.push(this._initSidebar);
 	    this.$ready.push(this._initContextMenu);
 
@@ -48254,7 +48411,6 @@
 	type(tree.view, {
 	  name: "sideBar",
 	  height: "auto",
-	  css: "webix_sidebar",
 	  template: function (obj, common) {
 	    if (common.collapsed) return common.icon(obj, common);
 	    return common.arrow(obj, common) + common.icon(obj, common) + "<span>" + obj.value + "</span>";

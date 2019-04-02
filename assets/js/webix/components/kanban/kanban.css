@@ -71,6 +71,7 @@
 .webix_kanban .webix_accordionitem_header {
   border-left: 1px solid #DADEE0;
   border-right: 1px solid #DADEE0;
+  background-color: #ffffff;
 }
 .webix_kanban_list {
   border-color: #EBEDF0;

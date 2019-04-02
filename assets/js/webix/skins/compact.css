@@ -156,7 +156,7 @@ body.webix_full_screen {
 .webix_header .webix_inp_label {
   color: #fff;
 }
-.webix_header .webix_el_label {
+.webix_header .webix_el_label .webix_el_box {
   font-size: 16px;
 }
 .webix_header .webixtype_base,
@@ -480,7 +480,7 @@ button,
 .webix_accordionitem_header .webix_inp_label {
   color: #fff;
 }
-.webix_accordionitem_header .webix_el_label {
+.webix_accordionitem_header .webix_el_label .webix_el_box {
   font-size: 16px;
 }
 .webix_accordionitem_header .webixtype_base,
@@ -971,21 +971,64 @@ button,
   height: 100%;
   width: auto;
   min-width: 32px;
-  border: 1px solid #DDDDDD;
   margin: 0 2px;
   cursor: pointer;
-  background-color: white;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
-  font-family: 'PT Sans', Tahoma;
+  border-radius: 6px;
+}
+.webix_pager_item .webix_icon,
+.webix_pager_item_selected .webix_icon {
+  line-height: 0;
   font-size: 13px;
+}
+.webix_pager_item {
+  font-size: 13px;
+  padding: auto 6px;
+  font-family: 'PT Sans', Tahoma;
+  border: 1px solid #3498db;
+  border-bottom: 1px solid #268fd5;
+  outline: none;
+  color: #fff;
+  background: #3498db;
+  border-bottom: 1px solid #2386c8;
+}
+.webix_pager_item:hover {
+  background-color: #268fd5;
+}
+.webix_pager_item:focus {
+  background-color: #2489cc;
+}
+.webix_pager_item:active {
+  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  background-color: #2489cc;
 }
 /*selected  button of pager*/
 .webix_pager_item_selected {
   cursor: default;
-  background-color: #27ae60;
-  border: 1px solid #ebebeb;
+  color: #fff;
+  font-size: 13px;
+  padding: auto 6px;
+  font-family: 'PT Sans', Tahoma;
+  border: 1px solid #3498db;
+  border-bottom: 1px solid #268fd5;
+  outline: none;
+  background: #27ae60;
+  color: #FFFFFF;
+  border-color: #27ae60;
+  border-bottom: 1px solid #209150;
+  box-shadow: none;
+}
+.webix_pager_item_selected:hover {
+  background-color: #239d57;
+}
+.webix_pager_item_selected:focus {
+  background-color: #219552;
+}
+.webix_pager_item_selected:active {
+  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  background-color: #219552;
 }
 .webix_animation .webix_ss_header {
   position: relative;
@@ -1197,9 +1240,8 @@ button,
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
-  /* to look perfect in IE it must be 1/9/0/9 */
-  padding: 1px 8px 0px 9px;
-  margin: 0px;
+  padding: 0 9px;
+  margin: 0;
   border: 1px solid #ffd700;
   height: 100%;
   font-family: 'PT Sans', Tahoma;
@@ -1212,8 +1254,7 @@ button,
   width: auto;
 }
 .webix_dt_editor select {
-  padding-right: 0px;
-  padding-left: 5px;
+  padding: 0 5px;
 }
 .webix_clipbuffer {
   width: 2000px;
@@ -1341,6 +1382,12 @@ button,
 .webix_hcell .webix_tree_close,
 .webix_hcell .webix_tree_open {
   margin-right: 5px;
+}
+.webix_table_checkbox,
+.webix_hcell input[type="checkbox"] {
+  margin-top: 0px;
+  margin-bottom: 2px;
+  vertical-align: middle;
 }
 .webix_ss_filter select,
 .webix_ss_filter input {
@@ -1676,7 +1723,7 @@ button,
 .webix_win_head > .webix_view > .webix_template .webix_inp_label {
   color: #fff;
 }
-.webix_win_head > .webix_view > .webix_template .webix_el_label {
+.webix_win_head > .webix_view > .webix_template .webix_el_label .webix_el_box {
   font-size: 16px;
 }
 .webix_win_head > .webix_view > .webix_template .webixtype_base,
@@ -2340,9 +2387,9 @@ button,
   min-height: 24px;
   height: auto;
 }
-.webix_property_line.webix_focused div,
-.webix_property_line:focus div {
-  background-color: #29b665;
+.webix_property_line.webix_focused > div,
+.webix_property_line:focus > div {
+  background-color: #28b262;
 }
 .webix_property_label,
 .webix_property_value {
@@ -2350,14 +2397,14 @@ button,
   line-height: 23px;
   padding-left: 10px;
   float: left;
-  border-bottom: 1px solid #DDDDDD;
+  border-bottom: 1px solid #ebebeb;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
   overflow: hidden;
 }
 .webix_property_label {
-  border-right: 1px solid #DDDDDD;
+  border-right: 1px solid #ebebeb;
 }
 .webix_property_label_line {
   background: #3498db;
@@ -2371,7 +2418,7 @@ button,
   color: #fff;
   font-size: 16px;
   line-height: 32px;
-  line-height: 23px;
+  padding-left: 10px;
   border-bottom: 1px solid #ebebeb;
   line-height: 24px;
 }
@@ -2380,7 +2427,7 @@ button,
 .webix_property_label_line .webix_inp_label {
   color: #fff;
 }
-.webix_property_label_line .webix_el_label {
+.webix_property_label_line .webix_el_label .webix_el_box {
   font-size: 16px;
 }
 .webix_property_label_line .webixtype_base,
@@ -2553,6 +2600,7 @@ button,
 .webix_property_col_val {
   width: 100%;
   height: 100%;
+  line-height: inherit;
   -moz-user-select: text;
   -webkit-user-select: text;
   user-select: text;
@@ -2560,18 +2608,20 @@ button,
 .webix_property_col_ind {
   float: right;
   border: 1px solid #DDDDDD;
+  background: #ffffff;
   border-radius: 3px;
   width: 16px;
-  cursor: pointer;
   height: 16px;
-  margin: 4px 10px 3px 0;
+  cursor: pointer;
+  margin: 2px 8px 0 0;
 }
 .webix_property_value {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .webix_property_check {
-  margin-top: 5px;
+  margin: 0;
+  vertical-align: middle;
 }
 /*style used by tooltip's container*/
 .webix_tooltip {
@@ -3629,7 +3679,6 @@ input.webixtype_next {
   color: #666666;
 }
 .webix_toolbar .webix_el_label {
-  padding-left: 10px;
   text-transform: none;
 }
 .webix_el_select select {
@@ -4336,7 +4385,7 @@ legend.webix_required:after,
 .webix_layout_toolbar .webix_inp_label {
   color: #fff;
 }
-.webix_layout_toolbar .webix_el_label {
+.webix_layout_toolbar .webix_el_label .webix_el_box {
   font-size: 16px;
 }
 .webix_layout_toolbar .webixtype_base,
@@ -4523,7 +4572,7 @@ legend.webix_required:after,
 .webix_toolbar.webix_layout_subbar .webix_inp_label {
   color: #fff;
 }
-.webix_toolbar.webix_layout_subbar .webix_el_label {
+.webix_toolbar.webix_layout_subbar .webix_el_label .webix_el_box {
   font-size: 16px;
 }
 .webix_toolbar.webix_layout_subbar .webixtype_base,
@@ -6028,7 +6077,7 @@ body.webix_print {
 .webix_layout_toolbar.webix_toolbar .webix_inp_label {
   color: #fff;
 }
-.webix_layout_toolbar.webix_toolbar .webix_el_label {
+.webix_layout_toolbar.webix_toolbar .webix_el_label .webix_el_box {
   font-size: 16px;
 }
 .webix_layout_toolbar.webix_toolbar .webixtype_base,
@@ -6416,7 +6465,7 @@ body.webix_print {
 }
 .webix_view .webix_dt_editor input,
 .webix_view .webix_dt_editor select {
-  border: 1px solid #3498db;
+  border-color: #3498db;
 }
 .dataItemStyle {
   border-color: #ebebeb;
@@ -6436,41 +6485,6 @@ body.webix_print {
 }
 .webix_dataview_item.tiles.webix_selected:focus .webix_dataview_inner_item {
   background-color: #c8f3da;
-}
-.webix_view .webix_pager_item {
-  padding: auto 6px;
-  font-family: 'PT Sans', Tahoma;
-  border: 1px solid #3498db;
-  border-bottom: 1px solid #268fd5;
-  outline: none;
-  color: #fff;
-  background: #3498db;
-  border-bottom: 1px solid #2386c8;
-  font-size: 13px;
-}
-.webix_view .webix_pager_item:hover {
-  background-color: #268fd5;
-}
-.webix_view .webix_pager_item:focus {
-  background-color: #2489cc;
-}
-.webix_view .webix_pager_item_selected {
-  color: #fff;
-  font-size: 13px;
-  padding: auto 6px;
-  font-family: 'PT Sans', Tahoma;
-  border: 1px solid #3498db;
-  border-bottom: 1px solid #268fd5;
-  outline: none;
-  background: #27ae60;
-  color: #FFFFFF;
-  border-color: #27ae60;
-  border-bottom: 1px solid #209150;
-  box-shadow: none;
-}
-.webix_view .webix_pager_item,
-.webix_view .webix_pager_item_selected {
-  border-radius: 6px;
 }
 .webix_list .webix_unit_header {
   font-weight: normal;
@@ -6513,12 +6527,8 @@ body.webix_print {
 .webix_menu.webix_view .webix_list_item.webix_selected {
   background: #27ae60;
 }
-.webix_property .webix_property_label,
-.webix_property .webix_property_value {
-  border-color: #ebebeb;
-}
-.webix_property .webix_property_line.webix_focused div,
-.webix_property .webix_property_line:focus div {
+.webix_property .webix_property_line.webix_focused > div,
+.webix_property .webix_property_line:focus > div {
   background-color: #f6f6f6;
 }
 .webix_tree_item.webix_selected:focus span {
@@ -6692,7 +6702,7 @@ div.webix_inp_static,
 .webix_inp_label,
 .webix_inp_top_label,
 .webix_label_right,
-.webix_el_label {
+.webix_el_label .webix_el_box {
   text-transform: none;
   font-size: 13px;
 }

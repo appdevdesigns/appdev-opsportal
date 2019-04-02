@@ -1,6 +1,6 @@
 /**
  * @license
- * Webix QueryBuilder v.6.2.0
+ * Webix QueryBuilder v.6.2.6
  * This software is covered by Webix Commercial License.
  * Usage without proper license is prohibited.
  * (c) XB Software Ltd.
@@ -751,7 +751,7 @@
 	    id: "not_contains",
 	    name: locale.not_contains,
 	    fn: function (a, b) {
-	      return b.indexOf(a) === -1;
+	      return a.indexOf(b) === -1;
 	    },
 	    type: str
 	  }, {
@@ -1148,12 +1148,12 @@
 	    }
 	  },
 	  eachLine: function (cb) {
-	    var cells = this.queryView(function (a) {
-	      return !!a.getFilterHelper;
-	    }, "all");
+	    var rows = this.queryView({
+	      $id: "rows"
+	    }).getChildViews();
 
-	    for (var i = 0; i < cells.length; i++) {
-	      cb(cells[i]);
+	    for (var i = 0; i < rows.length; i++) {
+	      if (rows[i].getFilterHelper) cb(rows[i]);
 	    }
 	  },
 	  getValue: function () {
