@@ -14,8 +14,10 @@
 
 <!--Top Menu-->
 <div  class="op-widget-horizontal-nav">
-    <div class="fa fa-picture-o dragNdrop"><span>&nbsp;</span></div>
-    <label class="mlabel" app-label-key="site.user.profile">User Profile</label>
+    <div class="fa fa-picture-o dragNdrop" id="profile-image-placeholder"><span>&nbsp;</span>
+    </div>
+    <img id="profile-image-show" class="op-profile-picture" style="display:none;"></img>
+    <label class="mlabel" app-label-key="site.user.profile">User Profile </label>
 </div>
 <!--/Top Menu-->
 
@@ -74,6 +76,15 @@
             </div>
         </div>
 
+        <!-- Email Notifications -->
+        <div class="panel panel-default col-lg-6 boxcenter off-botm10">
+            <div class="panel-heading">
+                <h3 class="panel-title" app-label-key="site.user.notifications">System Notifications</h3>
+            </div>
+            <div class="panel-body user-email-notifications">
+                <input type="checkbox" name="sendEmailNotifications" id="sendEmailNotifications"/> <label app-label-key="site.user.sendEmailNotificationsLabel" for="sendEmailNotifications">Enable email notifications</label>
+            </div>
+        </div>
 
 
         <!--Select Language-->
@@ -96,5 +107,30 @@
         </div>							
         <!--/Select Language-->
         
+        <!--Select Profile-->
+        <div class="panel panel-default col-lg-6 boxcenter ">
+            <div class="panel-heading">
+                <h3 class="panel-title" app-label-key="site.user.profileimage">Profile Image</h3>
+            </div>
+            <div class="panel-body">
+                <div class="form-inline profile-image-form">
+                    <form class="profile-image">
+                        <img id="preview-profile-image" class="op-profile-picture" style="float:left; border: 1px solid #D3D3D3;">
+                        </canvas>
+                        <div class="form-group offset-5">
+                            <input type="file" class="form-control profile-image-input" name="profile-image" app-label-key="site.user.profile-image">
+                        </div>
+                        <button type="button" class="btn btn-primary off-botm10" app-label-key="site.user.submitprofile" disabled="true">Update</button>
+
+                        <!--<div class="alert alert-warning profile-image-error-message" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        </div>-->
+                    </form>
+                    
+                </div>
+            </div>								
+        </div>							
+        <!--/Select Language-->
+
     </div>
 </div>

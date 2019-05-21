@@ -629,3 +629,17 @@ the .op-widget class can contain a .op-widget-masthead class, a .op-widget-body 
 	right: 20px;
 	top: 15px;
 }
+.op-profile-picture {
+	border-radius: 5px;
+	margin-right: 5px; 
+	margin-left: 10px; 
+	margin-top: 5px;
+	width: 61px;
+	height: 57px;
+}
+
+.op-masthead-image {
+	width: 28px;
+	height: 28px;
+	border-radius: 5px;
+}

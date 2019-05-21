@@ -73,7 +73,12 @@ steal(
                             var $info = self.element.find('.user-info');
                             var $select = self.element.find('#slang select');
                             var $email = self.element.find("input[name='email']");
-                            
+                            var $sendEmailNotifications = self.element.find("input[name='sendEmailNotifications']");
+                            var $profileImage = self.element.find("#profile-image-show");
+                            var $profileImagePlaceHolder = self.element.find("#profile-image-placeholder");
+                            var $previewProfileImage = self.element.find("#preview-profile-image");
+                            var $userIcon = $("#op-user-icon");
+
                             AD.comm.service.get({
                                 url: '/site/user/data'
                             })
@@ -101,6 +106,16 @@ steal(
                                 
                                 $info.find("[name='username']").text(data.user.username);
                                 $email.val(data.user.email);
+                                $sendEmailNotifications[0].checked = data.user.sendEmailNotifications;
+                                if(data.user.image_id) {
+                                    $profileImagePlaceHolder.hide();
+                                    $profileImage.show();
+                                    $profileImage[0].src = '/opsportal/image/UserProfile/'+data.user.image_id;
+                                    $previewProfileImage[0].src = '/opsportal/image/UserProfile/'+data.user.image_id;
+                                    $userIcon.siblings().hide();
+                                    $userIcon.show();
+                                    $userIcon[0].src = '/opsportal/image/UserProfile/'+data.user.image_id;
+                                }
                                 
                                 // Language selection
                                 $select.empty();
@@ -206,6 +221,81 @@ steal(
                             }
                         },
 
+                        // Changing sendEmailNotifications
+                        "input[name='sendEmailNotifications'] click": function($el, ev) {
+                            var checked = ($el[0].checked) ? 1 : 0;
+                            AD.comm.service.post({
+                                url: '/site/user/data',
+                                params: {
+                                    sendEmailNotifications: checked
+                                }
+                            })
+                            .fail(function(err) {
+                                webix.message(err.message);
+                            });
+                        },           
+                        
+                        '.profile-image-input change': function($el, ev) {
+                            var reader = new FileReader();
+                            var input = ev.target;
+                            reader.onload = function() {
+                                var dataUrl = reader.result;
+                                var img = document.getElementById('preview-profile-image');
+                                img.src = dataUrl;
+                            }
+                            reader.readAsDataURL(input.files[0]);
+                            this.element.find('form.profile-image button').prop('disabled', false);
+                        },
+
+                        // upload profile image
+                        'form.profile-image button click': function ($el, ev) {
+                            var self = this;
+                            var $image = this.element.find('#preview-profile-image')[0];
+                            var base64String = $image.src.split(",")[1];
+
+                            ev.preventDefault();
+                            $el.prop('disabled', true);
+                            AD.comm.service.post({
+                                url: '/opsportal/imageBase64',
+                                params:  { 
+                                    'image': base64String,
+                                    'appKey': 'UserProfile', 
+                                    'permission': '1', 
+                                    'isWebix': '', 
+                                    'imageParam': ''
+                                }
+                            })
+                            .fail(function(err) {
+                                webix.message("error");
+                            })
+                            .done(function(result) {
+                                var $profileImage = self.element.find("#profile-image-show");
+                                var $profileImagePlaceHolder = self.element.find("#profile-image-placeholder");
+                                var $userIcon = $("#op-user-icon")
+
+                                $profileImagePlaceHolder.hide();
+                                $profileImage.show();
+                                $profileImage[0].src = '/opsportal/image/UserProfile/'+result.uuid;
+                                $userIcon.siblings().hide();
+                                $userIcon.show();
+                                $userIcon[0].src = '/opsportal/image/UserProfile/'+result.uuid;
+
+                                AD.comm.service.post({
+                                    url: '/site/user/updateImage',
+                                    params: {
+                                        image_id: result.uuid
+                                    }
+                                })
+                                .done(function(result){
+                                })
+                                .fail(function(err) {
+                                    webix.message("error");
+                                });
+                            })
+                            .always(function() {
+                                //$el.prop('disabled', false);
+                            });
+                        },
 
                     });
 
