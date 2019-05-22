@@ -224,28 +224,49 @@ module.exports = {
       "format": "global",
       "sideBundle": true
     },
-    "js/webix/codebase/querybuilder": {
+    "js/webix/components/pivot/pivot": {
       "deps": [
-        "js/webix/webix",
-        "js/webix/codebase/querybuilder.css"
+            "js/webix/webix",
+            "js/webix/components/pivot/pivot.css"
       ],
       "format": "global",
       "sideBundle": true
     },
-    "js/webix/codebase/pivot": {
+    "js/webix/components/querybuilder/querybuilder.min": {
       "deps": [
-        "js/webix/webix",
-        "js/webix/codebase/pivot.css"
+            "js/webix/webix",
+            "js/webix/components/querybuilder/querybuilder.min.css"
       ],
       "format": "global",
       "sideBundle": true
+    },
+    "js/webix/components/kanban/kanban.min": {
+      "deps": [
+            "js/webix/webix",
+            "js/webix/components/kanban/kanban.min.css"
+      ],
+      "format": "global",
+      "sideBundle": true
+    },
+    "js/webix/components/gantt/gantt": {
+        "deps": [
+            "js/webix/webix",
+            "js/webix/components/gantt/dhtmlxgantt.css",
+            "js/webix/components/gantt/dhtmlxgantt"
+        ],
+        "format": "global",
+        "sideBundle": true
     },
     "js/webix/webix.css": {
       "sideBundle": true
     },
+    "js/webix/skins/material.min.css": {
+        "deps": [],
+        "sideBundle": true
+    },
     "js/webix/webix": {
       "deps": [
-        'js/webix/webix.css',
+            "js/webix/skins/material.min.css"
       ],
       "format": "global",
       "sideBundle": true
@@ -272,8 +293,10 @@ module.exports = {
         "lodash",
         "moment",
         "webix",
-	"js/webix/codebase/pivot",
-        "js/webix/codebase/querybuilder",
+        "js/webix/components/pivot/pivot",
+        "js/webix/components/querybuilder/querybuilder.min",
+        "js/webix/components/kanban/kanban.min",
+        "js/webix/components/gantt/gantt",
         "bootstrap-table",
         "bootstrapValidator",
         "bootstrapValidator.css",

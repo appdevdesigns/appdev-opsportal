@@ -79,6 +79,7 @@ steal(
                             var $previewProfileImage = self.element.find("#preview-profile-image");
                             var $userIcon = $("#op-user-icon");
 
+                            
                             AD.comm.service.get({
                                 url: '/site/user/data'
                             })
@@ -295,7 +296,7 @@ steal(
                             .always(function() {
                                 //$el.prop('disabled', false);
                             });
-                        },
+                        },                       
 
                     });
 
