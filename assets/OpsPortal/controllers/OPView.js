@@ -137,7 +137,12 @@ steal(
 													
 													// var $el = _this.element.find(id);
 													var $el = _this.element.find('#'+controller.elID);
-													var init = $.extend({ id: controller.elID}, controller.init );
+													var init = $.extend({ 
+														id: controller.elID,
+														areaKey: _this.options.areaKey,
+														toolKey: _this.options.toolKey
+													}, controller.init );
+													_this.options
 
 													_this.controllers.push(AD.Control.new(controller.key, $el, init));
 												}

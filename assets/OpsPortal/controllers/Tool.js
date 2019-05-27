@@ -60,6 +60,10 @@ steal(
                             var controllerName = this.options.data.controller;
                             var instanceOptions = this.options.data.options || {};
 
+                            // Pass keys of area and tool
+                            instanceOptions.areaKey = options.areaKey;
+                            instanceOptions.toolKey = options.key;
+
             
                             // if (AD.controllers.opstools[controllerName]) {
                             //     if( AD.controllers.opstools[controllerName].Tool) {
