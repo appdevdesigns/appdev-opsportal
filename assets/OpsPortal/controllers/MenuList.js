@@ -133,6 +133,15 @@ steal(
                         //'.opsportal-nav-list-item click' : function($el, ev) {
                         '#op-list-menu li click': function ($el, ev) {
 
+                            // remove 'active' css class
+                            document.querySelectorAll("#op-list-menu > .op-container").forEach(menuEl => {
+                                menuEl.classList.remove("active");
+                            });
+
+                            // add 'active' css class
+                            if ($el[0])
+                                $el[0].classList.add("active");
+
                             var area = $el.attr('area');
                             AD.comm.hub.publish('opsportal.area.show', { area: area });
                             AD.ui.jQuery.sidr('close', 'op-menu-widget');
