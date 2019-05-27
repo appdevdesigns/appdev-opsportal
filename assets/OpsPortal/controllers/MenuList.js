@@ -134,7 +134,7 @@ steal(
                         '#op-list-menu li click': function ($el, ev) {
 
                             // remove 'active' css class
-                            document.querySelectorAll("#op-list-menu > .op-container").forEach(menuEl => {
+                            document.querySelectorAll("#op-list-menu > .op-container").forEach(function(menuEl) {
                                 menuEl.classList.remove("active");
                             });
 
