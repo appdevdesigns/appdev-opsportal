@@ -1107,7 +1107,21 @@ prevNavTool = navTool.toJSON();
 
     Tool: {
 
+        /**
+         * @function updateLabel
+         * @param {Object} options - {
+         *                              toolKey: "",
+         *                              language_code: "",
+         *                              label: ""
+         *                          }
+         * @param {Defer} cb 
+         */
         updateLabel: function (options, cb) {
+
+            if (options == null)
+                return;
+
+            options.language_code = options.language_code || Multilingual.languages.default();
 
             var dfd = AD.sal.Deferred();
 
@@ -1132,13 +1146,27 @@ prevNavTool = navTool.toJSON();
 
                     if (!tool) return next();
 
-                    tool.translations.forEach(function(trans, i) {
+                    let exists;
 
-                        // change
-                        if (trans.language_code == options.language_code)
-                            tool.translations[i].label = options.label;
+                    if (tool.translations && tool.translations.length) {
+                        tool.translations.forEach(function(trans, i) {
 
-                    });
+                            // change
+                            if (trans.language_code == options.language_code) {
+                                tool.translations[i].label = options.label;
+                                exists = true;
+                            }
+    
+                        });
+                    }
+
+                    // add
+                    if (!exists) {
+                        tool.translations.push({
+                            language_code: options.language_code,
+                            label: options.label
+                        });
+                    }
 
                     OPConfigTool.update({ key: options.toolkey }, {
                         translations: tool.translations
@@ -1240,3 +1268,4 @@ ADCore.queue.subscribe(AD.test.events.TEST_BARRELS_POPULATED, function(){
     __cacheValues = {};
     __cacheToolDefs = null;
 });
+
