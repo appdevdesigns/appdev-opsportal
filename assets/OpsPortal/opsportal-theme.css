@@ -42,6 +42,10 @@ h1, h2, h3, h4, h5 { color: #666666; }
 	opacity: 0.7;
 }
 
+.op-masthead a:hover {
+	opacity: 1;
+}
+
 .op-masthead a:hover .icon i {
 	opacity: 1;
 }
