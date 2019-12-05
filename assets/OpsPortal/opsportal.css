@@ -418,7 +418,6 @@ the .op-widget class can contain a .op-widget-masthead class, a .op-widget-body 
 	font-size: 1.5rem;
 }
 .op-icon i {
-	font-weight: bold;
 	opacity: 1 !important;
 }
 .op-icon-inverse {
