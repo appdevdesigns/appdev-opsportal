@@ -183,7 +183,7 @@ the .op-widget class can contain a .op-widget-masthead class, a .op-widget-body 
 #op-masthead-nav {
 /* these fight with bootstrap	float: right; */
 /* these fight with bootstrap	width: 94%; */
-	margin: 0 30px 0 55px;
+	margin: 0 60px 0 55px;
 }
 #op-masthead-nav ul {
 	position: relative;
@@ -622,6 +622,11 @@ the .op-widget class can contain a .op-widget-masthead class, a .op-widget-body 
     width: 260px;
     height: 110px;
 	background: #444;
+}
+#op-masthead-inbox {
+	position: absolute;
+	right: 55px;
+	top: 15px;
 }
 #op-masthead-user.dropdown {
 	position: absolute;
