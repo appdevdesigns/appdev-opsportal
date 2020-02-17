@@ -595,7 +595,6 @@ steal(
                             /// User Inbox
                             ///
                             $("#user-options-inbox").on("click", function(ev) {
-                                console.log("Click!");
                                 $$("inbox").show();
                             });
 
@@ -608,7 +607,38 @@ steal(
                                     id: "inbox-list",
                                     template: "#name#",
                                     select: true,
-                                    data: []
+                                    data: [],
+                                    click: function(id /* , ev */) {
+                                        var selectedItem = $$(
+                                            "inbox-list"
+                                        ).getItem(id);
+
+                                        // now for testing, just send back an update for this item
+                                        // as if it is processed:
+                                        var url = `/process/inbox/${selectedItem.uuid}`;
+                                        AD.comm.service
+                                            .post({
+                                                url,
+                                                data: {
+                                                    response: "responseValue"
+                                                }
+                                            })
+                                            .fail(function(err) {
+                                                if (err && err.message) {
+                                                    webix.message(err.message);
+                                                }
+                                                console.error(
+                                                    "::: error loading /process/inbox ",
+                                                    err
+                                                );
+                                            })
+                                            .done(function(data) {
+                                                $$("inbox-list").remove(id);
+                                                inboxBadge(
+                                                    $$("inbox-list").count()
+                                                );
+                                            });
+                                    }
                                 }
                             });
 
@@ -651,15 +681,18 @@ steal(
                                     $$("sidebar").parse(listData);
                                     */
                                     $$("inbox-list").parse(data);
-                                    $("#user-options-inbox-badge").html(
-                                        data.length > 0 ? data.length : ""
-                                    );
-                                    if (data.length == 0) {
-                                        $("#user-options-inbox-badge").hide();
-                                    } else {
-                                        $("#user-options-inbox-badge").show();
-                                    }
+                                    inboxBadge(data.length);
                                 });
+                            function inboxBadge(number) {
+                                $("#user-options-inbox-badge").html(
+                                    number > 0 ? number : ""
+                                );
+                                if (number == 0) {
+                                    $("#user-options-inbox-badge").hide();
+                                } else {
+                                    $("#user-options-inbox-badge").show();
+                                }
+                            }
 
                             ////
                             //// Switcheroo Features
