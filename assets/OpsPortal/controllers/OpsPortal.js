@@ -597,21 +597,29 @@ steal(
                             $("#user-options-inbox").on("click", function(ev) {
                                 $$("inbox").show();
                             });
-
-                            webix.ui({
-                                id: "inbox",
-                                view: "popup",
-                                position: "center",
+                            
+                            var accordion = {
+                                header: "replaceme",
+                                view: "accordionitem",
+                                hidden: true,
                                 body: {
-                                    view: "list",
-                                    id: "inbox-list",
+                                    view: "unitlist",
+                                    id: "replaceme",
+                                    uniteBy:function(obj){
+                                        return obj.uniteLabel; 
+                                    },
+                                    type: {
+                                        templateHeader: function(value) {
+                                            return value.replace(/{(.*?)}/, "");
+                                        },
+                                        headerHeight: 34
+                                    },
                                     template: "#name#",
                                     select: true,
                                     data: [],
                                     click: function(id /* , ev */) {
-                                        var selectedItem = $$(
-                                            "inbox-list"
-                                        ).getItem(id);
+                                        var list = this;
+                                        var selectedItem = this.getItem(id);
 
                                         // now for testing, just send back an update for this item
                                         // as if it is processed:
@@ -633,61 +641,147 @@ steal(
                                                 );
                                             })
                                             .done(function(data) {
-                                                $$("inbox-list").remove(id);
-                                                inboxBadge(
-                                                    $$("inbox-list").count()
-                                                );
+                                                list.remove(id);
+                                                if ($$(list).count()) {
+                                                    $$(list).config.height = ($$(list).count() * 34) + 34;
+                                                    $$(list).resize();
+                                                } else {
+                                                    $$(list).hide();
+                                                }
+                                                inboxBadge(-1);
                                             });
                                     }
                                 }
+                            };
+
+                            webix.ui({
+                                id: "inbox",
+                                view: "window",
+                                head:{
+                                    view:"toolbar",
+                                    css: "webix_dark",
+                                    cols:[
+                                        {},
+                                        {
+                                            view:"label",
+                                            label: "Inbox"
+                                        },
+                                        {
+                                            view: "button",
+                                            autowidth: true,
+                                            type: "icon",
+                                            icon: "fa fa-times",
+                                            click:function(){
+                                                $$('inbox').hide();
+                                            }
+                                        }
+                                    ]
+                                },
+                                position:function(state){ 
+                                    state.left = state.maxWidth - 350; // fixed values
+                                    state.top = 0;
+                                    state.width = 350; // relative values
+                                    state.height = state.maxHeight;
+                                },
+                                body: {
+                                    view: "accordion",
+                                    id: "inbox_accordion",
+                                    multi:true,
+                                    rows:[]
+                                }
                             });
 
-                            AD.comm.service
-                                .get({
-                                    url: "/process/inbox"
-                                })
-                                .fail(function(err) {
-                                    if (err && err.message) {
-                                        webix.message(err.message);
-                                    }
-                                    console.error(
-                                        "::: error loading /process/inbox ",
-                                        err
-                                    );
-                                })
-                                .done(function(data) {
-                                    console.log("/process/inbox: ", data);
-
-                                    // Eventual sidebar can group data:
-                                    /*
-                                    var groups = {};
-                                    data.forEach((item)=>{
-                                        var key = item.definition || "null";
-                                        groups[key] = groups[key] || [];
-                                        groups[key].push(item);
-                                    })
-
-                                    var listData = [];
-                                    Object.keys(groups).forEach((key)=>{
-                                        var process = ABApplication.process((p)=>{return p.id = key; })[0];
-                                        var groupEntry = null;
-                                        if (process) {
-                                            groupEntry = { id:key, label:process.label data:groups[key] }
-                                        } else {
-                                            groupEntry = { id: key, label:"unknown process", data:gropus[key] };
+                            var getInbox = function() {
+                                var processLookupHash = { /* process.id : "Process Label" */ };
+                                var appLookupHash = { /* app.id : "App Label" */ }
+                                // resolve lookups
+                                ABApplication.isReady()
+                                    .then(()=>{
+                                        return ABApplication.allApplications().then((list)=>{
+                                        var allGets = [];
+                                        
+                                        var id = list.getFirstId();
+                                        while(id) {
+                                            var entry = list.getItem(id);
+                                            allGets.push(ABApplication.get(entry.id));
+                                            id = list.getNextId(id);
                                         }
-                                        listData.push(groupEntry);
+                                        
+                                        return Promise.all(allGets);
                                     })
-                                    $$("sidebar").parse(listData);
-                                    */
-                                    $$("inbox-list").parse(data);
-                                    inboxBadge(data.length);
-                                });
+                                    .then((allApps)=>{
+                                        allApps.forEach((app)=>{
+                                            var appAccordion = accordion;
+                                            appAccordion.header = `${app.label}`;
+                                            appAccordion.body.id = `inbox-accordion-app-${app.id}`;
+                                            $$("inbox_accordion").addView(appAccordion, 1);
+                                            app.processes().forEach((p)=>{
+                                                processLookupHash[p.id] = `${p.label}`;
+                                                appLookupHash[p.id] = `${app.id}`;
+                                            });
+                                        })
+                                    })
+                                    .then(()=>{
+                                        
+                                    // then call 
+                                    AD.comm.service
+                                        .get({
+                                            url: "/process/inbox"
+                                        })
+                                        .fail(function(err) {
+                                            if (err && err.message) {
+                                                webix.message(err.message);
+                                            }
+                                            console.error(
+                                                "::: error loading /process/inbox ",
+                                                err
+                                            );
+                                        })
+                                        .done(function(data) {
+                                            console.log("/process/inbox: ", data);
+
+                                            var appAccordionLists = [];
+                                            data.forEach((item)=>{
+                                                item.uniteLabel = `{${item.definition}}${processLookupHash[item.definition]}`;
+                                                let appId = appLookupHash[item.definition];
+                                                if (!Array.isArray(appAccordionLists[appId])) appAccordionLists[appId] = [];
+                                                appAccordionLists[appId].push(item);
+                                            });
+                                            
+                                            for(var index in appAccordionLists) {
+                                                $$(`inbox-accordion-app-${index}`).parse(appAccordionLists[index]);
+                                                $$(`inbox-accordion-app-${index}`).show();
+                                                $$(`inbox-accordion-app-${index}`).config.height = (appAccordionLists[index].length * 34) + 34;
+                                                $$(`inbox-accordion-app-${index}`).resize();
+                                            }
+                                            
+                                            // $$("inbox-list").parse(data);
+                                            inboxBadge(data.length);
+                                        });
+                                    })
+                                }); // isReady().then()
+                                
+                            };
+                            
+                            function check() {
+                                if (!window.ABApplication) {
+                                    setTimeout(check, 50);
+                                } else {
+                                    getInbox();
+                                }
+                            }
+                            
+                            check();
+                            
                             function inboxBadge(number) {
+                                debugger;
+                                if (number == -1) {
+                                    number = parseInt($("#user-options-inbox-badge").html()) - 1;
+                                }
                                 $("#user-options-inbox-badge").html(
                                     number > 0 ? number : ""
                                 );
-                                if (number == 0) {
+                                if (number < 1) {
                                     $("#user-options-inbox-badge").hide();
                                 } else {
                                     $("#user-options-inbox-badge").show();
