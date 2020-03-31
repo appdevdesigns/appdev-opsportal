@@ -605,7 +605,7 @@ steal(
                                 body: {
                                     view: "unitlist",
                                     id: "replaceme",
-                                    uniteBy:function(obj){
+                                    uniteBy: function(obj) {
                                         return obj.uniteLabel; 
                                     },
                                     type: {
@@ -614,12 +614,15 @@ steal(
                                         },
                                         headerHeight: 34
                                     },
-                                    template: "#name#",
+                                    template: function(obj) {
+                                        return obj.name + " <span class='pull-right webix_badge'>"+obj.items.length+"</span>";
+                                    },
                                     select: true,
                                     data: [],
                                     click: function(id /* , ev */) {
                                         var list = this;
                                         var selectedItem = this.getItem(id);
+                                        debugger;
 
                                         // now for testing, just send back an update for this item
                                         // as if it is processed:
@@ -642,10 +645,7 @@ steal(
                                             })
                                             .done(function(data) {
                                                 list.remove(id);
-                                                if ($$(list).count()) {
-                                                    $$(list).config.height = ($$(list).count() * 34) + 34;
-                                                    $$(list).resize();
-                                                } else {
+                                                if (!$$(list).count()) {
                                                     $$(list).hide();
                                                 }
                                                 inboxBadge(-1);
@@ -670,7 +670,7 @@ steal(
                                             view: "button",
                                             autowidth: true,
                                             type: "icon",
-                                            icon: "fa fa-times",
+                                            icon: "nomargin fa fa-times",
                                             click:function(){
                                                 $$('inbox').hide();
                                             }
@@ -684,10 +684,14 @@ steal(
                                     state.height = state.maxHeight;
                                 },
                                 body: {
-                                    view: "accordion",
-                                    id: "inbox_accordion",
-                                    multi:true,
-                                    rows:[]
+                                    view:"scrollview", 
+                                    scroll:"y", 
+                                    body: {
+                                        view: "accordion",
+                                        id: "inbox_accordion",
+                                        multi:true,
+                                        rows:[]
+                                    }
                                 }
                             });
 
@@ -711,10 +715,10 @@ steal(
                                     })
                                     .then((allApps)=>{
                                         allApps.forEach((app)=>{
-                                            var appAccordion = accordion;
+                                            var appAccordion = _.cloneDeep(accordion);
                                             appAccordion.header = `${app.label}`;
                                             appAccordion.body.id = `inbox-accordion-app-${app.id}`;
-                                            $$("inbox_accordion").addView(appAccordion, 1);
+                                            $$("inbox_accordion").addView(appAccordion);
                                             app.processes().forEach((p)=>{
                                                 processLookupHash[p.id] = `${p.label}`;
                                                 appLookupHash[p.id] = `${app.id}`;
@@ -739,20 +743,30 @@ steal(
                                         })
                                         .done(function(data) {
                                             console.log("/process/inbox: ", data);
-
-                                            var appAccordionLists = [];
+                                            var appAccordionLists = {};
                                             data.forEach((item)=>{
                                                 item.uniteLabel = `{${item.definition}}${processLookupHash[item.definition]}`;
                                                 let appId = appLookupHash[item.definition];
-                                                if (!Array.isArray(appAccordionLists[appId])) appAccordionLists[appId] = [];
-                                                appAccordionLists[appId].push(item);
+                                                if (!appAccordionLists[appId]) appAccordionLists[appId] = {};
+                                                if (!appAccordionLists[appId][item.definition]) {
+                                                    appAccordionLists[appId][item.definition] = {
+                                                        id: item.definition,
+                                                        name: item.name,
+                                                        uniteLabel: item.uniteLabel,
+                                                        items: []
+                                                    };
+                                                }
+                                                    
+                                                appAccordionLists[appId][item.definition].items.push(item);
                                             });
                                             
                                             for(var index in appAccordionLists) {
-                                                $$(`inbox-accordion-app-${index}`).parse(appAccordionLists[index]);
+                                                var processes = [];
+                                                for(var process in appAccordionLists[index]) {
+                                                    processes.push(appAccordionLists[index][process]);
+                                                }
+                                                $$(`inbox-accordion-app-${index}`).parse(processes);
                                                 $$(`inbox-accordion-app-${index}`).show();
-                                                $$(`inbox-accordion-app-${index}`).config.height = (appAccordionLists[index].length * 34) + 34;
-                                                $$(`inbox-accordion-app-${index}`).resize();
                                             }
                                             
                                             // $$("inbox-list").parse(data);
@@ -774,7 +788,6 @@ steal(
                             check();
                             
                             function inboxBadge(number) {
-                                debugger;
                                 if (number == -1) {
                                     number = parseInt($("#user-options-inbox-badge").html()) - 1;
                                 }
