@@ -653,3 +653,9 @@ the .op-widget class can contain a .op-widget-masthead class, a .op-widget-body 
 	height: 28px;
 	border-radius: 5px;
 }
+.bg_gray {
+	background: #eee;
+}
+.bg_gray button {
+	border-bottom-width: 1px solid;
+}

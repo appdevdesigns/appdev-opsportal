@@ -622,34 +622,61 @@ steal(
                                     click: function(id /* , ev */) {
                                         var list = this;
                                         var selectedItem = this.getItem(id);
-                                        debugger;
+                                        
+                                        // remove all views but the first one
+                                        var firstView = true;
+                                        $$("taskMultiview").getChildViews().forEach((view)=>{
+                                            if (firstView) return;
+                                            firstView = false;
+                                            $$("taskMultiview").removeView(view);
+                                        });
+
+                                        selectedItem.items.forEach((task)=>{
+                                            $$("taskMultiview").addView({
+                                                view: "layout",
+                                                padding: 20,
+                                                rows: [
+                                                    {
+                                                        id: task.uuid,
+                                                        view: "formiopreview",
+                                                        formComponents: task.ui
+                                                    }
+                                                ]
+                                            });
+                                        });
+                                        $$("taskTitle").define("label", selectedItem.name);
+                                        $$("taskPager").define("count", selectedItem.items.length);
+                                        $$("taskPager").refresh();
+                                        $$("taskPager").select(0);
+                                        $$("taskWindow").show();
+                                        
 
                                         // now for testing, just send back an update for this item
                                         // as if it is processed:
-                                        var url = `/process/inbox/${selectedItem.uuid}`;
-                                        AD.comm.service
-                                            .post({
-                                                url,
-                                                data: {
-                                                    response: "responseValue"
-                                                }
-                                            })
-                                            .fail(function(err) {
-                                                if (err && err.message) {
-                                                    webix.message(err.message);
-                                                }
-                                                console.error(
-                                                    "::: error loading /process/inbox ",
-                                                    err
-                                                );
-                                            })
-                                            .done(function(data) {
-                                                list.remove(id);
-                                                if (!$$(list).count()) {
-                                                    $$(list).hide();
-                                                }
-                                                inboxBadge(-1);
-                                            });
+                                        // var url = `/process/inbox/${selectedItem.uuid}`;
+                                        // AD.comm.service
+                                        //     .post({
+                                        //         url,
+                                        //         data: {
+                                        //             response: "responseValue"
+                                        //         }
+                                        //     })
+                                        //     .fail(function(err) {
+                                        //         if (err && err.message) {
+                                        //             webix.message(err.message);
+                                        //         }
+                                        //         console.error(
+                                        //             "::: error loading /process/inbox ",
+                                        //             err
+                                        //         );
+                                        //     })
+                                        //     .done(function(data) {
+                                        //         list.remove(id);
+                                        //         if (!$$(list).count()) {
+                                        //             $$(list).hide();
+                                        //         }
+                                        //         inboxBadge(-1);
+                                        //     });
                                     }
                                 }
                             };
@@ -661,7 +688,7 @@ steal(
                                     view:"toolbar",
                                     css: "webix_dark",
                                     cols:[
-                                        {},
+                                        { width: 7 },
                                         {
                                             view:"label",
                                             label: "Inbox"
@@ -692,6 +719,83 @@ steal(
                                         multi:true,
                                         rows:[]
                                     }
+                                }
+                            });
+                            
+                            webix.ui({
+                                id: "taskWindow",
+                                view: "window",
+                                position:function(state){ 
+                                    state.left = (state.maxWidth/2) - (400/2); // fixed values
+                                    state.top = state.maxHeight/2 - (state.maxHeight*0.7/2);
+                                    state.width = 400; // relative values
+                                    state.height = state.maxHeight*0.7;
+                                },
+                                modal:true,
+                                head:{
+                                    view:"toolbar",
+                                    css: "webix_dark",
+                                    cols:[
+                                        { width: 17 },
+                                        {
+                                            id: "taskTitle",
+                                            view:"label",
+                                            label: "Your Tasks"
+                                        },
+                                        {
+                                            view: "button",
+                                            autowidth: true,
+                                            type: "icon",
+                                            icon: "nomargin fa fa-times",
+                                            click:function(){
+                                                $$("taskPager").select(0);
+                                                $$('taskWindow').hide();
+                                            }
+                                        }
+                                    ]
+                                },
+                                body: {
+                                    rows: [
+                                        {
+                                            view: "scrollview",
+                                            scroll: "y",
+                                            body: {
+                                                id:"taskMultiview",
+                                                cells:[
+                                                    {
+                                                        view: "layout",
+                                                        padding: 20,
+                                                        rows: [{
+                                                            id:"emptyTasks",
+                                                            template:"No more tasks...good job!"
+                                                        }]
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            view: "toolbar",
+                                            css: "bg_gray",
+                                            cols: [
+                                                {
+                                                    id: "taskPager",
+                                                    view: 'pager',
+                                                    size: 1,
+                                                    group: 3,
+                                                    height: 45,
+                                                    master:false,
+                                                    template: '<div style="margin-top:9px; text-align:center;">{common.first()} {common.prev()} {common.pages()} {common.next()} {common.last()}</div>',
+                                                    on: {
+                                                        onBeforePageChange: function(new_page,old_page){
+                                                            var views = $$("taskMultiview").getChildViews();
+                                                            views[parseInt(new_page)+1].show();
+                                                        }
+                                                    }
+                                                    
+                                                }
+                                            ]
+                                        }
+                                    ]
                                 }
                             });
 
