@@ -657,5 +657,5 @@ the .op-widget class can contain a .op-widget-masthead class, a .op-widget-body 
 	background: #eee;
 }
 .bg_gray button {
-	border-bottom-width: 1px solid;
+	box-shadow: 0px 0px 1px rgba(0,0,0,0.4);
 }

@@ -623,31 +623,30 @@ steal(
                                         var list = this;
                                         var selectedItem = this.getItem(id);
                                         
-                                        // remove all views but the first one
-                                        var firstView = true;
-                                        $$("taskMultiview").getChildViews().forEach((view)=>{
-                                            if (firstView) return;
-                                            firstView = false;
-                                            $$("taskMultiview").removeView(view);
-                                        });
-
+                                        var cells = [];
+                                        var number = 1;
                                         selectedItem.items.forEach((task)=>{
-                                            $$("taskMultiview").addView({
+                                            cells.push({
                                                 view: "layout",
                                                 padding: 20,
                                                 rows: [
                                                     {
                                                         id: task.uuid,
                                                         view: "formiopreview",
-                                                        formComponents: task.ui
+                                                        formComponents: task.ui,
+                                                        formData: {
+                                                            Name: "This is just a test: " + number,
+                                                            number: number++
+                                                        }
                                                     }
                                                 ]
                                             });
                                         });
+                                        webix.ui(cells, $$("taskMultiview"));
+
                                         $$("taskTitle").define("label", selectedItem.name);
                                         $$("taskPager").define("count", selectedItem.items.length);
                                         $$("taskPager").refresh();
-                                        $$("taskPager").select(0);
                                         $$("taskWindow").show();
                                         
 
@@ -788,7 +787,7 @@ steal(
                                                     on: {
                                                         onBeforePageChange: function(new_page,old_page){
                                                             var views = $$("taskMultiview").getChildViews();
-                                                            views[parseInt(new_page)+1].show();
+                                                            views[parseInt(new_page)].show();
                                                         }
                                                     }
                                                     
