@@ -634,10 +634,7 @@ steal(
                                                         id: task.uuid,
                                                         view: "formiopreview",
                                                         formComponents: task.ui,
-                                                        formData: {
-                                                            Name: "This is just a test: " + number,
-                                                            number: number++
-                                                        }
+                                                        formData: task.data
                                                     }
                                                 ]
                                             });
