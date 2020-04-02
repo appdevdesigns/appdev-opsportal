@@ -600,6 +600,7 @@ steal(
                             
                             var accordion = {
                                 header: "replaceme",
+                                id: "replaceme",
                                 view: "accordionitem",
                                 hidden: true,
                                 body: {
@@ -621,12 +622,15 @@ steal(
                                     data: [],
                                     click: function(id /* , ev */) {
                                         var list = this;
+                                        var parent = this.getParentView();
                                         var selectedItem = this.getItem(id);
                                         
                                         var cells = [];
+                                        var count = selectedItem.items.length;
                                         var number = 1;
                                         selectedItem.items.forEach((task)=>{
                                             cells.push({
+                                                id: "task-holder-"+task.uuid,
                                                 view: "layout",
                                                 padding: 20,
                                                 rows: [
@@ -634,45 +638,87 @@ steal(
                                                         id: task.uuid,
                                                         view: "formiopreview",
                                                         formComponents: task.ui,
-                                                        formData: task.data
+                                                        formData: task.data,
+                                                        onButton: (value) => {
+
+                                                            var url = `/process/inbox/${task.uuid}`;
+                                                            AD.comm.service
+                                                                .post({
+                                                                    url,
+                                                                    data: {
+                                                                        response: value
+                                                                    }
+                                                                })
+                                                                .fail((err)=>{
+                                                                    if (err && err.message) {
+                                                                        webix.message(err.message);
+                                                                    }
+                                                                    console.error(
+                                                                        "::: error loading /process/inbox ",
+                                                                        err
+                                                                    );
+                                                                })
+                                                                .done((data)=>{
+                                                                    // find out how many pages are in this multiview
+                                                                    var views = $$('taskMultiview').getChildViews();
+                                                                    // if there is more than one page we need to find out what the next page should be
+                                                                    if (views.length > 1) {
+                                                                        // find out if we are on the last page
+                                                                        if ($$("taskMultiview").index($$("task-holder-"+task.uuid))+1 == views.length) {
+                                                                            // if we are on the last page we will go back to the previous page
+                                                                            $$('taskMultiview').setValue(views[$$("taskMultiview").index($$("task-holder-"+task.uuid))-1].config.id);
+                                                                        } else {
+                                                                            // if we are not on the last page we will go to the next page
+                                                                            $$('taskMultiview').setValue(views[$$("taskMultiview").index($$("task-holder-"+task.uuid))+1].config.id);
+                                                                        }
+                                                                        // once we move off of the page we can remove it
+                                                                        $$('taskMultiview').removeView(views[$$("taskMultiview").index($$("task-holder-"+task.uuid))]);
+                                                                        // decrease the global inbox count
+                                                                        inboxBadge(-1);
+                                                                        // prune the item from the group of similar processes in the unit list
+                                                                        selectedItem.items = selectedItem.items.filter((i)=>{
+                                                                            return i.uuid != task.uuid;
+                                                                        });
+                                                                        // refresh the unit list so we can get an update badge count
+                                                                        list.refresh();
+                                                                        
+                                                                        // now we update the pager
+                                                                        // block events because we don't want it telling the multiview to change pages after we set the new value
+                                                                        $$("taskPager").blockEvent();
+                                                                        // set the page to the first while we rebuild the pager (or it will throw an error)
+                                                                        $$("taskPager").select(0);
+                                                                        // set the current number of pages to the number of views in the multiview
+                                                                        $$("taskPager").define("count", $$('taskMultiview').getChildViews().length);
+                                                                        $$("taskPager").refresh();
+                                                                        // set the page to the correct number because it probably changed when we removed a view above
+                                                                        $$("taskPager").select($$("taskMultiview").index($$("taskMultiview").getActiveId()));
+                                                                        $$("taskPager").unblockEvent();
+                                                                    } else {
+                                                                        // no more tasks hide the modal
+                                                                        $$('taskWindow').hide();
+                                                                        // remove the item from the unit list
+                                                                        list.remove(list.getSelectedId());
+                                                                        // if that was the last item in the unit list remove the accordion
+                                                                        if (list.count() == 0) {
+                                                                            parent.hide();
+                                                                        }
+                                                                        // decrease the global inbox count
+                                                                        inboxBadge(-1);
+                                                                    }
+                                                                });
+
+                                                        }
                                                     }
                                                 ]
                                             });
                                         });
                                         webix.ui(cells, $$("taskMultiview"));
-
+                                        
                                         $$("taskTitle").define("label", selectedItem.name);
-                                        $$("taskPager").define("count", selectedItem.items.length);
+                                        $$("taskPager").define("count", count);
                                         $$("taskPager").refresh();
                                         $$("taskWindow").show();
                                         
-
-                                        // now for testing, just send back an update for this item
-                                        // as if it is processed:
-                                        // var url = `/process/inbox/${selectedItem.uuid}`;
-                                        // AD.comm.service
-                                        //     .post({
-                                        //         url,
-                                        //         data: {
-                                        //             response: "responseValue"
-                                        //         }
-                                        //     })
-                                        //     .fail(function(err) {
-                                        //         if (err && err.message) {
-                                        //             webix.message(err.message);
-                                        //         }
-                                        //         console.error(
-                                        //             "::: error loading /process/inbox ",
-                                        //             err
-                                        //         );
-                                        //     })
-                                        //     .done(function(data) {
-                                        //         list.remove(id);
-                                        //         if (!$$(list).count()) {
-                                        //             $$(list).hide();
-                                        //         }
-                                        //         inboxBadge(-1);
-                                        //     });
                                     }
                                 }
                             };
@@ -744,7 +790,7 @@ steal(
                                             type: "icon",
                                             icon: "nomargin fa fa-times",
                                             click:function(){
-                                                $$("taskPager").select(0);
+                                                // list
                                                 $$('taskWindow').hide();
                                             }
                                         }
@@ -780,7 +826,7 @@ steal(
                                                     group: 3,
                                                     height: 45,
                                                     master:false,
-                                                    template: '<div style="margin-top:9px; text-align:center;">{common.first()} {common.prev()} {common.pages()} {common.next()} {common.last()}</div>',
+                                                    template: '<div style="margin-top:9px; text-align: center;">{common.first()} {common.prev()} {common.pages()} {common.next()} {common.last()}</div>',
                                                     on: {
                                                         onBeforePageChange: function(new_page,old_page){
                                                             var views = $$("taskMultiview").getChildViews();
@@ -817,6 +863,7 @@ steal(
                                         allApps.forEach((app)=>{
                                             var appAccordion = _.cloneDeep(accordion);
                                             appAccordion.header = `${app.label}`;
+                                            appAccordion.id = `inbox-accordion-app-holder-${app.id}`;
                                             appAccordion.body.id = `inbox-accordion-app-${app.id}`;
                                             $$("inbox_accordion").addView(appAccordion);
                                             app.processes().forEach((p)=>{
