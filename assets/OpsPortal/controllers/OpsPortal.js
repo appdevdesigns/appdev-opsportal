@@ -596,24 +596,26 @@ steal(
                             ///
                             $("#user-options-inbox").on("click", function(ev) {
                                 $$("inbox").show();
+                                $$('inbox_accordion').resizeChildren();
                             });
                             
                             var accordion = {
                                 header: "replaceme",
                                 id: "replaceme",
                                 view: "accordionitem",
+                                css: "stayCollapsed",
                                 hidden: true,
                                 body: {
                                     view: "unitlist",
                                     id: "replaceme",
-                                    uniteBy: function(obj) {
-                                        return obj.uniteLabel; 
-                                    },
+                                    uniteBy: '#uniteLabel#',
+                                    autoheight: true,
+                                    css: "inbox_unitlist",
                                     type: {
                                         templateHeader: function(value) {
-                                            return value.replace(/{(.*?)}/, "");
+                                            return '<i style="opacity: 0.4" class="fa fa-fw fa-code-fork fa-rotate-90"></i> ' + value.replace(/{(.*?)}/, "");
                                         },
-                                        headerHeight: 34
+                                        headerHeight: 24
                                     },
                                     template: function(obj) {
                                         return obj.name + " <span class='pull-right webix_badge'>"+obj.items.length+"</span>";
@@ -631,6 +633,7 @@ steal(
                                         selectedItem.items.forEach((task)=>{
                                             cells.push({
                                                 id: "task-holder-"+task.uuid,
+                                                unitlist: list,
                                                 view: "layout",
                                                 padding: 20,
                                                 rows: [
@@ -728,7 +731,7 @@ steal(
                                 view: "window",
                                 head:{
                                     view:"toolbar",
-                                    css: "webix_dark",
+                                    css: "webix_dark inbox_drawer",
                                     cols:[
                                         { width: 7 },
                                         {
@@ -758,6 +761,7 @@ steal(
                                     body: {
                                         view: "accordion",
                                         id: "inbox_accordion",
+                                        css: {"background": "#dadee0 !important"},
                                         multi:true,
                                         rows:[]
                                     }
@@ -790,8 +794,11 @@ steal(
                                             type: "icon",
                                             icon: "nomargin fa fa-times",
                                             click:function(){
-                                                // list
                                                 $$('taskWindow').hide();
+                                                // we don't want the list to look like it has still selected the item
+                                                $$("taskMultiview").getChildViews()[0].config.unitlist.unselectAll();
+                                                // reset the pager so we don't get errors when we open it next
+                                                $$("taskPager").select(0);
                                             }
                                         }
                                     ]
@@ -817,7 +824,7 @@ steal(
                                         },
                                         {
                                             view: "toolbar",
-                                            css: "bg_gray",
+                                            css: "inboxpager",
                                             cols: [
                                                 {
                                                     id: "taskPager",
