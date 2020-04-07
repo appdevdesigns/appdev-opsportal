@@ -756,15 +756,42 @@ steal(
                                     state.height = state.maxHeight;
                                 },
                                 body: {
-                                    view:"scrollview", 
-                                    scroll:"y", 
-                                    body: {
-                                        view: "accordion",
-                                        id: "inbox_accordion",
-                                        css: {"background": "#dadee0 !important"},
-                                        multi:true,
-                                        rows:[]
-                                    }
+                                    cells:[
+                                        {
+                                            id: "inboxItems",
+                                            view:"scrollview", 
+                                            scroll:"y", 
+                                            body: {
+                                                view: "accordion",
+                                                id: "inbox_accordion",
+                                                css: {"background": "#dadee0 !important"},
+                                                multi:true,
+                                                rows:[]
+                                            }
+                                        },
+                                        {
+                                            id: "emptyInbox",
+                                            view: "layout",
+                                            hidden: true,
+                                            css: {"background": "#dadee0 !important"},
+                                            rows: [
+                                                {},
+                                                {
+                                                    view: "label",
+                                                    align: "center",
+                                                    height: 200,
+                                                    label:
+                                                        "<div style='display: block; font-size: 180px; background-color: #666; color: transparent; text-shadow: 0px 1px 1px rgba(255,255,255,0.5); -webkit-background-clip: text; -moz-background-clip: text; background-clip: text;' class='fa fa-thumbs-up'></div>"
+                                                },
+                                                {
+                                                    view: "label",
+                                                    align: "center",
+                                                    label: "No tasks...you're all caught up."
+                                                },
+                                                {}                                                        
+                                            ]
+                                        }
+                                    ]
                                 }
                             });
                             
@@ -950,8 +977,10 @@ steal(
                                 );
                                 if (number < 1) {
                                     $("#user-options-inbox-badge").hide();
+                                    $$("emptyInbox").show(false, false);
                                 } else {
                                     $("#user-options-inbox-badge").show();
+                                    $$("inboxItems").show(false, false);
                                 }
                             }
 
