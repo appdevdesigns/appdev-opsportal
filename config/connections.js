@@ -20,8 +20,7 @@
  */
 
 module.exports = {
-
-/*
+   /*
   //// 
   //// Define your plugin specific connection settings:
   ////
@@ -40,5 +39,4 @@ module.exports = {
     database: 'YOUR_MYSQL_DB'
   },
 */
-
 };

@@ -1,13 +1,12 @@
-steal(
-'opstools/OPNavEdit/models/base/OPConfigToolDefinition.js',
-function() {
-    System.import('appdev').then(function() {
-		steal.import('appdev/model/model').then(function() {
-
-			// Namespacing conventions:
-			// AD.Model.extend('[application].[Model]', {static}, {instance} );  --> Object
-			AD.Model.extend('opsportal.navedit.OPConfigToolDefinition', {
-				/*
+steal("opstools/OPNavEdit/models/base/OPConfigToolDefinition.js", function() {
+   System.import("appdev").then(function() {
+      steal.import("appdev/model/model").then(function() {
+         // Namespacing conventions:
+         // AD.Model.extend('[application].[Model]', {static}, {instance} );  --> Object
+         AD.Model.extend(
+            "opsportal.navedit.OPConfigToolDefinition",
+            {
+               /*
 					findAll: 'GET /appdev-opsportal/opconfigtool',
 					findOne: 'GET /appdev-opsportal/opconfigtool/{id}',
 					create:  'POST /appdev-opsportal/opconfigtool',
@@ -17,14 +16,16 @@ function() {
 					fieldId: 'id',             // which field is the ID
 					fieldLabel:'icon'      // which field is considered the Label
 				*/
-			}, {
-				/*
+            },
+            {
+               /*
 					// Already Defined:
 					model: function() {},   // returns the Model Class for an instance
 					getID: function() {},   // returns the unique ID of this row
 					getLabel: function() {} // returns the defined label value
 				*/
-			});
-		});
-	});
+            }
+         );
+      });
+   });
 });

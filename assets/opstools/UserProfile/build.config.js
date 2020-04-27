@@ -1,12 +1,8 @@
 module.exports = {
-    "map": {
-
-    },
-    "paths": {
-        "opstools/UserProfile": "opstools/UserProfile/UserProfile.js"
-    },
-    "bundle": ['opstools/UserProfile'],
-    "meta": {
-        
-    }
+   map: {},
+   paths: {
+      "opstools/UserProfile": "opstools/UserProfile/UserProfile.js"
+   },
+   bundle: ["opstools/UserProfile"],
+   meta: {}
 };
