@@ -183,7 +183,7 @@ the .op-widget class can contain a .op-widget-masthead class, a .op-widget-body 
 #op-masthead-nav {
 /* these fight with bootstrap	float: right; */
 /* these fight with bootstrap	width: 94%; */
-	margin: 0 30px 0 55px;
+	margin: 0 100px 0 55px;
 }
 #op-masthead-nav ul {
 	position: relative;
@@ -623,10 +623,21 @@ the .op-widget class can contain a .op-widget-masthead class, a .op-widget-body 
     height: 110px;
 	background: #444;
 }
+#op-masthead-inbox {
+	position: absolute;
+	right: 80px;
+	top: 15px;
+}
 #op-masthead-user.dropdown {
 	position: absolute;
 	right: 20px;
 	top: 15px;
+}
+#user-options-inbox-badge {
+	right: -10px;
+    position: absolute;
+    top: -5px;
+    background: tomato;
 }
 .op-profile-picture {
 	border-radius: 5px;
@@ -641,4 +652,30 @@ the .op-widget class can contain a .op-widget-masthead class, a .op-widget-body 
 	width: 28px;
 	height: 28px;
 	border-radius: 5px;
+}
+.inboxpager {
+	background: #eee;
+}
+.inboxpager button {
+	box-shadow: 0px 0px 1px rgba(0,0,0,0.4);
+}
+.btn:hover, .btn:focus {
+	background-position: 0px 0px !important;
+}
+.inbox_unitlist .webix_unit_header {
+	font-size: 12px;
+    text-transform: uppercase;
+    line-height: 24px;
+	background: #1ca1c1;
+	color: white;
+}
+.inbox_drawer {
+	background: #444 !important;
+}
+.stayCollapsed .webix_accordionitem_header, .stayCollapsed .webix_accordionitem_header:hover, .stayCollapsed .webix_accordionitem_header:focus {
+	background-color: #edeff5;
+    color: #1ca1c1;
+}
+.stayCollapsed .webix_accordionitem_header .webix_accordionitem_button {
+	color: #1ca1c1;
 }
