@@ -34,8 +34,16 @@ module.exports = {
 
   _config: {},
 
-  // Fixture Data:
-  // Use this for initial design and testing
+
+  /**
+   * get /opsportal/config
+   *
+   * returns the JSON description of the OPs Portal layout 
+   * for the current user.
+   *
+   * the actual JSON is compiled in the policy: 
+   * api/policies/OpsPortalUserConfig.js and stored in res.appdev.opsportalconfig
+   */
   config:function(req, res) {
       
       ADCore.comm.success(res, res.appdev.opsportalconfig);
@@ -43,16 +51,36 @@ module.exports = {
 
 
 
-
+  /**
+   * get /opsportal/requirements
+   *
+   * returns a list of controllers that need to be loaded by the OpsPortal
+   *
+   * the user's opstools needed is compiled in the policy: 
+   * api/policies/OpsPortalUserConfig.js and stored in 
+   * res.appdev.opsportalconfig
+   *
+   * Here we parse out the controllers that need to load and return
+   * them as a series of controller names.  
+   *
+   * @param {array} ignore  an array of controller names that should be skipped
+   *                (most likely they are already loaded.)
+   */
   requirements: function(req, res) {
 
 
       res.setHeader('content-type', 'application/javascript');
 
+      var ignoreList = req.param('ignore') || [];
 
       //// tools will be gathered from config/opsportal.js
       //// and matched against a user's permissions.
-      
+
+
+      // NOTE: api/policies/OpsPortalUserConfig.js
+      // compiles this information into res.appdev.opsportalconfig
+
+
       /*
             var tools = [
                          'HrisAdminObjects'
@@ -61,15 +89,32 @@ module.exports = {
       var tools = [];
       var data = res.appdev.opsportalconfig;
       for (var d=0; d< data.tools.length; d++) {
-          tools.push(data.tools[d].controller);
+          var c = data.tools[d];
+
+          if (c.isController) {
+
+              // if this controller hasn't been given before
+              if (ignoreList.indexOf(c.controller) == -1) {
+                  tools.push(c.controller);
+              }
+          }
       }
-      
-      
-      res.view({
+
+
+      // Special Requirement: OPNavEdit
+      // if the user has permission to access opsportal.opnavedit.view
+      // also load the OPNavEdit controller.
+      if (req.AD.user().hasPermission('opsportal.opnavedit.view')) {
+          if (ignoreList.indexOf('OPNavEdit') == -1) {
+             tools.push('OPNavEdit');
+          }
+      }
+
+      res.AD.success({          
           environment:sails.config.environment,
-          listTools:tools,
-          layout:false
+          listTools:tools
       });
+
   },
 
 
@@ -89,7 +134,8 @@ module.exports = {
       } else {
         AD.log('<yellow>warn:</yellow> socket.id not registered. ');
       }
-      ADCore.comm.success(res, { session:'registered'});
+      res.AD.success({ session:'registered'});
+      // ADCore.comm.success(res, { session:'registered'});
   },
   
   
@@ -221,6 +267,49 @@ module.exports = {
         }
     });
     
+  },
+
+
+  /**
+   * GET /opsportal/view/:key
+   *
+   * Return the json view definition for an OPTool view.
+   */
+  view:function(req,res) {
+    var key = req.param('key');
+
+    OPView.findOne({key:key})
+    .then(function(view){
+
+      if (view) {
+        var data = {
+          objects:view.objects,
+          controller:view.controller
+        }
+
+        res.AD.success(data);
+      } else {
+        res.AD.error("View not found.", 404);
+      }
+      return null;
+    })
+    .catch(function(err){
+      ADCore.error.log("Error looking up OPView", {error:err, key:key });
+      res.AD.error(err);
+    });
+/*
+    var data = {
+      objects:[
+          { key:'opstool.Application.MobileDonor', path:'opstool/Application/models/MobileDonor.js'},
+          { key:'opstool.Application.projects',    path:'opstool/Application/models/projects.js'}
+      ],
+      controller:[
+          { key:'opstool.Application.TestApp',     path:'opstool/Application/controllers/TestApp.js'}
+      ]
+    }
+*/
+    // res.AD.success(data);
+
   }
 
 

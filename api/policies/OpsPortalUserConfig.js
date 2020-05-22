@@ -14,38 +14,70 @@ module.exports = function(req, res, next) {
     var tools = [];
 
     // our current user
-    var user = ADCore.user.current(req);
+    var user = req.AD.user();  // ADCore.user.current(req);
 
-    var config = sails.config.opsportal;
+    var cacheValue = OPSPortal.NavBar.cache(user.GUID());
+    if ( cacheValue ) {
+
+        // store cached value in the response object:
+        if (!res.appdev) res.appdev = {};
+        res.appdev.opsportalconfig = cacheValue;
+        next();
+
+    } else {
+
+        var config = sails.config.opsportal;
+
+        OPConfigArea.find().populateAll()
+        .exec(function(err, listAreas){
+
+            if (err) {
+                ADCore.error.log('Error finding OPConfigAreas', {error:err});
+                next(err);
+            } else {
+
+                processAreasRecursively(areaHash, tools, user, listAreas, function(err) {
 
 
-    // start decoding each area defined
-    for (var a=0; a<config.areas.length; a++) {
-        processArea(areaHash, tools, user, config.areas[a]);
+                    // now compile the results:
+                    // convert areaHash => an array
+                    var areas = [];
+                    for (var a in areaHash) {
+                        areas.push(areaHash[a]);
+                    }
+
+                    var data = {
+                            areas: areas,
+                            tools: tools,
+                            feedback: (config.feedback && config.feedback.enabled) || false,
+                            countly: false
+                    };
+                    
+                    if (config.countly && config.countly.enabled) {
+                        data.countly = config.countly;
+                    }
+
+
+                    // store this in the response object:
+                    // res.appdev.opsportalconfig
+                    if (!res.appdev) res.appdev = {};
+                    res.appdev.opsportalconfig = data;
+                    OPSPortal.NavBar.cache(user.GUID(), data);
+                    next();
+
+                })
+
+            }
+        })
     }
 
-
-    // now compile the results:
-    // convert areaHash => an array
-    var areas = [];
-    for (var a in areaHash) {
-        areas.push(areaHash[a]);
-    }
-
-    var data = {
-            areas:areas,
-            tools:tools,
-            feedback: (config.feedback && config.feedback.enabled) || false
-    };
+    // // start decoding each area defined
+    // for (var a=0; a<config.areas.length; a++) {
+    //     processArea(areaHash, tools, user, config.areas[a]);
+    // }
 
 
-    // store this in the response object:
-    // res.appdev.opsportalconfig
-    if (!res.appdev) res.appdev = {};
-    res.appdev.opsportalconfig = data;
 
-
-    next();
 };
 
 
@@ -72,49 +104,84 @@ function processPermission(user, permission) {
     return ok;
 }
 
+function processToolsRecursively( areaHash, tools, user, area, listTools, cb ) {
 
-function processTool( areaHash, tools, user, area, tool ) {
+    if (listTools.length <= 0) {
+        cb();
+    } else {
 
-    // for this tool, check each possible permission settings
-    for (var p=0; p<tool.permissions.length; p++) {
-        if (processPermission(user, tool.permissions[p])) {
 
-            // once we return true, we don't have to process any more.
-            // add area & tool to our list.
+        // we need a fully populated OPConfigTool to check permissions:
+        var tool = listTools.shift();
+
+        OPConfigTool.findOne(tool.id)
+        .populateAll()
+        .exec(function(err, currTool){
+
+            // for this tool, check each possible permission settings
+            for (var p=0; p<currTool.permissions.length; p++) {
+                if (processPermission(user, currTool.permissions[p].action_key)) {
+
+                    // once we return true, we don't have to process any more.
+                    // add area & tool to our list.
 
 //// TODO: change the isDefault to lookup a user's last accessed
 //// area/tool and make those the default
 
 
-            // if area not already added then add it
-            if (!areaHash[area.key]) {
-                var areaInfo = {
-                        icon: area.icon,
-                        key: area.key,
-                        label: area.label,
-                        isDefault:area.isDefault || false
-                };
-                areaHash[area.key] = areaInfo;
+                    // if area not already added then add it
+                    if (!areaHash[area.key]) {
+                        var areaInfo = {
+                                icon: area.icon,
+                                key: area.key,
+                                label: area.label,
+                                isDefault:area.isDefault || false
+                        };
+                        areaHash[area.key] = areaInfo;
+                    }
+
+        // add default value for .isController
+                    if (typeof tool.isController == 'undefined') {
+                        tool.isController = true;
+                    }
+
+
+                    // add the tool
+                    // var toolInfo = {
+                    //         area:area.key,
+                    //         controller:tool.controller,
+                    //         label:tool.label,
+                    //         isDefault:tool.isDefault,
+                    //         isController:tool.isController,
+                    //         options: tool.options || {}
+                    // };
+                    // tools.push(toolInfo);
+                    tools.push(currTool);
+                    break;
+                }
             }
 
-            // add the tool
-            var toolInfo = {
-                    area:area.key,
-                    controller:tool.controller,
-                    label:tool.label,
-                    isDefault:tool.isDefault
-            };
-            tools.push(toolInfo);
-            break;
-        }
+            processToolsRecursively(areaHash, tools, user, area, listTools, cb);
+
+        });
     }
 
 }
-function processArea( areaHash, tools, user, area ) {
 
-    // evaluate each tool defined in this area
-    for (var t=0; t<area.tools.length; t++){
-        processTool(areaHash, tools, user, area, area.tools[t]);
+
+function processAreasRecursively( areaHash, tools, user, listAreas, cb ) {
+
+    if (listAreas.length <= 0) {
+        cb();
+    } else {
+        var area = listAreas.shift();
+        processToolsRecursively(areaHash, tools, user, area, area.tools, function(err){
+            if (err) {
+                cb(err);
+            } else {
+                processAreasRecursively(areaHash, tools, user, listAreas, cb);
+            }
+        })
     }
 }
 

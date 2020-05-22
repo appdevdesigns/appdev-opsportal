@@ -1,4 +1,11 @@
-<li class="op-container" area="<%= area.key %>">
-	<% if (area.key != 'profile'){ %><span class="badge pull-right"></span><% } %>
-	<span class="icon op-icon"><i class="fa fa-fw op-icon-fw <%= area.icon %>"></i></span><%== AD.lang.label.getLabelSpan({ key: area.label, context:area.context }) %>
+<li class="op-container" area="<%= area.key %>" data-weight="<%= area.attr('weight') %>">
+	<% if (typeof area != 'undefined' && area.key != 'profile') { %>
+	   <span class="badge pull-right"></span>
+    <% } %>
+	<span class="icon op-icon"><i class="fa fa-fw op-icon-fw <%= area.attr('icon') %>"></i></span>
+	<%== area.attr('label') %>
+	<!-- <% if (area.key.substring(0, 3) == 'ab-') { %>
+		<span class="icon <%= area.key.replace(/[^a-z0-9]/gi, '') %>_appLoading"><i class="fa fa-refresh fa-spin"></i></span> 
+    <% } %> -->
 </li>
+

@@ -1,4 +1,4 @@
-<!-- 
+<!--
 #  Appdev Label Info:
 #label_context:opsportal
 #language_code:en
@@ -7,45 +7,59 @@
 
     <!-- Masthead -->
 	<div class="op-container op-masthead">
-        
+
 		<div class="op-container" id="op-masthead-menu">
 			<a href="#sidr-main"><span class="icon"><i class="fa fa-bars"></i></span><span app-label-key="opp.menu">Menu</span><span class="badge"></span></a>
 		</div>
-		
+
 		<div class="op-container" id="op-masthead-nav">
-		    
-		    <!-- sublinks -->
-		    <div class="col-lg-11 col-md-11 col-xs-9" id="op-masthead-sublinks">
-                <ul class="list-unstyled list-inline" area="[[= area.key ]]">
-                    <li class="active" op-tool="[[= tool.controller ]]"><a href="#" class="op-masthead-nav-link" role="button" obj-embed="tool">[[- AD.lang.label.getLabelSpan({ key: tool.label, context:tool.context }) ]]</a></li>
-                    <li class="mockup"><a href="#" class="" role="button" obj-embed="tool">Sublink 2</a></li>
-                    <li class="mockup"><a href="#" class="" role="button" obj-embed="tool">Sublink 3</a></li>
-                </ul>
-            </div>
-            
-            <!-- user options icon -->
-            <div class="dropdown col-lg-1 col-md-1 col-xs-3">
-                <a id="user-options-icon" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fa fa-user fa-2x" id=""></i>
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="user-options-icon" style="position:absolute; left: auto; right: 0;">
-                    <li><a id="userprofile-menuitem" href="#user-profile" app-label-key="site.user.profile">User Profile</a></li>
-                    <li><a href="#switcheroo" app-label-key="site.user.switcheroo">Switcheroo</a></li>
-                    <li role="separator" class="divider"></li>
-                    <li><a href="/site/logout" app-label-key="site.user.logout">Logout</a></li>
-                </ul>
-            </div>
-			
+			<div class="row">
+			    <!-- sublinks -->
+			    <div class="col-sm-12 hidden-xs" id="op-masthead-sublinks">
+	                <ul class="list-unstyled list-inline" area="[[= area.key ]]" style="display:none;">
+										<li class="active" op-tool="[[= tool.controller ]]" data-weight="[[= tool.attr('weight') ]]" op-tool-id="[[= tool.id ]]" op-tool-key="[[= tool.key ]]" >
+											<a href="#" class="op-masthead-nav-link" role="button" obj-embed="tool">
+												<i class="fa [[- tool.attr('icon') ]] nav-icon"></i>
+												[[- tool.attr('label') ]]
+											</a>
+										</li>
+	                    <li class="mockup"><a href="#" class="" role="button" obj-embed="tool">Sublink 2</a></li>
+	                    <li class="mockup"><a href="#" class="" role="button" obj-embed="tool">Sublink 3</a></li>
+	                </ul>
+	            </div>
+			</div>
 		</div>
-		
+
+		<!-- Inbox Icon -->
+		<div id="op-masthead-inbox" >
+			<a href="#" id="user-options-inbox" >
+				<i class="fa fa-envelope fa-2x"></i><span id="user-options-inbox-badge" class="badge" style="display: none;"></span>
+			</a>
+		</div>
+
+		<!-- user options icon -->
+		<div id="op-masthead-user" class="dropdown">
+			<a href="#" id="user-options-icon" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<i class="fa-fw fa fa-user-circle-o fa-2x" id=""></i>
+				<img class='op-masthead-image' id='op-user-icon' style="display: none;"></img>
+			</a>
+			<ul class="dropdown-menu" aria-labelledby="user-options-icon" style="position:absolute; left: auto; right: 0;">
+				<li><a id="userprofile-menuitem" href="#user-profile" app-label-key="site.user.profile">User Profile</a></li>
+				<li><a id="switcheroo" app-label-key="site.user.switcheroo">Switcheroo</a></li>
+				<li role="separator" class="divider"></li>
+				<li><a href="<%= baseURL %>/site/logout" app-label-key="site.user.logout">Logout</a></li>
+			</ul>
+		</div>
+
     </div>
-	
+
 	<!-- Global menu (Widget hidden by default) -->
-	<div class="op-menu-widget"></div>
-	
+	<div id="sidr-main" class="op-menu-widget"></div>
+
+
 	<!-- Stage -->
 	<div class="op-container op-stage"></div>
-		
+
 	<!-- <div id="opsportal-loading" class="opsportal-content opsportal-loading-global"><div></div></div> -->
-    
+
 </div>

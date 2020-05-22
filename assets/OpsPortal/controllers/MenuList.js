@@ -1,6 +1,7 @@
 steal(
     'OpsPortal/views/MenuList/MenuList.ejs',
     'OpsPortal/views/MenuList/menuItem.ejs',
+    'countly-sdk-web/lib/countly.min',
     function () {
         System.import('appdev').then(function() {
             steal.import(
@@ -43,32 +44,86 @@ steal(
 
                             this.initDOM();
 
+                            this.data = {};
+                            this.data.areas = null;
+                            this.data.areaHash = {};
 
-                            // listen for new area notifications
-                            AD.comm.hub.subscribe('opsportal.area.new', function (key, data) {
-                                self.createArea(data);
-                            });
+
+                            // // listen for new area notifications
+                            // AD.comm.hub.subscribe('opsportal.area.new', function (key, data) {
+                            //     self.createArea(data);
+                            // });
 
                         },
 
 
 
-                        createArea: function (area) {
+                        createArea: function (areaData) {
                             // console.log(area);
 
-                            this.element.find('.op-widget-body > ul')
-                            //this.element.find('#op-list-menu')
-                                .append(can.view(this.options.templateItem, { area: area }));
+                            if (this.data.areas) {
 
-                            // translate the new area
-                            AD.lang.label.translate(this.element.find('.' + area.key));
+                                var area = this.data.areaHash[areaData.key];
+
+                                this.element.find('.op-widget-body > ul')
+                                //this.element.find('#op-list-menu')
+                                    .append(can.view(this.options.templateItem, { area: area }));
+
+                                // translate the new area
+                                AD.lang.label.translate(this.element.find('[area="' + area.key+'"]'));
+                            } else {
+                                console.error('MenuList.createArea() called before our loadAreas()!');
+                            }
                         },
 
+
+                        loadAreas: function(list) {
+                            var _this = this;
+                            this.data.areas = list;
+                            list.forEach(function(area){
+                                _this.data.areaHash[area.key] = area;
+                            })
+
+                            // every time a new item is added to this list
+                            // create a Hash entry for our view lookups.
+                            list.bind('add', function(a,newAreas,c,d,e){
+                                newAreas.forEach(function(area){
+                                    _this.data.areaHash[area.key] = area;
+                                })
+                            })
+                        },
 
 
                         initDOM: function () {
 
-                            this.element.html(can.view(this.options.templateDOM, {}));
+                            this.element.html(can.view(this.options.templateDOM, {
+                                baseURL: AD.config.getValue('siteBaseURL') || ''
+                            }));
+
+                        },
+
+
+                        removeArea: function (areaData) {
+                            // console.log(area);
+
+                            if (this.data.areas) {
+                                var area = this.data.areaHash[areaData.key];
+                                this.element.find('li[area="'+area.key+'"]').remove();
+
+                            } else {
+                                console.error('MenuList.removeArea() called before our loadAreas()!');
+                            }
+                        },
+
+
+                        sortAreas:function() {
+
+                            // perform the initial sort of the tool elements by weight.
+                            this.element.find('#op-list-menu').each(function(i, ul){
+                                $(ul).find('li').sort(function(a, b){
+                                    return parseInt($(a).attr('data-weight')) > parseInt($(b).attr('data-weight'));
+                                }).appendTo(ul);
+                            });
 
                         },
 
@@ -78,10 +133,21 @@ steal(
                         //'.opsportal-nav-list-item click' : function($el, ev) {
                         '#op-list-menu li click': function ($el, ev) {
 
+                            // remove 'active' css class
+                            document.querySelectorAll("#op-list-menu > .op-container").forEach(function(menuEl) {
+                                menuEl.classList.remove("active");
+                            });
+
+                            // add 'active' css class
+                            if ($el[0])
+                                $el[0].classList.add("active");
+
                             var area = $el.attr('area');
                             AD.comm.hub.publish('opsportal.area.show', { area: area });
                             AD.ui.jQuery.sidr('close', 'op-menu-widget');
                             ev.preventDefault();
+                            
+                            Countly.track_pageview(area);
                         }
 
 

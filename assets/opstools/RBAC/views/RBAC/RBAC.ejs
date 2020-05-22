@@ -1,6 +1,6 @@
-<!-- 
+<!--
 #  Appdev Label Info:
-#label_context:opstool-RBAC
+#label_context:opsportal
 #language_code:en
 -->
 
@@ -9,8 +9,10 @@
   <span app-label-key="rbac.users.userID">User ID</span>
   <span app-label-key="rbac.users.status">Status</span>
   <span app-label-key="rbac.users.enabled">Enabled</span>
+  <span app-label-key="rbac.users.isActive">Is Active</span>
   <span app-label-key="rbac.user.noUserSelected">no user selected</span>
   <span app-label-key="rbac.user.search">search for users</span>
+  <span app-label-key="rbac.user.loadingPermissions">Loading Permissions for %s</span>
   <span app-label-key="rbac.roles.search">search for roles</span>
   <span app-label-key="rbac.roles.name">Name</span>
   <span app-label-key="rbac.roles.description">Description</span>
@@ -19,82 +21,74 @@
   <span app-label-key="rbac.roles.searchActions">search for actions</span>
   <span app-label-key="rbac.roles.newRole">Spiffy New Role</span>
   <span app-label-key="rbac.roles.newRoleDescription">Describe this role</span>
+
+  <span app-label-key="rbac.scopes.search">search for scopes</span>
+  <span app-label-key="rbac.scopes.object">Object</span>
+  <span app-label-key="rbac.scopes.confirmClone">Clone scope %s</span>
+  <span app-label-key="rbac.scopes.labelPlaceholder">Enter a Name</span>
+  <span app-label-key="rbac.scopes.descriptionPlaceholder">Describe this scope</span>
+  <span app-label-key="rbac.scopes.newScope">Spiffy New Scope</span>
+  <span app-label-key="rbac.scopes.newScopeDescription">Describe this scope ...</span>
+  <span app-label-key="rbac.scopes.object">Object</span>
+  <span app-label-key="rbac.scopes.objectChange">Are you sure? Changing this value will clear your current query value.</span>
 </div>
 
 
           <!--Top Menu-->
           <div  class="op-widget-horizontal-nav">
-            <ul id="topmenu" class="op-list">
+            <ul id="topmenu<%= uuid %>" class="op-list rbac-topmenu">
               <li class="op-container selected rbac-menu" rbac-menu="Users">
-                <a  mockup-show="users" href="#user"><i class="fa fa-users"></i><br><strong>
-                <span app-label-key="rbac.Users">Users</span></strong><span class="badge"></span></a>
+                <a  mockup-show="users" href="#user"><i class="fa fa-users"></i><br>
+                <span app-label-key="rbac.Users">Users</span><span class="badge"></span></a>
               </li>
               <li class="sep"></li>
               <li class="op-container rbac-menu" rbac-menu="Roles">
-                <a  mockup-show="roles" href="#roles"><i class="fa fa-user-md"></i><br><strong>
-                <span app-label-key="rbac.Roles">Roles</span></strong><span class="badge"></span></a>
+                <a  mockup-show="roles" href="#roles"><i class="fa fa-user-md"></i><br>
+                <span app-label-key="rbac.Roles">Roles</span><span class="badge"></span></a>
               </li>
               <li class="sep"></li>
               <li class="op-container rbac-menu" rbac-menu="Scopes">
-                <a  mockup-show="scopes" href="#scopes"><i class="fa fa-street-view" style="margin-left:12px"></i><br><strong>
-                <span app-label-key="rbac.Scopes">Scopes</span></strong><span class="badge"></span></a>
+                <a  mockup-show="scopes" href="#scopes"><i class="fa fa-street-view"></i><br>
+                <span app-label-key="rbac.Scopes">Scopes</span><span class="badge"></span></a>
               </li>
             </ul>
-            <!--- menu button for low screen only -->
-              <a id="lowscreen-menu" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="display:none;">
-               <i class="fa fa-bars fa-3x"></i>
-              </a>
-              <ul class="dropdown-menu lowscreen-drop" aria-labelledby="lowscreen-menu" style="position:absolute">
-                <li class="op-container ">
-                  <a class="rbac-menu" rbac-menu="users" mockup-show="users" href="#user"><i class="fa fa-calendar fa-2x"></i><br><strong>
-                  <span app-label-key="rbac.Users">Users</span></strong><span class="badge">16</span></a>
-                </li>
-                  <li class="op-container">
-                  <a class="rbac-menu" rbac-menu="roles" mockup-show="roles" href="#roles"><i class="fa fa-calendar fa-2x"></i><br><strong>
-                  <span app-label-key="rbac.Roles">Roles</span></strong><span class="badge"></span></a>
-                </li>
-                <li class="op-container">
-                  <a class="rbac-menu" rbac-menu="scopes" mockup-show="scopes" href="#scopes"><i class="fa fa-photo fa-2x"></i><br><strong>
-                  <span app-label-key="rbac.Scopes">Scopes</span></strong><span class="badge"></span></a>
-                </li>
-              </ul>           
             <!---/-->
           </div>
           <!--/Top Menu-->
 
           <div class="op-container clear wrapper">
           <!--Users Area-->
-          <div id="users-area" class="op-container mockup-display users rbac-users">
+          <div id="users-area<%= uuid %>" class="op-container mockup-display users rbac-users<%= uuid %>">
             <div class="row nomargin">
                 <div class="col-lg-4 col-md-6 padbot55 rbac-user-div">
-                
+
                   <!-- ADD USER BUTTON -->
                   <div class="pull-right off-top10">
                     <button type="button" class="btn op-btn btn-primary rbac-user-addUser">
                         <span class="glyphicon glyphicon-plus-sign"></span>
                     </button>
                   </div>
-                  
+
                   <div class="nopadL form-inline" role="search">
-                    <div class="input-group" id="search1"></div>
+                    <div class="input-group" id="search1<%= uuid %>"></div>
                   </div>
-                  <div id="userlist-tbl" style="clear:both"></div>
-                  <div id="paging_here"></div>
+                  <div id="userlist-tbl<%= uuid %>" style="clear:both"></div>
+                  <div id="paging_here<%= uuid %>"></div>
                   <script type="text/javascript" charset="utf-8">
 
                   </script>
-                
+
                 </div>
-                
+
                 <div class="col-lg-4 col-md-6  rbac-user-display">
                   <div class="form-inline">
-                    <div class="input-group" id="userdisplay"></div>
+                    <div class="input-group" id="userdisplay<%= uuid %>"></div>
                     <button  class="btn op-btn btn-primary pull-right off-top10 rbac-user-addPermission" app-label-key="rbac.user.add" >add</button>
                   </div>
-                  <div id="rolesNscopes" class="clear" style="height:240px"></div>
-                          
+                  <div id="rolesNscopes<%= uuid %>" class="clear" style="height:240px"></div>
+
                 </div>
-                
+
                 <div class="col-lg-4 col-md-12 rbac-user-roleScope">
                   <p app-label-key="rbac.user.selectSomeStuff">Select a role and one or more scopes for this assignment:</p>
                   <div class="row rbac-user-roleScope-form">
@@ -103,9 +97,9 @@
                         <div class="panel-heading"><span app-label-key="rbac.Roles">Roles</span></div>
                           <div class="panel-body">
                             <select multiple class="no-boxbord" name="role">
-                              <!-- roles.forEach(function(role){ 
+                              <!-- roles.forEach(function(role){
                                       if (excludeIDs.indexOf(role.id) == -1) {
-                              --> 
+                              -->
                               <option class='rbac-only-one' value="[[= role.id ]]">[[= role.attr('role_label') ]]</option>
                               <!--    }
                                     }) -->
@@ -138,7 +132,7 @@
                     <div class="col-lg-12">
                       <button class="btn op-btn btn-primary pull-right rbac-user-addPerm-add" ><i class="fa"></i><span app-label-key="rbac.Add">Add</span></button>
                       <button class="btn op-btn op-btn-dk offset-15 pull-right rbac-user-addPerm-cancel" ><span app-label-key="rbac.Cancel">Cancel</span></button>
-                    </div>                  
+                    </div>
                   </div>
                 </div>
 
@@ -150,8 +144,8 @@
                         <div class="panel-heading"><span app-label-key="rbac.Roles">Roles</span></div>
                           <div class="panel-body">
                             <select multiple class="no-boxbord" name="role" disabled >
-                              <!-- roles.forEach(function(role){ 
-console.log('... role:', role); --> 
+                              <!-- roles.forEach(function(role){
+console.log('... role:', role); -->
                               <option class='rbac-only-one' value="[[= role.id ]]" selected >[[= role.attr('role_label') ]]</option>
                               <!-- }) -->
                               <option class="mockup">role 2</option>
@@ -167,9 +161,9 @@ console.log('... role:', role); -->
                         <div class="panel-heading"><span app-label-key="rbac.Scopes">Scopes</span></div>
                           <div class="panel-body">
                             <select multiple class="form-control no-boxbord" name="scope">
-                              <!-- 
-                              scopes.forEach(function(scope){ 
-                                  
+                              <!--
+                              scopes.forEach(function(scope){
+
                                   if (selectedScopes.indexOf(scope.id) != -1) {
                                     -->
                                     <option selected="selected" value="[[= scope.id ]]"  >[[= scope.attr('label') ]]</option>
@@ -195,38 +189,38 @@ console.log('... role:', role); -->
                     <div class="col-lg-12">
                       <button class="btn op-btn btn-primary pull-right rbac-user-editPerm-update" ><i class="fa"></i><span app-label-key="rbac.Update">Update</span></button>
                       <button class="btn op-btn op-btn-dk offset-15 pull-right rbac-user-editPerm-cancel" ><span app-label-key="rbac.Cancel">Cancel</span></button>
-                    </div>                  
+                    </div>
                   </div>
                 </div>
             </div>
           </div>
           <!--/Users Area-->
           <!--Roles Area-->
-          <div id="roles-area" class="op-container mockup-display roles rbac-roles" style="display:none">
+          <div id="roles-area<%= uuid %>" class="op-container mockup-display roles rbac-roles<%= uuid %>" style="display:none">
             <div class="row op-container nomargin">
 
 
                 <div class="col-lg-4 ">
                   <div class=" form-inline" >
-                    <div class="input-group pull-left" id="search2"></div>
+                    <div class="input-group pull-left" id="search2<%= uuid %>"></div>
                     <button  class="btn op-btn btn-primary pull-right off-top10 rbac-role-addRole" app-label-key="rbac.user.add" >add</button>
                   </div>
-                  <div id="userlist-tbl-role" style="clear:both"></div>
-                  <div id="pgb"></div>
+                  <div id="userlist-tbl-role<%= uuid %>" style="clear:both"></div>
+                  <div id="pgb<%= uuid %>"></div>
                 </div>
-              
 
-                
+
+
                 <div class="col-lg-8 rbac-roles-form">
-                  <div  id="rbac-roles-form">
-                  
+                  <div  id="rbac-roles-form<%= uuid %>">
+
 <!--                   <div class="form-group">
                     <p class="lbl-title" app-label-key="rbac.roles.name">Role Name</p>
                     <input id="role_label" type="text" class="form-control" name="role_label" placeholder="rbac.roles.label" value="Ex Pat">
-                  </div>                
+                  </div>
                   <div class="form-group">
                     <p class="lbl-title" app-label-key="rbac.roles.description">Description</p>
-                    <textarea id="role_description" class="form-control" rows="3" name="role_description" placeholder="rbac.roles.descriptionPlaceholder">This role is useful for foreigners who need to have their Visas managed.</textarea>                   
+                    <textarea id="role_description" class="form-control" rows="3" name="role_description" placeholder="rbac.roles.descriptionPlaceholder">This role is useful for foreigners who need to have their Visas managed.</textarea>
                   </div> -->
                   </div>
                   <div id="roletab">
@@ -240,28 +234,50 @@ console.log('... role:', role); -->
                     <!-- Tab panes -->
                     <div class="tab-content padbot10 off-botm10">
                       <div role="tabpanel" class="tab-pane active" id="actionstab"  style="padding:17px;">
-                          <div class="input-group" id="rbac-search-actions"></div>
-                          <div id="rbac-grid-actions" style="clear:both;"></div>
-                          <div id="rbac-pager-actions"></div>
+                          <div class="input-group" id="rbac-search-actions<%= uuid %>"></div>
+                          <div id="rbac-grid-actions<%= uuid %>" style="clear:both;"></div>
+                          <div id="rbac-pager-actions<%= uuid %>"></div>
                       </div>
-                      
+
                       <div role="tabpanel" class="tab-pane" id="datafieldtab"></div>
                     </div>
 
-        
-                  </div>                  
+
+                  </div>
                 </div>
             </div>
-            
-             
+
+
           </div>
           <!--/Roles Area-->
           <!--Scopes Area-->
-          <div  class="op-container mockup-display scopes rbac-scopes" style="display:none">
-             <div class="row op-container">
+          <div  id="scopes-area<%= uuid %>" class="op-container mockup-display scopes rbac-scopes<%= uuid %>" style="display:none">
+             <div class="row op-container nomargin">
 
-             There is actually something here.
-             
+
+
+
+                <div class="col-lg-4 ">
+                  <div class=" form-inline" >
+                    <div class="input-group pull-left" id="searchScopes<%= uuid %>"></div>
+                    <button  class="btn op-btn btn-primary pull-right off-top10 rbac-scope-addScope" app-label-key="rbac.user.add" >add</button>
+                  </div>
+                  <div id="list-tbl-scope<%= uuid %>" style="clear:both"></div>
+                  <div id="pgb-scope<%= uuid %>"></div>
+                </div>
+
+
+
+                <div class="col-lg-8 rbac-scopes-form">
+                  <div  id="rbac-scopes-form<%= uuid %>">
+
+                  </div>
+
+                </div>
+
+
+
+
              </div>
           </div>
           <!--/Scopes Area-->

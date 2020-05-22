@@ -1,0 +1,41 @@
+<div id="popup-content">
+  <% var L = AD.lang.label.getLabelSpan %>
+    <h4><%== L( 'opnavedit.MenuItemProperties' ) %></h4>
+    <div class="form-horizontal">
+
+
+
+      <!--Caption-->
+      <div class="form-group">
+        <label class="col-sm-3 op-css-nopadL control-label op-css-lbl-title"><%== L('opnavedit.Label') %>:</label>
+        <div class="col-sm-9 input-group">
+          <input type="text" class="form-control" name="label" value="<%== area.attr('label') %>">
+        </div>
+      </div>
+      <!--/Caption-->
+
+      <!--Icon-->
+      <div class="form-group opnavedit-popup-input">
+        <label class="col-sm-3 control-label op-css-nopadL op-css-lbl-title"><%== L('opnavedit.Icons') %>:</label>
+        <div class="col-sm-9 input-group">
+          <input name="icon" data-placement="bottomRight" class="form-control" value="<%== area.attr('icon') %>" type="text" />
+          <span class="input-group-addon"></span>
+        </div>
+      </div>
+      <!--/Icon-->
+
+    </div>
+
+    <div style="text-align:right">
+
+      <% if (!isAdd) { %>
+        <button class="btn btn-primary  op-nav-button-del" style="margin-right:10px"><i class="fa"></i><%== L('opnavedit.Delete') %></button>
+        <% } %>
+
+          <button class="btn btn-primary op-nav-button-cancel " style="margin-right:10px"><%== L('opnavedit.Cancel') %></button>
+
+          <button id="save" class="btn btn-primary op-nav-button-save " style="margin-right:10px"><i class="fa"></i><%== L('opnavedit.Save') %></button>
+
+    </div>
+
+</div>

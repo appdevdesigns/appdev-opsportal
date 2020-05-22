@@ -4,22 +4,25 @@
  *
  */
 module.exports = {
+   // list any directories that need to be created in the base sails path
+   directories: ["/assets/opstools"],
 
+   // list any files to copy into sails directory:
+   // paths assume they are relative to the [plugin] and [sails] roots:
+   // you can rename the file as well:
+   copyFiles: {
+      "config/opsportal.js": "config/opsportal.js"
+   },
 
-     // list any directories that need to be created in the base sails path
-     directories:[
-         '/assets/opstools'
-     ],
-
-
-     // list any files to copy into sails directory:
-     // paths assume they are relative to the [plugin] and [sails] roots:
-     // you can rename the file as well:
-     copyFiles: {
-        'config/opsportal.js' : 'config/opsportal.js'
+   /*
+     // list the directories to create symbolic links to:
+     //     format:  [desiredSailsDir] : [current/plugin/dir]
+     links: {
+         'assets/countly-sdk-web' : 'node_modules/countly-sdk-web',
      },
+     */
 
-/*
+   /*
 
     // list any directories that need to be created in the base sails path
     directories:[
@@ -110,22 +113,19 @@ module.exports = {
 
  */
 
+   ignore: {
+      assets: {
+         mockups: 1 // ignore the assets/mockups/  directory
+      },
 
-        ignore:{
+      dirLinks: {
+         "config/opsportal.js": 1,
+         "assets/mockups": 1
+      },
 
-            assets: {
-                'mockups':1 // ignore the assets/mockups/  directory
-            },
-
-            dirLinks: {
-                'config/opsportal.js':1,
-                'assets/mockups':1
-            },
-
-            //
-            configLocal:{
-                'opsportal.js':1    // don't include this config file in our config/local.js mash up
-            }
-        }
-
+      //
+      configLocal: {
+         "opsportal.js": 1 // don't include this config file in our config/local.js mash up
+      }
+   }
 };

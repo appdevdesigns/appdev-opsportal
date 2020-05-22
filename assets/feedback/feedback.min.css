@@ -1,4 +1,4 @@
-.feedback-btn{font-size:14px;position:fixed;top:-3px;left:290px;width:auto;}
+.feedback-btn{font-size:14px;position:fixed;top:-3px;left:360px;width:auto;}
 #feedback-module p{font-size:13px;}
 #feedback-note-tmp{width:444px;height:auto;min-height:90px;outline:none;font-family: Arial,sans-serif;padding:4px;}
 #feedback-note-tmp:focus,#feedback-overview-note:focus{border:1px solid #64b7cc;}

@@ -275,3 +275,243 @@ msgstr "แลก"
 msgid "Logout"
 msgstr "ลงชื่อออก"
 
+#. path: opsportal
+#. code: th
+#. key: site.user.info
+msgid "Information"
+msgstr "[th]Information"
+
+#. path: opsportal
+#. code: th
+#. key: site.user.username
+msgid "Username"
+msgstr "[th]Username"
+
+#. path: opsportal
+#. code: th
+#. key: site.user.password
+msgid "Password"
+msgstr "[th]Password"
+
+#. path: opsportal
+#. code: th
+#. key: site.user.newPassword
+msgid "New Password"
+msgstr "[th]New Password"
+
+#. path: opsportal
+#. code: th
+#. key: site.user.confirmPassword
+msgid "Confirm Password"
+msgstr "[th]Confirm Password"
+
+#. path: opsportal
+#. code: th
+#. key: site.user.update
+msgid "Update"
+msgstr "[th]Update"
+
+#. path: opsportal
+#. code: th
+#. key: site.user.email
+msgid "Email"
+msgstr "[th]Email"
+
+#. path: opsportal
+#. code: th
+#. key: site.user.emailAddress
+msgid "Email address"
+msgstr "[th]Email address"
+
+#. path: opsportal
+#. code: th
+#. key: site.user.language
+msgid "Language"
+msgstr "[th]Language"
+
+#. path: opsportal
+#. code: th
+#. key: site.user.chooseLanguage
+msgid "Choose your default language for the web site:"
+msgstr "[th]Choose your default language for the web site:"
+
+#. path: opsportal
+#. code: th
+#. key: rbac.users.isActive
+msgid "Is Active"
+msgstr "[th]Is Active"
+
+#. path: opsportal
+#. code: th
+#. key: rbac.user.loadingPermissions
+msgid "Loading Permissions for %s"
+msgstr "[th]Loading Permissions for %s"
+
+#. path: opsportal
+#. code: th
+#. key: rbac.scopes.search
+msgid "search for scopes"
+msgstr "[th]search for scopes"
+
+#. path: opsportal
+#. code: th
+#. key: rbac.scopes.add
+msgid "add"
+msgstr "[th]add"
+
+#. path: opsportal
+#. code: th
+#. key: rbac.scopes.cancel
+msgid "Cancel*"
+msgstr "[th]Cancel*"
+
+#. path: opsportal
+#. code: th
+#. key: opnavedit.Add
+msgid "Add"
+msgstr "[th]Add"
+
+#. path: opsportal
+#. code: th
+#. key: opnavedit.Save
+msgid "Save"
+msgstr "[th]Save"
+
+#. path: opsportal
+#. code: th
+#. key: opnavedit.Edit
+msgid "Edit"
+msgstr "[th]Edit"
+
+#. path: opsportal
+#. code: th
+#. key: opnavedit.Delete
+msgid "Delete"
+msgstr "[th]Delete"
+
+#. path: opsportal
+#. code: th
+#. key: opnavedit.Cancel
+msgid "Cancel"
+msgstr "[th]Cancel"
+
+#. path: opsportal
+#. code: th
+#. key: opnavedit.MenuItemProperties
+msgid "Menu Area Properties"
+msgstr "[th]Menu Area Properties"
+
+#. path: opsportal
+#. code: th
+#. key: opnavedit.Label
+msgid "Label"
+msgstr "[th]Label"
+
+#. path: opsportal
+#. code: th
+#. key: opnavedit.Icons
+msgid "Icons"
+msgstr "[th]Icons"
+
+#. path: opsportal
+#. code: th
+#. key: opnavedit.ex
+msgid "ex"
+msgstr "[th]ex"
+
+#. path: opsportal
+#. code: th
+#. key: opnavedit.NewArea
+msgid "New Area"
+msgstr "[th]New Area"
+
+#. path: opsportal
+#. code: th
+#. key: opp.reauth.required
+msgid "Re-login required"
+msgstr "[th]Re-login required"
+
+#. path: opsportal
+#. code: th
+#. key: opp.reauth.submit
+msgid "Submit"
+msgstr "[th]Submit"
+
+#. path: opsportal
+#. code: th
+#. key: opp.auth.E_INVALIDAUTH
+msgid "Username and/or password not found"
+msgstr "[th]Username and/or password not found"
+
+#. path: opsportal
+#. code: th
+#. key: opnavedit.ToolProperties
+msgid "Tool Properties"
+msgstr "[th]Tool Properties"
+
+#. path: opsportal
+#. code: th
+#. key: opnavedit.isDefaultTool
+msgid "is default tool?"
+msgstr "[th]is default tool?"
+
+#. path: opsportal
+#. code: th
+#. key: webix.common.list
+msgid "List View"
+msgstr "[th] List View"
+
+#. path: opsportal
+#. code: th
+#. key: webix.common.new
+msgid "New"
+msgstr "[th] New"
+
+#. path: opsportal
+#. code: th
+#. key: webix.common.filter
+msgid "Filter"
+msgstr "[th] Filter"
+
+#. path: opsportal
+#. code: th
+#. key: webix.common.cancel
+msgid "Cancel"
+msgstr "[th] Cancel"
+
+#. path: opsportal
+#. code: th
+#. key: webix.common.save
+msgid "Save"
+msgstr "[th] Save"
+
+#. path: opsportal
+#. code: th
+#. key: opp.dialog.confirm.deleteTitle
+msgid "Confirm Delete"
+msgstr "[th] Confirm Delete"
+
+#. path: opsportal
+#. code: th
+#. key: opp.common.delete
+msgid "Delete"
+msgstr "[th] Delete"
+
+#. path: opsportal
+#. code: th
+#. key: opp.common.cancel
+msgid "Cancel"
+msgstr "[th] Cancel"
+
+#. path: opsportal
+#. code: th
+#. key: opp.dialog.confirm.deleteMsg
+msgid "Are you sure you want to delete <b>%s</b>?"
+msgstr "[th] Are you sure you want to delete <b>%s</b>?"
+
+#. path: opsportal
+#. code: th
+#. key: opp.perm.notPermitted
+msgid "Not Permitted"
+msgstr "[th] Not Permitted"
+

@@ -7,6 +7,7 @@
 */
 
 /* Reset user-agent styles */
+/*
 * {
   margin: 0;
   padding: 0;
@@ -25,28 +26,29 @@ p {font-size:14px;}
 
 
 th, label {
-/*	color:#5D95D5;*/
 	font-size:14px;
-	font-weight:normal;	
+	font-weight:normal;
 }
+
+*/
 
 .nobgcolor {background-color:transparent !important;}
 .align-left { text-align:left;}
 
 .align-right { text-align:right;}
 
-.align-center {text-align: center;}	
+.align-center {text-align: center;}
 
 .float-right {float:right;}
 
 
-.clear {clear:both}	
-	
+.clear {clear:both}
+
 .mrgntop20 {marging-top:20px;}
 
 .lbl-title {font-size:15px;line-height:15px;}
 
-.lbl-title span {font-size:12px; font-style:italic}
+.lbl-title span {font-size:15px;}
 
 
 
@@ -92,16 +94,22 @@ th, label {
 
 /*TOP MENU BAR*/
 
-.op-widget-horizontal-nav li.selected {background:url(../../images/opsportal/arrow-down-gray.png) center 68px no-repeat;;opacity:1 !important}
+.op-widget-horizontal-nav li.selected {
+    background:url(../../images/opsportal/arrow-down-gray.png) center 68px no-repeat;
+}
+.op-widget-horizontal-nav li.selected a {
+    color: #3498db;
+    opacity:1 !important
+}
 
 .pgnav .active {background:url(../../images/opsportal/arrow-down.png) center 38px no-repeat;}
-		
+
 .working-area {
 	margin-left:210px;
-	margin-top:20px;	
+	margin-top:20px;
 }
-	
-/* TOP MENU BAR*/	
+
+/* TOP MENU BAR*/
 
 /*BODY AREA */
 
@@ -117,13 +125,13 @@ th, label {
 #submittedby .op-block-border {padding:0 15px;}
 #objective .checkbox label {margin-bottom:5px;}
 
-.op-widget-horizontal-nav li i {float:left;margin:3px 6px 0;font-size:35px;}
+.op-widget-horizontal-nav li i {margin:3px 6px 0;font-size:30px;}
 
 /*END BODY AREA */
 
 .nopadLR {
 	padding-left:0 !important;
-	padding-right:0 !important; 
+	padding-right:0 !important;
 }
 
 .nopadR {padding-right:0}
@@ -155,7 +163,7 @@ th, label {
 
 .offset-5 {
 	margin-right:5px;
-	
+
 }
 
 .off-top10 {
@@ -218,12 +226,12 @@ th, label {
 .padbot15 { padding-bottom:15px !important;}
 
 .padbot10 { padding-bottom:10px !important;}
-	
+
 .padbot55 { padding-bottom:55px !important;}
 
 .center {text-align:center}
 
-.btn {
+/*.btn {
 	border-radius: 3px !important;
 
 }
@@ -253,39 +261,68 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
 	-webkit-border-radius: 4px;
 	-moz-border-radius: 4px;
 	border-radius: 4px;
-}
+}*/
 
-.wrapper {top:74px}
+.wrapper {top:85px}
 
 #op-masthead-nav ul {margin:0;z-index:99;}
 
 .pgnav li {height:55px;}
 
+/*
 #topmenu li {
 	float:left;
 	display:block;
 	padding:10px 17px 0 22px;
 	text-align:center;
 	height:82px;
-	
+
 }
 
 #topmenu .badge {
 	font-size:10px;
 	}
+*/
+
+.rbac-topmenu li {
+	float:left;
+	display:block;
+	padding:8px 20px 0 20px;
+	text-align:center;
+	height:82px;
+    font-size: 14px;
+}
+.rbac-topmenu li a {
+    color: #777;
+    opacity: 0.7;
+    text-shadow: 0 1px 0 #FFF;
+    display: block;
+}
+.rbac-topmenu li a:hover {
+    opacity: 1;
+    text-decoration: none;
+}
+.rbac-topmenu li a:focus {
+    text-decoration: none;
+}
+
+.rbac-topmenu .badge {
+	font-size:10px;
+}
+
 
 .stats-green {
 
 	background-color: #93cd60 !important;
 	width: 20px;
 	height: 20px !important;
-	
+
 }
-	
+
 .stats-red {
 	background-color: #e27c79 !important;
 	width: 20px;
-	height: 20px !important;	
+	height: 20px !important;
 }
 
 #users-area .panel-body {
@@ -298,7 +335,7 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
 	color:#eaeaea !important
 
 	}
-	
+
 #users-area select {
 	padding: 0;
 	width:100%;
@@ -320,24 +357,16 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
 
 /* OVERIDE FROM OTHER CSS FILES */
 
-.badge {
+/*.badge {
 	border-radius:50%;
 	padding:5px;
 	position:relative;
 	bottom:12px;
-	}
-
-.op-list li a {
-	opacity:1;
-}	
+	}*/
 
 .img-thumbnail {
 	box-shadow:none;
 	border:0;
-}	
-
-.webix_view.webix_form {
-	background-color: transparent;
 }
 
 
@@ -361,33 +390,34 @@ li.sep {
 	height:69px !important;
 	margin:0 auto !important;
 	padding:0 !important;
-	background:#333;
-	
+	background:#000;
+    opacity: 0.4;
+
 	}
 
 .lowscreen-drop {
     top: 50px;
     left: 0;
-    border-radius: 0;	
+    border-radius: 0;
 }
 
 	.lowscreen-drop .badge {
 		   bottom: 25px;
 	}
-	
+
 	.lowscreen-drop i {
 		margin-left:7px;
 	}
-	
+
 
 
 @media (max-width: 331px) {
 	.op-list {
 		/* position: relative; */
 		list-style: none;
-	left: -29px;
+		/* left: -29px; */
 	}
-	
+
 	#topmenu li {
 		float: left;
 		display: block;
@@ -398,10 +428,10 @@ li.sep {
 	#lowscreen-menu {
 		display:block !important;
 	}
-	
+
 	#lowscreen-menu i{
 		line-height:69px;
-	}	
+	}
 	#topmenu {
 		display:none !important;
 	}
@@ -409,12 +439,12 @@ li.sep {
 	#op-masthead-nav .col-lg-11, #op-masthead-nav .col-lg-1{
 		padding-right:0 !important;
 		padding-left:0 !important;
-		
+
 	}
 }
 
 @media (max-width: 1200px) {
-	
+
 	.mid-screen-mrgn-l-15 {
 		margin-left:20px;
 	}
@@ -423,19 +453,19 @@ li.sep {
 		margin-left:20px;
 		margin-right:20px;
 	}
-	
+
 	.navbar-form  {
 		margin-left:0
 	}
 }
 
 @media (max-width: 767px) {
-	
+
 
  }
- 
+
 @media (max-width: 979px) {
-  
+
 }
 
  @media (min-width: 768px) and (max-width: 979px) {
@@ -499,7 +529,7 @@ li.sep {
 .log_record{
 	font-family:Tahoma;
 	font-size:12px;
-	margin:10px;	
+	margin:10px;
 }
 
 #testA, #testB, #testC, #testD, .paging{
@@ -509,4 +539,3 @@ li.sep {
 .paging {
 	width:900px;
 }
- 

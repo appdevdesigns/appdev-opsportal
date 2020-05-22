@@ -1,16 +1,19 @@
-steal(function () {
-    System.import('appdev').then(function () {
-        steal.import(
-            'appdev/ad',
-            'appdev/comm/hub',
-            'appdev/comm/socket',
-            'appdev/labels/lang',
-            'appdev/model/model',
-            'OpsPortal/models/base/OpsPortalConfig')
-            .then(function () {
-
-                AD.Model.extend('OpsPortalConfig', { 
-                    /*
+steal(function() {
+   System.import("appdev").then(function() {
+      steal
+         .import(
+            "appdev/ad",
+            "appdev/comm/hub",
+            "appdev/comm/socket",
+            "appdev/labels/lang",
+            "appdev/model/model",
+            "OpsPortal/models/base/OpsPortalConfig"
+         )
+         .then(function() {
+            AD.Model.extend(
+               "OpsPortalConfig",
+               {
+                  /*
                              findAll: 'GET /opsportalconfig',
                             findOne: 'GET /opsportalconfig/{id}',
                             create:  'POST /opsportalconfig/create',
@@ -20,15 +23,16 @@ steal(function () {
                             fieldId: 'fieldName',       // which field is the ID
                             fieldLabel:'fieldName'      // which field is considered the Label
                     */
-                }, {
-                        /*
+               },
+               {
+                  /*
                                 // Already Defined:
                                 model: function() {},   // returns the Model Class for an instance
                                 getID: function() {},   // returns the unique ID of this row
                                 getLabel: function() {} // returns the defined label value
                         */
-                    });
-
-            });
-    });
+               }
+            );
+         });
+   });
 });

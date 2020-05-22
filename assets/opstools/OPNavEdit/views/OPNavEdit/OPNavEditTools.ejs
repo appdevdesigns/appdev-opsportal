@@ -1,0 +1,45 @@
+<!--
+#  Appdev Label Info:
+#label_context:opnavedit
+#language_code:en
+-->
+<!--Edit Tools-->
+<% var L = AD.lang.label.getLabelSpan %>
+<div id="op-navbar-edittools" class="col-sm-12" style="display:none">
+
+    <% can.each(areas, function(area, indx){ %>
+        <ul class="list-unstyled list-inline sortableMenu op-navbar-tool" area-tools="<%= area.attr('key') %>" <%= (el) -> can.data(el, 'area', area) %> style="display:none;">
+            <% can.each(area.tools, function(simpleTool, indx){ %>
+                <% var tool = hashTools[simpleTool.id] %>
+                <% if (tool) { %>
+                  <li <%= (el) -> can.data(el, 'tool', tool) %> data-weight="<%= tool.attr('weight') %>" >
+                    <div class="sort-handle actionButton ew-resize"><i class="fa fa-arrows-h" aria-hidden="true"></i></div>
+                    <a class="toollink"><%= tool.attr('label') %><!--(<%= tool.attr('weight') %>)--></a>
+                    <i class="op-navbar-item-edit fa fa-pencil-square-o fa-2 showbtmPopover" data-html="true" data-toggle="popover" aria-hidden="true"></i>
+                  </li>
+                <% } else {
+
+                    console.error('undefined tool in OPNavEditTools.ejs:');
+                    console.error('hashTools', hashTools);
+                    console.error('id:'+simpleTool.id);
+
+                   } %>
+
+            <% }) %>
+        </ul>
+    <% }) %>
+
+        <ul class="ops-navbar-AddNewTool list-unstyled list-inline" style="display:none">
+            <li>
+
+              <div style="float:left;padding-right:15px">
+                <i class="ops-navbar-toolspinner fa"></i>
+                <select class="ops-navbar-tooldeflist form-control">
+                  <!-- <option selected="selected" value="add.new.tool" ><%== L('opnavedit.AddNewTool') %><option>  -->
+                </select>
+              </div>
+            </li>
+        </ul>
+
+</div>
+<!--/Edit Tools-->

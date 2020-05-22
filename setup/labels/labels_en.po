@@ -275,3 +275,243 @@ msgstr "Switcheroo"
 msgid "Logout"
 msgstr "Logout"
 
+#. path: opsportal
+#. code: en
+#. key: site.user.info
+msgid "Information"
+msgstr "Information"
+
+#. path: opsportal
+#. code: en
+#. key: site.user.username
+msgid "Username"
+msgstr "Username"
+
+#. path: opsportal
+#. code: en
+#. key: site.user.password
+msgid "Password"
+msgstr "Password"
+
+#. path: opsportal
+#. code: en
+#. key: site.user.newPassword
+msgid "New Password"
+msgstr "New Password"
+
+#. path: opsportal
+#. code: en
+#. key: site.user.confirmPassword
+msgid "Confirm Password"
+msgstr "Confirm Password"
+
+#. path: opsportal
+#. code: en
+#. key: site.user.update
+msgid "Update"
+msgstr "Update"
+
+#. path: opsportal
+#. code: en
+#. key: site.user.email
+msgid "Email"
+msgstr "Email"
+
+#. path: opsportal
+#. code: en
+#. key: site.user.emailAddress
+msgid "Email address"
+msgstr "Email address"
+
+#. path: opsportal
+#. code: en
+#. key: site.user.language
+msgid "Language"
+msgstr "Language"
+
+#. path: opsportal
+#. code: en
+#. key: site.user.chooseLanguage
+msgid "Choose your default language for the web site:"
+msgstr "Choose your default language for the web site:"
+
+#. path: opsportal
+#. code: en
+#. key: rbac.users.isActive
+msgid "Is Active"
+msgstr "Is Active"
+
+#. path: opsportal
+#. code: en
+#. key: rbac.user.loadingPermissions
+msgid "Loading Permissions for %s"
+msgstr "Loading Permissions for %s"
+
+#. path: opsportal
+#. code: en
+#. key: rbac.scopes.search
+msgid "search for scopes"
+msgstr "search for scopes"
+
+#. path: opsportal
+#. code: en
+#. key: rbac.scopes.add
+msgid "add"
+msgstr "add"
+
+#. path: opsportal
+#. code: en
+#. key: rbac.scopes.cancel
+msgid "Cancel*"
+msgstr "Cancel*"
+
+#. path: opsportal
+#. code: en
+#. key: opnavedit.Add
+msgid "Add"
+msgstr "Add"
+
+#. path: opsportal
+#. code: en
+#. key: opnavedit.Save
+msgid "Save"
+msgstr "Save"
+
+#. path: opsportal
+#. code: en
+#. key: opnavedit.Edit
+msgid "Edit"
+msgstr "Edit"
+
+#. path: opsportal
+#. code: en
+#. key: opnavedit.Delete
+msgid "Delete"
+msgstr "Delete"
+
+#. path: opsportal
+#. code: en
+#. key: opnavedit.Cancel
+msgid "Cancel"
+msgstr "Cancel"
+
+#. path: opsportal
+#. code: en
+#. key: opnavedit.MenuItemProperties
+msgid "Menu Area Properties"
+msgstr "Menu Area Properties"
+
+#. path: opsportal
+#. code: en
+#. key: opnavedit.Label
+msgid "Label"
+msgstr "Label"
+
+#. path: opsportal
+#. code: en
+#. key: opnavedit.Icons
+msgid "Icons"
+msgstr "Icons"
+
+#. path: opsportal
+#. code: en
+#. key: opnavedit.ex
+msgid "ex"
+msgstr "ex"
+
+#. path: opsportal
+#. code: en
+#. key: opnavedit.NewArea
+msgid "New Area"
+msgstr "New Area"
+
+#. path: opsportal
+#. code: en
+#. key: opp.reauth.required
+msgid "Re-login required"
+msgstr "Re-login required"
+
+#. path: opsportal
+#. code: en
+#. key: opp.reauth.submit
+msgid "Submit"
+msgstr "Submit"
+
+#. path: opsportal
+#. code: en
+#. key: opp.auth.E_INVALIDAUTH
+msgid "Username and/or password not found"
+msgstr "Username and/or password not found"
+
+#. path: opsportal
+#. code: en
+#. key: opnavedit.ToolProperties
+msgid "Tool Properties"
+msgstr "Tool Properties"
+
+#. path: opsportal
+#. code: en
+#. key: opnavedit.isDefaultTool
+msgid "is default tool?"
+msgstr "is default tool?"
+
+#. path: opsportal
+#. code: en
+#. key: webix.common.list
+msgid "List View"
+msgstr "List View"
+
+#. path: opsportal
+#. code: en
+#. key: webix.common.new
+msgid "New"
+msgstr "New"
+
+#. path: opsportal
+#. code: en
+#. key: webix.common.filter
+msgid "Filter"
+msgstr "Filter"
+
+#. path: opsportal
+#. code: en
+#. key: webix.common.cancel
+msgid "Cancel"
+msgstr "Cancel"
+
+#. path: opsportal
+#. code: en
+#. key: webix.common.save
+msgid "Save"
+msgstr "Save"
+
+#. path: opsportal
+#. code: en
+#. key: opp.dialog.confirm.deleteTitle
+msgid "Confirm Delete"
+msgstr "Confirm Delete"
+
+#. path: opsportal
+#. code: en
+#. key: opp.common.delete
+msgid "Delete"
+msgstr "Delete"
+
+#. path: opsportal
+#. code: en
+#. key: opp.common.cancel
+msgid "Cancel"
+msgstr "Cancel"
+
+#. path: opsportal
+#. code: en
+#. key: opp.dialog.confirm.deleteMsg
+msgid "Are you sure you want to delete <b>%s</b>?"
+msgstr "Are you sure you want to delete <b>%s</b>?"
+
+#. path: opsportal
+#. code: en
+#. key: opp.perm.notPermitted
+msgid "Not Permitted"
+msgstr "Not Permitted"
+
