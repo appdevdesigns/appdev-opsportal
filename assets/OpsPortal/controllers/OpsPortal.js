@@ -816,7 +816,9 @@ steal(
                                  body: {
                                     view: "accordion",
                                     id: "inbox_accordion",
-                                    css: { background: "#dadee0 !important" },
+                                    css: {
+                                       background: "#dadee0 !important"
+                                    },
                                     multi: true,
                                     rows: []
                                  }
@@ -825,7 +827,9 @@ steal(
                                  id: "emptyInbox",
                                  view: "layout",
                                  hidden: true,
-                                 css: { background: "#dadee0 !important" },
+                                 css: {
+                                    background: "#dadee0 !important"
+                                 },
                                  rows: [
                                     {},
                                     {
@@ -1786,7 +1790,7 @@ steal(
 
                   /*
                                 '.apd-portal-menu-trigger click': function($el, ev) {
-                        
+
                                     var width = this.menu.width();  //.toggle();
                                     AD.comm.hub.publish('opsportal.menu.toggle', { width: width });
                                 }
