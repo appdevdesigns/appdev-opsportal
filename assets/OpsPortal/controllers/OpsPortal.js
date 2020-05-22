@@ -1057,6 +1057,7 @@ steal(
                                                    ]
                                                 );
                                              }
+
                                              var accordion = $$(
                                                 `inbox-accordion-app-${index}`
                                              );
