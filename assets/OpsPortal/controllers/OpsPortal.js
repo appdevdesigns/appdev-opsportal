@@ -961,7 +961,6 @@ steal(
                            //     return Promise.all(allGets);
                            // })
                            .then(() => {
-                              debugger;
                               return ABApplication.allCurrentApplications()
                                  .then((dcList) => {
                                     var allApps = [];
@@ -1054,12 +1053,17 @@ steal(
                                                    ]
                                                 );
                                              }
-                                             $$(
+                                             var accordion = $$(
                                                 `inbox-accordion-app-${index}`
-                                             ).parse(processes);
-                                             $$(
-                                                `inbox-accordion-app-${index}`
-                                             ).show();
+                                             );
+                                             if (accordion) {
+                                                accordion.parse(processes);
+                                                accordion.show();
+                                             } else {
+                                                console.error(
+                                                   `could not find an inbox-accordion for index[${index}]`
+                                                );
+                                             }
                                           }
 
                                           // $$("inbox-list").parse(data);
