@@ -101,8 +101,8 @@ steal(
                ////
                if (typeof Dropzone !== "undefined") {
                   Dropzone.prototype.detectVerticalSquash = function(img) {
-                     var alpha, canvas, ctx, data, ey, ih, iw, py, ratio, sy;
-                     iw = img.naturalWidth;
+                     var alpha, canvas, ctx, data, ey, ih, py, ratio, sy;
+                     // var iw = img.naturalWidth;
                      ih = img.naturalHeight;
                      canvas = document.createElement("canvas");
                      canvas.width = 1;
@@ -332,7 +332,7 @@ steal(
                      // make sure it is installed.
                      AD.comm.hub.subscribe(
                         "opsportal.admin.opnavedit",
-                        function(key, data) {
+                        function(/* key, data */) {
                            self.installOPNavEdit();
                         }
                      );
@@ -360,12 +360,12 @@ steal(
                      // So, those tools being 'opsportal.area.show'n need to resize
                      // now that they are displayed.
                      // This will force a global resize which will do the trick.
-                     AD.comm.hub.subscribe("opsportal.area.show", function(
-                        key,
-                        data
-                     ) {
-                        setTimeout(sizeContent, 4);
-                     });
+                     AD.comm.hub.subscribe(
+                        "opsportal.area.show",
+                        function(/* key, data */) {
+                           setTimeout(sizeContent, 4);
+                        }
+                     );
 
                      //
                      // If the OpsPortal Navigation data has changed, we will attempt
@@ -377,7 +377,7 @@ steal(
                      //
                      AD.comm.socket.subscribe(
                         "opsportal_navigation_stale",
-                        function(key, data) {
+                        function(/* key, data */) {
                            // io.socket.on('opsportal_navigation_stale', function(data){
 
                            self.updateConfiguration();
@@ -393,9 +393,8 @@ steal(
                            url,
                            data,
                            request,
-                           headers,
-                           files,
-                           promise
+                           headers
+                           /* , files, promise */
                         ) {
                            headers["X-CSRF-Token"] = token;
                         });
@@ -559,7 +558,7 @@ steal(
                      ///
                      /// User Inbox
                      ///
-                     $("#user-options-inbox").on("click", function(ev) {
+                     $("#user-options-inbox").on("click", function(/* ev */) {
                         $$("inbox").show();
                         $$("inbox_accordion").resizeChildren();
                      });
@@ -602,7 +601,7 @@ steal(
 
                               var cells = [];
                               var count = selectedItem.items.length;
-                              var number = 1;
+                              // var number = 1;
                               selectedItem.items.forEach((task) => {
                                  cells.push({
                                     id: "task-holder-" + task.uuid,
@@ -635,7 +634,7 @@ steal(
                                                       err
                                                    );
                                                 })
-                                                .done((data) => {
+                                                .done((/* data */) => {
                                                    // find out how many pages are in this multiview
                                                    var views = $$(
                                                       "taskMultiview"
@@ -926,8 +925,9 @@ steal(
                                           '<div style="margin-top:9px; text-align: center;">{common.first()} {common.prev()} {common.pages()} {common.next()} {common.last()}</div>',
                                        on: {
                                           onBeforePageChange: function(
-                                             new_page,
+                                             new_page /* ,
                                              old_page
+                                             */
                                           ) {
                                              var views = $$(
                                                 "taskMultiview"
@@ -1185,7 +1185,7 @@ steal(
                                           .then(function() {
                                              reloadSwitcheroo();
                                           })
-                                          .fail(function(err) {
+                                          .fail(function(/* err */) {
                                              AD.op.Dialog.Alert({
                                                 text:
                                                    "Error trying to switcheroo. Verify you have permissions to access switcheroo."
@@ -1341,7 +1341,7 @@ steal(
                      // take all the body.children  && hide them.
                      $("body")
                         .children()
-                        .each(function(indx) {
+                        .each(function(/* indx */) {
                            var $el = $(this);
                            if ($el != self.portalPopup) {
                               $el.hide();
@@ -1364,7 +1364,7 @@ steal(
                   },
 
                   portalHide: function() {
-                     var self = this;
+                     // var self = this;
                      this.hiddenElements.forEach(function($el) {
                         $el.show();
                      });
@@ -1414,7 +1414,7 @@ steal(
                   },
 
                   requestConfiguration: function() {
-                     var self = this;
+                     // var self = this;
                      var _this = this;
 
                      // //// For debugging:
@@ -1474,8 +1474,8 @@ steal(
                                  data.tools[0];
 
                            // create each tool
-                           for (var t = 0; t < data.tools.length; t++) {
-                              var newTool = data.tools[t];
+                           for (var t1 = 0; t1 < data.tools.length; t1++) {
+                              var newTool = data.tools[t1];
 
                               _this.data.loadedControllers.push(
                                  newTool.controller
