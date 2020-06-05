@@ -649,9 +649,11 @@ the .op-widget class can contain a .op-widget-masthead class, a .op-widget-body 
 }
 
 .op-masthead-image {
-	width: 28px;
-	height: 28px;
-	border-radius: 5px;
+	width: 36px;
+	height: 36px;
+	border-radius: 18px;
+  border: 2px solid white;
+  margin-top: -4px;
 }
 .inboxpager {
 	background: #eee;
