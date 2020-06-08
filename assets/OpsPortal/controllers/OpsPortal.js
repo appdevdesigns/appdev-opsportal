@@ -1118,6 +1118,7 @@ steal(
                      webix
                         .ui({
                            view: "popup",
+                           modal: true,
                            id: "switcheroopopup",
                            position: "center",
                            body: {
@@ -1135,7 +1136,8 @@ steal(
                                              {
                                                 view: "button",
                                                 type: "icon",
-                                                icon: "trash",
+                                                icon: "fa fa-fw fa-trash",
+                                                css: "webix_danger",
                                                 width: 30,
                                                 click: function() {
                                                    AD.comm.service
@@ -1162,30 +1164,42 @@ steal(
                                     placeholder: "UserID here"
                                  },
                                  {
-                                    view: "button",
-                                    value: "switch",
-                                    click: function() {
-                                       var account = $$(
-                                          "switcherooAccount"
-                                       ).getValue();
+                                    cols: [
+                                       {
+                                          view: "button",
+                                          value: "Cancel",
+                                          click: function() {
+                                             $$("switcheroopopup").hide();
+                                          }
+                                       },
+                                       {
+                                          view: "button",
+                                          value: "Switch",
+                                          css: "webix_primary",
+                                          click: function() {
+                                             var account = $$(
+                                                "switcherooAccount"
+                                             ).getValue();
 
-                                       AD.comm.service
-                                          .post({
-                                             url: "/site/switcheroo",
-                                             params: {
-                                                account: account
-                                             }
-                                          })
-                                          .then(function() {
-                                             reloadSwitcheroo();
-                                          })
-                                          .fail(function(/* err */) {
-                                             AD.op.Dialog.Alert({
-                                                text:
-                                                   "Error trying to switcheroo. Verify you have permissions to access switcheroo."
-                                             });
-                                          });
-                                    }
+                                             AD.comm.service
+                                                .post({
+                                                   url: "/site/switcheroo",
+                                                   params: {
+                                                      account: account
+                                                   }
+                                                })
+                                                .then(function() {
+                                                   reloadSwitcheroo();
+                                                })
+                                                .fail(function(/* err */) {
+                                                   AD.op.Dialog.Alert({
+                                                      text:
+                                                         "Error trying to switcheroo. Verify you have permissions to access switcheroo."
+                                                   });
+                                                });
+                                          }
+                                       }
+                                    ]
                                  }
                               ]
                            }

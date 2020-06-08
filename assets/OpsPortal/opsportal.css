@@ -613,8 +613,8 @@ the .op-widget class can contain a .op-widget-masthead class, a .op-widget-body 
 	margin: 0;
 }
 .op-masthead a:focus, .op-masthead a:hover {
-	color: white !important;
-	text-decoration: none !important;
+	color: white;
+	text-decoration: none;
 }
 .op-toggle {
 	position: fixed !important;
