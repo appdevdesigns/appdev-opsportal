@@ -20,7 +20,7 @@ var path = require('path');
 var crypto = require('crypto');
 
 var AD = require('ad-utils');
-var GitHubApi = require('github');
+var GitHubApi = require('@octokit/rest');
 
 module.exports = {
 

@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/appdevdesigns/appdev-opsportal",
   "dependencies": {
+    "@octokit/rest": "^18.0.0",
     "ad-utils": "appdevdesigns/ad-utils",
     "async": "^1.5.2",
     "countly-sdk-web": "^16.12.1",
