@@ -1,19 +1,32 @@
+dist: bionic
+
 language: node_js
+
 node_js:
-- "0.12"
+    - 13
 
-sudo: false
+services:
+    - docker
 
-before_script:
-- npm install -g  balderdashy/sails appdevdesigns/appdev-cli
-- cd /tmp
-- /home/travis/build/appdevdesigns/appdev-opsportal/test/setup/install.sh
-- cd ad-test/node_modules
-- rm -Rf appdev-opsportal
-- mv /home/travis/build/appdevdesigns/appdev-opsportal .
-- cd appdev-opsportal
-- npm install
+git:
+    clone: false
+
+branches:
+   only:
+   - develop
+
+before_install:
+    - docker swarm init
+    - git clone https://github.com/echu888/travis-appbuilder.git
+    - cd travis-appbuilder
+    - scripts/installer.sh
 
 script:
-- npm test
- 
+    - npm run test
+
+after_failure:
+    - scripts/dump_logs.sh
+
+notifications:
+        slack: digiserve-workspace:TP2WoZPOV4G2zlzgBQDF9K01
+
