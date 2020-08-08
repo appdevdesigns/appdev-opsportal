@@ -98,7 +98,7 @@ steal(
                         trigger: function() {}
                      };
                      var delayedLoad = function(name, count) {
-                        if (count < 200) {
+                        if (count < 2000) {
                            if (AD.controllers.opstools[name]) {
                               if (AD.controllers.opstools[name].Tool) {
                                  var tempController = self.controller;
