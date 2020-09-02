@@ -640,20 +640,22 @@ the .op-widget class can contain a .op-widget-masthead class, a .op-widget-body 
     background: tomato;
 }
 .op-profile-picture {
-	border-radius: 5px;
+	border-radius: 100%;
 	margin-right: 5px; 
 	margin-left: 10px; 
 	margin-top: 5px;
 	width: 61px;
 	height: 57px;
+   object-fit: cover;
 }
 
 .op-masthead-image {
 	width: 36px;
 	height: 36px;
-	border-radius: 18px;
+	border-radius: 100%;
   border: 2px solid white;
   margin-top: -4px;
+  object-fit: cover;
 }
 .inboxpager {
 	background: #eee;

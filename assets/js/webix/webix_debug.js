@@ -11237,7 +11237,7 @@
       }, this));
       var e2 = attachEvent("onClick", bind(function (e) {
         //but ignore click which opens editor
-        if (this._in_edit_mode && new Date() - this._edit_open_time > 200) {
+        if (this._in_edit_mode && new Date() - this._edit_open_time > 1200) {
           if (!this._last_editor || this._last_editor.popupType || !e || !this._last_editor.node || !this._last_editor.node.contains(e.target || e.srcElement)) this.editStop();
         }
       }, this));
