@@ -78,11 +78,15 @@ steal(
                               this.element.find('[area="' + area.key + '"]')
                            );
                         } else {
-                           console.error(
-                              `MenuList.createArea() : can't find area by key[${areaData.key}]`,
-                              areaData,
-                              this.data.areaHash
-                           );
+                           if (areaData.key != "ab-profile") {
+                              // "ab-profile" is a case we know about.
+
+                              console.error(
+                                 `MenuList.createArea() : can't find area by key[${areaData.key}]`,
+                                 areaData,
+                                 this.data.areaHash
+                              );
+                           }
                         }
                      } else {
                         console.error(
