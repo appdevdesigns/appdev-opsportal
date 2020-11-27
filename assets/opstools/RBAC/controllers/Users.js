@@ -463,8 +463,20 @@ steal(
                                     cols: [
                                        {
                                           view: "button",
-                                          type: "iconButtonTop",
-                                          icon: "fa fa-save",
+                                          label: "Cancel",
+                                          on: {
+                                             onItemClick: function(id, ev) {
+                                                _this.dom.addUserWindow
+                                                   .getBody()
+                                                   .clear();
+                                                _this.dom.addUserWindow.hide();
+                                             }
+                                          }
+                                       },
+                                       {
+                                          view: "button",
+                                          css: "webix_primary",
+                                          label: "Save",
                                           on: {
                                              onItemClick: function(id, ev) {
                                                 var form = _this.dom.addUserWindow.getBody();
@@ -492,19 +504,6 @@ steal(
                                                          }
                                                       );
                                                    });
-                                             }
-                                          }
-                                       },
-                                       {
-                                          view: "button",
-                                          type: "iconButtonTop",
-                                          icon: "fa fa-close",
-                                          on: {
-                                             onItemClick: function(id, ev) {
-                                                _this.dom.addUserWindow
-                                                   .getBody()
-                                                   .clear();
-                                                _this.dom.addUserWindow.hide();
                                              }
                                           }
                                        }
@@ -573,8 +572,20 @@ steal(
                                     cols: [
                                        {
                                           view: "button",
-                                          type: "iconButtonTop",
-                                          icon: "fa fa-save",
+                                          label: "Cancel",
+                                          on: {
+                                             onItemClick: function(id, ev) {
+                                                _this.dom.editUserWindow
+                                                   .getBody()
+                                                   .clear();
+                                                _this.dom.editUserWindow.hide();
+                                             }
+                                          }
+                                       },
+                                       {
+                                          view: "button",
+                                          label: "Save",
+                                          css: "webix_primary",
                                           on: {
                                              onItemClick: function(id, ev) {
                                                 var form = _this.dom.editUserWindow.getBody();
@@ -604,19 +615,6 @@ steal(
                                                          }
                                                       );
                                                    });
-                                             }
-                                          }
-                                       },
-                                       {
-                                          view: "button",
-                                          type: "iconButtonTop",
-                                          icon: "fa fa-close",
-                                          on: {
-                                             onItemClick: function(id, ev) {
-                                                _this.dom.editUserWindow
-                                                   .getBody()
-                                                   .clear();
-                                                _this.dom.editUserWindow.hide();
                                              }
                                           }
                                        }
