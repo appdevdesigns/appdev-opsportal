@@ -244,11 +244,18 @@ module.exports = {
          format: "global",
          sideBundle: true
       },
-      "js/webix/components/gantt/gantt": {
+      "js/webix/components/gantt/gantt.min": {
          deps: [
-            "js/webix/webix",
-            "js/webix/components/gantt/dhtmlxgantt.css",
-            "js/webix/components/gantt/dhtmlxgantt"
+             "js/webix/webix",
+             "js/webix/components/gantt/gantt.css"
+         ],
+         format: "global",
+         sideBundle: true
+      },
+      "js/webix/components/reports/reports.min": {
+         deps: [
+             "js/webix/webix",
+             "js/webix/components/reports/reports.css"
          ],
          format: "global",
          sideBundle: true
@@ -290,7 +297,8 @@ module.exports = {
             "js/webix/components/pivot/pivot",
             "js/webix/components/querybuilder/querybuilder.min",
             "js/webix/components/kanban/kanban.min",
-            "js/webix/components/gantt/gantt",
+            "js/webix/components/gantt/gantt.min",
+            "js/webix/components/reports/reports.min",
             "bootstrap-table",
             "bootstrapValidator",
             "bootstrapValidator.css",
