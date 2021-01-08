@@ -764,7 +764,10 @@ steal(
                                     ]
                                  });
                               });
-                              webix.ui(cells, $$("taskMultiview"));
+                              webix.ui({
+                                id: "taskMultiview",
+                                cells: cells
+                              }, $$("taskMultiview"));
 
                               $$("taskTitle").define(
                                  "label",
@@ -1822,3 +1825,4 @@ steal(
       });
    }
 );
+
