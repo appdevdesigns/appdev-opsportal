@@ -602,7 +602,7 @@ steal(
                               var cells = [];
                               var count = selectedItem.items.length;
                               // var number = 1;
-                              selectedItem.items.forEach((task) => {
+                              selectedItem.items.forEach(function(task) {
                                  cells.push({
                                     id: "task-holder-" + task.uuid,
                                     unitlist: list,
@@ -614,16 +614,16 @@ steal(
                                           view: "formiopreview",
                                           formComponents: task.ui,
                                           formData: task.data,
-                                          onButton: (value) => {
-                                             var url = `/process/inbox/${task.uuid}`;
+                                          onButton: function(value) {
+                                             var url = "/process/inbox/" + task.uuid;
                                              AD.comm.service
                                                 .post({
-                                                   url,
+                                                   url: url,
                                                    data: {
                                                       response: value
                                                    }
                                                 })
-                                                .fail((err) => {
+                                                .fail(function(err) {
                                                    if (err && err.message) {
                                                       webix.message(
                                                          err.message
@@ -634,7 +634,7 @@ steal(
                                                       err
                                                    );
                                                 })
-                                                .done((/* data */) => {
+                                                .done(function(/* data */) {
                                                    // find out how many pages are in this multiview
                                                    var views = $$(
                                                       "taskMultiview"
@@ -705,7 +705,7 @@ steal(
                                                       inboxBadge(-1);
                                                       // prune the item from the group of similar processes in the unit list
                                                       selectedItem.items = selectedItem.items.filter(
-                                                         (i) => {
+                                                       function(i) {
                                                             return (
                                                                i.uuid !=
                                                                task.uuid
@@ -967,9 +967,9 @@ steal(
 
                            //     return Promise.all(allGets);
                            // })
-                           .then(() => {
+                           .then(function() {
                               return ABApplication.allCurrentApplications()
-                                 .then((dcList) => {
+                                 .then(function(dcList) {
                                     var allApps = [];
 
                                     var id = dcList.getFirstId();
@@ -979,25 +979,25 @@ steal(
                                        id = dcList.getNextId(id);
                                     }
 
-                                    allApps.forEach((app) => {
+                                    allApps.forEach(function(app) {
                                        var appAccordion = _.cloneDeep(
                                           accordion
                                        );
-                                       appAccordion.header = `${app.label}`;
-                                       appAccordion.id = `inbox-accordion-app-holder-${app.id}`;
-                                       appAccordion.body.id = `inbox-accordion-app-${app.id}`;
+                                       appAccordion.header = app.label;
+                                       appAccordion.id = "inbox-accordion-app-holder-" + app.id;
+                                       appAccordion.body.id = "inbox-accordion-app-" +app.id;
                                        $$("inbox_accordion").addView(
                                           appAccordion
                                        );
-                                       app.processes().forEach((p) => {
+                                       app.processes().forEach(function(p) {
                                           processLookupHash[
                                              p.id
-                                          ] = `${p.label}`;
-                                          appLookupHash[p.id] = `${app.id}`;
+                                          ] = p.label;
+                                          appLookupHash[p.id] = app.id;
                                        });
                                     });
                                  })
-                                 .then(() => {
+                                 .then(function() {
                                     // then call
                                     OP.Comm.Service.get({
                                        url: "/process/inbox"
@@ -1017,15 +1017,12 @@ steal(
 
                                           // console.log("/process/inbox: ", data);
                                           var appAccordionLists = {};
-                                          data.forEach((item) => {
-                                             item.uniteLabel = `{${
-                                                item.definition
-                                             }}${
+                                          data.forEach(function(item) {
+                                             item.uniteLabel = "{" + item.definition + "}" +
                                                 processLookupHash[
                                                    item.definition
-                                                ]
-                                             }`;
-                                             let appId =
+                                                ];
+                                             var appId =
                                                 appLookupHash[item.definition];
                                              if (!appAccordionLists[appId])
                                                 appAccordionLists[appId] = {};
@@ -1062,14 +1059,14 @@ steal(
                                              }
 
                                              var accordion = $$(
-                                                `inbox-accordion-app-${index}`
+                                                "inbox-accordion-app-" + index
                                              );
                                              if (accordion) {
                                                 accordion.parse(processes);
                                                 accordion.show();
                                              } else {
                                                 console.error(
-                                                   `could not find an inbox-accordion for index[${index}]`
+                                                   "could not find an inbox-accordion for index[" + index + "]"
                                                 );
                                              }
                                           }
@@ -1825,4 +1822,3 @@ steal(
       });
    }
 );
-
