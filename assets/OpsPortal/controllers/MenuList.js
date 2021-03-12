@@ -82,7 +82,9 @@ steal(
                               // "ab-profile" is a case we know about.
 
                               console.error(
-                                 `MenuList.createArea() : can't find area by key[${areaData.key}]`,
+                                 "MenuList.createArea() : can't find area by key[" +
+                                    areaData.key +
+                                    "]",
                                  areaData,
                                  this.data.areaHash
                               );
