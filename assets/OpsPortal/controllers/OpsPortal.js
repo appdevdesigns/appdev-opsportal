@@ -53,7 +53,8 @@ steal(
                         if (err.code && err.code == "E_NOTPERMITTED") {
                            AD.op.Dialog.Alert({
                               message:
-                                 "You do not have permission to view the Ops Portal."
+                                 AD.lang.label.getLabel("opp.errorNoPermission") ||
+                                 "Contact an administrator to give you access to the site"
                            });
                         }
                      })
