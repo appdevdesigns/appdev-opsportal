@@ -62,7 +62,9 @@ steal(
 
                      if (this.data.areas) {
                         var area = this.data.areaHash[areaData.key];
-
+                        if (areaData.isDefault) {
+                           area.isDefault = true;
+                        }
                         if (area) {
                            this.element
                               .find(".op-widget-body > ul")
