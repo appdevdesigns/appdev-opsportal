@@ -681,7 +681,7 @@ module.exports = {
             function(next) {
                destDir = destinationPath(image.app_key);
                // check if is a mobile fetch and file size is bigger than 2.5 MB
-               if (options.isMobile && image.size > 2.5 * 1000 * 1000) {
+               if (options.isMobile && image.size > 1.75 * 1000 * 1000) {
                   // if so look for a mobile render
                   destFile = path.join(destDir, "mobile_" + image.image);
                } else {
