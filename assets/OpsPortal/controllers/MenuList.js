@@ -62,7 +62,9 @@ steal(
 
                      if (this.data.areas) {
                         var area = this.data.areaHash[areaData.key];
-
+                        if (areaData.isDefault) {
+                           area.isDefault = true;
+                        }
                         if (area) {
                            this.element
                               .find(".op-widget-body > ul")
@@ -82,7 +84,9 @@ steal(
                               // "ab-profile" is a case we know about.
 
                               console.error(
-                                 `MenuList.createArea() : can't find area by key[${areaData.key}]`,
+                                 "MenuList.createArea() : can't find area by key[" +
+                                    areaData.key +
+                                    "]",
                                  areaData,
                                  this.data.areaHash
                               );

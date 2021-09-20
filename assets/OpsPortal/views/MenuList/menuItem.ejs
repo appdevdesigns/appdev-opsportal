@@ -1,4 +1,4 @@
-<li class="op-container" area="<%= area.key %>" data-weight="<%= area.attr('weight') %>">
+<li class="op-container <% if (typeof area != 'undefined' && area.isDefault == true) { %>active<% } %>" area="<%= area.key %>" data-weight="<%= area.attr('weight') %>">
 	<% if (typeof area != 'undefined' && area.key != 'profile') { %>
 	   <span class="badge pull-right"></span>
     <% } %>

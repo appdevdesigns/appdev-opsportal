@@ -53,7 +53,10 @@ steal(
                         if (err.code && err.code == "E_NOTPERMITTED") {
                            AD.op.Dialog.Alert({
                               message:
-                                 "You do not have permission to view the Ops Portal."
+                                 AD.lang.label.getLabel(
+                                    "opp.errorNoPermission"
+                                 ) ||
+                                 "Contact an administrator to give you access to the site"
                            });
                         }
                      })
@@ -615,7 +618,8 @@ steal(
                                           formComponents: task.ui,
                                           formData: task.data,
                                           onButton: function(value) {
-                                             var url = "/process/inbox/" + task.uuid;
+                                             var url =
+                                                "/process/inbox/" + task.uuid;
                                              AD.comm.service
                                                 .post({
                                                    url: url,
@@ -705,7 +709,7 @@ steal(
                                                       inboxBadge(-1);
                                                       // prune the item from the group of similar processes in the unit list
                                                       selectedItem.items = selectedItem.items.filter(
-                                                       function(i) {
+                                                         function(i) {
                                                             return (
                                                                i.uuid !=
                                                                task.uuid
@@ -764,10 +768,13 @@ steal(
                                     ]
                                  });
                               });
-                              webix.ui({
-                                id: "taskMultiview",
-                                cells: cells
-                              }, $$("taskMultiview"));
+                              webix.ui(
+                                 {
+                                    id: "taskMultiview",
+                                    cells: cells
+                                 },
+                                 $$("taskMultiview")
+                              );
 
                               $$("taskTitle").define(
                                  "label",
@@ -984,15 +991,16 @@ steal(
                                           accordion
                                        );
                                        appAccordion.header = app.label;
-                                       appAccordion.id = "inbox-accordion-app-holder-" + app.id;
-                                       appAccordion.body.id = "inbox-accordion-app-" +app.id;
+                                       appAccordion.id =
+                                          "inbox-accordion-app-holder-" +
+                                          app.id;
+                                       appAccordion.body.id =
+                                          "inbox-accordion-app-" + app.id;
                                        $$("inbox_accordion").addView(
                                           appAccordion
                                        );
                                        app.processes().forEach(function(p) {
-                                          processLookupHash[
-                                             p.id
-                                          ] = p.label;
+                                          processLookupHash[p.id] = p.label;
                                           appLookupHash[p.id] = app.id;
                                        });
                                     });
@@ -1018,7 +1026,10 @@ steal(
                                           // console.log("/process/inbox: ", data);
                                           var appAccordionLists = {};
                                           data.forEach(function(item) {
-                                             item.uniteLabel = "{" + item.definition + "}" +
+                                             item.uniteLabel =
+                                                "{" +
+                                                item.definition +
+                                                "}" +
                                                 processLookupHash[
                                                    item.definition
                                                 ];
@@ -1066,7 +1077,9 @@ steal(
                                                 accordion.show();
                                              } else {
                                                 console.error(
-                                                   "could not find an inbox-accordion for index[" + index + "]"
+                                                   "could not find an inbox-accordion for index[" +
+                                                      index +
+                                                      "]"
                                                 );
                                              }
                                           }
@@ -1470,7 +1483,9 @@ steal(
                            // create each area
                            for (var a = 0; a < data.areas.length; a++) {
                               var newArea = data.areas[a];
-
+                              if (a == 0) {
+                                 newArea.isDefault = true;
+                              }
                               _this.createArea(newArea);
 
                               if (newArea.isDefault) {
