@@ -959,7 +959,11 @@ steal(
                         var appLookupHash = {
                            /* app.id : "App Label" */
                         };
-                        // resolve lookups
+
+                        // make sure all app info is available for inbox
+                        ABApplication.applicationInfo();
+
+                        // when app defs are loaded isReady is fired
                         ABApplication.isReady()
                            // .then(()=>{
                            //     return ABApplication.allApplications().then((list)=>{
