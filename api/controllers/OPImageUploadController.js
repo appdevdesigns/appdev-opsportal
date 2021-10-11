@@ -598,6 +598,11 @@ module.exports = {
             if (err) {
                res.AD.error(err, err.code);
             } else {
+
+                // Define the file type
+                if (image && image.type)
+                    res.setHeader('Content-Type', image.type);
+
                // stream file to response on success
                fs.createReadStream(destFile)
                   .on("error", function(err) {
