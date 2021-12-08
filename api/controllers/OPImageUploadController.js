@@ -26,10 +26,11 @@ module.exports = {
     *					  to access this file
     *			isWebix : {bool} should I format the response for a Webix Uploader?
     *			imageParam: {string} which parameter holds the file?
+    *			uuid: {string} optional param
     *
     */
    create: function(req, res) {
-      var params = ["appKey", "permission", "isWebix", "imageParam"];
+      var params = ["appKey", "permission", "isWebix", "imageParam", "uuid"];
       var requiredParams = ["appKey", "permission"];
       var options = {};
 
@@ -234,6 +235,11 @@ module.exports = {
                // uuid : the fileName without '.ext'
                uuid = fileName.split(".")[0];
 
+               // this is necessary for mobile to generate uuid before record creation
+               if (options.uuid) {
+                  uuid = options.uuid;
+               }
+
                OPImageUpload.create({
                   uuid: uuid,
                   app_key: options.appKey,
@@ -294,10 +300,11 @@ module.exports = {
     *					  to access this file
     *			isWebix : {bool} should I format the response for a Webix Uploader?
     *			imageParam: {string} which parameter holds the file?
+    *			uuid: {string} optional param
     *
     */
    createBase64: function(req, res) {
-      var params = ["appKey", "permission", "isWebix", "imageParam"];
+      var params = ["appKey", "permission", "isWebix", "imageParam", "uuid"];
       var requiredParams = ["appKey", "permission"];
       var options = {};
 
@@ -447,6 +454,11 @@ module.exports = {
                );
                // uuid : the fileName without '.ext'
                uuid = fileName.split(".")[0];
+
+               // this is necessary for mobile to generate uuid before record creation
+               if (options.uuid) {
+                  uuid = options.uuid;
+               }
 
                OPImageUpload.create({
                   uuid: uuid,
