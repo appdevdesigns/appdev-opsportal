@@ -26,7 +26,7 @@ module.exports = {
     *					  to access this file
     *			isWebix : {bool} should I format the response for a Webix Uploader?
     *			imageParam: {string} which parameter holds the file?
-    *       uuid: {string} optional param
+    *			uuid: {string} optional param
     *
     */
    create: function(req, res) {
@@ -300,6 +300,7 @@ module.exports = {
     *					  to access this file
     *			isWebix : {bool} should I format the response for a Webix Uploader?
     *			imageParam: {string} which parameter holds the file?
+    *			uuid: {string} optional param
     *
     */
    createBase64: function(req, res) {
