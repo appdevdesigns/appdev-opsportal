@@ -236,7 +236,7 @@ module.exports = {
                uuid = fileName.split(".")[0];
 
                // this is necessary for mobile to generate uuid before record creation
-               if (options.uuid) {
+               if (options.uuid && options.uuid != "??") {
                   uuid = options.uuid;
                }
 
@@ -456,7 +456,7 @@ module.exports = {
                uuid = fileName.split(".")[0];
 
                // this is necessary for mobile to generate uuid before record creation
-               if (options.uuid) {
+               if (options.uuid && options.uuid != "??") {
                   uuid = options.uuid;
                }
 
