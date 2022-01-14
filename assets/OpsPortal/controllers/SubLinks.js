@@ -143,7 +143,7 @@ System.import("appdev").then(function() {
                      .find("li")
                      .sort(function(a, b) {
                         return (
-                           parseInt($(a).attr("data-weight")) >
+                           parseInt($(a).attr("data-weight")) -
                            parseInt($(b).attr("data-weight"))
                         );
                      })
