@@ -1429,12 +1429,12 @@ steal(
                      // The size we report to our Tools is window.height - masthead.height
                      var hWindow = $(window).height();
                      var hMasthead = this.dom.resize.masthead.outerHeight(true);
-                     console.log(
-                        "//// resize: window.height:" +
-                           hWindow +
-                           " masthead.outer:" +
-                           hMasthead
-                     );
+                     //console.log(
+                     //   "//// resize: window.height:" +
+                     //      hWindow +
+                     //      " masthead.outer:" +
+                     //      hMasthead
+                     //);
                      var newHeight = hWindow - hMasthead; //this.portalPopup.find(".opsportal-container-masthead").outerHeight(true);
 
                      // notify of a resize action.
