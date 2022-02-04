@@ -10,7 +10,7 @@ steal(
                "appdev/ad",
                "appdev/control/control",
                "appdev/comm/socket",
-               "../../node_modules/app_builder/package.json"
+               "../node_modules/app_builder/package.json"
             )
             .then(function(data) {
                //
