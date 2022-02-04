@@ -9,9 +9,10 @@ steal(
                "can/control/control",
                "appdev/ad",
                "appdev/control/control",
-               "appdev/comm/socket"
+               "appdev/comm/socket",
+               "../../node_modules/app_builder/package.json"
             )
-            .then(function() {
+            .then(function(data) {
                //
                // MenuList
                //
@@ -32,6 +33,7 @@ steal(
                // Clicking on one of the Menu Entries will cause this MenuList controller
                // to emit 'opsportal.area.show', with the area definition for that area.
                //
+
                AD.Control.extend("OpsPortal.MenuList", {
                   init: function(element, options) {
                      var self = this;
@@ -119,7 +121,8 @@ steal(
                   initDOM: function() {
                      this.element.html(
                         can.view(this.options.templateDOM, {
-                           baseURL: AD.config.getValue("siteBaseURL") || ""
+                           baseURL: AD.config.getValue("siteBaseURL") || "",
+                           version: (data[4] && data[4].version) ? data[4].version : "0.1.0" 
                         })
                      );
                   },
