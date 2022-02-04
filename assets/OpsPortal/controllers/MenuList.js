@@ -9,8 +9,7 @@ steal(
                "can/control/control",
                "appdev/ad",
                "appdev/control/control",
-               "appdev/comm/socket",
-               "../node_modules/app_builder/package.json"
+               "appdev/comm/socket"
             )
             .then(function(data) {
                //
@@ -122,7 +121,7 @@ steal(
                      this.element.html(
                         can.view(this.options.templateDOM, {
                            baseURL: AD.config.getValue("siteBaseURL") || "",
-                           version: (data[4] && data[4].version) ? data[4].version : "0.1.0" 
+                           version: AD.config.getValue("version") || "0.1.0"
                         })
                      );
                   },
