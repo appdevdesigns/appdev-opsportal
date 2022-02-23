@@ -12,7 +12,10 @@
  */
 var path = require("path");
 var ADCore = require(path.join(process.cwd(), "api", "services", "ADCore.js"));
-var serviceStack = ADCore.policy.serviceStack(["opsPortalUserConfig"]);
+var serviceStack = ADCore.policy.serviceStack([
+   "opsPortalUserConfig",
+   "opsPortalUserConfigHash"
+]);
 
 var opviewStack = ADCore.policy.serviceStack(["opsViewPermission"]);
 
