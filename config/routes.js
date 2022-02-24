@@ -6,6 +6,9 @@
  */
 
 module.exports = {
+   "get /opsportal/confighash":
+      "appdev-opsportal/OpsPortalController.configHash",
+
    "get /opsportal/requirements.js":
       "appdev-opsportal/OpsPortalController.requirements",
    "get /opsportal/config": "appdev-opsportal/OpsPortalController.config",

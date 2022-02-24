@@ -1444,6 +1444,201 @@ steal(
                      });
                   },
 
+                  processConfiguration: function(err, data) {
+                     var _this = this;
+
+                     _this.data.lastConfig = data;
+
+                     _this.isFeedbackEnabled = data.feedback || false;
+                     _this.countly = data.countly || false;
+
+                     AD.ui.loading.completed(1); // just to show we have loaded the config.
+                     if (err) {
+                        // what to do here?
+                        var label =
+                           AD.lang.label.getLabel("opp.errorNoPermission") ||
+                           " You don't have permission.  Ask your administrator to grant you access. ";
+                        _this.initDOMError(label);
+                     } else {
+                        // prepare our loading progress indicator:
+                        AD.ui.loading.resources(data.areas.length);
+                        AD.ui.loading.resources(data.tools.length);
+
+                        var defaultArea = {};
+
+                        // choose 1st area as default just in case none specified:
+                        if (data.areas[0]) {
+                           defaultArea = data.areas[0];
+                        }
+
+                        // create each area
+                        for (var a = 0; a < data.areas.length; a++) {
+                           var newArea = data.areas[a];
+                           if (a == 0) {
+                              newArea.isDefault = true;
+                           }
+                           _this.createArea(newArea);
+
+                           if (newArea.isDefault) {
+                              defaultArea = newArea;
+                           }
+                           AD.ui.loading.completed(1);
+                        }
+                        _this.menu.sortAreas();
+
+                        var defaultTool = {};
+
+                        // assign 1st tool as our default to show
+                        if (data.tools[0])
+                           defaultTool[data.tools[0].areas[0].key] =
+                              data.tools[0];
+
+                        // create each tool
+                        for (var t1 = 0; t1 < data.tools.length; t1++) {
+                           var newTool = data.tools[t1];
+
+                           _this.data.loadedControllers.push(
+                              newTool.controller
+                           );
+
+                           _this.createTool(newTool);
+
+                           // if we don't have a default for this tool's area => choose this tool
+                           if (!defaultTool[newTool.areas[0].key]) {
+                              defaultTool[newTool.areas[0].key] = newTool;
+                           }
+
+                           // if this tool is defined as the default, then register it.
+                           if (newTool.isDefault)
+                              defaultTool[newTool.areas[0].key] = newTool;
+
+                           AD.ui.loading.completed(1);
+                        }
+                        _this.subLinks.sortLinks();
+
+                        // Create the User Profile tool
+                        // (special case which is accessible for all
+                        //  users and has no top-left menu item)
+                        setTimeout(function() {
+                           _this.workArea.createArea({
+                              icon: "fa-cogs",
+                              key: "UserProfile",
+                              label: "User Profile",
+                              isDefault: false
+                           });
+                           _this.workArea.listAreas.UserProfile.createTool({
+                              id: "UserProfile",
+                              area: "UserProfile",
+                              controller: "UserProfile",
+                              label: "User Profile",
+                              isDefault: true
+                           });
+                           _this.workArea.listAreas.UserProfile.element.hide();
+                           AD.comm.hub.publish("opsportal.tool.show", {
+                              area: "UserProfile",
+                              tool: "UserProfile"
+                           });
+                        }, 50);
+
+                        //// all tools should be created now
+
+                        // make sure they all have resize()ed
+                        _this.resize();
+
+                        // notify of our default Area:
+                        // there can be only 1 ...
+                        AD.comm.hub.publish("opsportal.area.show", {
+                           area: defaultArea.key
+                        });
+
+                        // now notify all our default tools
+                        for (var t in defaultTool) {
+                           AD.comm.hub.publish("opsportal.tool.show", {
+                              area: defaultTool[t].areas[0].key,
+                              tool: defaultTool[t].id // controller
+                           });
+                        }
+
+                        // once everything is created, tell the menu slider to attach itself
+                        var link = _this.portalPopup.find(
+                           "#op-masthead-menu a:first-of-type"
+                        );
+                        link.sidr({
+                           name: "op-menu-widget",
+                           side: "left"
+                        });
+                        link.on("click", function() {
+                           AD.ui.jQuery.sidr("toggle", "op-menu-widget");
+                        });
+
+                        // now show the Link to open the OpsPortal
+                        _this.initDOM();
+
+                        AD.lang.label.translate(_this.element); // translate the OpsPortal task list
+
+                        // wait for all tools to finish loading
+                        _this.workArea
+                           .ready()
+                           .fail(function(err) {
+                              AD.error.log(
+                                 "... workArea.ready()  failed!",
+                                 err
+                              );
+                           })
+                           .then(function() {
+                              // notify everyone the opsportal is finished creating the Tools.
+                              AD.comm.hub.publish("opsportal.ready", {});
+
+                              // wait for all tools to be loaded before
+                              // loading any portal-theme, so this one has final
+                              // say!
+                              if (_this.options["portal-theme"] != "") {
+                                 var theme =
+                                    _this.options["portal-theme"] + ".css";
+                                 steal(theme);
+                              }
+
+                              // if our auto open setting is set, then
+                              if (_this.options["portal-autoenter"]) {
+                                 // auto click the Enter link:
+                                 _this.element
+                                    .find(".op-masthead a:first-of-type")
+                                    .click();
+                              }
+                           });
+
+                        //// NOTE:  the old way.
+                        ////        seems more responsive with the auto login, but technically everything isn't loaded yet ...
+
+                        // // notify everyone the opsportal is finished creating the Tools.
+                        // AD.comm.hub.publish('opsportal.ready', {});
+
+                        // if (self.options['portal-theme'] != '') {
+
+                        //     // wait for all tools to be loaded before
+                        //     // loading any portal-theme, so this one has final
+                        //     // say!
+
+                        //     self.workArea.ready()
+                        //     .fail(function(err){
+                        //         AD.error.log('... workArea.ready()  failed!', err);
+                        //     })
+                        //     .then(function(){
+                        //         var theme = self.options['portal-theme']+'.css';
+                        //         steal(theme);
+                        //     })
+
+                        // }
+
+                        // // if our auto open setting is set, then
+                        // if (self.options['portal-autoenter']) {
+
+                        //     // auto click the Enter link:
+                        //     self.element.find('.op-masthead a:first-of-type').click();
+                        // }
+                     }
+                  },
+
                   requestConfiguration: function() {
                      // var self = this;
                      var _this = this;
@@ -1456,201 +1651,41 @@ steal(
 
                      AD.ui.loading.completed(1);
 
-                     AD.comm.service.get({ url: "/opsportal/config" }, function(
-                        err,
-                        data
-                     ) {
-                        _this.data.lastConfig = data;
+                     // 1) request confighash from server
+                     AD.comm.service.get(
+                        { url: "/opsportal/confighash" },
+                        function(err, data) {
+                           var configHash = data + ""; // make sure it is a string
 
-                        _this.isFeedbackEnabled = data.feedback || false;
-                        _this.countly = data.countly || false;
-
-                        AD.ui.loading.completed(1); // just to show we have loaded the config.
-                        if (err) {
-                           // what to do here?
-                           var label =
-                              AD.lang.label.getLabel("opp.errorNoPermission") ||
-                              " You don't have permission.  Ask your administrator to grant you access. ";
-                           _this.initDOMError(label);
-                        } else {
-                           // prepare our loading progress indicator:
-                           AD.ui.loading.resources(data.areas.length);
-                           AD.ui.loading.resources(data.tools.length);
-
-                           var defaultArea = {};
-
-                           // choose 1st area as default just in case none specified:
-                           if (data.areas[0]) {
-                              defaultArea = data.areas[0];
-                           }
-
-                           // create each area
-                           for (var a = 0; a < data.areas.length; a++) {
-                              var newArea = data.areas[a];
-                              if (a == 0) {
-                                 newArea.isDefault = true;
-                              }
-                              _this.createArea(newArea);
-
-                              if (newArea.isDefault) {
-                                 defaultArea = newArea;
-                              }
-                              AD.ui.loading.completed(1);
-                           }
-                           _this.menu.sortAreas();
-
-                           var defaultTool = {};
-
-                           // assign 1st tool as our default to show
-                           if (data.tools[0])
-                              defaultTool[data.tools[0].areas[0].key] =
-                                 data.tools[0];
-
-                           // create each tool
-                           for (var t1 = 0; t1 < data.tools.length; t1++) {
-                              var newTool = data.tools[t1];
-
-                              _this.data.loadedControllers.push(
-                                 newTool.controller
-                              );
-
-                              _this.createTool(newTool);
-
-                              // if we don't have a default for this tool's area => choose this tool
-                              if (!defaultTool[newTool.areas[0].key]) {
-                                 defaultTool[newTool.areas[0].key] = newTool;
-                              }
-
-                              // if this tool is defined as the default, then register it.
-                              if (newTool.isDefault)
-                                 defaultTool[newTool.areas[0].key] = newTool;
-
-                              AD.ui.loading.completed(1);
-                           }
-                           _this.subLinks.sortLinks();
-
-                           // Create the User Profile tool
-                           // (special case which is accessible for all
-                           //  users and has no top-left menu item)
-                           setTimeout(function() {
-                              _this.workArea.createArea({
-                                 icon: "fa-cogs",
-                                 key: "UserProfile",
-                                 label: "User Profile",
-                                 isDefault: false
-                              });
-                              _this.workArea.listAreas.UserProfile.createTool({
-                                 id: "UserProfile",
-                                 area: "UserProfile",
-                                 controller: "UserProfile",
-                                 label: "User Profile",
-                                 isDefault: true
-                              });
-                              _this.workArea.listAreas.UserProfile.element.hide();
-                              AD.comm.hub.publish("opsportal.tool.show", {
-                                 area: "UserProfile",
-                                 tool: "UserProfile"
-                              });
-                           }, 50);
-
-                           //// all tools should be created now
-
-                           // make sure they all have resize()ed
-                           _this.resize();
-
-                           // notify of our default Area:
-                           // there can be only 1 ...
-                           AD.comm.hub.publish("opsportal.area.show", {
-                              area: defaultArea.key
-                           });
-
-                           // now notify all our default tools
-                           for (var t in defaultTool) {
-                              AD.comm.hub.publish("opsportal.tool.show", {
-                                 area: defaultTool[t].areas[0].key,
-                                 tool: defaultTool[t].id // controller
-                              });
-                           }
-
-                           // once everything is created, tell the menu slider to attach itself
-                           var link = _this.portalPopup.find(
-                              "#op-masthead-menu a:first-of-type"
+                           // 2) check for existing stored hash:
+                           let currentHash = webix.storage.local.get(
+                              "configHash"
                            );
-                           link.sidr({
-                              name: "op-menu-widget",
-                              side: "left"
-                           });
-                           link.on("click", function() {
-                              AD.ui.jQuery.sidr("toggle", "op-menu-widget");
-                           });
+                           if (currentHash == configHash) {
+                              // our stored config data is in sync so process that
+                              var configData = webix.storage.local.get(
+                                 "configData"
+                              );
+                              _this.processConfiguration(null, configData);
+                              return;
+                           }
 
-                           // now show the Link to open the OpsPortal
-                           _this.initDOM();
-
-                           AD.lang.label.translate(_this.element); // translate the OpsPortal task list
-
-                           // wait for all tools to finish loading
-                           _this.workArea
-                              .ready()
-                              .fail(function(err) {
-                                 AD.error.log(
-                                    "... workArea.ready()  failed!",
-                                    err
+                           // 3) perform a full config request and store it locally
+                           AD.comm.service.get(
+                              { url: "/opsportal/config" },
+                              function(err, data) {
+                                 // cache this configuration data:
+                                 webix.storage.local.put(
+                                    "configHash",
+                                    configHash
                                  );
-                              })
-                              .then(function() {
-                                 // notify everyone the opsportal is finished creating the Tools.
-                                 AD.comm.hub.publish("opsportal.ready", {});
+                                 webix.storage.local.put("configData", data);
 
-                                 // wait for all tools to be loaded before
-                                 // loading any portal-theme, so this one has final
-                                 // say!
-                                 if (_this.options["portal-theme"] != "") {
-                                    var theme =
-                                       _this.options["portal-theme"] + ".css";
-                                    steal(theme);
-                                 }
-
-                                 // if our auto open setting is set, then
-                                 if (_this.options["portal-autoenter"]) {
-                                    // auto click the Enter link:
-                                    _this.element
-                                       .find(".op-masthead a:first-of-type")
-                                       .click();
-                                 }
-                              });
-
-                           //// NOTE:  the old way.
-                           ////        seems more responsive with the auto login, but technically everything isn't loaded yet ...
-
-                           // // notify everyone the opsportal is finished creating the Tools.
-                           // AD.comm.hub.publish('opsportal.ready', {});
-
-                           // if (self.options['portal-theme'] != '') {
-
-                           //     // wait for all tools to be loaded before
-                           //     // loading any portal-theme, so this one has final
-                           //     // say!
-
-                           //     self.workArea.ready()
-                           //     .fail(function(err){
-                           //         AD.error.log('... workArea.ready()  failed!', err);
-                           //     })
-                           //     .then(function(){
-                           //         var theme = self.options['portal-theme']+'.css';
-                           //         steal(theme);
-                           //     })
-
-                           // }
-
-                           // // if our auto open setting is set, then
-                           // if (self.options['portal-autoenter']) {
-
-                           //     // auto click the Enter link:
-                           //     self.element.find('.op-masthead a:first-of-type').click();
-                           // }
+                                 _this.processConfiguration(null, data);
+                              }
+                           );
                         }
-                     });
+                     );
                   },
 
                   updateConfiguration: function() {
