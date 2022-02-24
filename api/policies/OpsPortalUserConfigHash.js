@@ -16,15 +16,16 @@ module.exports = function(req, res, next) {
 
    var config = res.appdev.opsportalconfig || {};
 
-   var key = [];
+   var keys = [];
+   console.log("config.areas", config.areas);
 
-   (config.areas || [])
-      .forEach((a) => {
-         key.push(a.key);
-      })(config.tools || [])
-      .forEach((t) => {
-         key.push(t.key);
-      });
+   (config.areas || []).forEach((a) => {
+      keys.push(a.key);
+   });
+
+   (config.tools || []).forEach((t) => {
+      keys.push(t.key);
+   });
 
    if (config.feedback) {
       keys.push("true");
@@ -38,8 +39,9 @@ module.exports = function(req, res, next) {
       keys.push("false");
    }
 
-   res.appdev.opsportalconfighash = hashCode(key.join(""));
+   res.appdev.opsportalconfighash = hashCode(keys.join(""));
 
+   console.log("HashCode:", res.appdev.opsportalconfighash);
    next();
 };
 

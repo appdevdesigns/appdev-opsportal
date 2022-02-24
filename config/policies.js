@@ -22,6 +22,7 @@ var opviewStack = ADCore.policy.serviceStack(["opsViewPermission"]);
 module.exports = {
    "appdev-opsportal/OpsPortalController": {
       config: serviceStack,
+      configHash: serviceStack,
       requirements: serviceStack,
       view: opviewStack
    }
