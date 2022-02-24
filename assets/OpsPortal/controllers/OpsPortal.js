@@ -1662,6 +1662,7 @@ steal(
                               "configHash"
                            );
                            if (currentHash == configHash) {
+                              console.log("===> Reusing Local config data");
                               // our stored config data is in sync so process that
                               var configData = webix.storage.local.get(
                                  "configData"
@@ -1671,6 +1672,7 @@ steal(
                            }
 
                            // 3) perform a full config request and store it locally
+                           console.log("===> Reloading config data");
                            AD.comm.service.get(
                               { url: "/opsportal/config" },
                               function(err, data) {
