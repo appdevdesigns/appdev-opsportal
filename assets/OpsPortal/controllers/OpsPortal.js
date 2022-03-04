@@ -1677,11 +1677,19 @@ steal(
                               { url: "/opsportal/config" },
                               function(err, data) {
                                  // cache this configuration data:
-                                 webix.storage.local.put(
-                                    "configHash",
-                                    configHash
-                                 );
-                                 webix.storage.local.put("configData", data);
+
+                                 try {
+                                    webix.storage.local.put("configData", data);
+                                    webix.storage.local.put(
+                                       "configHash",
+                                       configHash
+                                    );
+                                 } catch (err) {
+                                    console.error(
+                                       "Unable to cache opsportal/config data."
+                                    );
+                                    console.error(err);
+                                 }
 
                                  _this.processConfiguration(null, data);
                               }
