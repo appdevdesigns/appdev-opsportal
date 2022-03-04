@@ -1685,10 +1685,36 @@ steal(
                                        configHash
                                     );
                                  } catch (err) {
-                                    console.error(
+                                    console.warn(
                                        "Unable to cache opsportal/config data."
                                     );
-                                    console.error(err);
+                                    let str = (
+                                       err.toString() || ""
+                                    ).toLowerCase();
+                                    if (str.indexOf("quota") > -1) {
+                                       try {
+                                          var strData = JSON.stringify(data);
+                                          let len = strData.length;
+                                          let unit = "bytes";
+                                          ["Kb", "MB", "GB"].forEach((u) => {
+                                             if (len > 1024) {
+                                                len = len / 1024;
+                                                unit = u;
+                                             }
+                                          });
+                                          console.warn(
+                                             "Quota Exceeded: incoming config data takes " +
+                                                Math.round(len) +
+                                                unit
+                                          );
+                                       } catch (errr) {
+                                          console.warn(
+                                             "Quota Exceeded: incoming config data takes up too much space."
+                                          );
+                                       }
+                                    } else {
+                                       console.error(err);
+                                    }
                                  }
 
                                  _this.processConfiguration(null, data);
